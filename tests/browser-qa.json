@@ -1,0 +1,34 @@
+{
+  "environment": "Cloud Chromium via supported CUA",
+  "desktop_pricing_navigation": "PASS",
+  "cases_observed_pass": [
+    "Default total 49.200 TL",
+    "Bodrum delivery total 44.400 TL",
+    "Menteşe charged shipping",
+    "501 units use 2 cartons",
+    "Invalid quantity disables review",
+    "Existing cliché caveat",
+    "White background surcharge zero",
+    "Local summary explicitly not sent",
+    "Back preserves design",
+    "Reset",
+    "CSP reload",
+    "Text edit/font/color",
+    "Size 140 percent",
+    "Rotate 40 degrees",
+    "Alignment",
+    "Undo",
+    "Mouse drag visibly moves logo",
+    "No desktop horizontal overflow: scrollWidth1165 innerWidth1180"
+  ],
+  "file_upload_runtime": "NOT_RUN",
+  "file_upload_reason": "Supported CUA file chooser prompted approval then timed out with backend-node error. No alternate upload route attempted.",
+  "exact_375px_mobile_touch": "NOT_RUN",
+  "mobile_reason": "Supported CUA API did not expose viewport resizing. Browser launch attempts by QA were blocked by environment sandbox/infrastructure. Responsive CSS reviewed, not a real iPhone Safari test.",
+  "scope": "No production-system changes; no real orders, emails, payments or uploads.",
+  "desktop_csp_reload_design_controls": "PASS",
+  "visual_limitations": [
+    "Canvas package is representative, flatter than approved photoreal reference",
+    "Handwriting font is browser/OS cursive fallback"
+  ]
+}

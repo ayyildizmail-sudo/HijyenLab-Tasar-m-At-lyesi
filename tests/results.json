@@ -1,0 +1,98 @@
+[
+  {
+    "name": "Default demo total",
+    "status": "PASS"
+  },
+  {
+    "name": "Bodrum delivery free",
+    "status": "PASS"
+  },
+  {
+    "name": "Other Muğla district charged",
+    "status": "PASS"
+  },
+  {
+    "name": "Bodrum wrong province charged",
+    "status": "PASS"
+  },
+  {
+    "name": "501 units need 2 boxes",
+    "status": "PASS"
+  },
+  {
+    "name": "500 units need 1 box",
+    "status": "PASS"
+  },
+  {
+    "name": "White no surcharge",
+    "status": "PASS"
+  },
+  {
+    "name": "Existing cliché zero demo cost",
+    "status": "PASS"
+  },
+  {
+    "name": "Invalid zero rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Negative rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Fraction rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Above maximum rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "NaN rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Integer cents and VAT",
+    "status": "PASS"
+  },
+  {
+    "name": "No network uploads",
+    "status": "PASS"
+  },
+  {
+    "name": "No HTML injection sink",
+    "status": "PASS"
+  },
+  {
+    "name": "No persistent user design storage",
+    "status": "PASS"
+  },
+  {
+    "name": "Invalid ink count rejected: -1",
+    "status": "PASS"
+  },
+  {
+    "name": "Invalid ink count rejected: 0",
+    "status": "PASS"
+  },
+  {
+    "name": "Invalid ink count rejected: 1.5",
+    "status": "PASS"
+  },
+  {
+    "name": "Invalid ink count rejected: 7",
+    "status": "PASS"
+  },
+  {
+    "name": "Invalid ink count rejected: NaN",
+    "status": "PASS"
+  },
+  {
+    "name": "Invalid ink count rejected: Infinity",
+    "status": "PASS"
+  },
+  {
+    "name": "Unknown cliché state rejected",
+    "status": "PASS"
+  }
+]
