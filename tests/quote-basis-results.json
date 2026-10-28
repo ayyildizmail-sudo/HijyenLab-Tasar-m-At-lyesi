@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Yellow background with dark logo",
+    "status": "PASS"
+  },
+  {
+    "name": "White shadowed with dark logo",
+    "status": "PASS"
+  },
+  {
+    "name": "White surface yellow logo not colored background",
+    "status": "PASS"
+  },
+  {
+    "name": "Dark background",
+    "status": "PASS"
+  },
+  {
+    "name": "Outside table ignored by region mask",
+    "status": "PASS"
+  },
+  {
+    "name": "Mixed product choices ambiguous",
+    "status": "PASS"
+  },
+  {
+    "name": "No product region never table classification",
+    "status": "PASS"
+  },
+  {
+    "name": "Multiple white products agree",
+    "status": "PASS"
+  },
+  {
+    "name": "Sparse evidence unknown",
+    "status": "PASS"
+  }
+]
