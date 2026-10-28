@@ -1,34 +1,14 @@
 {
-  "environment": "Cloud Chromium via supported CUA",
-  "desktop_pricing_navigation": "PASS",
-  "cases_observed_pass": [
-    "Default total 49.200 TL",
-    "Bodrum delivery total 44.400 TL",
-    "Menteşe charged shipping",
-    "501 units use 2 cartons",
-    "Invalid quantity disables review",
-    "Existing cliché caveat",
-    "White background surcharge zero",
-    "Local summary explicitly not sent",
-    "Back preserves design",
-    "Reset",
-    "CSP reload",
-    "Text edit/font/color",
-    "Size 140 percent",
-    "Rotate 40 degrees",
-    "Alignment",
-    "Undo",
-    "Mouse drag visibly moves logo",
-    "No desktop horizontal overflow: scrollWidth1165 innerWidth1180"
-  ],
+  "version": 2,
+  "environment": "Supported cloud Chromium/CUA",
+  "desktop_csp_smoke": "PASS",
+  "pricing_fixtures": "PASS",
+  "cases_observed_pass": ["White5200 one new color outsideBodrum22416", "White5200 Bodrum19296", "Colored10000 onecolor outside48000", "Colored10000 twocolors outside49200", "Quantity not silently changed on background change", "Explicit minimum quantity action", "Unknown Pantone caveat", "Existing cliché provisional charge", "Reset white/logo-free/text-free", "Optional text editing", "Back preserves design", "Invalid quantity blocks review", "5201 units uses14 cartons", "Local summary states no sending"],
   "file_upload_runtime": "NOT_RUN",
-  "file_upload_reason": "Supported CUA file chooser prompted approval then timed out with backend-node error. No alternate upload route attempted.",
+  "logo_compositor_upload_e2e": "NOT_RUN",
+  "file_upload_reason": "Supported file chooser test was blocked by approval/tool backend timeout in v1. No alternate upload route or retry used for v2.",
   "exact_375px_mobile_touch": "NOT_RUN",
-  "mobile_reason": "Supported CUA API did not expose viewport resizing. Browser launch attempts by QA were blocked by environment sandbox/infrastructure. Responsive CSS reviewed, not a real iPhone Safari test.",
-  "scope": "No production-system changes; no real orders, emails, payments or uploads.",
-  "desktop_csp_reload_design_controls": "PASS",
-  "visual_limitations": [
-    "Canvas package is representative, flatter than approved photoreal reference",
-    "Handwriting font is browser/OS cursive fallback"
-  ]
+  "mobile_reason": "Supported CUA API did not expose viewport resizing; headless browser environment failed. Responsive CSS implemented but not real iPhone Safari tested.",
+  "visual_observation": "Blank and text screenshots reviewed. Clean compact BM12-derived silhouette; generated material is a derivative, not original blank artwork.",
+  "evidence_directory": "/workspace/scratch/d698780c5c28/qa_mockup_evidence/v2"
 }
