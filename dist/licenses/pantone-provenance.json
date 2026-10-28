@@ -1,0 +1,20 @@
+{
+  "source": "https://github.com/simiancraft/chromonym",
+  "commit": "210158b974938525b1e25f5a1de39d7fe3e2a3dc",
+  "path": "src/palettes/pantone.ts",
+  "sourceSHA256": "860c3d4cfedde9e7708be85db8e6f69962539ea4a57ed0dc33ca9657401045a1",
+  "count": 907,
+  "scope": "Community approximate sRGB for Coated C only, NOT official Pantone measurements. U unsupported.",
+  "licenses": [
+    "MIT Copyright2026 JesseHarlin",
+    "MIT Copyright2020 RaduDragan"
+  ],
+  "upstream": "color_library@0.0.2",
+  "upstreamTarball": "https://registry.npmjs.org/color_library/-/color_library-0.0.2.tgz",
+  "upstreamTarballSHA1": "1142167b8abf9b4ba074e95036438eb8442a6448",
+  "uncertainty": "Upstream author applies MIT to whole data package; original measurement/derivation and underlying Pantone authorization are not documented. No official certification or print-match guarantee.",
+  "use": "Private approximate demo approved by parent; preserve both copyright/license notices and relevant NOTICE. Top candidates are nearest within this bounded community approximation set, not necessarily nearest physical ink.",
+  "included_count": 893,
+  "exclusions": "14 fluorescent codes 801 C through 814 C omitted from suggestions; no metallic rows present.",
+  "ranking": "CIELAB D65 Euclidean DeltaE76; no automatic RGB replacement"
+}

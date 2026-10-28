@@ -1,0 +1,110 @@
+[
+  {
+    "name": "transparent.png correct background",
+    "status": "PASS"
+  },
+  {
+    "name": "ambiguous.png correct background",
+    "status": "PASS"
+  },
+  {
+    "name": "navy.png correct background",
+    "status": "PASS"
+  },
+  {
+    "name": "navy.jpg correct background",
+    "status": "PASS"
+  },
+  {
+    "name": "white.jpg correct background",
+    "status": "PASS"
+  },
+  {
+    "name": "white.png correct background",
+    "status": "PASS"
+  },
+  {
+    "name": "PHOTO-2026-10-09-13-24-42.jpg correct background",
+    "status": "PASS"
+  },
+  {
+    "name": "PHOTO-2026-10-09-11-30-07.jpg correct background",
+    "status": "PASS"
+  },
+  {
+    "name": "hijyenlab logo.png correct background",
+    "status": "PASS"
+  },
+  {
+    "name": "Flood mask removes background not foreground",
+    "status": "PASS"
+  },
+  {
+    "name": "Mask leaves source bytes untouched",
+    "status": "PASS"
+  },
+  {
+    "name": "Alpha matters even when foreground touches every edge",
+    "status": "PASS"
+  },
+  {
+    "name": "White Lab D65",
+    "status": "PASS"
+  },
+  {
+    "name": "Black Lab D65",
+    "status": "PASS"
+  },
+  {
+    "name": "DeltaE exact match zero",
+    "status": "PASS"
+  },
+  {
+    "name": "Nearest exact RGB ranks first",
+    "status": "PASS"
+  },
+  {
+    "name": "Ink extraction excludes colored background",
+    "status": "PASS"
+  },
+  {
+    "name": "Ink extraction ignores transparent RGB",
+    "status": "PASS"
+  },
+  {
+    "name": "Community catalog893 nonfluorescent entries",
+    "status": "PASS"
+  },
+  {
+    "name": "No U falsely mapped to C",
+    "status": "PASS"
+  },
+  {
+    "name": "No fluorescent800 series suggestions",
+    "status": "PASS"
+  },
+  {
+    "name": "Catalog exact sample distance0",
+    "status": "PASS"
+  },
+  {
+    "name": "Known186C exact lookup",
+    "status": "PASS"
+  },
+  {
+    "name": "UnsupportedU noCfallback",
+    "status": "PASS"
+  },
+  {
+    "name": "UnknownC nofalsematch",
+    "status": "PASS"
+  },
+  {
+    "name": "C/U suffix required",
+    "status": "PASS"
+  },
+  {
+    "name": "Fluorescentcode rejected",
+    "status": "PASS"
+  }
+]

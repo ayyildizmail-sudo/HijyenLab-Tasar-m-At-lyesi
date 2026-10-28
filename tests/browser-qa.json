@@ -1,14 +1,12 @@
 {
-  "version": 2,
-  "environment": "Supported cloud Chromium/CUA",
-  "desktop_csp_smoke": "PASS",
-  "pricing_fixtures": "PASS",
-  "cases_observed_pass": ["White5200 one new color outsideBodrum22416", "White5200 Bodrum19296", "Colored10000 onecolor outside48000", "Colored10000 twocolors outside49200", "Quantity not silently changed on background change", "Explicit minimum quantity action", "Unknown Pantone caveat", "Existing cliché provisional charge", "Reset white/logo-free/text-free", "Optional text editing", "Back preserves design", "Invalid quantity blocks review", "5201 units uses14 cartons", "Local summary states no sending"],
-  "file_upload_runtime": "NOT_RUN",
-  "logo_compositor_upload_e2e": "NOT_RUN",
-  "file_upload_reason": "Supported file chooser test was blocked by approval/tool backend timeout in v1. No alternate upload route or retry used for v2.",
-  "exact_375px_mobile_touch": "NOT_RUN",
-  "mobile_reason": "Supported CUA API did not expose viewport resizing; headless browser environment failed. Responsive CSS implemented but not real iPhone Safari tested.",
-  "visual_observation": "Blank and text screenshots reviewed. Clean compact BM12-derived silhouette; generated material is a derivative, not original blank artwork.",
-  "evidence_directory": "/workspace/scratch/d698780c5c28/qa_mockup_evidence/v2"
+  "version": 3,
+  "environment": "Actual cloud Chromium via supported CUA file chooser",
+  "actual_upload_gate": "PASS",
+  "final_patch_actual_uploads": "PASS",
+  "cases_observed_pass": ["Real VENZI JPEG -> complete near-black wrapper #010101, gold logo retained", "Real HCM white artwork -> white wrapper", "Real HijyenLab transparent logo, opaque frame -> white wrapper", "Synthetic navy PNG and JPEG -> exact detected #0F2346", "Split multicolor -> explicit choice and disabled next", "Real OceanPrime mixed white margins -> ambiguous, no blind corner inference", "Merge toggle reversible", "Undo restores prior upload/background", "Palette manual override and undo", "Reset blank white", "Foreground-fit branding larger with source proportions", "Dark folds subtly visible", "Automatic approximate Pantone candidates", "186 C lookup and explicit #C8102E apply", "Undo Pantone apply restores #010101", "186 U explicitly unsupported", "Unknown C code not found"],
+  "iPhone_mobile_touch": "NOT_RUN",
+  "malicious_upload_browser_suite": "NOT_RUN",
+  "rapid_concurrent_upload_stress": "NOT_RUN",
+  "limits": "Desktop core uploads passed; not an exhaustive security or browser/device certification. Palette data is approximate community Coated C, not official Pantone or print guarantee.",
+  "evidence_directory": "/workspace/scratch/d698780c5c28/qa_mockup_evidence/v3"
 }
