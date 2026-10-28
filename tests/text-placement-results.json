@@ -1,0 +1,34 @@
+[
+  {
+    "name": "GrandGrill new text below logo and within body",
+    "status": "PASS"
+  },
+  {
+    "name": "Round new text below logo and within body",
+    "status": "PASS"
+  },
+  {
+    "name": "HCM new text below logo and within body",
+    "status": "PASS"
+  },
+  {
+    "name": "No space refuses overlap",
+    "status": "PASS"
+  },
+  {
+    "name": "Rotated bounds respected",
+    "status": "PASS"
+  },
+  {
+    "name": "Empty pack sensible default",
+    "status": "PASS"
+  },
+  {
+    "name": "Existing placed text guard remains",
+    "status": "PASS"
+  },
+  {
+    "name": "Pending text not painted over logo",
+    "status": "PASS"
+  }
+]

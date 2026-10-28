@@ -77,3 +77,6 @@ Yerel otomatik fotoğraftan logo ayırma araştırması negatif kontrollerde ba�
 
 ## V10 — masaüstü panel erişimi düzeltmesi
 V9 yayımlama işlemi biterken ek masaüstü testinde, eski iki sütunlu tasarımdan kalan `position:sticky` önizlemenin renk panelini örttüğü bulundu. Tek sütunlu görünümde önizleme artık normal akıştadır (`position:static;top:auto`). Materyal, logo, fiyat veya dosya işleme değiştirilmedi. V9 başarıyla yayımlandığı için düzeltme ayrı V10 sürümü olarak kaydedilir; eski sürüm üzerine yazılmaz.
+
+## V11 — yalnız yeni yazının ilk konumu
+İlk girilen yeni yazı, görünür logonun döndürülmüş sınırının altında16px boşlukla ve y190–680 ambalaj alanı içinde başlar. Gerektiğinde ilk yazı boyutu24–48px aralığında seçilir. Alt boşluk yoksa uygun üst boşluk denenir; ikisi de yoksa metin girişte korunur ama logonun üstüne boyanmaz, küçültme/taşıma açıklaması gösterilir. Mevcut/elle yerleştirilmiş yazılar ve logolar yeniden akıtılmaz. Metin sürükleme alanı bu gövde sınırlarıyla uyumlu hale getirildi. Sekiz odaklı yerleşim testi eklendi.
