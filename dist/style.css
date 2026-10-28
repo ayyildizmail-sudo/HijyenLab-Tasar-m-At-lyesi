@@ -27,3 +27,6 @@ main{max-width:960px;padding:20px 24px}header{margin-bottom:20px}header b{font-s
 .actionHelp{padding:12px 15px;background:#fff4df;border:1px solid #e7bf72;border-radius:9px;font-size:15px;color:#704b0b}.visualSide>.backgroundChoice{margin:12px 0;padding:14px;border:1px solid #b9d5f3;border-radius:10px;background:#f1f7ff}.visualSide>.backgroundChoice p{margin:0 0 12px}
 
 #summary #finalImage,#summary #finalDetails{display:none}#summary>h1{font-size:28px}#summary article{padding:12px}#quoteDownloadPreview{margin:0 0 16px}#quoteImage{display:block;width:100%;height:auto;max-width:700px;margin:10px auto}#summary .notice{font-size:13px}
+
+/* Single-column editor must never be covered by the former desktop sticky preview. */
+.visualSide{position:static;top:auto}

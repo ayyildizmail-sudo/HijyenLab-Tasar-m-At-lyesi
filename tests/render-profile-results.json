@@ -34,5 +34,9 @@
   {
     "name": "Customer source not replaced by approved generated image",
     "status": "PASS"
+  },
+  {
+    "name": "Single-column preview ends with non-sticky override",
+    "status": "PASS"
   }
 ]

@@ -74,3 +74,6 @@ Kompakt logolarda alpha mürekkep doluluğu, güvenli1040×430 sınırı içinde
 Renkli film ve kapatma uçları mevcut nötr materyalin ışıklılığıyla birlikte boyanır; koyu renklerde sınırlı yansıma kıvrımları görünür tutar. Siyahın modelde en parlak noktası≈26/255; gümüş/beyaz uçlar üretilmez. Bu ekran simülasyonudur, fiziksel baskı/Pantone garantisi değildir.
 `node tests/render-profile.test.cjs` dokuz geometri/materyal kontrolü içerir. Tek katı kayan nokta eşitliği, matematiksel aynı sonucu temsil eden727.9999999999999 için1e-9 toleransa çevrildi; geometri sınırı gevşetilmedi.
 Yerel otomatik fotoğraftan logo ayırma araştırması negatif kontrollerde başarısız oldu ve ana uygulamaya EKLENMEDİ. Fotoğraf yalnız etiketli referanstır; temiz logo/grafik yüklemek gerekir. API, ücretli model veya yeni veri aktarımı yoktur.
+
+## V10 — masaüstü panel erişimi düzeltmesi
+V9 yayımlama işlemi biterken ek masaüstü testinde, eski iki sütunlu tasarımdan kalan `position:sticky` önizlemenin renk panelini örttüğü bulundu. Tek sütunlu görünümde önizleme artık normal akıştadır (`position:static;top:auto`). Materyal, logo, fiyat veya dosya işleme değiştirilmedi. V9 başarıyla yayımlandığı için düzeltme ayrı V10 sürümü olarak kaydedilir; eski sürüm üzerine yazılmaz.

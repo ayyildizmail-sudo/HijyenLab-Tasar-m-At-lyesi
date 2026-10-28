@@ -1,0 +1,16 @@
+{
+  "version": 10,
+  "root_cause": "Legacy desktop sticky preview covered editor in simplified single-column layout",
+  "fix": "Normal document flow, no z-index workaround",
+  "actual_PASS": [
+    "Desktop HCM -> Açık mavi applied -> Tamam",
+    "Desktop text DENEME entered -> Tamam",
+    "485px narrow Krem applied -> Tamam"
+  ],
+  "renderer_changes": "None relative to V9",
+  "evidence": "/workspace/scratch/d698780c5c28/qa_mockup_evidence/v9/hcm-lightblue-fixed-v10.png",
+  "limits": [
+    "Physical iPhone Safari/touch not run",
+    "Automatic photo extraction still not integrated"
+  ]
+}
