@@ -1,0 +1,21 @@
+{
+  "version": 5,
+  "scope": "Actual cloud Chromium desktop and 485px narrow viewport",
+  "PASS": [
+    "Fresh load blank white wrapper, one visible upload, no gateway",
+    "Real VENZI unified upload preserves gold and inherits black",
+    "Real transparent HijyenLab upload remains white",
+    "GrandGrill unified upload routes to product region confirmation",
+    "Base PDF unified upload page2 selection and confirmation",
+    "Reset blank white",
+    "Back preserves current design",
+    "First navigation item returns design, never gateway"
+  ],
+  "NOT_RUN": [
+    "Exact375px viewport",
+    "Physical iPhone Safari and touch",
+    "Native device saved download"
+  ],
+  "limitations": "V4 photo-reference lighting/edge limitations unchanged. File interpretation is a heuristic with post-upload override, not universal classification.",
+  "evidence": "/workspace/scratch/d698780c5c28/qa_mockup_evidence/v5"
+}
