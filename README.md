@@ -80,3 +80,8 @@ V9 yayımlama işlemi biterken ek masaüstü testinde, eski iki sütunlu tasarı
 
 ## V11 — yalnız yeni yazının ilk konumu
 İlk girilen yeni yazı, görünür logonun döndürülmüş sınırının altında16px boşlukla ve y190–680 ambalaj alanı içinde başlar. Gerektiğinde ilk yazı boyutu24–48px aralığında seçilir. Alt boşluk yoksa uygun üst boşluk denenir; ikisi de yoksa metin girişte korunur ama logonun üstüne boyanmaz, küçültme/taşıma açıklaması gösterilir. Mevcut/elle yerleştirilmiş yazılar ve logolar yeniden akıtılmaz. Metin sürükleme alanı bu gövde sınırlarıyla uyumlu hale getirildi. Sekiz odaklı yerleşim testi eklendi.
+
+## V12 — automatic BM12 minimum quantity
+The customer no longer has to enter the standard minimum or click a minimum-quantity repair button. `productRules()` is the single verified BM12 rule configuration (white 5,200; colored 10,000; 400 per carton and the existing source-backed tariffs). No other product is enabled or assigned invented rules. `requestedQuantity` separately records optional user quantity intent: automatic quantities follow background changes; higher user quantities survive changes/uploads. A below-minimum or empty entry is raised to the applicable minimum on commit; noninteger/over-maximum values remain visibly invalid. Reset returns to automatic white minimum. Photo references still ask white/colored when genuinely unknown, rather than inferring from the photographed table. Actual quote preview remains separate from optional download.
+
+Regression: `node tests/quantity-auto.test.cjs` adds 17 cases. Earlier rendering, original-color preservation, local-only data handling and photo-extraction limitations are unchanged.

@@ -1,0 +1,70 @@
+[
+  {
+    "name": "BM12 source-backed white minimum",
+    "status": "PASS"
+  },
+  {
+    "name": "BM12 source-backed colored minimum",
+    "status": "PASS"
+  },
+  {
+    "name": "400 units per box",
+    "status": "PASS"
+  },
+  {
+    "name": "Unknown product not invented",
+    "status": "PASS"
+  },
+  {
+    "name": "Fresh white automatic",
+    "status": "PASS"
+  },
+  {
+    "name": "Fresh colored automatic",
+    "status": "PASS"
+  },
+  {
+    "name": "Automatic color back to white",
+    "status": "PASS"
+  },
+  {
+    "name": "Manual higher retained colored",
+    "status": "PASS"
+  },
+  {
+    "name": "Manual higher retained white",
+    "status": "PASS"
+  },
+  {
+    "name": "White manual below colored minimum raised",
+    "status": "PASS"
+  },
+  {
+    "name": "Original higher white intent restored",
+    "status": "PASS"
+  },
+  {
+    "name": "Blank input minimum",
+    "status": "PASS"
+  },
+  {
+    "name": "Negative cannot bypass minimum",
+    "status": "PASS"
+  },
+  {
+    "name": "Over maximum preserved for validation",
+    "status": "PASS"
+  },
+  {
+    "name": "Fraction preserved for validation",
+    "status": "PASS"
+  },
+  {
+    "name": "Reset clears user quantity intent",
+    "status": "PASS"
+  },
+  {
+    "name": "Both pricing and design refresh synchronize minimum",
+    "status": "PASS"
+  }
+]
