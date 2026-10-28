@@ -1,0 +1,8 @@
+V9 actual browser renderer QA 2026-10-28 22:39UTC.
+PASS actual original grandgrill-ink-only.png upload: whitepacknatural folds, centered originalglyphs inclFineDining, no table/photo rectangle. Actualplacement~43%packetwidth vs generatedapprovedreference~37%; parentvisualgate. No generatedletterformsused.
+PASS VENZIblackgold: fullblackfilm/seals, localizedcreasesvisible, no silverwash/no logo rectangle. Originalgold preserved.
+PASS transparentwhiteinkSVG onnavy/burgundy/lightblue: wholefilm andsealscolored, whiteinkretained, foldshighlights/shadowsvisible.
+PASS desktop+485pxnarrow minimalupload/price UI; colored5200shows10000error/focus, explicitminimumcorrection, quote1400JPEGpreviewbeforeoptionaldownload, backpreservesdesign. Narrowdocumentwidth485==scrollWidth485.
+Screens grand-white-desktop.png grand-white-narrow.png venzi-black-narrow.png navy-whiteink.png burgundy-whiteink.png lightblue-whiteink.png.
+Notclaimed: exactiPhone/touch, physicalprintcolor, automaticphotoextraction. InputGrandwaspreviouslyisolatedcontrolledPNG; no new integratedextraction feature. Colorqualityvisualsubjective, parentapprovalrequired.
+Noapplicationchanges/deploybyQA.

@@ -1,0 +1,42 @@
+{
+  "library_file_id": "libfile_c3e6a314fac481918cfafe4d4e50a41d",
+  "sha256": "8bade7ac20064eaf69599ca87505ddf800350c7abf0b4910a6996cafc7bdddce",
+  "reference_use": "Geometry, material appearance, balanced placement only; generated letterforms never used as source",
+  "measurement_method": "Approximate pixel inspection; not physical dieline measurements",
+  "image_pixels": [
+    1721,
+    914
+  ],
+  "packet_bbox_approx": [
+    104,
+    125,
+    1618,
+    787
+  ],
+  "ink_bbox_approx": [
+    573,
+    301,
+    1127,
+    604
+  ],
+  "code_safe_body": {
+    "center": [
+      800,
+      425
+    ],
+    "maximum_ink_box": [
+      1040,
+      430
+    ]
+  },
+  "acceptance": {
+    "packet_ratio": "about2.2–2.3",
+    "compact_GrandGrill_ink_width_fraction": [
+      0.35,
+      0.45
+    ],
+    "preserve_uploaded_aspect": true,
+    "no_crimp_overlap_at_initial_fit": true,
+    "color_film": "all seals tinted, folds remain visible, no silver ends or pasted photo rectangle"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "purpose": "Separate visual layout preview, not print-ready original artwork and not replacement of original ink-preservation proof.",
+  "method": "Built-in image_gen image edit; parent visually reviewed and approved as separate preview.",
+  "source_candidate": "/workspace/scratch/d698780c5c28/generated_images/exec-9bd555a1-3600-4a0a-ad14-719225d4d952.png",
+  "edit_target": {
+    "path": "/workspace/scratch/d698780c5c28/logo_extraction_proof/grandgrill-isolated-mockup-proof.jpg",
+    "library_file_id": "libfile_ba504257ee108191ae0280061a92ef24",
+    "status": "unchanged"
+  },
+  "reference": {
+    "path": "/workspace/scratch/d698780c5c28/graphics_corpus_inspection/PHOTO-2024-04-22-14-52-18.jpg",
+    "library_file_id": "libfile_0ea385246b8081919961c5fc8bd89082",
+    "role": "Exact Aytug GrandGrill BM12 production sheet; front packet proportions, centered logo scale and Pantone 350 C swatch appearance."
+  },
+  "output": {
+    "operation": "create_library_file",
+    "status": "succeeded",
+    "path": "/GrandGrill_Aytug_Referansli_Gorsel_Onizleme.png",
+    "file_id": "file_0000000042888230937186a1835b37c1",
+    "library_file_id": "libfile_c3e6a314fac481918cfafe4d4e50a41d",
+    "file_name": "GrandGrill_Aytug_Referansli_Gorsel_Onizleme.png",
+    "current_version_number": 0,
+    "restored_from_version_number": null,
+    "xattrs": [
+      {
+        "name": "user.library-file-version",
+        "value": "0"
+      }
+    ],
+    "directory_id": "libdir_effe5dddaa5c8191808d17cac59ffeca",
+    "mime_type": "image/png",
+    "library_artifact_type": "image_gen",
+    "file_size_bytes": 1351492,
+    "external_connectors_accessed": false
+  },
+  "limitations": [
+    "Generative edit regularized and somewhat thickened calligraphic strokes and subtitle; not pixel-exact logo preservation.",
+    "Forest-green appearance follows displayed reference; not a certified Pantone-to-RGB or print color match.",
+    "For production use original approved artwork, not this visualization.",
+    "No application, production source, or original Library proof changes."
+  ],
+  "prompt_summary": "Refine original isolated front packet using exact production proof. Uniformly reduce lockup toward 40% packet width and 52% height; preserve Grand Grill, star, FINE DINING; match forest-green appearance, 2.2:1 white OPP geometry and crimped ends; soften shading and remove horizontal residue; no added text or reverse-side information."
+}
