@@ -1,12 +1,12 @@
-# HijyenLab Tasarım Atölyesi — özel prototip v3
+# HijyenLab Tasarım Atölyesi — özel prototip v4
 
-Bu bağımsız demo canlı hijyenlab.com veya mevcut muhasebe/kayıt sistemine bağlı değildir. V1 Sites sürüm1/commit368d5d9b782bd0f6ae7048a20b9c2bad716d7c92; V2 sürüm2/commite54b15e3ffeef4e5d45f07fb81daeeb9f545bc7f olarak korunur.
+Bu bağımsız demo canlı hijyenlab.com veya mevcut muhasebe/kayıt sistemine bağlı değildir. V1 ve V2 korunur. V3 sürüm3/commit80a928feb1a26c5ab3d34452dce581502c7ccdca başlangıç referansıdır.
 
 ## Çalıştırma ve test
 - Statik dosyalar: `dist/`
 - `sites-preview start /workspace/scratch/d698780c5c28/hijyenlab_mockup_prototype`
 - `node --check dist/app.js`
-- `node tests/pricing.test.cjs` —31 fiyat/statik kontrol; ayrıca `node tests/background.test.cjs` ile27 zemin/renk kontrolü.
+- `node tests/pricing.test.cjs` —31 fiyat/statik kontrol; ayrıca `node tests/background.test.cjs` ile27 zemin/renk ve `node tests/photo.test.cjs` ile16 bölge/geometri/koruma kontrolü.
 
 ## Tasarım
 - Beyaz, logosuz ve yazısız başlangıç. Yüklemede tek renkli opak görsel zemini algılanıp ambalaja otomatik uygulanır. Beyaz/şeffaf logo beyaz ambalaj verir; belirsiz/fotoğraf/çok öğeli grafik basit seçim ister. Sonraki elle seçim otomatiği geçersiz kılar. Üç sade açılır panel: logo, zemin, isteğe bağlı yazı.
@@ -32,7 +32,21 @@ Kaynak:23Ekim2026 tarihinde kullanıcı tarafından güncel kabul edilen genel f
 - Pantone zemin talebi varsa renkli fiyat varsayılır, teknik teyit gerekir.
 
 ## İşlem sınırı
-Üçüncü adım yalnız yerel özet oluşturur. Sipariş, ödeme, e-posta, teklif talebi veya kayıt göndermez. Backend, analitik, reklam, CRM veya ürün API bağlantısı yoktur. CSP bağlantı isteklerini engeller. Site owner-only erişim katmanıyla özeldir; şirket web sitesine kurulum yapılmamıştır.
+Üçüncü adım yalnız yerel özet oluşturur. Sipariş, ödeme, e-posta, teklif talebi veya kayıt göndermez. Backend, analitik, reklam, CRM veya ürün API bağlantısı yoktur. CSP dış bağlantıları engeller; PDF font/worker varlıkları yalnız aynı kaynaktan yüklenir. Site owner-only erişim katmanıyla özeldir; şirket web sitesine kurulum yapılmamıştır.
 
 ## Doğrulama
 Test sonuçları `tests/results.json`, tarayıcı kapsamı ayrıca `tests/browser-qa.json` içindedir. Gerçek iPhone/Safari ve dosya seçici akışı ortam kısıtı nedeniyle doğrulanamadıysa PASS olarak sayılmaz.
+
+
+## V4 girdi ayrımı ve gerçek sınırlar
+1. Logo: V3 renk algılama/şeffaflık ve düzenleme yolu korunur.
+2. Hazır grafik: PNG/JPG veya yerel PDF sayfa seçimi; tasarımın renkleri değiştirilmez. Ölçülü prova belgesinde yalnız ön yüz seçilmelidir, arka bilgi bandı otomatik taşınmaz.
+3. Ürün fotoğrafı: yerel bağlı-bölge analizi olası alanlar önerir. Bunlar gerçek köşe/ölçü tespiti değil, kontrol edilmesi gereken yönlü sınır önerileridir. İç baskı alanı kullanıcı onayından sonra perspektif düzeltilmiş referans katmanı olur. Gerektiğinde alanı çizme/köşe ayarı ve180° döndürme vardır.
+
+**Aktif son işlem kaynak korur:** fotoğrafta seçilen ürünün bağlantılı bölgesi ve dolu iç delikleri kaynak koordinatlarında tutulur; yalnız bölge dışı alpha sıfırlanır. Ürün içi RGBA renkleri değiştirilmez. Onaylanan perspektif-düzeltilmiş canvas bundan sonra aynı nesne olarak korunur; sonrasında kaynak renk/alpha silme veya harf temizleme yapılmaz. Kenar örneklerinden yaklaşık bir zemin renk alanı yalnız alttaki boş ambalaja uygulanır; ön yüz piksellerinin yerine renk doldurulmaz. Bu alan ekran simülasyonudur ve kullanıcı renkleri kontrol etmelidir. Sabit BM12 görsel geometrisinin baskı alanına orantılı sığdırılır. Fotoğraf ışığı/gölgesi kalabilir. Fotoğraftan otomatik temiz vektör/ayrı düzenlenebilir logo/metin üretilmez; gizli, silinmiş veya okunmayan içerik yeniden oluşturulmaz. Temiz üretim grafiği için grafik hizmeti gerekir. Kaynak görsel yanında gösterilir. Karmaşık veya yanlış öneride kullanıcı doğru ön yüzü seçmelidir; her fotoğrafı otomatik tanıma garantisi yoktur.
+
+PDF.js5.6.205 legacy build, Apache2, yerel `dist/vendor/` içinde; CDN yok, dosya sunucuya gönderilmez. En fazla8MB/12sayfa; çok sayfalı belgede açık sayfa seçimi. PDF eylem/script/bağlantıları çalıştırılmaz; yalnız canvas görüntüsü. AI/CDR yerel önizleme desteklenmez. Çok büyük/kötü biçimliPDF güvenlik matrisi kapsamlı sınanmış değildir.
+
+Fotoğraf/grafik fiyatında zemin varsayımı açıkça seçilir. Baskı rengi varsayılanı teknik incelemedir; toplam klişe hariç gösterilir, bilinmeyen klişe ücretsiz sayılmaz. Renk sayısı zemin dahil teknik ayrımı ifade eder. Özel baskı/CMYK/özel bölge kesin teklif gerektirir. Süre25takvimgünü, ödemeonay/faturalama sonrası50%, kalanüretimbitimindesevköncesi50% olarak kaynaklandırılmıştır.
+
+Tek sayfalık JPG ön teklif: özgün HijyenLab logosu, yazılı İKA Kurumsal Tedarik Hizmetleri Ltd. Şti., görsel ve KDV dahil döküm/ödeme/source-date/notices. Bu yeni demo düzenidir, onaylı resmi şirket şablonu iddiası yoktur. İndirme başlatılır ve görsel ekranda gösterilir; cihazın gerçekten kaydettiği doğrulanmaz. iPhone kaydı gerçek cihazda ayrı sınanmalıdır.

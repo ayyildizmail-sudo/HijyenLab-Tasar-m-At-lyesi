@@ -1,0 +1,24 @@
+{
+  "version": 4,
+  "environment": "Actual cloud Chromium with supported file chooser; local preview",
+  "observed_pass": [
+    "Real Cetas photo region proposal and source-letter preservation",
+    "GrandGrill two product candidates, first selectable; Fine Dining retained",
+    "Base PDF two-page chooser and page2 original colors retained",
+    "Fixed wide BM12 wrapper geometry independent of square art",
+    "VENZI logo regression: uploaded black base inherited, gold retained",
+    "Unknown ink count shown as technical review; total excludes unknown plate fee explicitly",
+    "Generated JPEG bytes valid 1400x1900 and visible image fallback"
+  ],
+  "known_limitations": [
+    "Photo is a reference draft; source lighting and boundary seams may remain. Not automatic clean graphic reconstruction.",
+    "Region candidates require user review; manual selection fallback may retain source background.",
+    "Photo letters are not separately editable or reconstructed.",
+    "Pantone C catalog is community approximate, not official ink measurement."
+  ],
+  "final_edge_antialias_visual": "PASS for reference draft; residual ragged photo boundary remains, not seamless reconstruction",
+  "iPhone_mobile_touch": "NOT_RUN",
+  "native_device_download": "NOT_RUN",
+  "exhaustive_malicious_PDF_security": "NOT_RUN",
+  "evidence_directory": "/workspace/scratch/d698780c5c28/qa_mockup_evidence/v4"
+}

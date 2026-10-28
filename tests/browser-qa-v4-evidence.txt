@@ -1,0 +1,16 @@
+V4 independent desktop browser QA — 2026-10-28 21:04 UTC
+Scope: separate local private prototype, http://127.0.0.1:4173/; no deployment or production modifications.
+PASS: Actual Cetas/Recai product photo upload, proposed region confirmation, fixed wide wrapper, split red/pink design and brand/tagline retention. Latest evidence cetas-antialias-final.png.
+PASS: Actual GrandGrill two-packet photo upload, two candidate choices, first front confirmation; Grand Grill and Fine Dining retained. Evidence grand-mask-gradient-final.png.
+PASS: Actual Base_Logo.pdf two-page local rendering and explicit page2 selection; red BASE and white lettering retained, fixed wide red wrapper, no multiply-strip pinstripes. Evidence pdf-gradient-final.png.
+PASS: Actual VENZI gold-on-black logo upload regression; black wrapper automatically applied and lettering retained. Evidence logo-regression-final.png. V3 full upload/security/undo/pricing results retained separately.
+PASS: Photo background assumption initially unknown blocks quote. Selecting white5200/unknown ink produces 21216 TL explicitly excluding pending cliche. No order/payment/send operation.
+PASS: Quote JPEG encoding and visible fallback. quote-header-final.jpg inspected, JFIF1400x1900, full IKA identity and clear estimated/excluded/demo caveats.
+LIMITATION: Photo reconstruction is not seamless: original lighting/shadows and rectangular photographic panel remain; Cetas mask edge still visibly ragged with thin gray residual. Do not claim clean vector artwork, automatic ink count, print readiness, or seamless natural rendering.
+NOT_RUN: Exact 375x812 mobile/touch browser QA; tool viewport unavailable in this session.
+NOT_VERIFIED: Native browser/device saved download. Encoded displayed JPEG verified; save/download event path unsupported/timed out. UI honestly offers image fallback and says saved status cannot be verified.
+Final local source hashes at21:04:
+app.js 9bf906e967241c6eccb362b4819368090fb9193517228d18ca8b82bc64321820
+photo.js f8e07cfbf8cf043dc43d1c2f7951a4778f3bb5bcf26bc316fc5716cb256a01ed
+index.html 05dd1c8cba2a14627a43bec43e0b82e0c9f2c77902e388c861706e6e14552ddf
+Grand/PDF/quote tests preceded final geometry-mask alpha-edge smoothing; Cetas was rerun after final patch. No assertion all combinations tested.

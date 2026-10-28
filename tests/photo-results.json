@@ -1,0 +1,78 @@
+[
+  {
+    "name": "GrandGrill two packet candidates",
+    "status": "PASS"
+  },
+  {
+    "name": "GrandGrill first excludes upper table",
+    "status": "PASS"
+  },
+  {
+    "name": "GrandGrill clipped second flagged",
+    "status": "PASS"
+  },
+  {
+    "name": "Cetas single full packet",
+    "status": "PASS"
+  },
+  {
+    "name": "Cetas excludes marble and top glare",
+    "status": "PASS"
+  },
+  {
+    "name": "Production proof keeps two faces selectable",
+    "status": "PASS"
+  },
+  {
+    "name": "Projective corner 0",
+    "status": "PASS"
+  },
+  {
+    "name": "Projective corner 1",
+    "status": "PASS"
+  },
+  {
+    "name": "Projective corner 2",
+    "status": "PASS"
+  },
+  {
+    "name": "Projective corner 3",
+    "status": "PASS"
+  },
+  {
+    "name": "Valid quad accepted",
+    "status": "PASS"
+  },
+  {
+    "name": "Crossed quad rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Collapsed quad rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Confirmed source canvas identity preserved",
+    "status": "PASS"
+  },
+  {
+    "name": "Square PDF fit on fixed wide packet",
+    "status": "PASS"
+  },
+  {
+    "name": "Wide photo panel fit on fixed wide packet",
+    "status": "PASS"
+  },
+  {
+    "name": "Underlay infers split edge colors without changing any foreground RGBA",
+    "status": "PASS"
+  },
+  {
+    "name": "Transparent artwork retains white underlay and original alpha",
+    "status": "PASS"
+  },
+  {
+    "name": "Geometry mask changes outside alpha only, leaves every interior rendered RGBA exact",
+    "status": "PASS"
+  }
+]
