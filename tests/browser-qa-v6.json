@@ -1,0 +1,18 @@
+{
+  "version": 6,
+  "scope": "Independent actual Chromium desktop and485px viewport",
+  "PASS": [
+    "Initial white blank preview with visible upload and price, no stepper/settings wall",
+    "VENZI upload to10000unit quote46800TL excluding unknown cliche to1400px JPEG without technical settings",
+    "GrandGrill simple region confirmation and white/colored quote choice",
+    "Base PDF page2 confirmation",
+    "Optional text editor reachable"
+  ],
+  "NOT_RUN": [
+    "Physical iPhone Safari/touch",
+    "Exact375px viewport",
+    "Native device saved download"
+  ],
+  "limitations": "Photo reference is not clean reconstruction; source lighting/boundaries may remain. Unknown plate fee excluded, not zero.",
+  "evidence": "/workspace/scratch/d698780c5c28/qa_mockup_evidence/v6"
+}

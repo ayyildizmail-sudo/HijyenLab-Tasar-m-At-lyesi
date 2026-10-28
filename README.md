@@ -53,3 +53,7 @@ Tek sayfalık JPG ön teklif: özgün HijyenLab logosu, yazılı İKA Kurumsal T
 
 ## V5 — boş beyaz başlangıç
 İlk açılış ve sıfırlama doğrudan boş, beyaz ambalajı gösterir. Başlangıç türü soran geçit kaldırıldı. Tek `Görsel yükle` girişi PNG/JPG/SVG/PDF alır. PDF biçiminden yerel sayfa seçimine gider. Raster için mevcut zemin analizi, bölge adayları ve kaba renk çeşitliliği yalnız rota önerir; kesin dosya türü/ürün tanıması değildir. Yanlış yorumda, ancak yükleme sonrasında açılan küçük seçeneklerden aynı dosya logo/hazır grafik/ürün fotoğrafı olarak yeniden açılabilir. Tasarıma geri dönme mevcut tasarımı korur. V4 fotoğraf referansı sınırları değişmedi.
+
+## V6 — sade müşteri görünümü
+Başlangıç ekranı boş beyaz ambalaj, Görsel yükle ve Fiyatı gör eylemlerine indirildi. Adım çubuğu ve başlangıçta açık ayar panelleri kaldırıldı. Yükleme sonrası renk/yazı/görsel değişimi küçük isteğe bağlı düğmelerle açılır; tek ayar paneli gösterilir. Teknik açıklamalar, kaynak görsel, geri alma ve gelişmiş konum seçenekleri Detaylar altında erişilebilir. Fotoğraf alan ayarı ayrı isteğe bağlı detaydır; temel onay akışı korunur.
+Fiyat ekranı adet ve teslimatla başlar; baskı renk/klişe seçenekleri isteğe bağlı detaydır. Başlangıçta klişe bilinmediği için toplamdan hariç tutulur ve kısa notla açıklanır; ücretsiz varsayılmaz. İşleme algoritmaları ve V4/V5 sınırları değiştirilmedi.

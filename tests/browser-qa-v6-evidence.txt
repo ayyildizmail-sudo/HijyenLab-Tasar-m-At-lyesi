@@ -1,0 +1,10 @@
+V6 novice UX QA 2026-10-28 21:29UTC
+PASS desktop first screen: blankwhite packet, upload and price visible, details collapsed, no stepper or technicalwall.
+PASS narrow desktop485px journey: actualVENZIupload->blackpreview->Fiyatıgör->explicit10000minimum->46800TLclicheexcluded->quote->generatedJPEG1400px. Never opened Pantone/ink/advancedsettings. scrollWidth==clientWidth485.
+PASS GrandGrillphoto viaunifiedupload->two candidates withsimpleprompt->Evetdevamet->preview->priceaskswhite/colored only. Details hide technicalexplanation.
+PASS actualBaseLogoPDF2pages->page2->confirm->preview.
+PASS optionalYazıekle opensoneeditorwithTamamclose, notmandatory.
+Screens blank-desktop.png blank-narrow.png venzi-narrow.png price-narrow.png quote-narrow.png photo-choice-narrow.png.
+Limits: desktopnarrowisnotiPhone/touch;375NOT_RUN. PhotoqualitylimitationsfromV4remain. GeneratedJPEGverified,nativedevicesaveNOT_VERIFIED.
+Latestpost-testchangeuploadarrowremovalcosmeticonlyreportedbybuilder; nofullrerun.
+NoappchangesordeploybyQA. Parentvisualapprovalrequired.
