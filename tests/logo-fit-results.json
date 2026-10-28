@@ -1,0 +1,42 @@
+[
+  {
+    "name": "wide contains ink aspect in safe body",
+    "status": "PASS"
+  },
+  {
+    "name": "tall contains ink aspect in safe body",
+    "status": "PASS"
+  },
+  {
+    "name": "round contains ink aspect in safe body",
+    "status": "PASS"
+  },
+  {
+    "name": "extra-wide contains ink aspect in safe body",
+    "status": "PASS"
+  },
+  {
+    "name": "extra-tall contains ink aspect in safe body",
+    "status": "PASS"
+  },
+  {
+    "name": "Manual scale multiplies fitted size, not source padding",
+    "status": "PASS"
+  },
+  {
+    "name": "Invalid dimensions safe",
+    "status": "PASS"
+  },
+  {
+    "name": "New logo resets only initial transform",
+    "status": "PASS"
+  },
+  {
+    "name": "Foreground alpha bounds remain used",
+    "status": "PASS"
+  },
+  {
+    "name": "PDF logo fitting explicit, full artwork not automatically cropped",
+    "status": "PASS"
+  }
+]

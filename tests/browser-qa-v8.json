@@ -1,0 +1,19 @@
+{
+  "version": 8,
+  "environment": "Actual cloud Chromium narrow viewport",
+  "PASS": [
+    "HCM white padded logo larger centered, all tagline retained",
+    "VENZI black/gold logo preserved and enlarged",
+    "Tall and round transparent SVG aspect preserved",
+    "Manual20% resize retained until next upload resets100%",
+    "Eymen PDF page explicit logo placement fits actual mark bounds",
+    "GrandGrill photo remains entire reference only, no logo fitting"
+  ],
+  "NOT_RUN": [
+    "Exact user problematic logo unavailable",
+    "Physical iPhone Safari/touch",
+    "Native saved download"
+  ],
+  "geometry_tests": "10 automated fit tests cover horizontal/vertical/round/extreme aspects and safe body containment",
+  "evidence": "/workspace/scratch/d698780c5c28/qa_mockup_evidence/v8"
+}
