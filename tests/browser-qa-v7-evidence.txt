@@ -1,0 +1,12 @@
+V6 defect / V7 targeted actual browser QA, 2026-10-28 21:44UTC.
+CONFIRMED OLD FAIL: ambiguous.png auto-photo; cancel; Details/interpretation/Logo -> Fiyatı gör disabled while required background choice hidden. Evidence ambiguous-hidden-choice.png. This does not prove user's exact path.
+PASS FIX: required background choices visible above actions, price click focuses them; choosewhite ->price->quote21216.
+PASS FIX: actual Grandphoto unknown color quote click focuses visible selector; colored5200 quote click focuses quantity with10000rule; useMinimum -> quote46800 excludesunknowncliche. No financial rules relaxed.
+PASS: no-upload5200 Muğla/Bodrum quote18096 excludingunknowncliche.
+PASS: Teklifi gör renders fullJPEG1400 inline before optional JPGolarakindir. No downloadclick required. Source generation noanchorclick; onlyexplicitdownloadhandler triggerslink. Evidence quote-preview-first.png.
+PASS SAFE FALLBACK: actualGrandGrill/Cetaş productphotos displayed as originalreference only, no syntheticwrapper/nesting. Quote same original labeled Ürün referansı — yeni grafik değildir. Evidence photo-reference-only.png/photo-reference-quote.jpg.
+PASS REGRESSION: Logoyuayrıcayükle actualVENZI -> black/goldmockup; BaseLogoPDFpage2->redwidewrapper artwork.
+UNSOLVED: automatic clean graphic extraction from productphoto. Referencefallback is NOT solution to extraction requirement, only removes misleadingbadoutput.
+User screenshot IMG_5215 was inspected: quotealreadyreached, nestedproductphoto/table complaintconfirmed visually. OriginalNizaminput unavailable, exactinput NOT_RUN.
+485pxnarrowdesktop tested; exact375/iPhone/touch NOT_RUN. Devicesavedownload NOT_VERIFIED.
+No application code changes or deployment by QA; parent decides publication.

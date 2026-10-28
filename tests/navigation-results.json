@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Unknown photo color focuses visible choice",
+    "status": "PASS"
+  },
+  {
+    "name": "Colored quantity below minimum focuses quantity",
+    "status": "PASS"
+  },
+  {
+    "name": "Blank quantity focuses quantity",
+    "status": "PASS"
+  },
+  {
+    "name": "Fractional quantity focuses quantity",
+    "status": "PASS"
+  },
+  {
+    "name": "Valid quantity with technical error reveals optional panel",
+    "status": "PASS"
+  },
+  {
+    "name": "Next CTA does not silently disable on pending background",
+    "status": "PASS"
+  },
+  {
+    "name": "Quote CTA never silently disables",
+    "status": "PASS"
+  },
+  {
+    "name": "Quote revalidates before summary",
+    "status": "PASS"
+  },
+  {
+    "name": "Required background choice outside hidden editor",
+    "status": "PASS"
+  },
+  {
+    "name": "Quote rendering never triggers download",
+    "status": "PASS"
+  },
+  {
+    "name": "Quote navigation renders inline document",
+    "status": "PASS"
+  },
+  {
+    "name": "Product reference renderer draws only original image, never wrapper asset",
+    "status": "PASS"
+  }
+]
