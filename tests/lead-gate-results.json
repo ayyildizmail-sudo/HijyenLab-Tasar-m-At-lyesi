@@ -1,0 +1,58 @@
+[
+  {
+    "name": "Valid formatted Turkish contact",
+    "status": "PASS"
+  },
+  {
+    "name": "Whitespace company rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Whitespace contact rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Numeric-only contact rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Short phone rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Letters in phone rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Repeated fake phone rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Missing province rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Missing district rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Quote navigation gate present",
+    "status": "PASS"
+  },
+  {
+    "name": "Quote rendering revalidates after async work",
+    "status": "PASS"
+  },
+  {
+    "name": "Download revalidates",
+    "status": "PASS"
+  },
+  {
+    "name": "Quote cleared on contact edit",
+    "status": "PASS"
+  },
+  {
+    "name": "Price breakdown hidden without required data",
+    "status": "PASS"
+  }
+]
