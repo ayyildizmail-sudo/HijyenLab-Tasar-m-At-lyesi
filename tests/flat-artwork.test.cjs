@@ -10,5 +10,5 @@ for(const w of [1600,1200,600,320,240])test(`Actual upload at ${w}px retains bla
 const app=fs.readFileSync('dist/app.js','utf8'),runtime=fs.readFileSync('dist/flat-artwork.js','utf8');
 test('No brand-specific lookup in runtime',()=>assert.ok(!/ocean|prime|bf2a6510|0eb97f92/i.test(runtime)));
 test('Known-photo override provenance retained',()=>assert.ok(app.includes("photoSourceFiles.has(file)&&['logo','artwork'].includes(mode)")));
-test('Carton content derived from product rule',()=>assert.ok(app.includes("return 'Koli içi: '+productRules().unitsPerBox.toLocaleString('tr-TR')+' adet'")));
+test('Carton content derived from product rule',()=>assert.ok(app.includes("return 'Koli içi: '+rules.unitsPerBox.toLocaleString('tr-TR')+' adet'")));
 fs.writeFileSync('tests/flat-artwork-results.json',JSON.stringify(cases,null,2));console.log(cases);if(cases.some(x=>x.status==='FAIL'))process.exit(1);

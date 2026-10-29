@@ -1,0 +1,58 @@
+[
+  {
+    "id": "unknown_plate_tax_uses_same_policy",
+    "status": "PASS"
+  },
+  {
+    "id": "unknown_plate_not_reported_as_final_zero",
+    "status": "PASS"
+  },
+  {
+    "id": "plate_label_uses_same_policy",
+    "status": "PASS"
+  },
+  {
+    "id": "freight_label_uses_same_policy",
+    "status": "PASS"
+  },
+  {
+    "id": "production_rules_nested_immutable",
+    "status": "PASS"
+  },
+  {
+    "id": "quote_snapshot_deeply_immutable",
+    "status": "PASS"
+  },
+  {
+    "id": "policy_change_alone_changes_quote_snapshot",
+    "status": "PASS"
+  },
+  {
+    "id": "maximum_quantity_uses_same_policy",
+    "status": "PASS"
+  },
+  {
+    "id": "existing_plate_remains_unverified_not_free",
+    "status": "PASS"
+  },
+  {
+    "id": "integer_kurus_rounding_alternate_policy",
+    "status": "PASS"
+  },
+  {
+    "id": "colored_direct_unit_price",
+    "status": "PASS"
+  },
+  {
+    "id": "white_minimum_autofill_uses_policy",
+    "status": "PASS"
+  },
+  {
+    "id": "colored_minimum_autofill_uses_policy",
+    "status": "PASS"
+  },
+  {
+    "id": "active_policy_labels_and_quantity_max_match",
+    "status": "PASS"
+  }
+]

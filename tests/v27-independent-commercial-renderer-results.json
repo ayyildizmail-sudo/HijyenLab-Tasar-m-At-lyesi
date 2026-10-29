@@ -1,0 +1,18 @@
+[
+  {
+    "name": "JPEG labels come from captured rules",
+    "status": "PASS"
+  },
+  {
+    "name": "Rule revision changed while pending blocks publication",
+    "status": "PASS"
+  },
+  {
+    "name": "Rule value changed without revision still blocks publication",
+    "status": "PASS"
+  },
+  {
+    "name": "Old price against new rules rejected before drawing",
+    "status": "PASS"
+  }
+]
