@@ -12,6 +12,10 @@
     "status": "PASS"
   },
   {
+    "name": "white JPEG keeps verified legal identity and contact details",
+    "status": "PASS"
+  },
+  {
     "name": "white actual JPEG renderer shows exclusive subtotal",
     "status": "PASS"
   },
@@ -24,6 +28,10 @@
     "status": "PASS"
   },
   {
+    "name": "colored JPEG keeps verified legal identity and contact details",
+    "status": "PASS"
+  },
+  {
     "name": "colored actual JPEG renderer shows exclusive subtotal",
     "status": "PASS"
   },
@@ -33,6 +41,10 @@
   },
   {
     "name": "colored actual JPEG renderer labels exclusive and exact note",
+    "status": "PASS"
+  },
+  {
+    "name": "Missing original logo prevents unbranded JPEG, never silently replaces logo",
     "status": "PASS"
   },
   {

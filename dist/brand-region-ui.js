@@ -57,4 +57,4 @@ let approvedDesignFingerprint=null;
 const beforeRegionRefresh=refresh;refresh=function(){const fingerprint=designFingerprint();if(approvedDesignFingerprint!==fingerprint){invalidateQuote();if(state.extractionApproximate)state.extractionApprovalRequired=true;}return beforeRegionRefresh();};
 approveInk.onclick=()=>{if(state.designProcessing||state.designBlocked||state.extractionSourceLimited){showDesignIssue();return;}approvedDesignFingerprint=designFingerprint();state.extractionApprovalRequired=false;refresh();go(2);};
 const renderQuoteBeforeFingerprint=renderQuote;renderQuote=async function(){const before=designFingerprint();await renderQuoteBeforeFingerprint();if(before!==designFingerprint())invalidateQuote();};
-runtimeBuild.textContent='Çalışan uygulama: V21 · güncel fiyat ve tahmini klişe';
+runtimeBuild.textContent='Çalışan uygulama: V22 · kurumsal kimlik ve teklif';

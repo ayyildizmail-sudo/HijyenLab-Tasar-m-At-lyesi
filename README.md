@@ -1,3 +1,7 @@
+# Latest local candidate: V22
+
+29 October 2026: original logo and verified corporate identity restored to form header; reliable branded quote output. See `LOCAL_STATUS_V22.md`. Prior version sections are historical.
+
 # Latest local candidate: V21
 
 29 October 2026: direct colored unit price 3.30 TL, estimated nonwhite printing plates, simpler location hint and quote freshness guards. See `LOCAL_STATUS_V21.md`. Prior release sections below describe their historical scope.

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Header displays original local brand image, not text recreation",
+    "status": "PASS"
+  },
+  {
+    "name": "Header verified legal company, email and website present",
+    "status": "PASS"
+  },
+  {
+    "name": "Header has readable mobile layout and explicit original-image retry",
+    "status": "PASS"
+  },
+  {
+    "name": "Quote still loads exact original asset and no generated substitute",
+    "status": "PASS"
+  },
+  {
+    "name": "Long customer identity stays in separate right column",
+    "status": "PASS"
+  }
+]
