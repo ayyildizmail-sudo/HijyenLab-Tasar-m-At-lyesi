@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Empty white cannot become logo",
+    "status": "PASS"
+  },
+  {
+    "name": "Empty saturated field rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Unqualified colored material not white-matted",
+    "status": "PASS"
+  },
+  {
+    "name": "Opaque black and blue core retained",
+    "status": "PASS"
+  },
+  {
+    "name": "Rotation preserves white-matte core",
+    "status": "PASS"
+  },
+  {
+    "name": "No fixed customer asset lookup",
+    "status": "PASS"
+  }
+]

@@ -31,4 +31,5 @@ main{max-width:960px;padding:20px 24px}header{margin-bottom:20px}header b{font-s
 /* Single-column editor must never be covered by the former desktop sticky preview. */
 .leadFields{background:white;padding:18px;border:1px solid #dce6f0;border-radius:16px;margin:16px 0}.leadFields label{display:block;margin:12px 0}.leadFields input{display:block;width:100%;box-sizing:border-box;min-height:44px;padding:10px;border:1px solid #b8c6d8;border-radius:8px}
 
+#visibleInterpretation{display:flex;flex-wrap:wrap;align-items:center;gap:8px}#visibleInterpretation[hidden]{display:none}#visibleInterpretation .textButton{border:1px solid #c9d7e7;border-radius:8px;padding:7px 10px}
 .visualSide{position:static;top:auto}
