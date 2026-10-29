@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Crop uses all original central artwork pixels, no redraw",
+    "status": "PASS"
+  },
+  {
+    "name": "Unqualified frame preserves native route rather than removing outline",
+    "status": "PASS"
+  },
+  {
+    "name": "Frame proposal preserves full original for comparison and requires approval",
+    "status": "PASS"
+  },
+  {
+    "name": "Phone cleanup remains before frame proposal and safe fit unchanged",
+    "status": "PASS"
+  }
+]

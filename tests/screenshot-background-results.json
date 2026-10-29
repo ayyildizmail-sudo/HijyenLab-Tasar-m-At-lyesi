@@ -4,7 +4,15 @@
     "status": "PASS"
   },
   {
+    "name": "Actual technical brand crop keeps strongly verified white",
+    "status": "PASS"
+  },
+  {
     "name": "Colored central panel is never forced to white",
+    "status": "PASS"
+  },
+  {
+    "name": "Colored panel remains colored under technical proposal thresholds",
     "status": "PASS"
   },
   {

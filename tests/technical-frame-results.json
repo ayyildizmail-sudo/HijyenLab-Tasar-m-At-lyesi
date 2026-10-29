@@ -1,0 +1,54 @@
+[
+  {
+    "name": "Generic thin tapered technical outline 500x360",
+    "status": "PASS"
+  },
+  {
+    "name": "Generic thin tapered technical outline 600x420",
+    "status": "PASS"
+  },
+  {
+    "name": "Generic thin tapered technical outline 360x300",
+    "status": "PASS"
+  },
+  {
+    "name": "Generic thin tapered technical outline 750x500",
+    "status": "PASS"
+  },
+  {
+    "name": "Do not strip circular brand ring",
+    "status": "PASS"
+  },
+  {
+    "name": "Do not strip rectangular badge",
+    "status": "PASS"
+  },
+  {
+    "name": "Do not strip thick shield",
+    "status": "PASS"
+  },
+  {
+    "name": "Do not strip attached artwork",
+    "status": "PASS"
+  },
+  {
+    "name": "Outside secondary content is not silently discarded",
+    "status": "PASS"
+  },
+  {
+    "name": "Secondary interior content remains included in crop",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual thin outline removed only by confirmed proposal; full truck and both text lines included",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual circular phone screenshot brand frame is not stripped",
+    "status": "PASS"
+  },
+  {
+    "name": "No runtime customer names/hash/crop lookup/network",
+    "status": "PASS"
+  }
+]

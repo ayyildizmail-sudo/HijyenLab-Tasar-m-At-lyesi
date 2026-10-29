@@ -38,5 +38,105 @@
   {
     "name": "PDF logo fitting explicit, full artwork not automatically cropped",
     "status": "PASS"
+  },
+  {
+    "name": "wide density 0 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "wide density 0.01 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "wide density 0.28 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "wide density 0.5 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "wide density 0.99 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "wide density 1 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "tall density 0 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "tall density 0.01 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "tall density 0.28 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "tall density 0.5 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "tall density 0.99 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "tall density 1 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "circle density 0 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "circle density 0.01 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "circle density 0.28 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "circle density 0.5 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "circle density 0.99 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "circle density 1 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "landscape density 0 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "landscape density 0.01 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "landscape density 0.28 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "landscape density 0.5 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "landscape density 0.99 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "landscape density 1 shares maximum aspect-safe initial fit",
+    "status": "PASS"
+  },
+  {
+    "name": "Manual 70 percent retains shared fit scaling regardless of density",
+    "status": "PASS"
   }
 ]
