@@ -32,4 +32,12 @@ main{max-width:960px;padding:20px 24px}header{margin-bottom:20px}header b{font-s
 .leadFields{background:white;padding:18px;border:1px solid #dce6f0;border-radius:16px;margin:16px 0}.leadFields label{display:block;margin:12px 0}.leadFields input{display:block;width:100%;box-sizing:border-box;min-height:44px;padding:10px;border:1px solid #b8c6d8;border-radius:8px}
 
 #visibleInterpretation{display:flex;flex-wrap:wrap;align-items:center;gap:8px}#visibleInterpretation[hidden]{display:none}#visibleInterpretation .textButton{border:1px solid #c9d7e7;border-radius:8px;padding:7px 10px}
+.simplePrimary>button:hover,.simplePrimary>button:active{background:#edf5ff;color:#075dc9}
+
+/* Local V18 region recovery: large touch targets, no technical parameter panel. */
+#brandRegionCanvas{display:block;width:100%;height:auto;max-width:700px;margin:auto;background:#edf1f5;border:0;outline:1px solid #c8d5e5;border-radius:12px;touch-action:none;cursor:crosshair}
+#brandRegionPanel{max-width:900px;margin:auto}#brandRegionPanel button{min-height:48px;margin:10px 0}
+.brandRegionCompare{display:grid;grid-template-columns:1fr 1fr;gap:16px}.brandRegionCompare img{display:block;max-width:100%;max-height:250px;margin:auto;object-fit:contain}.transparentGrid{background:repeating-conic-gradient(#e2e8f0 0% 25%,white 0% 50%) 50%/20px 20px;padding:12px;min-height:110px;border-radius:8px}
+@media(max-width:600px){.brandRegionCompare{grid-template-columns:1fr}#brandRegionCanvas{max-height:none}.brandRegionCompare h2{font-size:17px}}
+
 .visualSide{position:static;top:auto}

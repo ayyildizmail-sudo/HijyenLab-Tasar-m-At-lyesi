@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Empty gray film yields no ROI",
+    "status": "PASS"
+  },
+  {
+    "name": "Empty gray film yields no matte",
+    "status": "PASS"
+  },
+  {
+    "name": "Black and chromatic opaque ink retains exact RGB",
+    "status": "PASS"
+  },
+  {
+    "name": "Missing pale chromatic ink rejects rather than partial success",
+    "status": "PASS"
+  },
+  {
+    "name": "Retained chromatic ink passes coverage check",
+    "status": "PASS"
+  },
+  {
+    "name": "No hidden-glyph reconstruction call",
+    "status": "PASS"
+  },
+  {
+    "name": "Source warning remains visible before extracted-design approval",
+    "status": "PASS"
+  },
+  {
+    "name": "Next button hover has visible contrasting text",
+    "status": "PASS"
+  }
+]

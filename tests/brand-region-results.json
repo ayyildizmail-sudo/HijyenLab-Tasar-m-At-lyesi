@@ -1,0 +1,94 @@
+[
+  {
+    "name": "Blank field rejects",
+    "status": "PASS"
+  },
+  {
+    "name": "Black and gold on white retained without source RGB change",
+    "status": "PASS"
+  },
+  {
+    "name": "Colored source ground returned separately and removed from layer",
+    "status": "PASS"
+  },
+  {
+    "name": "White lettering on dark field survives",
+    "status": "PASS"
+  },
+  {
+    "name": "Too-small selection rejects",
+    "status": "PASS"
+  },
+  {
+    "name": "Mismatched buffer rejects",
+    "status": "PASS"
+  },
+  {
+    "name": "Clipped foreground at boundary rejects",
+    "status": "PASS"
+  },
+  {
+    "name": "Dense full photo-like interior rejects",
+    "status": "PASS"
+  },
+  {
+    "name": "Nonuniform edge rejects",
+    "status": "PASS"
+  },
+  {
+    "name": "Gray and colored background not silently changed to white",
+    "status": "PASS"
+  },
+  {
+    "name": "Photo light neutral is explicitly a white suggestion",
+    "status": "PASS"
+  },
+  {
+    "name": "Native cream never normalized to white",
+    "status": "PASS"
+  },
+  {
+    "name": "Yellow photo background preserved",
+    "status": "PASS"
+  },
+  {
+    "name": "Dark neutral photo not guessed white",
+    "status": "PASS"
+  },
+  {
+    "name": "Known source-limited extraction cannot auto import",
+    "status": "PASS"
+  },
+  {
+    "name": "Known missing source cannot enter manual recovery",
+    "status": "PASS"
+  },
+  {
+    "name": "Manual selection remains explicitly identified",
+    "status": "PASS"
+  },
+  {
+    "name": "Cancel invalidates pending image decoder",
+    "status": "PASS"
+  },
+  {
+    "name": "Selection changes discard prior preview",
+    "status": "PASS"
+  },
+  {
+    "name": "Content and layout fingerprint changes invalidate prior approval",
+    "status": "PASS"
+  },
+  {
+    "name": "Quote rechecks design after await",
+    "status": "PASS"
+  },
+  {
+    "name": "New source immediately blocks old approval and quote during decode",
+    "status": "PASS"
+  },
+  {
+    "name": "Failed or unchanged decode leaves old design unapproved",
+    "status": "PASS"
+  }
+]
