@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Latest user colored 3.30, two inks, 10000 outside = 40000 ex VAT",
+    "status": "PASS"
+  },
+  {
+    "name": "White 2.90 unchanged, zero nonwhite inks legitimately zero cliché",
+    "status": "PASS"
+  },
+  {
+    "name": "Existing cliché remains provisionally priced pending verification",
+    "status": "PASS"
+  },
+  {
+    "name": "No separate colored difference customer row or old rate note",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual location validation kept, redundant top location hint omitted",
+    "status": "PASS"
+  },
+  {
+    "name": "Unknown count is distinct from valid zero",
+    "status": "PASS"
+  },
+  {
+    "name": "UI estimator samples processed source, not shaded package",
+    "status": "PASS"
+  }
+]

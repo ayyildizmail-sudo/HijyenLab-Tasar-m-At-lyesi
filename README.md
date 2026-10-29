@@ -1,3 +1,7 @@
+# Latest local candidate: V21
+
+29 October 2026: direct colored unit price 3.30 TL, estimated nonwhite printing plates, simpler location hint and quote freshness guards. See `LOCAL_STATUS_V21.md`. Prior release sections below describe their historical scope.
+
 # HijyenLab Tasarım Atölyesi — özel prototip v4
 
 Bu bağımsız demo canlı hijyenlab.com veya mevcut muhasebe/kayıt sistemine bağlı değildir. V1 ve V2 korunur. V3 sürüm3/commit80a928feb1a26c5ab3d34452dce581502c7ccdca başlangıç referansıdır.

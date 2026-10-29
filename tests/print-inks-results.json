@@ -1,0 +1,78 @@
+[
+  {
+    "name": "White artwork on white has known zero nonwhite inks",
+    "status": "PASS"
+  },
+  {
+    "name": "White on black counts only black substrate print",
+    "status": "PASS"
+  },
+  {
+    "name": "Black and white on white count one",
+    "status": "PASS"
+  },
+  {
+    "name": "Black and gold artwork on black counts two",
+    "status": "PASS"
+  },
+  {
+    "name": "Equal background artwork and added text deduplicated",
+    "status": "PASS"
+  },
+  {
+    "name": "Distinct added text counted once",
+    "status": "PASS"
+  },
+  {
+    "name": "White added text excluded",
+    "status": "PASS"
+  },
+  {
+    "name": "Explicit recolor substitutes original artwork colors",
+    "status": "PASS"
+  },
+  {
+    "name": "Transparent artwork pixels excluded",
+    "status": "PASS"
+  },
+  {
+    "name": "JPEG shade variations clustered instead of distinct inks",
+    "status": "PASS"
+  },
+  {
+    "name": "Gradient does not claim reliable spot ink count",
+    "status": "PASS"
+  },
+  {
+    "name": "Explicit near-white cream remains a paid ink",
+    "status": "PASS"
+  },
+  {
+    "name": "Distinct explicitly selected close text and ground remain distinct",
+    "status": "PASS"
+  },
+  {
+    "name": "Background-only design uses selected ground",
+    "status": "PASS"
+  },
+  {
+    "name": "No recolor ink is invented when artwork absent",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual original Ocean Prime white and gold on black estimates two inks",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual resized source 600 does not confidently miscount",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual resized source 320 does not confidently miscount",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual resized source 240 does not confidently miscount",
+    "status": "PASS"
+  }
+]

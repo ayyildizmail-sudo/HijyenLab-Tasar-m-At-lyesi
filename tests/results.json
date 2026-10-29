@@ -8,11 +8,11 @@
     "status": "PASS"
   },
   {
-    "name": "Colored 10000 one ink outside 48000",
+    "name": "Colored 10000 one ink outside 46800",
     "status": "PASS"
   },
   {
-    "name": "Colored 10000 two inks outside 49200",
+    "name": "Colored 10000 two inks outside 48000",
     "status": "PASS"
   },
   {
@@ -36,7 +36,7 @@
     "status": "PASS"
   },
   {
-    "name": "Colored surcharge 0.50",
+    "name": "Colored surcharge 0.40",
     "status": "PASS"
   },
   {
@@ -97,10 +97,6 @@
   },
   {
     "name": "Invalid ink count rejected: -1",
-    "status": "PASS"
-  },
-  {
-    "name": "Invalid ink count rejected: 0",
     "status": "PASS"
   },
   {

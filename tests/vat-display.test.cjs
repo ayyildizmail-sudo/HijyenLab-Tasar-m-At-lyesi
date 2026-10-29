@@ -15,7 +15,7 @@ function setup(price,inks='1'){
 }
 (async()=>{
  check('Internal white tax-inclusive arithmetic preserved',()=>{assert.equal(white.subtotal,1868000);assert.equal(white.tax,373600);assert.equal(white.total,2241600);});
- check('Internal colored tax arithmetic preserved',()=>{assert.equal(colored.subtotal,4000000);assert.equal(colored.total,4800000);});
+ check('Internal colored tax arithmetic preserved',()=>{assert.equal(colored.subtotal,3900000);assert.equal(colored.total,4680000);});
  check('Bodrum shipping and exclusive subtotal unchanged',()=>{assert.equal(bodrum.shipping,0);assert.equal(bodrum.subtotal,1608000);});
  for(const [name,price]of [['white',white],['colored',colored]]){
   const h=setup(price);await h.context.renderQuote();const texts=h.drawn.map(x=>x.text);
@@ -24,7 +24,7 @@ function setup(price,inks='1'){
   check(`${name} actual JPEG renderer labels exclusive and exact note`,()=>{assert.ok(texts.includes('KDV hariç tahmini toplam'));assert.ok(texts.includes('Fiyatlara %20 KDV dahil değildir.'));assert.ok(!texts.includes('KDV (%20)'));});
  }
  const unknown={...white,plateUnknown:true,plate:0,subtotal:white.subtotal-white.plate};unknown.tax=Math.round(unknown.subtotal*.2);unknown.total=unknown.subtotal+unknown.tax;
- const h=setup(unknown,'0');await h.context.renderQuote();check('Unknown cliché remains explicit, not zero-cost promise',()=>{const texts=h.drawn.map(x=>x.text);assert.ok(texts.includes('KDV ve klişe hariç tahmini toplam'));assert.ok(texts.includes('Teknik incelemede — toplama dahil değil'));assert.ok(texts.includes(h.context.money(1768000)));});
+ const h=setup(unknown,'');await h.context.renderQuote();check('Unknown cliché remains explicit, not zero-cost promise',()=>{const texts=h.drawn.map(x=>x.text);assert.ok(texts.includes('KDV ve klişe hariç tahmini toplam'));assert.ok(texts.includes('Teknik incelemede — toplama dahil değil'));assert.ok(texts.includes(h.context.money(1768000)));});
  const ui=setup(white);ui.context.calculateRaw();const rows=ui.el('breakdown').children;
  check('Actual price DOM rows exclude tax amount',()=>{const labels=rows.map(r=>r.children[0].textContent);assert.ok(!labels.includes('KDV (%20)'));assert.ok(labels.includes('KDV hariç tahmini toplam'));assert.equal(rows.at(-1).children[1].textContent,ui.context.money(1868000));});
  check('Price panel and notes carry exact exclusion sentence',()=>assert.equal((html.match(/Fiyatlara %20 KDV dahil değildir\./g)||[]).length,2));
