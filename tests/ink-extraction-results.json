@@ -22,5 +22,9 @@
   {
     "name": "No fixed customer asset lookup",
     "status": "PASS"
+  },
+  {
+    "name": "Image-border scene background cannot be a colored carrier",
+    "status": "PASS"
   }
 ]

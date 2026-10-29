@@ -1,0 +1,54 @@
+[
+  {
+    "name": "Raw reference cannot be final design",
+    "status": "PASS"
+  },
+  {
+    "name": "Failed extraction blocks quote",
+    "status": "PASS"
+  },
+  {
+    "name": "Unapproved extracted print blocks quote",
+    "status": "PASS"
+  },
+  {
+    "name": "Approved logo continues",
+    "status": "PASS"
+  },
+  {
+    "name": "Native logo continues",
+    "status": "PASS"
+  },
+  {
+    "name": "Blank initial mockup remains usable",
+    "status": "PASS"
+  },
+  {
+    "name": "Navigation rejects unready design",
+    "status": "PASS"
+  },
+  {
+    "name": "JPEG render and download reject unready design",
+    "status": "PASS"
+  },
+  {
+    "name": "Failed extraction clears old image and stale quote",
+    "status": "PASS"
+  },
+  {
+    "name": "Final canvas never renders original reference photo",
+    "status": "PASS"
+  },
+  {
+    "name": "Known photo cannot be relabeled as logo or artwork",
+    "status": "PASS"
+  },
+  {
+    "name": "Source provenance survives byte-format normalization",
+    "status": "PASS"
+  },
+  {
+    "name": "Successful extraction hides stale failure alert",
+    "status": "PASS"
+  }
+]
