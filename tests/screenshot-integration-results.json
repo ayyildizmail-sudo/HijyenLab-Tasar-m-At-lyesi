@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Proposed region maps to original image, not scaled scan pixels",
+    "status": "PASS"
+  },
+  {
+    "name": "Ambiguous screen makes no cropped file",
+    "status": "PASS"
+  },
+  {
+    "name": "Non screenshot preserves existing route",
+    "status": "PASS"
+  },
+  {
+    "name": "Screenshot checked before ordinary logo classification and on logo override",
+    "status": "PASS"
+  },
+  {
+    "name": "Proposed screenshot crop requires review and avoids fit geometry changes",
+    "status": "PASS"
+  },
+  {
+    "name": "Ambiguous screenshot resets old design and blocks quote",
+    "status": "PASS"
+  },
+  {
+    "name": "Screenshot uncertain inks stay unknown, not auto-charged as five grays",
+    "status": "PASS"
+  }
+]

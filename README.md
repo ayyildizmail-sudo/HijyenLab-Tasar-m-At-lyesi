@@ -1,3 +1,7 @@
+# Latest local candidate: V23
+
+29 October 2026: bounded phone-screen controls excluded before brand fitting; original pixels and existing print-area proportions retained. See `LOCAL_STATUS_V23.md`. Prior version sections are historical.
+
 # Latest local candidate: V22
 
 29 October 2026: original logo and verified corporate identity restored to form header; reliable branded quote output. See `LOCAL_STATUS_V22.md`. Prior version sections are historical.

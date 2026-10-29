@@ -1,0 +1,62 @@
+[
+  {
+    "name": "Generic screenshot status/control layout 400x850, brand shift 0",
+    "status": "PASS"
+  },
+  {
+    "name": "Generic screenshot status/control layout 360x780, brand shift 0.035",
+    "status": "PASS"
+  },
+  {
+    "name": "Generic screenshot status/control layout 460x1000, brand shift -0.025",
+    "status": "PASS"
+  },
+  {
+    "name": "Generic screenshot status/control layout 390x844, brand shift 0.07",
+    "status": "PASS"
+  },
+  {
+    "name": "Generic screenshot status/control layout 480x1040, brand shift -0.055",
+    "status": "PASS"
+  },
+  {
+    "name": "Sparse genuine top and bottom brand content without phone chrome not auto removed",
+    "status": "PASS"
+  },
+  {
+    "name": "No camera/status pill gives no automatic screen interpretation",
+    "status": "PASS"
+  },
+  {
+    "name": "No bottom navigation evidence gives no automatic crop",
+    "status": "PASS"
+  },
+  {
+    "name": "Two legitimate central brands require selection, never silently discard one",
+    "status": "PASS"
+  },
+  {
+    "name": "Extra caption below viewer controls requires selection",
+    "status": "PASS"
+  },
+  {
+    "name": "Central dense photograph-like panel not treated as clean isolated logo",
+    "status": "PASS"
+  },
+  {
+    "name": "Landscape artwork and invalid bytes unchanged",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual original screenshot isolates full visible circle/truck/name/tagline",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual screenshot with added co-brand remains uncertain rather than deleting it",
+    "status": "PASS"
+  },
+  {
+    "name": "Runtime contains no customer name, lookup or remote service",
+    "status": "PASS"
+  }
+]
