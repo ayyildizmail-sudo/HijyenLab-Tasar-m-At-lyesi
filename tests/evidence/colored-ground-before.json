@@ -1,0 +1,46 @@
+[
+  {
+    "id": "explicit_colored_zero_rejected",
+    "status": "FAIL",
+    "error": "Missing expected exception."
+  },
+  {
+    "id": "colored_one_allowed",
+    "status": "PASS"
+  },
+  {
+    "id": "white_zero_allowed",
+    "status": "PASS"
+  },
+  {
+    "id": "unknown_colored_partial",
+    "status": "FAIL",
+    "error": "Baskı rengi sayısı 0–6 arasında tam sayı olmalı."
+  },
+  {
+    "id": "invalid_counts_still_rejected",
+    "status": "PASS"
+  },
+  {
+    "id": "existing_plate_remains_provisional",
+    "status": "PASS"
+  },
+  {
+    "id": "calculator_unknown_not_selected_zero",
+    "status": "PASS"
+  },
+  {
+    "id": "calculator_explicit_colored_zero_rejected",
+    "status": "FAIL",
+    "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ {\n+   base: 2900000,\n+   boxes: 25,\n+   color: 400000,\n+   inkSelection: {\n+     selectedCount: 0,\n+     status: 'estimated'\n+   },\n+   minimum: 10000,\n+   plate: 0,\n+   platePending: false,\n+   ruleRevision: 'BM12-2026-10-29-r1',\n+   rules: {\n+     coloredSurchargeKurus: [Getter: 40],\n+     coloredUnitKurus: 330,\n+     freightPerBoxKurus: 20000,\n+     maxQuantity: 1000000,\n+     minimum: {\n+       colored: 10000,\n+       white: 5200\n+     },\n+     platePerInkKurus: 100000,\n+     product: 'BM12',\n+     revision: 'BM12-2026-10-29-r1',\n+     source: '29 Ekim 2026 kullanıcı fiyat onayı; diğer koşullar 23 Ekim listesi',\n+     unitsPerBox: 400,\n+     vat: [Getter: 0.2],\n+     vatPercent: 20,\n+     whiteUnitKurus: 290\n+   },\n+   shipping: 0,\n+   subtotal: 3300000,\n+   tax: 660000,\n+   total: 3960000,\n+   totalStatus: 'estimated-complete'\n+ }\n- null\n"
+  },
+  {
+    "id": "calculator_colored_one_allowed",
+    "status": "PASS"
+  },
+  {
+    "id": "unknown_fee_tax_same_config",
+    "status": "FAIL",
+    "error": "Baskı rengi sayısı 0–6 arasında tam sayı olmalı."
+  }
+]

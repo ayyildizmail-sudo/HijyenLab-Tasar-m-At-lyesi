@@ -1,0 +1,42 @@
+[
+  {
+    "id": "explicit_colored_zero_rejected",
+    "status": "PASS"
+  },
+  {
+    "id": "colored_one_allowed",
+    "status": "PASS"
+  },
+  {
+    "id": "white_zero_allowed",
+    "status": "PASS"
+  },
+  {
+    "id": "unknown_colored_partial",
+    "status": "PASS"
+  },
+  {
+    "id": "invalid_counts_still_rejected",
+    "status": "PASS"
+  },
+  {
+    "id": "existing_plate_remains_provisional",
+    "status": "PASS"
+  },
+  {
+    "id": "calculator_unknown_not_selected_zero",
+    "status": "PASS"
+  },
+  {
+    "id": "calculator_explicit_colored_zero_rejected",
+    "status": "PASS"
+  },
+  {
+    "id": "calculator_colored_one_allowed",
+    "status": "PASS"
+  },
+  {
+    "id": "unknown_fee_tax_same_config",
+    "status": "PASS"
+  }
+]

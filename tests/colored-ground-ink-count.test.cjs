@@ -1,0 +1,23 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const app=fs.readFileSync(__dirname+'/../dist/app.js','utf8');
+const elements={},el=id=>elements[id]||(elements[id]={value:'',children:[],replaceChildren(){this.children=[];},append(...a){this.children.push(...a);}});
+const c={$:el,state:{requestedQuantity:null},document:{createElement(){return{children:[],append(...a){this.children.push(...a);}}}},syncQuantity:()=>10000,effectiveBackground:()=> '#ff0000',status(){},money:n=>String(n/100)};
+vm.createContext(c);
+vm.runInContext(app.slice(app.indexOf('const VAT_EXCLUSION_NOTE'),app.indexOf('const $=')),c);
+vm.runInContext(app.slice(app.indexOf('function pricing('),app.indexOf('\nconst money=')),c);
+vm.runInContext(app.slice(app.indexOf('function calculateRaw(){'),app.indexOf("\n$('province')")),c);
+const results=[];function test(id,fn){try{fn();results.push({id,status:'PASS'});}catch(e){results.push({id,status:'FAIL',error:e.message});}}
+const p=(inks,bg='#ff0000',cliche='new')=>c.pricing(10000,bg,'Muğla','Bodrum',cliche,inks);
+test('explicit_colored_zero_rejected',()=>assert.throws(()=>p(0)));
+test('colored_one_allowed',()=>assert.equal(p(1).plate,100000));
+test('white_zero_allowed',()=>assert.equal(p(0,'#ffffff').plate,0));
+test('unknown_colored_partial',()=>{const r=p(null);assert.equal(r.plateUnknown,true);assert.equal(r.totalStatus,'partial-excludes-plate');assert.equal(r.subtotal,3300000);assert.equal(r.tax,660000);});
+test('invalid_counts_still_rejected',()=>{for(const n of [-1,NaN,Infinity,1.5,7,'',undefined])assert.throws(()=>p(n));});
+test('existing_plate_remains_provisional',()=>{assert.equal(p(1,'#ff0000','existing').plate,100000);assert.equal(p(1,'#ff0000','existing').platePending,true);});
+el('qty').value='10000';el('province').value='Muğla';el('district').value='Bodrum';el('cliche').value='new';
+const texts=()=>elements.breakdown.children.flatMap(r=>r.children.flatMap(e=>[e.textContent,...(e.children||[]).map(n=>n.textContent)])).filter(Boolean).join('|');
+test('calculator_unknown_not_selected_zero',()=>{el('inks').value='';c.calculateRaw();assert(c.latest);assert.equal(c.latest.plateUnknown,true);assert.equal(c.latest.inkSelection.selectedCount,null);assert.equal(el('inks').value,'');assert.equal(c.latest.totalStatus,'partial-excludes-plate');assert(texts().includes('Belirlenecek'));assert(texts().includes('klişeyi içermez'));});
+test('calculator_explicit_colored_zero_rejected',()=>{el('inks').value='0';c.calculateRaw();assert.equal(c.latest,null);assert.match(el('breakdown').textContent,/zemin/);});
+test('calculator_colored_one_allowed',()=>{el('inks').value='1';c.calculateRaw();assert.equal(c.latest.subtotal,3400000);assert.equal(c.latest.totalStatus,'estimated-complete');});
+test('unknown_fee_tax_same_config',()=>{const rules={...c.productRules(),platePerInkKurus:123400,vatPercent:18};const a=c.pricing(10000,'#ff0000','Muğla','Bodrum','new',1,rules),b=c.pricing(10000,'#ff0000','Muğla','Bodrum','new',null,rules);assert.equal(a.subtotal-b.subtotal,123400);assert.equal(a.tax,Math.round(a.subtotal*.18));assert.equal(b.tax,Math.round(b.subtotal*.18));});
+console.log(JSON.stringify(results,null,2));if(results.some(r=>r.status==='FAIL'))process.exitCode=1;
