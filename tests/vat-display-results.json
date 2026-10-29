@@ -16,11 +16,19 @@
     "status": "PASS"
   },
   {
+    "name": "white actual JPEG renderer includes rule-based carton content",
+    "status": "PASS"
+  },
+  {
     "name": "white actual JPEG renderer labels exclusive and exact note",
     "status": "PASS"
   },
   {
     "name": "colored actual JPEG renderer shows exclusive subtotal",
+    "status": "PASS"
+  },
+  {
+    "name": "colored actual JPEG renderer includes rule-based carton content",
     "status": "PASS"
   },
   {

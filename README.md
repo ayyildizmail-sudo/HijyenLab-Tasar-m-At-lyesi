@@ -134,3 +134,6 @@ V18 supersedes the V17 local experiment; this worker did not publish. Adds `Sade
 
 ## V19 current candidate — KDV-exclusive customer display
 Customer-facing breakdown, review and downloadable JPEG now show totals before KDV, with the exact note `Fiyatlara %20 KDV dahil değildir.` Tax-inclusive model arithmetic remains internal and unchanged. Unknown cliché remains excluded with an explicit label, not treated as free. No invoiceless switch, rate change or sharing change. See `LOCAL_STATUS_V19.md` and `tests/vat-display.test.cjs`; historical descriptions above do not describe the current VAT display.
+
+## V20 current candidate — generic padded flat artwork
+A bounded generic detector separates uniform exterior padding from a validated flat design before automatic routing. This fixes clean padded graphics being misclassified as product photos, without customer-specific lookups. Horizontal/vertical/all-side unequal margins and varied flat colors are tested; unsupported photographic/complex content retains existing guards. Original artwork pixels are cropped, not reconstructed. Quote pricing/review/JPEG now show `Koli içi: 400 adet` via the product rule. V19 VAT-exclusive display remains. See `LOCAL_STATUS_V20.md` for limits and verification; parent controls deployment.

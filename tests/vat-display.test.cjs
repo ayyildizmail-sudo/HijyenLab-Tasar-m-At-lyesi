@@ -7,7 +7,7 @@ function setup(price,inks='1'){
  const elements={},values={qty:String(price===colored?10000:5200),inks,province:'İstanbul',district:'Kadıköy',cliche:'new',customerName:'Deneme İşletmesi',contactName:'Test Yetkilisi',contactPhone:'05000000001'};
  const el=id=>elements[id]||(elements[id]={value:values[id]||'',children:[],replaceChildren(){this.children=[];},append(...nodes){this.children.push(...nodes);},removeAttribute(){}});
  const drawn=[],cx=new Proxy({fillText(text,...position){drawn.push({text,position});}},{get(t,k){return k in t?t[k]:()=>{};}});
- const context={state:{bgPantone:'',textPantone:''},latest:price,$:el,document:{createElement(type){if(type==='canvas')return{getContext:()=>cx,toDataURL:()=> 'data:image/jpeg;test'};return{children:[],append(...nodes){this.children.push(...nodes);}}; } },designIssue:()=>false,showDesignIssue(){},validateLead:()=>true,leadFingerprint:()=> 'same',loadImage:async()=>({width:1600,height:850}),imageData:()=> 'image',money:v=>new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY'}).format(v/100),status(){},syncQuantity:()=>inks==='2'?10000:5200,effectiveBackground:()=>price===colored?'#102f59':'#ffffff',pricing:model.pricing};
+ const context={state:{bgPantone:'',textPantone:''},latest:price,$:el,document:{createElement(type){if(type==='canvas')return{getContext:()=>cx,toDataURL:()=> 'data:image/jpeg;test'};return{children:[],append(...nodes){this.children.push(...nodes);}}; } },designIssue:()=>false,showDesignIssue(){},validateLead:()=>true,leadFingerprint:()=> 'same',loadImage:async()=>({width:1600,height:850}),imageData:()=> 'image',money:v=>new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY'}).format(v/100),status(){},syncQuantity:()=>inks==='2'?10000:5200,effectiveBackground:()=>price===colored?'#102f59':'#ffffff',pricing:model.pricing,productRules:model.productRules};
  vm.createContext(context);vm.runInContext(source.slice(source.indexOf('const VAT_EXCLUSION_NOTE'),source.indexOf('const $=')),context);
  vm.runInContext(source.slice(source.indexOf('async function renderQuote(){'),source.indexOf('function preparePhotoCutout(')),context);
  vm.runInContext(source.slice(source.indexOf('function calculateRaw(){'),source.indexOf("\n$('province')")),context);
@@ -20,6 +20,7 @@ function setup(price,inks='1'){
  for(const [name,price]of [['white',white],['colored',colored]]){
   const h=setup(price);await h.context.renderQuote();const texts=h.drawn.map(x=>x.text);
   check(`${name} actual JPEG renderer shows exclusive subtotal`,()=>{assert.ok(texts.includes(h.context.money(price.subtotal)));assert.ok(!texts.includes(h.context.money(price.total)));});
+  check(`${name} actual JPEG renderer includes rule-based carton content`,()=>assert.ok(texts.includes('Koli içi: 400 adet · '+price.boxes+' koli')));
   check(`${name} actual JPEG renderer labels exclusive and exact note`,()=>{assert.ok(texts.includes('KDV hariç tahmini toplam'));assert.ok(texts.includes('Fiyatlara %20 KDV dahil değildir.'));assert.ok(!texts.includes('KDV (%20)'));});
  }
  const unknown={...white,plateUnknown:true,plate:0,subtotal:white.subtotal-white.plate};unknown.tax=Math.round(unknown.subtotal*.2);unknown.total=unknown.subtotal+unknown.tax;

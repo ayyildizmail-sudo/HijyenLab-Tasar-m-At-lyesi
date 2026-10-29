@@ -1,0 +1,110 @@
+[
+  {
+    "name": "black horizontal generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "black vertical generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "black all sides generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "navy horizontal generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "navy vertical generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "navy all sides generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "red horizontal generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "red vertical generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "red all sides generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "yellow horizontal generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "yellow vertical generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "yellow all sides generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "white horizontal generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "white vertical generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "white all sides generic panel",
+    "status": "PASS"
+  },
+  {
+    "name": "Blank field rejects",
+    "status": "PASS"
+  },
+  {
+    "name": "Textured photograph inside rectangular padding rejects",
+    "status": "PASS"
+  },
+  {
+    "name": "Two disjoint dark panels reject",
+    "status": "PASS"
+  },
+  {
+    "name": "Thin artwork in transition strip is not cropped",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual upload at 1600px retains black canvas and print extent",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual upload at 1200px retains black canvas and print extent",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual upload at 600px retains black canvas and print extent",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual upload at 320px retains black canvas and print extent",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual upload at 240px retains black canvas and print extent",
+    "status": "PASS"
+  },
+  {
+    "name": "No brand-specific lookup in runtime",
+    "status": "PASS"
+  },
+  {
+    "name": "Known-photo override provenance retained",
+    "status": "PASS"
+  },
+  {
+    "name": "Carton content derived from product rule",
+    "status": "PASS"
+  }
+]
