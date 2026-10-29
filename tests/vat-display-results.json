@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Internal white tax-inclusive arithmetic preserved",
+    "status": "PASS"
+  },
+  {
+    "name": "Internal colored tax arithmetic preserved",
+    "status": "PASS"
+  },
+  {
+    "name": "Bodrum shipping and exclusive subtotal unchanged",
+    "status": "PASS"
+  },
+  {
+    "name": "white actual JPEG renderer shows exclusive subtotal",
+    "status": "PASS"
+  },
+  {
+    "name": "white actual JPEG renderer labels exclusive and exact note",
+    "status": "PASS"
+  },
+  {
+    "name": "colored actual JPEG renderer shows exclusive subtotal",
+    "status": "PASS"
+  },
+  {
+    "name": "colored actual JPEG renderer labels exclusive and exact note",
+    "status": "PASS"
+  },
+  {
+    "name": "Unknown cliché remains explicit, not zero-cost promise",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual price DOM rows exclude tax amount",
+    "status": "PASS"
+  },
+  {
+    "name": "Price panel and notes carry exact exclusion sentence",
+    "status": "PASS"
+  },
+  {
+    "name": "Review uses subtotal and same exact note",
+    "status": "PASS"
+  },
+  {
+    "name": "No invoiceless toggle introduced",
+    "status": "PASS"
+  }
+]
