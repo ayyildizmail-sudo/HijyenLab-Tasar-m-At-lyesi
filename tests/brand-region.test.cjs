@@ -21,18 +21,17 @@ const ui=fs.readFileSync('dist/brand-region-ui.js','utf8'),app=fs.readFileSync('
 test('Known source-limited extraction cannot auto import',()=>assert.ok(app.includes('if(extracted&&!extracted.sourceLimited)')));
 test('Known missing source cannot enter manual recovery',()=>assert.ok(ui.includes("if(state.extractionSourceLimited)throw Error(")));
 test('Manual selection remains explicitly identified',()=>assert.ok(ui.includes('Alanı siz seçtiniz; uygulama yalnız zemin ayrımını yaptı.')));
-test('Cancel invalidates pending image decoder',()=>assert.ok(ui.includes("$('cancelBrandRegion').onclick=()=>{regionOperation++;loading++;")));
+test('Cancel invalidates pending image decoder',()=>assert.ok(ui.includes("$('cancelBrandRegion').onclick=()=>{cancelRegionEditing();regionOperation++;")));
 test('Selection changes discard prior preview',()=>assert.ok(ui.includes('regionSelected=true;invalidateRegionResult()')));
 const ctx={state:{logo:'a',bg:'#fff'}};vm.createContext(ctx);vm.runInContext(ui.slice(ui.indexOf('function designFingerprint()'),ui.indexOf('let approvedDesignFingerprint')),ctx);
 test('Content and layout fingerprint changes invalidate prior approval',()=>{const a=ctx.designFingerprint();ctx.state.bg='#f00';assert.notEqual(ctx.designFingerprint(),a);const b=ctx.designFingerprint();ctx.state.x=25;assert.notEqual(ctx.designFingerprint(),b);});
-test('Quote rechecks design after await',()=>assert.ok(ui.includes('if(before!==designFingerprint())invalidateQuote()')));
+test('Quote commits only current immutable transaction after await',()=>assert.ok(fs.readFileSync('dist/app.js','utf8').includes('processingSession.isQuoteCurrent(quoteJob,makeQuoteSnapshot())')));
 (async()=>{
- const context={regionOperation:0,regionBusy:false,regionPanel:{hidden:false},regionResult:{},approvedDesignFingerprint:'old',state:{extractionApprovalRequired:false},invalidated:0,refreshes:0};
- context.invalidateQuote=()=>context.invalidated++;context.refresh=()=>context.refreshes++;let finish;context.routeUploadedFile=()=>new Promise(resolve=>{finish=resolve;});vm.createContext(context);
- vm.runInContext(ui.slice(ui.indexOf('const beforeRegionRoute='),ui.indexOf('const beforeRegionReset=')),context);
- const first=context.routeUploadedFile({name:'new.png'});
+ const context={loading:0,processingContext:null,processingSession:require('../dist/processing-session.js').create(),disposePdf(){},resetRegionEditor(){},approvedDesignFingerprint:'old',state:{extractionApprovalRequired:false},printInkKey:null,printInkManual:false,invalidated:0,refreshes:0,$:()=>({replaceChildren(){}}),photoRectified:null,photoTouched:false,UploadFormat:{MAX_BYTES:100,inspect(){throw Error('failed decode');}},status(){},syncPrintInks(){}};
+ context.invalidateQuote=()=>context.invalidated++;context.refresh=()=>context.refreshes++;let finish;const file={name:'new.png',size:2,arrayBuffer:()=>new Promise(resolve=>{finish=resolve;})};vm.createContext(context);const lifecycle=fs.readFileSync('dist/processing-lifecycle.js','utf8');vm.runInContext(lifecycle.slice(lifecycle.indexOf('async function routeUploadedFile('),lifecycle.indexOf('function restoreProcessingResult(')),context);
+ const first=context.routeUploadedFile(file);
  test('New source immediately blocks old approval and quote during decode',()=>{assert.equal(context.state.designProcessing,true);assert.equal(context.state.extractionApprovalRequired,true);assert.equal(context.approvedDesignFingerprint,null);assert.equal(context.invalidated,1);});
- finish();await first;
+ finish(new ArrayBuffer(2));await first;
  test('Failed or unchanged decode leaves old design unapproved',()=>{assert.equal(context.state.designProcessing,false);assert.equal(context.state.extractionApprovalRequired,true);assert.equal(context.approvedDesignFingerprint,null);});
  fs.writeFileSync('tests/brand-region-results.json',JSON.stringify(cases,null,2));console.log(cases);if(cases.some(x=>x.status==='FAIL'))process.exit(1);
 })();

@@ -1,0 +1,50 @@
+[
+  {
+    "name": "LateA bytes cannotreplace committedB",
+    "status": "PASS"
+  },
+  {
+    "name": "Oldfinally cannotclear B stillloading",
+    "status": "PASS"
+  },
+  {
+    "name": "Cancel pendingfile preventsdecodecommit",
+    "status": "PASS"
+  },
+  {
+    "name": "Exactuploadedbytes SHA retained inresult",
+    "status": "PASS"
+  },
+  {
+    "name": "Samefile reprocessing gets newoperation andmode remainsdeclared",
+    "status": "PASS"
+  },
+  {
+    "name": "Failednewfile cannotapprove previoussuccess",
+    "status": "PASS"
+  },
+  {
+    "name": "Cancel unchanged manualeditor preserves approveddesign undernewtoken",
+    "status": "PASS"
+  },
+  {
+    "name": "Cancel unsupportedsource cannotcreate approval",
+    "status": "PASS"
+  },
+  {
+    "name": "Pending new artwork selection never commits oldlogo asnewsource",
+    "status": "PASS"
+  },
+  {
+    "name": "Current unsupported extraction clearsbusy and reportsnotbusy",
+    "status": "PASS"
+  },
+  {
+    "name": "Oldblockedsource cannotfail newpendingselection",
+    "status": "PASS"
+  },
+  {
+    "name": "Oldblocked then explicitconfirm commits currentnewartifact",
+    "status": "PASS"
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "New source B rejects delayed editor A without global writes",
+      "status": "PASS"
+    },
+    {
+      "name": "Reset loading token rejects delayed editor result",
+      "status": "PASS"
+    },
+    {
+      "name": "Same-source newer upload invalidates delayed editor result",
+      "status": "PASS"
+    },
+    {
+      "name": "Unchanged source opens coherent original image and geometry",
+      "status": "PASS"
+    },
+    {
+      "name": "Changed geometry before decode cannot mix with old source",
+      "status": "PASS"
+    },
+    {
+      "name": "Current image rejection gives useful error and no editor",
+      "status": "PASS"
+    },
+    {
+      "name": "Obsolete image rejection cannot overwrite new status",
+      "status": "PASS"
+    }
+  ]
+}

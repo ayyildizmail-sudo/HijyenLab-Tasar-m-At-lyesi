@@ -80,7 +80,7 @@
     "status": "PASS"
   },
   {
-    "name": "Quote rechecks design after await",
+    "name": "Quote commits only current immutable transaction after await",
     "status": "PASS"
   },
   {

@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Uncertainpositive1 not charged as knownplate",
+    "status": "PASS"
+  },
+  {
+    "name": "Uncertainpositive2 not charged as knownplate",
+    "status": "PASS"
+  },
+  {
+    "name": "Uncertainpositive3 not charged as knownplate",
+    "status": "PASS"
+  },
+  {
+    "name": "Uncertainpositive4 not charged as knownplate",
+    "status": "PASS"
+  },
+  {
+    "name": "Uncertainpositive5 not charged as knownplate",
+    "status": "PASS"
+  },
+  {
+    "name": "Uncertainpositive6 not charged as knownplate",
+    "status": "PASS"
+  },
+  {
+    "name": "Manual count2 works withoutnamesorPantone",
+    "status": "PASS"
+  },
+  {
+    "name": "Certainestimate1 charges estimated1 withoutnames",
+    "status": "PASS"
+  },
+  {
+    "name": "Newbackground revokesmanual count",
+    "status": "PASS"
+  }
+]

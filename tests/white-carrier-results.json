@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Generic white carrier proposes complete multicolor and black marks",
+    "status": "PASS"
+  },
+  {
+    "name": "Extraction requires review and preserves black tagline",
+    "status": "PASS"
+  },
+  {
+    "name": "ROI extraction equals full-source extraction byte for byte",
+    "status": "PASS"
+  },
+  {
+    "name": "ROI mismatched dimensions rejected instead of misbound coordinates",
+    "status": "PASS"
+  },
+  {
+    "name": "Blank white carrier yields no arbitrary brand",
+    "status": "PASS"
+  },
+  {
+    "name": "Deskew preserves explicit orientation ambiguity and white-only limitation",
+    "status": "PASS"
+  }
+]

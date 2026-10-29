@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Unknown SHA cannotcommit declared ready",
+    "status": "PASS"
+  },
+  {
+    "name": "Coordinates outsideoriginalframe rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Samefile newoperation invalidates oldsource writes",
+    "status": "PASS"
+  },
+  {
+    "name": "Twoquote race oldtoken cannotinvalidate newer byread",
+    "status": "PASS"
+  },
+  {
+    "name": "Quote snapshot source mutation invalidates",
+    "status": "PASS"
+  },
+  {
+    "name": "Forged copiedquote token rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Designchange revokes approval andquote",
+    "status": "PASS"
+  },
+  {
+    "name": "Cancellation blocks latecommit andquote",
+    "status": "PASS"
+  },
+  {
+    "name": "Getstate detachedfrommutableexternalresult",
+    "status": "PASS"
+  },
+  {
+    "name": "Result currentdesignrevision matches approvedrevision",
+    "status": "PASS"
+  }
+]

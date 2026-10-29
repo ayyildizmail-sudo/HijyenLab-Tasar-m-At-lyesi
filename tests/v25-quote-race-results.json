@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Old successful render cannot overwrite or clear newer B",
+    "status": "PASS"
+  },
+  {
+    "name": "Old logo load failure cannot clear fresh B",
+    "status": "PASS"
+  },
+  {
+    "name": "Changed qty rejects pending render withoutnewrender",
+    "status": "PASS"
+  },
+  {
+    "name": "Changed inks rejects pending render withoutnewrender",
+    "status": "PASS"
+  },
+  {
+    "name": "Changed customerName rejects pending render withoutnewrender",
+    "status": "PASS"
+  },
+  {
+    "name": "Changed cliche rejects pending render withoutnewrender",
+    "status": "PASS"
+  },
+  {
+    "name": "Cancelled source rejects pending quote",
+    "status": "PASS"
+  },
+  {
+    "name": "Unchanged latest render publishes",
+    "status": "PASS"
+  }
+]

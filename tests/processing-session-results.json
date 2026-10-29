@@ -1,0 +1,102 @@
+[
+  {
+    "name": "Delayed upload A cannot change or commit after B starts",
+    "status": "PASS"
+  },
+  {
+    "name": "Cancelled decode and commit are ignored",
+    "status": "PASS"
+  },
+  {
+    "name": "Failure revokes approval and old quote",
+    "status": "PASS"
+  },
+  {
+    "name": "Source hash required before processing-result commit",
+    "status": "PASS"
+  },
+  {
+    "name": "Committed result contains cloned source, operation, frame and approval revision",
+    "status": "PASS"
+  },
+  {
+    "name": "Unapproved candidate cannot produce quote token",
+    "status": "PASS"
+  },
+  {
+    "name": "Only matching current design fingerprint can be approved",
+    "status": "PASS"
+  },
+  {
+    "name": "Same fingerprint does not needlessly revoke approval",
+    "status": "PASS"
+  },
+  {
+    "name": "Async quote invalid after quantity, plate or contact snapshot changes",
+    "status": "PASS"
+  },
+  {
+    "name": "Snapshot key order does not invalidate unchanged quote",
+    "status": "PASS"
+  },
+  {
+    "name": "Async quote invalid after design edit or new upload",
+    "status": "PASS"
+  },
+  {
+    "name": "Foreign controller and forged operation/quote tokens refused",
+    "status": "PASS"
+  },
+  {
+    "name": "Known bounds cannot escape decoded coordinate frame",
+    "status": "PASS"
+  },
+  {
+    "name": "Wrong coordinate system and invalid frame dimensions rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "PDF page frame explicitly recorded rather than browser-source fiction",
+    "status": "PASS"
+  },
+  {
+    "name": "Unknown source bounds require explicit missing-coordinate limitation",
+    "status": "PASS"
+  },
+  {
+    "name": "Needs-selection trace cannot be approved; later explicit ready commit allowed",
+    "status": "PASS"
+  },
+  {
+    "name": "Invalid result lacks provenance or invents numeric confidence",
+    "status": "PASS"
+  },
+  {
+    "name": "Result mutation cannot alter internal committed record",
+    "status": "PASS"
+  },
+  {
+    "name": "Repeated commit after ready does not advance revision",
+    "status": "PASS"
+  },
+  {
+    "name": "Later quote job supersedes earlier job even with identical input",
+    "status": "PASS"
+  },
+  {
+    "name": "Transient input edit then revert cannot revive invalidated quote",
+    "status": "PASS"
+  },
+  {
+    "name": "Current record revision matches approval while extraction revision remains historical",
+    "status": "PASS"
+  },
+  {
+    "name": "Pending selection after new upload cannot expose old result or approval",
+    "status": "PASS"
+  },
+  {
+    "name": "Pending selection preserves decoded frame but rejects stale operation",
+    "status": "PASS"
+  }
+]

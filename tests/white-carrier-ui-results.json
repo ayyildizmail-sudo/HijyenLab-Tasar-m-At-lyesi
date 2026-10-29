@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Candidate review clears previous mockup but never adopts unconfirmed candidate",
+    "status": "PASS"
+  },
+  {
+    "name": "Explicit current confirmation adopts candidate with source provenance and white gate",
+    "status": "PASS"
+  },
+  {
+    "name": "New upload token prevents accepting stale proposal",
+    "status": "PASS"
+  },
+  {
+    "name": "New upload during asynchronous adoption prevents stale source binding",
+    "status": "PASS"
+  },
+  {
+    "name": "Reject proposal clears selection without committing design",
+    "status": "PASS"
+  },
+  {
+    "name": "White candidate valid destination is white with no Pantone request",
+    "status": "PASS"
+  },
+  {
+    "name": "Ordinary native colored artwork remains allowed",
+    "status": "PASS"
+  },
+  {
+    "name": "Palette and Pantone apply paths enforce family white-only scope",
+    "status": "PASS"
+  },
+  {
+    "name": "Family proposal is fallback only and unconfirmed result opens selection panel",
+    "status": "PASS"
+  },
+  {
+    "name": "Unseen candidate cannot be accepted before both images decode",
+    "status": "PASS"
+  },
+  {
+    "name": "Preview decode error disables acceptance",
+    "status": "PASS"
+  },
+  {
+    "name": "Delayed old preview callback cannot enable newer proposal",
+    "status": "PASS"
+  }
+]

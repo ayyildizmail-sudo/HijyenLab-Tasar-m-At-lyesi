@@ -1,0 +1,46 @@
+[
+  {
+    "name": "Uncertain 0 palette cannot silently become priced plate count",
+    "status": "PASS"
+  },
+  {
+    "name": "Uncertain 1 palette cannot silently become priced plate count",
+    "status": "PASS"
+  },
+  {
+    "name": "Uncertain 2 palette cannot silently become priced plate count",
+    "status": "PASS"
+  },
+  {
+    "name": "Uncertain 5 palette cannot silently become priced plate count",
+    "status": "PASS"
+  },
+  {
+    "name": "Uncertain 6 palette cannot silently become priced plate count",
+    "status": "PASS"
+  },
+  {
+    "name": "Nameless distinct colors can be counted without Pantone names",
+    "status": "PASS"
+  },
+  {
+    "name": "Photographic provenance makes a confident RGB count unverified, not three billed plates",
+    "status": "PASS"
+  },
+  {
+    "name": "Clear saturated photographic palette is retained as estimate, not discarded for lacking color names",
+    "status": "PASS"
+  },
+  {
+    "name": "Known white-only artwork is zero, not missing information",
+    "status": "PASS"
+  },
+  {
+    "name": "Manual correction records user selection, never press-confirmed status",
+    "status": "PASS"
+  },
+  {
+    "name": "Changed design resets manual correction instead of carrying count to next logo",
+    "status": "PASS"
+  }
+]

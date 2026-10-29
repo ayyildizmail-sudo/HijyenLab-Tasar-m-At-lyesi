@@ -1,7 +1,7 @@
 (function(root){'use strict';
 // Content recognition only. A recognized container is NOT proof of safe/complete decode.
 // Browser implementation must still decode in bounded worker or native decoder and validate dimensions.
-const MAX_BYTES=8*1024*1024, MAX_PIXELS=24*1024*1024, MAX_SIDE=16384;
+const MAX_BYTES=8*1024*1024, MAX_PIXELS=24000000, MAX_SIDE=16384;
 function dimensions(w,h){if(!Number.isSafeInteger(w)||!Number.isSafeInteger(h)||w<1||h<1||w>MAX_SIDE||h>MAX_SIDE||w*h>MAX_PIXELS)throw Error('Görsel boyutları bu cihaz önizlemesi için çok büyük veya geçersiz.');return {width:w,height:h};}
 function inspect(input){const b=input instanceof Uint8Array?input:new Uint8Array(input); if(!b.length||b.length>MAX_BYTES)throw Error('Dosya boş veya 8 MB sınırını aşıyor.'); const v=new DataView(b.buffer,b.byteOffset,b.byteLength);const text=(p,n)=>String.fromCharCode(...b.subarray(p,p+n));let type=null,mime=null,size=null;
  if(b.length>=24&&[137,80,78,71,13,10,26,10].every((x,i)=>b[i]===x)&&text(12,4)==='IHDR'){type='png';mime='image/png';size=dimensions(v.getUint32(16),v.getUint32(20));}
