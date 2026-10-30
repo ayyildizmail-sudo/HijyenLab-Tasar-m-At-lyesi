@@ -1,0 +1,434 @@
+{
+  "front": {
+    "box": [
+      423,
+      382,
+      942,
+      793
+    ],
+    "sourceWidth": 1374,
+    "sourceHeight": 1145,
+    "method": "light-surface-localized-marking",
+    "methodVersion": "1",
+    "sourceCoordinates": "browser-decoded",
+    "componentCount": 23,
+    "quietBorderRatio": 1,
+    "limitations": [
+      "Review-only marking proposal, not semantic brand recognition.",
+      "No perspective or curved-surface correction; photographed geometry retained.",
+      "White-ground preview only; all words and symbols require comparison.",
+      "Foreground and edge coverage estimated per connected ink component against local white substrate; colors are approximate.",
+      "Faint neutral details and shadows can remain ambiguous.",
+      "Text-like alignment proposal; no OCR or semantic identity guarantee.",
+      "Rotation only: perspective, curvature and intended decorative slant are not reconstructed.",
+      "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+      "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+    ],
+    "status": "needs-selection",
+    "candidates": [
+      {
+        "box": [
+          423,
+          382,
+          942,
+          793
+        ],
+        "sourceWidth": 1374,
+        "sourceHeight": 1145,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 23,
+        "quietBorderRatio": 1,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ],
+    "maskBasis": "Source-resolution local substrate/foreground estimate; no redrawn letters",
+    "transformOrder": [
+      "browser-decode",
+      "local-contrast marking proposal",
+      "source-resolution ROI",
+      "local alpha estimate",
+      "review before placement",
+      "whole-mark rotation from agreeing source-row baselines",
+      "whole-source premultiplied-alpha affine shear rectification"
+    ],
+    "orientation": {
+      "ok": true,
+      "degrees": -10.187364467421483,
+      "radians": -0.1778030520571835,
+      "rows": [
+        {
+          "angle": -10.303178557906865,
+          "n": 5,
+          "res": 5.695581693829511,
+          "span": 401,
+          "h": 98,
+          "boxes": [
+            [
+              430,
+              111,
+              499,
+              209
+            ],
+            [
+              356,
+              133,
+              449,
+              220
+            ],
+            [
+              257,
+              141,
+              348,
+              226
+            ],
+            [
+              105,
+              161,
+              293,
+              262
+            ],
+            [
+              19,
+              180,
+              108,
+              279
+            ]
+          ]
+        },
+        {
+          "angle": -9.400221242258116,
+          "n": 4,
+          "res": 0.3190856625862204,
+          "span": 59,
+          "h": 20,
+          "boxes": [
+            [
+              313,
+              302,
+              333,
+              323
+            ],
+            [
+              294,
+              306,
+              316,
+              326
+            ],
+            [
+              272,
+              310,
+              294,
+              329
+            ],
+            [
+              255,
+              313,
+              273,
+              333
+            ]
+          ]
+        }
+      ],
+      "method": "independent-mark-row-baselines",
+      "methodVersion": "1",
+      "limitations": [
+        "Text-like alignment proposal; no OCR or semantic identity guarantee.",
+        "Rotation only: perspective, curvature and intended decorative slant are not reconstructed."
+      ],
+      "applied": true,
+      "correctionDegrees": 10.187364467421483
+    },
+    "geometry": {
+      "ok": true,
+      "shear": 0.12546431160398316,
+      "centerY": 248.41379310344828,
+      "residual": 0.49896447634537616,
+      "sampleRows": 203,
+      "baseline": {
+        "slope": 0.0044742729306487695,
+        "boxes": [
+          [
+            137,
+            303,
+            239,
+            309
+          ],
+          [
+            361,
+            304,
+            462,
+            310
+          ]
+        ]
+      },
+      "method": "bilateral-frame-affine-rectification",
+      "methodVersion": "1",
+      "limitations": [
+        "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+        "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+      ],
+      "applied": true,
+      "alphaPreserved": true,
+      "analysisBasis": "temporary white composite of extracted photo matte"
+    }
+  },
+  "rear": {
+    "box": [
+      423,
+      382,
+      942,
+      793
+    ],
+    "sourceWidth": 1374,
+    "sourceHeight": 1145,
+    "method": "light-surface-localized-marking",
+    "methodVersion": "1",
+    "sourceCoordinates": "browser-decoded",
+    "componentCount": 23,
+    "quietBorderRatio": 1,
+    "limitations": [
+      "Review-only marking proposal, not semantic brand recognition.",
+      "No perspective or curved-surface correction; photographed geometry retained.",
+      "White-ground preview only; all words and symbols require comparison.",
+      "Foreground and edge coverage estimated per connected ink component against local white substrate; colors are approximate.",
+      "Faint neutral details and shadows can remain ambiguous.",
+      "Text-like alignment proposal; no OCR or semantic identity guarantee.",
+      "Rotation only: perspective, curvature and intended decorative slant are not reconstructed.",
+      "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+      "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+    ],
+    "status": "needs-selection",
+    "candidates": [
+      {
+        "box": [
+          423,
+          382,
+          942,
+          793
+        ],
+        "sourceWidth": 1374,
+        "sourceHeight": 1145,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 23,
+        "quietBorderRatio": 1,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ],
+    "maskBasis": "Source-resolution local substrate/foreground estimate; no redrawn letters",
+    "transformOrder": [
+      "browser-decode",
+      "local-contrast marking proposal",
+      "source-resolution ROI",
+      "local alpha estimate",
+      "review before placement",
+      "whole-mark rotation from agreeing source-row baselines",
+      "whole-source premultiplied-alpha affine shear rectification"
+    ],
+    "orientation": {
+      "ok": true,
+      "degrees": -10.187364467421483,
+      "radians": -0.1778030520571835,
+      "rows": [
+        {
+          "angle": -10.303178557906865,
+          "n": 5,
+          "res": 5.695581693829511,
+          "span": 401,
+          "h": 98,
+          "boxes": [
+            [
+              430,
+              111,
+              499,
+              209
+            ],
+            [
+              356,
+              133,
+              449,
+              220
+            ],
+            [
+              257,
+              141,
+              348,
+              226
+            ],
+            [
+              105,
+              161,
+              293,
+              262
+            ],
+            [
+              19,
+              180,
+              108,
+              279
+            ]
+          ]
+        },
+        {
+          "angle": -9.400221242258116,
+          "n": 4,
+          "res": 0.3190856625862204,
+          "span": 59,
+          "h": 20,
+          "boxes": [
+            [
+              313,
+              302,
+              333,
+              323
+            ],
+            [
+              294,
+              306,
+              316,
+              326
+            ],
+            [
+              272,
+              310,
+              294,
+              329
+            ],
+            [
+              255,
+              313,
+              273,
+              333
+            ]
+          ]
+        }
+      ],
+      "method": "independent-mark-row-baselines",
+      "methodVersion": "1",
+      "limitations": [
+        "Text-like alignment proposal; no OCR or semantic identity guarantee.",
+        "Rotation only: perspective, curvature and intended decorative slant are not reconstructed."
+      ],
+      "applied": true,
+      "correctionDegrees": 10.187364467421483
+    },
+    "geometry": {
+      "ok": true,
+      "shear": 0.12546431160398316,
+      "centerY": 248.41379310344828,
+      "residual": 0.49896447634537616,
+      "sampleRows": 203,
+      "baseline": {
+        "slope": 0.0044742729306487695,
+        "boxes": [
+          [
+            137,
+            303,
+            239,
+            309
+          ],
+          [
+            361,
+            304,
+            462,
+            310
+          ]
+        ]
+      },
+      "method": "bilateral-frame-affine-rectification",
+      "methodVersion": "1",
+      "limitations": [
+        "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+        "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+      ],
+      "applied": true,
+      "alphaPreserved": true,
+      "analysisBasis": "temporary white composite of extracted photo matte"
+    }
+  },
+  "variants": [
+    {
+      "name": "downscaled",
+      "geometry": {
+        "ok": true,
+        "shear": 0.1256575684254376,
+        "centerY": 187.31578947368422,
+        "residual": 0.4806672008414971,
+        "sampleRows": 152,
+        "baseline": {
+          "slope": 0.002976190476190476,
+          "boxes": [
+            [
+              104,
+              229,
+              180,
+              233
+            ],
+            [
+              272,
+              229,
+              348,
+              234
+            ]
+          ]
+        },
+        "method": "bilateral-frame-affine-rectification",
+        "methodVersion": "1",
+        "limitations": [
+          "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+          "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+        ],
+        "applied": true,
+        "alphaPreserved": true,
+        "analysisBasis": "temporary white composite of extracted photo matte"
+      }
+    },
+    {
+      "name": "rotated",
+      "geometry": {
+        "ok": true,
+        "shear": 0.12614881687132293,
+        "centerY": 229.6881188118812,
+        "residual": 0.4756116008525674,
+        "sampleRows": 202,
+        "baseline": {
+          "slope": 0.004464285714285714,
+          "boxes": [
+            [
+              123,
+              285,
+              225,
+              291
+            ],
+            [
+              348,
+              286,
+              448,
+              292
+            ]
+          ]
+        },
+        "method": "bilateral-frame-affine-rectification",
+        "methodVersion": "1",
+        "limitations": [
+          "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+          "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+        ],
+        "applied": true,
+        "alphaPreserved": true,
+        "analysisBasis": "temporary white composite of extracted photo matte"
+      }
+    }
+  ]
+}

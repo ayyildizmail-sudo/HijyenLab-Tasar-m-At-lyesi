@@ -23,6 +23,7 @@ async function prepare(img,options={}){
  if(!validResult(result))continue;
  if(route.engine===W&&typeof W.deskew!=='function')throw Error('Fotoğraf açı düzeltme aracı yüklenemedi.');
  result=route.correct(result,candidate);if(!validResult(result))continue;
+ if(!O||typeof O.correctPhotoFrame!=='function')throw Error('Fotoğraf açı düzeltme aracı yüklenemedi.');result=O.correctPhotoFrame(result);if(!validResult(result))continue;
  let ink=0;for(let i=3;i<result.data.length;i+=4)if(result.data[i]>16)ink++;if(ink<12)continue;
  const canvas=make(result.width,result.height),target=canvas.getContext('2d'),out=target.createImageData(result.width,result.height);out.data.set(result.data);target.putImageData(out,0,0);
  return {canvas,method:route.name,reviewRequired:true,processing:result.metadata||{},sourceBounds:b.slice(),limitations:['Fotoğraftan çıkarılmış marka önerisidir; yazı ve simgeleri kaynakla karşılaştırarak onaylayın.','Açı düzeltmesi tam perspektif veya baskıya hazır vektör garantisi değildir.',...(result.metadata?.limitations||[])],contrastWarning:'Fotoğraf ayrıştırmasında ince veya soluk ayrıntılar etkilenebilir. Seçtiğiniz zeminde logonun tamamını kontrol edin.'};

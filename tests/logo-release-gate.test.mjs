@@ -10,7 +10,7 @@ try {
   for(const file of ['check-logo-regressions.mjs','prepare-legacy-frontend.mjs'])await cp(new URL(`../scripts/${file}`,import.meta.url),join(tmp,'scripts',file));
   const run=()=>spawnSync(process.execPath,['scripts/prepare-legacy-frontend.mjs'],{cwd:tmp,encoding:'utf8'});
   const missing=run();assert.notEqual(missing.status,0);assert.match(missing.stderr,/ENOENT/);
-  const inputs=['tests/fixtures/screenshot-artwork/source.jpeg','tests/fixtures/composite-screenshot/source.jpeg','tests/fixtures/technical-frame/source.jpeg','tests/screenshot-artwork.test.cjs','tests/composite-screenshot.test.cjs','tests/screenshot-background.test.cjs','tests/screenshot-integration.test.cjs','tests/frame-geometry.test.cjs'];
+  const inputs=['tests/photo-frame-geometry.test.cjs','tests/fixtures/photo-frame-geometry/source.jpeg','tests/fixtures/screenshot-artwork/source.jpeg','tests/fixtures/composite-screenshot/source.jpeg','tests/fixtures/technical-frame/source.jpeg','tests/screenshot-artwork.test.cjs','tests/composite-screenshot.test.cjs','tests/screenshot-background.test.cjs','tests/screenshot-integration.test.cjs','tests/frame-geometry.test.cjs'];
   for(const file of inputs){await mkdir(dirname(join(tmp,file)),{recursive:true});await writeFile(join(tmp,file),file.endsWith('.cjs')?'process.exit(7);':'required fixture');}
   const failed=run();assert.notEqual(failed.status,0);assert.match(failed.stderr,/Logo regression gate failed/);
   assert.equal(await readFile(join(tmp,'public/sentinel.txt'),'utf8'),'untouched');

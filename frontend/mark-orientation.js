@@ -53,5 +53,18 @@ function correctFrame(result){
  for(let y=0;y<h;y++)for(let x=0;x<ow;x++){const sx=x-pad+k*(y-h/2),lo=Math.floor(sx),f=sx-lo,j=(y*ow+x)*4;for(let c=0;c<4;c++){const a=lo>=0&&lo<w?result.data[(y*w+lo)*4+c]:255,b=lo+1>=0&&lo+1<w?result.data[(y*w+lo+1)*4+c]:255;out[j+c]=a*(1-f)+b*f;}}
  return {...result,data:out,width:ow,height:h,geometry:{...geometry,applied:true},metadata:{...result.metadata,geometry:{...geometry,applied:true},transformOrder:[...(result.metadata?.transformOrder||[]),'whole-source affine shear rectification'],limitations:[...(result.metadata?.limitations||[]),...geometry.limitations]}};
 }
-const api={estimate,correct,frameGeometry,correctFrame};if(typeof module!=='undefined')module.exports=api;else root.MarkOrientation=api;
+// Photo extractors already supply an alpha matte. White is analysis-only:
+// never bake a white rectangle into the output or discard source alpha/color.
+function correctPhotoFrame(result){
+ if(result.geometry?.applied||result.metadata?.geometry?.applied)return result;
+ const {data,width:w,height:h}=result;if(![w,h].every(n=>Number.isSafeInteger(n)&&n>0)||w*h>4e6||data?.length!==w*h*4)return {...result,geometry:{ok:false,applied:false,reason:'Invalid or oversized photo matte'}};
+ const analysis=new Uint8ClampedArray(data.length);for(let i=0;i<data.length;i+=4){const a=data[i+3]/255;for(let c=0;c<3;c++)analysis[i+c]=data[i+c]*a+255*(1-a);analysis[i+3]=255;}
+ const geometry=frameGeometry(analysis,w,h);if(!geometry.ok||Math.abs(geometry.shear)<.025)return {...result,geometry:{...geometry,applied:false}};
+ const k=geometry.shear,pad=Math.ceil(Math.abs(k)*h/2)+2,ow=w+2*pad;if(ow*h>4e6)return {...result,geometry:{ok:false,applied:false,reason:'Affine canvas exceeds budget'}};
+ const out=new Uint8ClampedArray(ow*h*4);
+ for(let y=0;y<h;y++)for(let x=0;x<ow;x++){const sx=x-pad+k*(y-h/2),lo=Math.floor(sx),f=sx-lo,j=(y*ow+x)*4;let alpha=0,r=0,g=0,b=0;for(let n=0;n<2;n++){const px=lo+n;if(px<0||px>=w)continue;const q=(y*w+px)*4,aw=data[q+3]/255*(n?f:1-f);alpha+=aw;r+=data[q]*aw;g+=data[q+1]*aw;b+=data[q+2]*aw;}if(alpha){out[j]=r/alpha;out[j+1]=g/alpha;out[j+2]=b/alpha;out[j+3]=alpha*255;}}
+ const applied={...geometry,applied:true,alphaPreserved:true,analysisBasis:'temporary white composite of extracted photo matte'};
+ return {...result,data:out,width:ow,height:h,geometry:applied,metadata:{...result.metadata,geometry:applied,transformOrder:[...(result.metadata?.transformOrder||result.metadata?.transforms||[]),'whole-source premultiplied-alpha affine shear rectification'],limitations:[...(result.metadata?.limitations||[]),...geometry.limitations]}};
+}
+const api={estimate,correct,frameGeometry,correctFrame,correctPhotoFrame};if(typeof module!=='undefined')module.exports=api;else root.MarkOrientation=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

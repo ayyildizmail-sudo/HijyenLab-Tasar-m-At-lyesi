@@ -291,7 +291,20 @@ async function extractWhiteCarrierProposal(img){
 
 
 // Keep previously accepted extractors unchanged; localized light-surface candidates are a review-only fallback.
+// Every white-photo proposal converges here BEFORE the comparison panel or
+// approval uses its file, including early-return legacy extraction routes.
 async function extractPhotoInk(img){
+ const extracted=await extractUnnormalizedPhotoInk(img);if(!extracted?.whiteCarrier||!extracted.file)return extracted;
+ const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(extracted.file);}),image=await loadImage(data);
+ if(image.width*image.height>4000000)return extracted;
+ const c=document.createElement('canvas');c.width=image.width;c.height=image.height;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
+ const result=MarkOrientation.correctPhotoFrame({data:ctx.getImageData(0,0,c.width,c.height).data,width:c.width,height:c.height,metadata:extracted.processing});
+ if(!result.geometry?.applied){c.width=c.height=1;return {...extracted,processing:{...extracted.processing,geometry:result.geometry}};}
+ c.width=result.width;c.height=result.height;ctx.putImageData(new ImageData(result.data,result.width,result.height),0,0);const blob=await new Promise(resolve=>c.toBlob(resolve,'image/png'));c.width=c.height=1;
+ if(!blob)throw Error('Fotoğraf açı düzeltmesi hazırlanamadı.');
+ return {...extracted,file:new File([blob],extracted.file.name,{type:'image/png'}),processing:result.metadata};
+}
+async function extractUnnormalizedPhotoInk(img){
  const prior=await extractLegacyPhotoInk(img);if(prior)return prior;
  const ticket=loading,small=document.createElement('canvas'),scale=Math.min(1,600/Math.max(img.width,img.height));small.width=Math.max(1,Math.round(img.width*scale));small.height=Math.max(1,Math.round(img.height*scale));
  const sc=small.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0,small.width,small.height);

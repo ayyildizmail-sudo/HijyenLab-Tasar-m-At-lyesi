@@ -4,12 +4,14 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const fixtures = [
+  'tests/fixtures/photo-frame-geometry/source.jpeg',
   'tests/fixtures/screenshot-artwork/source.jpeg',
   'tests/fixtures/composite-screenshot/source.jpeg',
   'tests/fixtures/technical-frame/source.jpeg',
 ];
 const suites = [
   'tests/frame-geometry.test.cjs',
+  'tests/photo-frame-geometry.test.cjs',
   'tests/screenshot-artwork.test.cjs',
   'tests/composite-screenshot.test.cjs',
   'tests/screenshot-background.test.cjs',
