@@ -54,7 +54,7 @@ const beforeRegionSync=syncSimpleUI;syncSimpleUI=function(){beforeRegionSync();r
 function designFingerprint(){return JSON.stringify([globalThis.selectedProductId||'BM12',state.logo,state.photoLayout,state.bg,state.bgPantone,state.color,state.recolorApplied,state.removeWhite,state.size,state.rotation,state.x,state.y,state.text,state.textColor,state.textPantone,state.font,state.textSize,state.tx,state.ty,state.removed]);}
 let approvedDesignFingerprint=null;
 const beforeRegionRefresh=refresh;refresh=function(){syncProcessingDesign();return beforeRegionRefresh();};
-approveInk.onclick=()=>{if(state.designProcessing||state.designBlocked||state.extractionSourceLimited){showDesignIssue();return;}if(!approveCurrentDesign())return;state.extractionApprovalRequired=false;refresh();go(2);};
+approveInk.onclick=()=>{if(!canReviewExtractedArtwork())return;if(state.designProcessing||state.designBlocked||state.extractionSourceLimited){showDesignIssue();return;}if(!approveCurrentDesign())return;state.extractionApprovalRequired=false;refresh();go(2);};
 // Release label is owned by app.js and the single app-release meta.
 
 const technicalCompare=document.createElement('div');technicalCompare.id='technicalCompare';technicalCompare.className='brandRegionCompare';technicalCompare.hidden=true;

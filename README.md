@@ -1,3 +1,12 @@
+# Güncel aday: V43 — sade yolculuk ve isteğe bağlı yerel taslak
+
+- Tasarım → Koku → Teklif göstergesi gerçek görünür adımı izler; arka yüz tasarım adımına dahildir.
+- "Bu cihazda taslağımı sakla" açık seçimi olmadan tasarım depolanmaz. IndexedDB yalnız kaynak görselleri, ürün/tasarım tercihlerini, basılacak arka metinleri ve seçilmiş kokuyu saklar. Baskı metni/görseli işletme bilgisi içerebilir; müşteri iletişim formu, teslimat adresi, fiyat, teklif veya onay saklanmaz. Veri dışarı gönderilmez. 7 günlük geçerlilik dolunca bir sonraki açılışta yalnız bu uygulamanın taslağı silinir. Ortak cihaz, özel gezinme, kota ve tarayıcı temizliği sınırları açıklanır.
+- Kayıt transaction tamamlanıp Blob baytları geri okunmadan "kaydedildi" denmez. Silme bekleyen yazıları iptal eder; başka sekmedeki opt-out da yerel yazmayı durdurur. Eski taslak varsa yeni çalışmayla değiştirme açık seçimdir, sessiz üzerine yazılmaz.
+- Yeniden açma kaynakları mevcut doğrulama/ayrıştırma yolundan geçirir. Elle alan seçimi veya fotoğraf geometrisi birebir geri yüklenmiş sayılmaz; ön/arka, yerleşim ve koku onayı yeniden gerekir. Eski teklif ve onay yeniden kullanılmaz; koku geri yüklemesi sunucu tercihi göndermez.
+- Son teklif görüşme mesajı yalnız hâlâ güncel tekliften ürün/adet/koku alır; düzenlenebilir yerel taslaktır. Görsel otomatik eklenmez, müşteri isterse indirip WhatsApp'ta kendi ekler. İleti gönderimi yoktur.
+- Görsel hatalarında kısa yeniden deneme/değiştirme/yardım önerisi ve isteğe bağlı özgün teknik açıklama bulunur. Bağımsız gerçek kullanıcı kullanım denemesi henüz yapılmış sayılmaz; gerçek iPhone/Safari ve fiziksel baskı doğrulaması ayrı sınırdır.
+
 # Güncel aday: V40 — teklif görseli ve ortak klişe tahmini
 
 Teklif ön/arka görsellerinin şeffaf canvas kenarları çıkarılır; aynı görünür genişlikte, oranları bozulmadan çizilir. Görsel bandı ve belge yüksekliği ürün oranına göre büyür. Olası tamamen opak çıktı için renk silmek yerine bilinen ürün geometrisi kullanılır. Müşteriye iç fiyat kaynağı ve personel adı gösterilmez; dahili kaynak bilgileri katalogda korunur.

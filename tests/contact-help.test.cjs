@@ -34,6 +34,7 @@ function element(tag) {
     close() { this.open = false; this.listeners.close?.(); }, style: { setProperty() {} },
     classList: { add(x) { bodyClasses.add(x); }, toggle(x, on) { on ? bodyClasses.add(x) : bodyClasses.delete(x); } },
     setAttribute(k, v) { this.attrs[k] = v; },
+    before(item) { if (item.id) nodes.set(item.id, item); },
     append(...items) { this.children.push(...items); for (const item of items) if (item.id) nodes.set(item.id, item); },
     getBoundingClientRect() { return { height: 126 }; }
   };
@@ -86,3 +87,20 @@ assert.equal(new URL(proceed.href).searchParams.get('text'), draft.value);
 nodes.get('contactCancel').onclick(); assert.equal(dialog.open, false);
 browser.HijyenLabContactHelp.openDifferentProductDraft(''); assert.equal(draft.value, 'Merhaba, ürün seçimi konusunda yardım almak istiyorum.');
 console.log('PASS different-product draft: explicit bounded string only, no stale selected SKU/quantity/fragrance, empty generic request, editable local preview and cancel; no outbound activation.');
+
+// Summary CTA requires a fresh validated snapshot both when opening and when proceeding.
+dialog.close();
+browser.getHijyenLabSummaryHelpContext = () => null;
+assert.equal(browser.HijyenLabContactHelp.openSummaryDraft(), false);
+browser.getHijyenLabSummaryHelpContext = () => ({ product: 'Test product', quantity: 5200, fragrance: 'Test scent', customerName: 'PRIVATE', phone: 'PRIVATE', image: 'PRIVATE' });
+assert.equal(browser.HijyenLabContactHelp.openSummaryDraft(), true);
+assert.equal(draft.value, 'Merhaba, bu tasarımı görüşmek istiyorum.\nÜrün: Test product\nAdet: 5200\nKoku: Test scent');
+assert(!draft.value.includes('PRIVATE'));
+browser.getHijyenLabSummaryHelpContext = () => null;
+let stalePrevented = false; proceed.onclick({ preventDefault() { stalePrevented = true; } });
+assert.equal(stalePrevented, true); assert.equal(proceed.href, undefined); assert.equal(nodes.get('contactFreshnessError').hidden, false);
+assert.equal(dialog.open, true);
+dialog.close(); browser.HijyenLabContactHelp.openDifferentProductDraft('Other product');
+assert.equal(nodes.get('contactFreshnessError').hidden, true);
+assert.equal(new URL(proceed.href).searchParams.get('text'), draft.value);
+console.log('PASS summary draft: fresh validated quote only, product/quantity/fragrance allowlist, stale snapshot prevented on proceed, no upload/PII, other help remains available.');

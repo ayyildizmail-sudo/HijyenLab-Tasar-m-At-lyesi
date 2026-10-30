@@ -4,7 +4,21 @@
  */
 (function (root) {
   'use strict';
-  let showDifferentProductDraft = null;
+  let showDifferentProductDraft = null, activeDraftGuard = null;
+  function summaryContext() {
+    let context;
+    try { context = root.getHijyenLabSummaryHelpContext?.(); } catch (_) { return null; }
+    if (!context || typeof context.product !== 'string' || !context.product.trim() || typeof context.fragrance !== 'string' || !context.fragrance.trim() || !Number.isSafeInteger(context.quantity) || context.quantity <= 0 || context.quantity > 1000000) return null;
+    return { product: context.product.trim().slice(0, 140), quantity: context.quantity, fragrance: context.fragrance.trim().slice(0, 140) };
+  }
+  function openSummaryDraft() {
+    const context = summaryContext();
+    if (!context || !showDifferentProductDraft) return false;
+    const key = JSON.stringify(context);
+    showDifferentProductDraft('Merhaba, bu tasarımı görüşmek istiyorum.\nÜrün: ' + context.product + '\nAdet: ' + context.quantity + '\nKoku: ' + context.fragrance);
+    activeDraftGuard = () => { const fresh = summaryContext(); return !!fresh && JSON.stringify(fresh) === key; };
+    return true;
+  }
   function differentProductMessage(description) {
     const text = typeof description === 'string' ? description.trim().slice(0, 300) : '';
     return text ? 'Merhaba, önerilen ürünlerden farklı bir ürün arıyorum. İstediğim ürün: ' + text : 'Merhaba, ürün seçimi konusunda yardım almak istiyorum.';
@@ -108,16 +122,23 @@
       else proceed.removeAttribute('href');
       proceed.setAttribute('aria-disabled', String(!text));
     };
+    const freshnessError = doc.createElement('p'); freshnessError.id = 'contactFreshnessError'; freshnessError.setAttribute('role', 'alert'); freshnessError.hidden = true; buttons.before(freshnessError);
     const closeDraft = () => dialog.close();
     cancel.onclick = closeDraft;
     dialog.addEventListener('close', () => wa.focus({ preventScroll: true }));
     draft.addEventListener('input', syncDraft);
     proceed.onclick = event => {
+      if (activeDraftGuard && !activeDraftGuard()) {
+        event.preventDefault(); proceed.removeAttribute('href'); proceed.setAttribute('aria-disabled', 'true');
+        freshnessError.textContent = 'Tasarım değişti. Teklif önizlemesini yeniden oluşturup mesajı tekrar açın.'; freshnessError.hidden = false;
+        return;
+      }
       syncDraft();
       if (!draft.value.trim()) { event.preventDefault(); draft.focus(); return; }
       closeDraft();
     };
     showDifferentProductDraft = message => {
+      activeDraftGuard = null; freshnessError.hidden = true;
       draft.value = message;
       syncDraft();
       dialog.showModal();
@@ -144,7 +165,7 @@
     if (root.ResizeObserver) new root.ResizeObserver(measure).observe(bar);
     measure();
   }
-  const api = Object.freeze({ CONTACT, links, messageLink, buildMessage, differentProductMessage, openDifferentProductDraft, mount });
+  const api = Object.freeze({ CONTACT, links, messageLink, buildMessage, differentProductMessage, openDifferentProductDraft, openSummaryDraft, mount });
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else {
     root.HijyenLabContactHelp = api;

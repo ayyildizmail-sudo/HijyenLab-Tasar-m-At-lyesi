@@ -1,0 +1,47 @@
+/* Opt-in, device-only design drafts. Replays validated sources, never persisted approval/quote. */
+(function(root){
+'use strict';
+const DESIGN_KEYS=['bg','color','textColor','text','font','textSize','tx','ty','x','y','size','rotation','recolorApplied','bgPantone','textPantone','requestedQuantity'];
+const REAR_KEYS=['instagram','website','phone','address','extra','inkColor','qrEnabled','qrUrl'];
+function pick(value,keys){return Object.fromEntries(keys.map(key=>[key,value[key]]));}
+function snapshot(){const front=(!state.removed||state.photoLayout)?lastUploadedFile:null,rear=rearSponsorSource?.file||null;return{schemaVersion:1,productId:root.selectedProductId||'BM12',design:pick(state,DESIGN_KEYS),rear:pick(rearContent,REAR_KEYS),fragrance:fragranceSnapshot()?.id||'',frontFile:front||null,frontName:front?.name||'',rearFile:rear,rearName:rear?.name||''};}
+const fileIds=new WeakMap();let fileSequence=0;function fileKey(file,name){if(!file)return null;if(!fileIds.has(file))fileIds.set(file,++fileSequence);return[name,file.size,file.lastModified||0,fileIds.get(file)];}
+function keyOf(p){return JSON.stringify({...p,frontFile:fileKey(p.frontFile,p.frontName),rearFile:fileKey(p.rearFile,p.rearName)});}
+const api={snapshot,keyOf,DESIGN_KEYS,REAR_KEYS};root.HijyenLabDraftUI=api;
+if(typeof module!=='undefined'&&module.exports)module.exports=api;
+if(typeof document==='undefined'||!root.LocalDesignDraft)return;
+const store=root.LocalDesignDraft.createStore({indexedDB:root.indexedDB});
+const panel=document.createElement('section');panel.className='draftPanel';panel.id='draftPanel';panel.innerHTML='<label class="draftConsent"><input type="checkbox" id="draftConsent"> Bu cihazda taslağımı sakla</label><p class="hint">Görseller ve tasarım yazıları · yalnız bu cihazda, 7 gün yeniden açılabilir.</p><details><summary>Saklama bilgisi</summary><p class="hint">Görseller ve ön/arka tasarım yazıları işletme bilgisi içerebilir. Müşteri formu, teslimat bilgileri ve teklif kaydedilmez. Ortak cihazda açmayın. Süresi dolan taslak uygulama yeniden açıldığında silinir. Tarayıcı verileri silinirse veya özel gezinme kapanırsa taslak kaybolabilir.</p></details><p id="draftStatus" role="status" class="hint"></p><div class="draftActions"><button type="button" id="restoreDraft" class="outline" hidden>Taslağı yeniden aç ve kontrol et</button><button type="button" id="replaceDraft" class="outline" hidden>Bu çalışmayı taslak olarak sakla</button><button type="button" id="deleteDraft" class="textButton" hidden>Cihazdaki taslağı sil</button></div>';
+const anchor=document.querySelector('.productPicker')||$('uploadStart');anchor.before(panel);
+let enabled=false,offer=null,restoring=false,generation=0,timer=null,lastKey='',saving=false,dirty=false,initializing=true;
+function say(message){$('draftStatus').textContent=message;}
+function consent(value){enabled=value;$('draftConsent').checked=value;try{if(value)localStorage.setItem('hijyenlab-design-draft-optin-v1','yes');else localStorage.removeItem('hijyenlab-design-draft-optin-v1');}catch(error){/* Current-session consent still works; storage unavailable is reported by save. */}}
+function pending(){return state.designProcessing||state.productAssetPending||rearSponsorPending;}
+function schedule(){if(!enabled||restoring||offer||initializing)return;dirty=true;clearTimeout(timer);timer=setTimeout(save,650);}
+async function save(){clearTimeout(timer);if(!enabled||restoring||offer||initializing)return;if(pending()){schedule();return;}if(saving){dirty=true;return;}const payload=snapshot(),key=keyOf(payload);if(key===lastKey){dirty=false;return;}const ticket=generation;saving=true;dirty=false;say('Taslak bu cihazda kaydediliyor…');try{await store.save(payload);if(ticket!==generation||!enabled)return;lastKey=key;$('deleteDraft').hidden=false;say('Taslak bu cihazda kaydedildi. Yeniden açarken tasarımı kontrol etmeniz gerekir.');}catch(error){if(ticket!==generation)return;say('Taslak bu cihazda kaydedilemedi. Açık sayfadaki çalışmanız duruyor; sayfayı kapatırsanız korunmayabilir.');}finally{saving=false;if(dirty&&enabled&&!restoring&&!offer)schedule();}}
+async function remove(){if(restoring)cancelRestore();generation++;clearTimeout(timer);dirty=false;offer=null;consent(false);$('restoreDraft').hidden=true;$('replaceDraft').hidden=true;try{await store.clear();lastKey='';$('deleteDraft').hidden=true;say('Cihazdaki taslak silindi. Açık tasarımınız değişmedi.');}catch(error){say('Cihazdaki taslağın silindiği doğrulanamadı. Yeniden silmeyi deneyin.');$('deleteDraft').hidden=false;}}
+function cancelRestore(){if(!restoring)return;generation++;restoring=false;cancelCurrentProcessing('draft-interrupted');rearSponsorOperation++;rearSponsorPending=false;state.extractionApprovalRequired=!!(state.logo||state.photoLayout);approvedDesignFingerprint=null;invalidateQuote();$('restoreDraft').disabled=false;say('Geri yükleme durduruldu. Mevcut tasarımı kontrol edin.');}
+async function restore(){if(!offer||restoring)return;const payload=offer,ticket=++generation;restoring=true;$('restoreDraft').disabled=true;say('Kaynak görseller yeniden kontrol ediliyor…');try{
+ resetDesign();lastUploadedFile=null;await selectProduct(payload.productId);if(ticket!==generation)return;
+ if(payload.frontFile)await routeUploadedFile(new File([payload.frontFile],payload.frontName,{type:payload.frontFile.type}));if(ticket!==generation)return;
+ // Only validated original inputs above establish the artwork. Saved settings confer no approval.
+ Object.assign(state,payload.design);state.textPending=!!state.text;state.textPlaced=false;state.productReviewRequired=!!(state.logo||state.photoLayout);state.extractionApprovalRequired=!!(state.logo||state.photoLayout);approvedDesignFingerprint=null;
+ Object.assign(rearContent,payload.rear);syncRearFields();rearChanged();
+ if(payload.rearFile)await processRearSponsor(new File([payload.rearFile],payload.rearName,{type:payload.rearFile.type}));if(ticket!==generation)return;
+ resetFragrance();if(Fragrance.validId(payload.fragrance)){fragranceChoice=payload.fragrance;fragranceConfirmed='';syncFragrance();}
+ latest=null;invalidateQuote();containLogoPlacement();syncProductReview();refresh();
+ // A pending source/PDF selection stays visible; do not pretend that manual region choices were restored.
+ if($('photoEditor').hidden&&$('pdfPicker').hidden)go(1);
+ offer=null;$('restoreDraft').hidden=true;$('replaceDraft').hidden=true;lastKey=keyOf(snapshot());say('Kaynak görseller ve tercihler geri yüklendi; logo yerleşimini yeniden kontrol edin. Alan seçimi, ön/arka onayları ve koku onayı yeniden gerekebilir. Teklif yeniden hesaplanacaktır.');
+ }catch(error){if(ticket===generation)say('Taslağın tamamı geri yüklenemedi. Kaynakları yeniden seçebilir veya tekrar deneyebilirsiniz. Eski teklif/onay kullanılmadı.');}
+ finally{if(ticket===generation){restoring=false;$('restoreDraft').disabled=false;}}
+}
+$('draftConsent').onchange=()=>{if($('draftConsent').checked){consent(true);schedule();}else remove();};$('deleteDraft').onclick=remove;$('restoreDraft').onclick=restore;$('replaceDraft').onclick=()=>{if(restoring)return;offer=null;$('restoreDraft').hidden=true;$('replaceDraft').hidden=true;lastKey='';consent(true);save();};
+for(const event of ['input','change','pointerup','click'])document.addEventListener(event,e=>{if(panel.contains(e.target))return;if(restoring&&e.isTrusted)cancelRestore();schedule();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)save();});root.addEventListener('pagehide',save);
+root.addEventListener('storage',e=>{if(e.key==='hijyenlab-design-draft-optin-v1'&&e.newValue!=='yes'){remove();}});
+// Catch completed asynchronous extraction and non-input edits; unchanged snapshots never rewrite storage.
+setInterval(()=>{if(enabled&&!restoring&&!offer&&!initializing&&!pending())save();},2000);
+(async()=>{const initGeneration=generation;try{enabled=localStorage.getItem('hijyenlab-design-draft-optin-v1')==='yes';}catch(error){}$('draftConsent').checked=enabled;try{const loaded=await store.load();if(initGeneration!==generation)return;offer=loaded;if(offer){$('restoreDraft').hidden=false;$('replaceDraft').hidden=false;$('deleteDraft').hidden=false;say('Bu cihazda eski bir taslak var. Yeniden açın veya bu çalışmayla değiştirin. Seçim yapana kadar yeni çalışma kaydedilmez.');}else if(enabled)say('Taslak saklama açık. Tasarım değişiklikleri yalnız bu cihazda kaydedilir.');}catch(error){if(initGeneration!==generation)return;say('Bu tarayıcıdaki taslak okunamadı. Yeni tasarım yapabilirsiniz; saklama garantisi yoktur.');$('deleteDraft').hidden=false;}finally{initializing=false;}})();
+api.save=save;api.restore=restore;api.remove=remove;
+})(globalThis);
