@@ -1,0 +1,8 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),app=fs.readFileSync('dist/app.js','utf8'),rear=fs.readFileSync('dist/rear-preview.js','utf8'),ctx={};vm.createContext(ctx);
+const start=app.indexOf('function materialColor(');vm.runInContext(app.slice(start,app.indexOf('\n',start)),ctx);vm.runInContext(rear.slice(rear.indexOf('function tintRearPixels('),rear.indexOf('function rearMaterialDataURL(')),ctx);
+const palette=['#ffffff','#b9dff5','#fbefd9','#102f59','#800d2e','#292929','#000000','#deb843','#C41230'];
+for(const background of palette){const pixels=new Uint8ClampedArray([80,80,80,255,170,170,170,120,250,250,250,255,12,18,25,0]),original=pixels.slice();ctx.tintRearPixels(pixels,background);if(background==='#ffffff')assert.deepEqual(pixels,original);else{const rgb=background.match(/../g).slice(1);const channels=[1,3,5].map(i=>parseInt(background.slice(i,i+2),16));for(const index of [0,4,8])assert.deepEqual(Array.from(pixels.slice(index,index+3)),Array.from(ctx.materialColor(channels,original[index]/255)));assert(pixels[8]>=pixels[0]);}for(const index of [3,7,11,15])assert.equal(pixels[index],original[index]);assert.deepEqual(pixels.slice(12),original.slice(12));}
+assert.throws(()=>ctx.tintRearPixels(new Uint8ClampedArray(4),'unknown'));
+assert(rear.includes('background=state.bg'));assert(rear.includes('rearMaterialDataURL(source,background)'));assert(!/state\.rearBg|rearBackground\s*=/.test(rear));
+assert(app.includes('state.bg=m.hex'));assert(app.includes('state.bg=extracted.background')); // Pantone choice and uploaded-photo background share same front source
+console.log('PASS rear/front material equality for white, palette, uploaded and Pantone-like colors; alpha and source folds retained');

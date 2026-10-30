@@ -1,3 +1,10 @@
+# Güncel demo: V32 — ön ve arka yüzde aynı zemin
+
+## Kalıcı ürün kuralı
+**Ambalajın tek bir zemin rengi vardır. Ön ve arka yüz aynı zemini kullanır. Boş arka yüz, yazısız/logosuz demektir; beyaz zemin demek değildir.** Yüklenen görselden alınan renk, palet, özel renk veya Pantone önizlemesi değiştiğinde iki yüz de aynı seçime bağlıdır. Başlangıç beyazı beyaz kalır. Yeni bir açık talimat olmadan ayrı arka zemin rengi oluşturulmaz.
+
+Arka yüz ön yüzle aynı malzeme renk hesabıyla gösterilir; dikiş, kıvrım ve gölgeler korunur. Önceki sürüm notları aşağıdadır.
+
 # Güncel demo: V31 — onaydan sonra boş arka yüz
 
 Ön yüz onaylanınca ambalaj dönerek boş arka yüzü gösterir. Ön yüze dönüp tasarımı koruyabilir veya mevcut fiyat adımına geçebilirsiniz. Arka yüze logo/yazı ekleme ve arka baskı fiyatları henüz eklenmedi; sonraki talimatlara bırakıldı.
