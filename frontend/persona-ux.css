@@ -25,3 +25,54 @@
   .atelierLayout.welcomeEmpty #journeyProgress { margin: 12px 0; }
 }
 @media print { #personaNoLogo, #personaDraftPrompt { display: none; } }
+
+/* Compact opening: preserve the native journey, place optional reading after the package. */
+.atelierLayout.welcomeEmpty #welcomeIntro { margin: 10px auto; }
+.atelierLayout.welcomeEmpty #welcomeTitle { font-size: clamp(25px, 3vw, 32px); }
+.atelierLayout.welcomeEmpty .simplePrimary { max-width: 360px; }
+.atelierLayout.welcomeEmpty #simpleDetails { display: none; }
+.atelierLayout.welcomeEmpty #personaProductFacts { max-width: 780px; margin: 4px auto 12px; font-size: 13px; color: #52677d; }
+.atelierLayout.welcomeEmpty #personaProductFacts > summary { text-align: center; min-height: 44px; padding: 12px 0; }
+.atelierLayout.welcomeEmpty #personaNoLogo { margin: 0 auto 2px; }
+.atelierLayout.welcomeEmpty #personaNoLogo > summary { min-height: 44px; padding: 12px 0; }
+.atelierLayout.welcomeEmpty #welcomeUploadHint { margin-bottom: 8px; }
+.atelierLayout.welcomeEmpty .preview { margin-bottom: 4px; }
+.atelierLayout.welcomeEmpty .printModePicker { grid-column: 1 / -1; padding: 4px 0 0; gap: 8px; }
+.atelierLayout.welcomeEmpty .printModePicker > label { min-height: 44px; padding: 8px 12px; font-size: 14px; }
+@media (max-width: 600px) {
+  main.atelierLayout { padding: 12px 16px 20px; }
+  .atelierLayout .companyHeader { padding-top: 0; padding-bottom: 8px; }
+  .atelierLayout .companyIdentity { gap: 5px; }
+  .atelierLayout #companyLogo { width: 132px; }
+  .atelierLayout .companyInformation strong { font-size: 11px; line-height: 1.4; }
+  .atelierLayout .companyInformation p { margin-top: 2px; line-height: 1.4; gap: 4px 14px; }
+  .atelierLayout.welcomeEmpty #journeyProgress { margin: 8px 0; }
+  .atelierLayout #journeyProgress ol { gap: 8px; font-size: 12px; }
+  .atelierLayout.welcomeEmpty #welcomeIntro { margin: 8px auto; }
+  .atelierLayout.welcomeEmpty #welcomeTitle { font-size: 25px; }
+  .atelierLayout.welcomeEmpty .productPicker { grid-template-columns: minmax(0, 1fr) auto; margin: 8px auto; padding: 6px 10px; }
+  .atelierLayout.welcomeEmpty .productPicker > label { grid-column: 1; grid-row: 1; margin: 0; }
+  .atelierLayout.welcomeEmpty #productAdvisorButton { grid-column: 2; grid-row: 1; min-height: 44px; padding: 6px 0 6px 8px; font-size: 12px; }
+  .atelierLayout.welcomeEmpty .productPicker select { grid-column: 1 / -1; grid-row: 2; min-height: 44px; font-size: 16px; padding: 8px 10px; }
+  .atelierLayout.welcomeEmpty .printModePicker { margin-top: 4px; padding-top: 0; }
+  .atelierLayout.welcomeEmpty .printModePicker legend { font-size: 12px; }
+  .atelierLayout.welcomeEmpty .productPicker > :is(#personaMinimum, #personaQuoteExpectation) { margin-top: 4px; font-size: 12px; line-height: 1.4; }
+  .atelierLayout.welcomeEmpty .simplePrimary { max-width: none; margin: 8px auto 4px; }
+  .atelierLayout.welcomeEmpty #focusUpload { min-height: 52px; font-size: 16px; }
+  .atelierLayout.welcomeEmpty .preview { padding: 6px; }
+  .atelierLayout.welcomeEmpty .preview canvas { min-height: 0; max-height: 190px; }
+}
+
+/* Wide first viewport: spend vertical space on the actual blank package, not card gaps. */
+@media (min-width: 601px) {
+  main.atelierLayout.welcomeEmpty { padding-top: 16px; }
+  .atelierLayout.welcomeEmpty .companyHeader { padding-bottom: 10px; }
+  .atelierLayout.welcomeEmpty #companyLogo { width: 150px; }
+  .atelierLayout.welcomeEmpty #journeyProgress { margin: 10px 0; }
+  .atelierLayout.welcomeEmpty #welcomeIntro { margin: 8px auto; }
+  .atelierLayout.welcomeEmpty #welcomeIntro .welcomeDescription { margin-top: 4px; line-height: 1.4; }
+  .atelierLayout.welcomeEmpty .productPicker { row-gap: 4px; margin: 8px auto; padding: 8px 16px; }
+  .atelierLayout.welcomeEmpty .printModePicker { padding-top: 0; }
+  .atelierLayout.welcomeEmpty .preview { padding: 6px 12px; }
+  .atelierLayout.welcomeEmpty .preview canvas { min-height: 0; max-height: 190px; }
+}

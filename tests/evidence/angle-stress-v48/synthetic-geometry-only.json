@@ -1,0 +1,1246 @@
+[
+  {
+    "case": "baseline",
+    "scope": "Geometry-only known synthetic crop, NOT end-to-end extraction",
+    "rotation": {
+      "ok": true,
+      "degrees": 0,
+      "radians": 0,
+      "rows": [
+        {
+          "angle": 0,
+          "n": 5,
+          "res": 0,
+          "span": 72,
+          "h": 15,
+          "boxes": [
+            [
+              120,
+              200,
+              132,
+              215
+            ],
+            [
+              138,
+              200,
+              150,
+              215
+            ],
+            [
+              156,
+              200,
+              168,
+              215
+            ],
+            [
+              174,
+              200,
+              186,
+              215
+            ],
+            [
+              192,
+              200,
+              204,
+              215
+            ]
+          ]
+        },
+        {
+          "angle": 0,
+          "n": 5,
+          "res": 0,
+          "span": 177,
+          "h": 37,
+          "boxes": [
+            [
+              62,
+              98,
+              85,
+              135
+            ],
+            [
+              106,
+              98,
+              129,
+              135
+            ],
+            [
+              150,
+              98,
+              174,
+              135
+            ],
+            [
+              195,
+              98,
+              218,
+              135
+            ],
+            [
+              239,
+              98,
+              262,
+              135
+            ]
+          ]
+        }
+      ],
+      "method": "independent-mark-row-baselines",
+      "methodVersion": "1",
+      "limitations": [
+        "Text-like alignment proposal; no OCR or semantic identity guarantee.",
+        "Rotation only: perspective, curvature and intended decorative slant are not reconstructed."
+      ],
+      "applied": false
+    },
+    "frame": {
+      "ok": true,
+      "shear": -0.0004601626647299178,
+      "centerY": 159.5,
+      "residual": 0.2739498142956569,
+      "sampleRows": 84,
+      "baseline": {
+        "slope": 0,
+        "boxes": [
+          [
+            60,
+            186,
+            125,
+            189
+          ],
+          [
+            195,
+            186,
+            260,
+            189
+          ]
+        ]
+      },
+      "method": "bilateral-frame-affine-rectification",
+      "methodVersion": "1",
+      "limitations": [
+        "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+        "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+      ],
+      "applied": false
+    },
+    "postTextEstimate": {
+      "degrees": 0
+    },
+    "alphaRatio": 1
+  },
+  {
+    "case": "rotation--30",
+    "scope": "Geometry-only known synthetic crop, NOT end-to-end extraction",
+    "rotation": {
+      "ok": false,
+      "reason": "Orientation outside bounded near-horizontal scope",
+      "rows": [
+        {
+          "angle": -30.143728899402216,
+          "n": 5,
+          "res": 0.3652882532115637,
+          "span": 154,
+          "h": 43,
+          "boxes": [
+            [
+              261,
+              118,
+              299,
+              161
+            ],
+            [
+              222,
+              140,
+              260,
+              183
+            ],
+            [
+              184,
+              162,
+              222,
+              206
+            ],
+            [
+              146,
+              185,
+              184,
+              228
+            ],
+            [
+              107,
+              207,
+              145,
+              250
+            ]
+          ]
+        },
+        {
+          "angle": -30.141385552075345,
+          "n": 5,
+          "res": 0,
+          "span": 62,
+          "h": 18,
+          "boxes": [
+            [
+              271,
+              236,
+              288,
+              254
+            ],
+            [
+              255,
+              245,
+              273,
+              263
+            ],
+            [
+              240,
+              253,
+              257,
+              272
+            ],
+            [
+              224,
+              263,
+              242,
+              281
+            ],
+            [
+              209,
+              271,
+              226,
+              290
+            ]
+          ]
+        }
+      ],
+      "applied": false
+    },
+    "frame": {
+      "ok": false,
+      "reason": "No independent upper and lower frame arcs",
+      "applied": false
+    },
+    "postTextEstimate": {
+      "reason": "Orientation outside bounded near-horizontal scope"
+    },
+    "alphaRatio": 1
+  },
+  {
+    "case": "rotation--20",
+    "scope": "Geometry-only known synthetic crop, NOT end-to-end extraction",
+    "rotation": {
+      "ok": true,
+      "degrees": -19.904096385789764,
+      "radians": -0.34739201656633484,
+      "rows": [
+        {
+          "angle": -20.005536792077038,
+          "n": 5,
+          "res": 0.23561245607120548,
+          "span": 167,
+          "h": 42,
+          "boxes": [
+            [
+              263,
+              116,
+              297,
+              158
+            ],
+            [
+              221,
+              131,
+              255,
+              174
+            ],
+            [
+              179,
+              147,
+              213,
+              189
+            ],
+            [
+              138,
+              162,
+              171,
+              204
+            ],
+            [
+              96,
+              177,
+              130,
+              219
+            ]
+          ]
+        },
+        {
+          "angle": -19.651252388028954,
+          "n": 5,
+          "res": 0.10100809710555006,
+          "span": 67,
+          "h": 18,
+          "boxes": [
+            [
+              253,
+              232,
+              269,
+              250
+            ],
+            [
+              236,
+              238,
+              252,
+              256
+            ],
+            [
+              219,
+              244,
+              235,
+              262
+            ],
+            [
+              202,
+              250,
+              218,
+              268
+            ],
+            [
+              186,
+              257,
+              202,
+              274
+            ]
+          ]
+        }
+      ],
+      "method": "independent-mark-row-baselines",
+      "methodVersion": "1",
+      "limitations": [
+        "Text-like alignment proposal; no OCR or semantic identity guarantee.",
+        "Rotation only: perspective, curvature and intended decorative slant are not reconstructed."
+      ],
+      "applied": true,
+      "correctionDegrees": 19.904096385789764
+    },
+    "frame": {
+      "ok": true,
+      "shear": -8.366524708158893e-7,
+      "centerY": 270.6823529411765,
+      "residual": 0.3115981629048349,
+      "sampleRows": 85,
+      "baseline": {
+        "slope": 0,
+        "boxes": [
+          [
+            172,
+            295,
+            238,
+            299
+          ],
+          [
+            307,
+            295,
+            373,
+            299
+          ]
+        ]
+      },
+      "method": "bilateral-frame-affine-rectification",
+      "methodVersion": "1",
+      "limitations": [
+        "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+        "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+      ],
+      "applied": false
+    },
+    "postTextEstimate": {
+      "degrees": 0
+    },
+    "alphaRatio": 1.0001520621066886
+  },
+  {
+    "case": "rotation--10",
+    "scope": "Geometry-only known synthetic crop, NOT end-to-end extraction",
+    "rotation": {
+      "ok": true,
+      "degrees": -10.14891195386423,
+      "radians": -0.17713192908994166,
+      "rows": [
+        {
+          "angle": -9.993259785758562,
+          "n": 5,
+          "res": 0.23145801451588613,
+          "span": 175,
+          "h": 40,
+          "boxes": [
+            [
+              257,
+              111,
+              286,
+              151
+            ],
+            [
+              213,
+              119,
+              242,
+              159
+            ],
+            [
+              170,
+              126,
+              198,
+              167
+            ],
+            [
+              126,
+              134,
+              155,
+              174
+            ],
+            [
+              82,
+              142,
+              111,
+              182
+            ]
+          ]
+        },
+        {
+          "angle": -10.532561663983834,
+          "n": 5,
+          "res": 0.23832766556476134,
+          "span": 71,
+          "h": 16,
+          "boxes": [
+            [
+              228,
+              221,
+              243,
+              238
+            ],
+            [
+              210,
+              224,
+              225,
+              241
+            ],
+            [
+              193,
+              228,
+              207,
+              244
+            ],
+            [
+              175,
+              231,
+              189,
+              248
+            ],
+            [
+              157,
+              234,
+              172,
+              251
+            ]
+          ]
+        }
+      ],
+      "method": "independent-mark-row-baselines",
+      "methodVersion": "1",
+      "limitations": [
+        "Text-like alignment proposal; no OCR or semantic identity guarantee.",
+        "Rotation only: perspective, curvature and intended decorative slant are not reconstructed."
+      ],
+      "applied": true,
+      "correctionDegrees": 10.14891195386423
+    },
+    "frame": {
+      "ok": true,
+      "shear": -0.0007109939302330338,
+      "centerY": 221,
+      "residual": 0.2542022784864652,
+      "sampleRows": 84,
+      "baseline": {
+        "slope": 0,
+        "boxes": [
+          [
+            123,
+            247,
+            188,
+            251
+          ],
+          [
+            258,
+            247,
+            323,
+            251
+          ]
+        ]
+      },
+      "method": "bilateral-frame-affine-rectification",
+      "methodVersion": "1",
+      "limitations": [
+        "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+        "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+      ],
+      "applied": false
+    },
+    "postTextEstimate": {
+      "degrees": 0
+    },
+    "alphaRatio": 0.9999748254300918
+  },
+  {
+    "case": "rotation-10",
+    "scope": "Geometry-only known synthetic crop, NOT end-to-end extraction",
+    "rotation": {
+      "ok": true,
+      "degrees": 9.877711719939363,
+      "radians": 0.1723985920757739,
+      "rows": [
+        {
+          "angle": 9.993259785758562,
+          "n": 5,
+          "res": 0.23145801451588616,
+          "span": 175,
+          "h": 40,
+          "boxes": [
+            [
+              99,
+              111,
+              128,
+              152
+            ],
+            [
+              143,
+              119,
+              172,
+              160
+            ],
+            [
+              187,
+              127,
+              215,
+              167
+            ],
+            [
+              230,
+              135,
+              259,
+              175
+            ],
+            [
+              274,
+              142,
+              303,
+              183
+            ]
+          ]
+        },
+        {
+          "angle": 9.592910149258238,
+          "n": 5,
+          "res": 0.020699666945038327,
+          "span": 71,
+          "h": 17,
+          "boxes": [
+            [
+              142,
+              222,
+              157,
+              239
+            ],
+            [
+              160,
+              225,
+              175,
+              242
+            ],
+            [
+              178,
+              228,
+              192,
+              245
+            ],
+            [
+              196,
+              231,
+              210,
+              248
+            ],
+            [
+              213,
+              235,
+              228,
+              251
+            ]
+          ]
+        }
+      ],
+      "method": "independent-mark-row-baselines",
+      "methodVersion": "1",
+      "limitations": [
+        "Text-like alignment proposal; no OCR or semantic identity guarantee.",
+        "Rotation only: perspective, curvature and intended decorative slant are not reconstructed."
+      ],
+      "applied": true,
+      "correctionDegrees": -9.877711719939363
+    },
+    "frame": {
+      "ok": true,
+      "shear": -0.0007535174457266394,
+      "centerY": 220,
+      "residual": 0.2987489606884641,
+      "sampleRows": 86,
+      "baseline": {
+        "slope": 0,
+        "boxes": [
+          [
+            122,
+            246,
+            188,
+            250
+          ],
+          [
+            257,
+            246,
+            323,
+            250
+          ]
+        ]
+      },
+      "method": "bilateral-frame-affine-rectification",
+      "methodVersion": "1",
+      "limitations": [
+        "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+        "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+      ],
+      "applied": false
+    },
+    "postTextEstimate": {
+      "degrees": 0
+    },
+    "alphaRatio": 0.9999912100607133
+  },
+  {
+    "case": "rotation-20",
+    "scope": "Geometry-only known synthetic crop, NOT end-to-end extraction",
+    "rotation": {
+      "ok": true,
+      "degrees": 20.17800525180271,
+      "radians": 0.35217262812866473,
+      "rows": [
+        {
+          "angle": 20.027407441685806,
+          "n": 5,
+          "res": 0.26091559017283417,
+          "span": 167,
+          "h": 42,
+          "boxes": [
+            [
+              129,
+              118,
+              163,
+              160
+            ],
+            [
+              171,
+              133,
+              205,
+              175
+            ],
+            [
+              213,
+              148,
+              246,
+              190
+            ],
+            [
+              254,
+              163,
+              288,
+              205
+            ],
+            [
+              296,
+              178,
+              330,
+              221
+            ]
+          ]
+        },
+        {
+          "angle": 20.553375912840366,
+          "n": 5,
+          "res": 0.2669239701453861,
+          "span": 67,
+          "h": 17,
+          "boxes": [
+            [
+              157,
+              233,
+              173,
+              251
+            ],
+            [
+              173,
+              240,
+              189,
+              257
+            ],
+            [
+              190,
+              246,
+              206,
+              264
+            ],
+            [
+              207,
+              252,
+              223,
+              270
+            ],
+            [
+              224,
+              258,
+              240,
+              276
+            ]
+          ]
+        }
+      ],
+      "method": "independent-mark-row-baselines",
+      "methodVersion": "1",
+      "limitations": [
+        "Text-like alignment proposal; no OCR or semantic identity guarantee.",
+        "Rotation only: perspective, curvature and intended decorative slant are not reconstructed."
+      ],
+      "applied": true,
+      "correctionDegrees": -20.17800525180271
+    },
+    "frame": {
+      "ok": true,
+      "shear": 0.00013226706542150818,
+      "centerY": 269.5,
+      "residual": 0.2784657302542958,
+      "sampleRows": 84,
+      "baseline": {
+        "slope": -0.007407407407407408,
+        "boxes": [
+          [
+            308,
+            295,
+            373,
+            299
+          ],
+          [
+            173,
+            296,
+            238,
+            300
+          ]
+        ]
+      },
+      "method": "bilateral-frame-affine-rectification",
+      "methodVersion": "1",
+      "limitations": [
+        "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+        "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+      ],
+      "applied": false
+    },
+    "postTextEstimate": {
+      "degrees": -0.2758222485051084
+    },
+    "alphaRatio": 1.000108306413242
+  },
+  {
+    "case": "rotation-30",
+    "scope": "Geometry-only known synthetic crop, NOT end-to-end extraction",
+    "rotation": {
+      "ok": false,
+      "reason": "Orientation outside bounded near-horizontal scope",
+      "rows": [
+        {
+          "angle": 30.210030058409103,
+          "n": 5,
+          "res": 0.20854340988712344,
+          "span": 153,
+          "h": 43,
+          "boxes": [
+            [
+              156,
+              120,
+              194,
+              163
+            ],
+            [
+              194,
+              142,
+              232,
+              185
+            ],
+            [
+              233,
+              164,
+              270,
+              208
+            ],
+            [
+              271,
+              187,
+              309,
+              230
+            ],
+            [
+              309,
+              209,
+              347,
+              252
+            ]
+          ]
+        },
+        {
+          "angle": 29.980620308596908,
+          "n": 5,
+          "res": 0.08158756772711326,
+          "span": 62.5,
+          "h": 18,
+          "boxes": [
+            [
+              166,
+              237,
+              184,
+              256
+            ],
+            [
+              182,
+              247,
+              199,
+              265
+            ],
+            [
+              197,
+              256,
+              215,
+              274
+            ],
+            [
+              213,
+              264,
+              230,
+              283
+            ],
+            [
+              229,
+              274,
+              246,
+              292
+            ]
+          ]
+        }
+      ],
+      "applied": false
+    },
+    "frame": {
+      "ok": false,
+      "reason": "No independent upper and lower frame arcs",
+      "applied": false
+    },
+    "postTextEstimate": {
+      "reason": "Orientation outside bounded near-horizontal scope"
+    },
+    "alphaRatio": 1
+  },
+  {
+    "case": "perspective-top-18pct",
+    "scope": "Geometry-only known synthetic crop, NOT end-to-end extraction",
+    "rotation": {
+      "ok": true,
+      "degrees": 0,
+      "radians": 0,
+      "rows": [
+        {
+          "angle": 0,
+          "n": 5,
+          "res": 0,
+          "span": 130.5,
+          "h": 32,
+          "boxes": [
+            [
+              87,
+              70,
+              106,
+              102
+            ],
+            [
+              120,
+              70,
+              138,
+              102
+            ],
+            [
+              153,
+              70,
+              170,
+              102
+            ],
+            [
+              185,
+              70,
+              204,
+              102
+            ],
+            [
+              217,
+              70,
+              237,
+              102
+            ]
+          ]
+        },
+        {
+          "angle": 0,
+          "n": 5,
+          "res": 0,
+          "span": 59.5,
+          "h": 17,
+          "boxes": [
+            [
+              127,
+              163,
+              137,
+              180
+            ],
+            [
+              142,
+              163,
+              152,
+              180
+            ],
+            [
+              157,
+              163,
+              167,
+              180
+            ],
+            [
+              171,
+              163,
+              182,
+              180
+            ],
+            [
+              186,
+              163,
+              197,
+              180
+            ]
+          ]
+        }
+      ],
+      "method": "independent-mark-row-baselines",
+      "methodVersion": "1",
+      "limitations": [
+        "Text-like alignment proposal; no OCR or semantic identity guarantee.",
+        "Rotation only: perspective, curvature and intended decorative slant are not reconstructed."
+      ],
+      "applied": false
+    },
+    "frame": {
+      "ok": true,
+      "shear": -0.0006238681174068688,
+      "centerY": 152.46315789473684,
+      "residual": 0.2083274711530831,
+      "sampleRows": 95,
+      "baseline": {
+        "slope": 0,
+        "boxes": [
+          [
+            79,
+            149,
+            132,
+            153
+          ],
+          [
+            188,
+            149,
+            241,
+            153
+          ]
+        ]
+      },
+      "method": "bilateral-frame-affine-rectification",
+      "methodVersion": "1",
+      "limitations": [
+        "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+        "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+      ],
+      "applied": false
+    },
+    "postTextEstimate": {
+      "degrees": 0
+    },
+    "alphaRatio": 1
+  },
+  {
+    "case": "perspective-left-12pct",
+    "scope": "Geometry-only known synthetic crop, NOT end-to-end extraction",
+    "rotation": {
+      "ok": false,
+      "reason": "Row orientation disagreement",
+      "rows": [
+        {
+          "angle": 2.2711897226931788,
+          "n": 5,
+          "res": 0.2552343473994495,
+          "span": 70.5,
+          "h": 13,
+          "boxes": [
+            [
+              100,
+              194,
+              112,
+              207
+            ],
+            [
+              117,
+              195,
+              129,
+              208
+            ],
+            [
+              134,
+              195,
+              146,
+              209
+            ],
+            [
+              152,
+              196,
+              164,
+              209
+            ],
+            [
+              170,
+              196,
+              183,
+              210
+            ]
+          ]
+        },
+        {
+          "angle": -1.312863522657801,
+          "n": 5,
+          "res": 0.36926693319171944,
+          "span": 175.5,
+          "h": 34,
+          "boxes": [
+            [
+              221,
+              102,
+              248,
+              137
+            ],
+            [
+              173,
+              104,
+              198,
+              138
+            ],
+            [
+              129,
+              106,
+              152,
+              140
+            ],
+            [
+              87,
+              109,
+              109,
+              140
+            ],
+            [
+              49,
+              111,
+              69,
+              141
+            ]
+          ]
+        }
+      ],
+      "applied": false
+    },
+    "frame": {
+      "ok": true,
+      "shear": -0.005338350242354552,
+      "centerY": 160,
+      "residual": 0.2591594772451021,
+      "sampleRows": 72,
+      "baseline": {
+        "slope": 0.018796992481203006,
+        "boxes": [
+          [
+            48,
+            182,
+            105,
+            185
+          ],
+          [
+            173,
+            184,
+            246,
+            188
+          ]
+        ]
+      },
+      "method": "bilateral-frame-affine-rectification",
+      "methodVersion": "1",
+      "limitations": [
+        "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+        "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+      ],
+      "applied": false
+    },
+    "postTextEstimate": {
+      "reason": "Row orientation disagreement"
+    },
+    "alphaRatio": 1
+  },
+  {
+    "case": "perspective-combined",
+    "scope": "Geometry-only known synthetic crop, NOT end-to-end extraction",
+    "rotation": {
+      "ok": true,
+      "degrees": -5.743612157372328,
+      "radians": -0.10024494310372184,
+      "rows": [
+        {
+          "angle": -5.764097205959745,
+          "n": 5,
+          "res": 0.257312665258299,
+          "span": 146.5,
+          "h": 32,
+          "boxes": [
+            [
+              222,
+              77,
+              244,
+              110
+            ],
+            [
+              186,
+              81,
+              207,
+              114
+            ],
+            [
+              150,
+              85,
+              169,
+              117
+            ],
+            [
+              113,
+              89,
+              133,
+              121
+            ],
+            [
+              76,
+              93,
+              97,
+              125
+            ]
+          ]
+        },
+        {
+          "angle": -5.6967206008401945,
+          "n": 5,
+          "res": 0.2693866892979672,
+          "span": 64,
+          "h": 15,
+          "boxes": [
+            [
+              186,
+              171,
+              198,
+              187
+            ],
+            [
+              170,
+              173,
+              182,
+              188
+            ],
+            [
+              154,
+              174,
+              165,
+              190
+            ],
+            [
+              138,
+              176,
+              149,
+              192
+            ],
+            [
+              122,
+              178,
+              134,
+              193
+            ]
+          ]
+        }
+      ],
+      "method": "independent-mark-row-baselines",
+      "methodVersion": "1",
+      "limitations": [
+        "Text-like alignment proposal; no OCR or semantic identity guarantee.",
+        "Rotation only: perspective, curvature and intended decorative slant are not reconstructed."
+      ],
+      "applied": true,
+      "correctionDegrees": 5.743612157372328
+    },
+    "frame": {
+      "ok": true,
+      "shear": -0.09940939875857777,
+      "centerY": 171,
+      "residual": 0.2316344069251411,
+      "sampleRows": 84,
+      "baseline": {
+        "slope": -0.004219409282700422,
+        "boxes": [
+          [
+            88,
+            178,
+            145,
+            182
+          ],
+          [
+            206,
+            178,
+            264,
+            181
+          ]
+        ]
+      },
+      "method": "bilateral-frame-affine-rectification",
+      "methodVersion": "1",
+      "limitations": [
+        "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+        "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+      ],
+      "applied": true,
+      "alphaPreserved": true,
+      "analysisBasis": "temporary white composite of extracted photo matte"
+    },
+    "postTextEstimate": {
+      "degrees": -0.2170055611945202
+    },
+    "alphaRatio": 1.0000064993886513
+  }
+]

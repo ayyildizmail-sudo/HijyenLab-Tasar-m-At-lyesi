@@ -32,7 +32,7 @@
       main.classList.toggle('welcomeEmpty', opening);
       if (intro.hidden === opening) intro.hidden = !opening;
       if (hint.hidden === opening) hint.hidden = !opening;
-      const label = opening ? 'Logonu yükle' : originalUploadText;
+      const label = opening ? 'Logo veya görsel yükle' : originalUploadText;
       if (upload && upload.textContent !== label) upload.textContent = label;
       if (draftOptions) {
         const restore = doc.getElementById('restoreDraft'), status = doc.getElementById('draftStatus')?.textContent || '';

@@ -113,7 +113,7 @@
     heading.tabIndex = -1;
     const draftNote = doc.createElement('p');
     draftNote.id = 'contactDraftNote';
-    draftNote.textContent = 'İsterseniz mesajı değiştirin. WhatsApp açıldığında Gönder’e siz basarsınız. Bu, otomatik bir işletme yanıtı değildir.';
+    draftNote.textContent = 'İsterseniz mesajı değiştirin. Adınız, telefonunuz ve görseliniz otomatik eklenmez. WhatsApp açıldığında Gönder’e siz basarsınız. Bu, otomatik bir işletme yanıtı değildir.';
     const label = doc.createElement('label');
     label.htmlFor = 'contactMessage';
     label.textContent = 'Göndermek istediğiniz mesaj';

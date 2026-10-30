@@ -30,7 +30,7 @@
     const put = (node, text) => { if (node.textContent !== text) node.textContent = text; };
     const hide = (node, value) => { if (node.hidden !== value) node.hidden = value; };
     const minimum = make('p', 'personaMinimum'); minimum.className = 'personaMinimum';
-    const expectation = make('p', 'personaQuoteExpectation', 'Kişiye özel teklif için işletme adı, ilgili kişi ve telefon bilgisi istenir.');
+    const expectation = make('p', 'personaQuoteExpectation', 'Teklif aşamasında işletme adı, ilgili kişi ve telefon gerekir.');
     const facts = make('details', 'personaProductFacts');
     const factsTitle = make('summary', '', 'Ürün bilgileri');
     const factLines = [make('p'), make('p'), make('p')]; facts.append(factsTitle, ...factLines);
@@ -63,12 +63,14 @@
       const visible = !get('design')?.hidden;
       const opening = root.HijyenLabWelcome?.isOpening(value, visible, mode === 'unprinted') === true;
       if (opening !== previousOpening) {
-        if (opening) preview.before(action); else home.after(action);
+        if (opening) { preview.before(action); preview.after(facts); }
+        else { home.after(action); picker.append(facts); }
         previousOpening = opening;
       }
       // Hint/help follow the native action without moving the preview or hiding safety controls.
       if (hint && action.nextElementSibling !== hint) action.after(hint);
-      if ((hint || action).nextElementSibling !== noLogo) (hint || action).after(noLogo);
+      const helpAnchor = opening ? preview : (hint || action);
+      if (helpAnchor.nextElementSibling !== noLogo) helpAnchor.after(noLogo);
       hide(noLogo, !opening);
       const consented = !!get('draftConsent')?.checked, hasRestore = !!get('restoreDraft') && !get('restoreDraft').hidden;
       if (draftPromptEligible(value, { seen, consented, hasRestore, mode, designVisible: visible })) { seen = true; hide(prompt, false); }

@@ -1,0 +1,1542 @@
+{
+  "baseline": "V48 unchanged",
+  "fixtureSha256": "f44084bdcb500ca91c9244a93309dcc568b19bb3be7f9f995506f61b600f8822",
+  "limitations": [
+    "Synthetic transforms of one photograph and one nonbrand mark, not independent real-world photo coverage.",
+    "Preserved alpha/RGB mass is not proof of semantic brand retention.",
+    "Projective transform strength is corner displacement, not a calibrated camera angle.",
+    "Correction-applied is not an automatic PASS; manual visual review required."
+  ],
+  "cases": [
+    {
+      "family": "original-photo",
+      "case": "baseline",
+      "inputSize": [
+        1374,
+        1145
+      ],
+      "rotationDegrees": 0,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 1
+        },
+        {
+          "stage": "mask-extraction",
+          "module": "light-surface",
+          "ok": true,
+          "reason": null
+        }
+      ],
+      "extraction": {
+        "produced": true,
+        "whiteProposal": true,
+        "method": "light-surface-localized-marking",
+        "sourceLimited": false
+      },
+      "geometry": {
+        "orientation": {
+          "ok": true,
+          "degrees": -10.187364467421483,
+          "radians": -0.1778030520571835,
+          "rows": [
+            {
+              "angle": -10.303178557906865,
+              "n": 5,
+              "res": 5.695581693829511,
+              "span": 401,
+              "h": 98,
+              "boxes": [
+                [
+                  430,
+                  111,
+                  499,
+                  209
+                ],
+                [
+                  356,
+                  133,
+                  449,
+                  220
+                ],
+                [
+                  257,
+                  141,
+                  348,
+                  226
+                ],
+                [
+                  105,
+                  161,
+                  293,
+                  262
+                ],
+                [
+                  19,
+                  180,
+                  108,
+                  279
+                ]
+              ]
+            },
+            {
+              "angle": -9.400221242258116,
+              "n": 4,
+              "res": 0.3190856625862204,
+              "span": 59,
+              "h": 20,
+              "boxes": [
+                [
+                  313,
+                  302,
+                  333,
+                  323
+                ],
+                [
+                  294,
+                  306,
+                  316,
+                  326
+                ],
+                [
+                  272,
+                  310,
+                  294,
+                  329
+                ],
+                [
+                  255,
+                  313,
+                  273,
+                  333
+                ]
+              ]
+            }
+          ],
+          "method": "independent-mark-row-baselines",
+          "methodVersion": "1",
+          "limitations": [
+            "Text-like alignment proposal; no OCR or semantic identity guarantee.",
+            "Rotation only: perspective, curvature and intended decorative slant are not reconstructed."
+          ],
+          "applied": true,
+          "correctionDegrees": 10.187364467421483
+        },
+        "frame": {
+          "ok": true,
+          "shear": 0.12546431160398316,
+          "centerY": 248.41379310344828,
+          "residual": 0.49896447634537616,
+          "sampleRows": 203,
+          "baseline": {
+            "slope": 0.0044742729306487695,
+            "boxes": [
+              [
+                137,
+                303,
+                239,
+                309
+              ],
+              [
+                361,
+                304,
+                462,
+                310
+              ]
+            ]
+          },
+          "method": "bilateral-frame-affine-rectification",
+          "methodVersion": "1",
+          "limitations": [
+            "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+            "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+          ],
+          "applied": true,
+          "alphaPreserved": true,
+          "analysisBasis": "temporary white composite of extracted photo matte"
+        },
+        "postTextEstimate": {
+          "degrees": 0.3754677947056518
+        },
+        "residualFrame": {
+          "ok": true,
+          "shear": 0.0003267335028004526,
+          "centerY": 248.36548223350255,
+          "residual": 0.5385280557920672,
+          "sampleRows": 197,
+          "baseline": {
+            "slope": 0.0044742729306487695,
+            "boxes": [
+              [
+                164,
+                303,
+                266,
+                309
+              ],
+              [
+                388,
+                304,
+                489,
+                310
+              ]
+            ]
+          },
+          "method": "bilateral-frame-affine-rectification",
+          "methodVersion": "1",
+          "limitations": [
+            "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+            "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+          ],
+          "applied": false
+        }
+      },
+      "retention": {
+        "geometryAlphaRatio": 1.0000010355965605,
+        "geometryPremultipliedRGBRatios": [
+          1.0000500752722752,
+          1.0000578045196484,
+          0.9999702998376483
+        ],
+        "extractedAlphaMass": 26507.407843137255,
+        "semanticBrandRetention": "UNVERIFIED — mass conservation only; inspect source and output, not OCR or identity guarantee"
+      },
+      "outcome": "CORRECTION_APPLIED_REVIEW_REQUIRED"
+    },
+    {
+      "family": "original-photo",
+      "case": "rotation--30",
+      "inputSize": [
+        1771,
+        1687
+      ],
+      "rotationDegrees": -30,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 1
+        },
+        {
+          "stage": "mask-extraction",
+          "module": "light-surface",
+          "ok": true,
+          "reason": null
+        }
+      ],
+      "extraction": {
+        "produced": true,
+        "whiteProposal": true,
+        "method": "light-surface-localized-marking",
+        "sourceLimited": false
+      },
+      "geometry": {
+        "orientation": null,
+        "frame": {
+          "ok": false,
+          "reason": "No independent upper and lower frame arcs",
+          "applied": false
+        },
+        "postTextEstimate": {
+          "reason": "Fewer than two independent text-like rows"
+        },
+        "residualFrame": {
+          "ok": false,
+          "reason": "No independent upper and lower frame arcs",
+          "applied": false
+        }
+      },
+      "retention": {
+        "geometryAlphaRatio": 1,
+        "geometryPremultipliedRGBRatios": [
+          1,
+          1,
+          1
+        ],
+        "extractedAlphaMass": 26596.580392156862,
+        "semanticBrandRetention": "UNVERIFIED — mass conservation only; inspect source and output, not OCR or identity guarantee"
+      },
+      "outcome": "GEOMETRY_UNSUPPORTED_OR_UNCERTAIN"
+    },
+    {
+      "family": "original-photo",
+      "case": "rotation--20",
+      "inputSize": [
+        1691,
+        1554
+      ],
+      "rotationDegrees": -20,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 1
+        },
+        {
+          "stage": "mask-extraction",
+          "module": "light-surface",
+          "ok": true,
+          "reason": null
+        }
+      ],
+      "extraction": {
+        "produced": true,
+        "whiteProposal": true,
+        "method": "light-surface-localized-marking",
+        "sourceLimited": false
+      },
+      "geometry": {
+        "orientation": null,
+        "frame": {
+          "ok": false,
+          "reason": "No independent upper and lower frame arcs",
+          "applied": false
+        },
+        "postTextEstimate": {
+          "reason": "Fewer than two independent text-like rows"
+        },
+        "residualFrame": {
+          "ok": false,
+          "reason": "No independent upper and lower frame arcs",
+          "applied": false
+        }
+      },
+      "retention": {
+        "geometryAlphaRatio": 1,
+        "geometryPremultipliedRGBRatios": [
+          1,
+          1,
+          1
+        ],
+        "extractedAlphaMass": 26605.10980392157,
+        "semanticBrandRetention": "UNVERIFIED — mass conservation only; inspect source and output, not OCR or identity guarantee"
+      },
+      "outcome": "GEOMETRY_UNSUPPORTED_OR_UNCERTAIN"
+    },
+    {
+      "family": "original-photo",
+      "case": "rotation--10",
+      "inputSize": [
+        1560,
+        1375
+      ],
+      "rotationDegrees": -10,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 1
+        },
+        {
+          "stage": "mask-extraction",
+          "module": "white-carrier",
+          "ok": false,
+          "reason": "Chromatic component retention below 90%"
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 1
+        },
+        {
+          "stage": "mask-extraction",
+          "module": "light-surface",
+          "ok": true,
+          "reason": null
+        }
+      ],
+      "extraction": {
+        "produced": true,
+        "whiteProposal": true,
+        "method": "light-surface-localized-marking",
+        "sourceLimited": false
+      },
+      "geometry": {
+        "orientation": null,
+        "frame": {
+          "ok": false,
+          "reason": "No independent upper and lower frame arcs",
+          "applied": false
+        },
+        "postTextEstimate": {
+          "reason": "Fewer than two independent text-like rows"
+        },
+        "residualFrame": {
+          "ok": false,
+          "reason": "No independent upper and lower frame arcs",
+          "applied": false
+        }
+      },
+      "retention": {
+        "geometryAlphaRatio": 1,
+        "geometryPremultipliedRGBRatios": [
+          1,
+          1,
+          1
+        ],
+        "extractedAlphaMass": 26636.203921568627,
+        "semanticBrandRetention": "UNVERIFIED — mass conservation only; inspect source and output, not OCR or identity guarantee"
+      },
+      "outcome": "GEOMETRY_UNSUPPORTED_OR_UNCERTAIN"
+    },
+    {
+      "family": "original-photo",
+      "case": "rotation-10",
+      "inputSize": [
+        1560,
+        1375
+      ],
+      "rotationDegrees": 10,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 1
+        },
+        {
+          "stage": "mask-extraction",
+          "module": "light-surface",
+          "ok": true,
+          "reason": null
+        }
+      ],
+      "extraction": {
+        "produced": true,
+        "whiteProposal": true,
+        "method": "light-surface-localized-marking",
+        "sourceLimited": false
+      },
+      "geometry": {
+        "orientation": null,
+        "frame": {
+          "ok": true,
+          "shear": 0.12434037554701041,
+          "centerY": 213.03940886699507,
+          "residual": 0.6095985105002836,
+          "sampleRows": 203,
+          "baseline": {
+            "slope": -0.002232142857142857,
+            "boxes": [
+              [
+                105,
+                268,
+                207,
+                274
+              ],
+              [
+                330,
+                268,
+                430,
+                273
+              ]
+            ]
+          },
+          "method": "bilateral-frame-affine-rectification",
+          "methodVersion": "1",
+          "limitations": [
+            "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+            "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+          ],
+          "applied": true,
+          "alphaPreserved": true,
+          "analysisBasis": "temporary white composite of extracted photo matte"
+        },
+        "postTextEstimate": {
+          "degrees": 0.2337392078288031
+        },
+        "residualFrame": {
+          "ok": true,
+          "shear": 0.000408648699393963,
+          "centerY": 212.59595959595958,
+          "residual": 0.5639109124391333,
+          "sampleRows": 198,
+          "baseline": {
+            "slope": 0,
+            "boxes": [
+              [
+                127,
+                268,
+                229,
+                273
+              ],
+              [
+                351,
+                268,
+                452,
+                273
+              ]
+            ]
+          },
+          "method": "bilateral-frame-affine-rectification",
+          "methodVersion": "1",
+          "limitations": [
+            "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+            "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+          ],
+          "applied": false
+        }
+      },
+      "retention": {
+        "geometryAlphaRatio": 0.9999977929589505,
+        "geometryPremultipliedRGBRatios": [
+          0.9999800648851224,
+          0.999934918529166,
+          0.999991899440638
+        ],
+        "extractedAlphaMass": 26652.666666666668,
+        "semanticBrandRetention": "UNVERIFIED — mass conservation only; inspect source and output, not OCR or identity guarantee"
+      },
+      "outcome": "CORRECTION_APPLIED_REVIEW_REQUIRED"
+    },
+    {
+      "family": "original-photo",
+      "case": "rotation-20",
+      "inputSize": [
+        1691,
+        1554
+      ],
+      "rotationDegrees": 20,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 1
+        },
+        {
+          "stage": "mask-extraction",
+          "module": "light-surface",
+          "ok": true,
+          "reason": null
+        }
+      ],
+      "extraction": {
+        "produced": true,
+        "whiteProposal": true,
+        "method": "light-surface-localized-marking",
+        "sourceLimited": false
+      },
+      "geometry": {
+        "orientation": {
+          "ok": true,
+          "degrees": 10.409896271572702,
+          "radians": 0.18168696473002544,
+          "rows": [
+            {
+              "angle": 10.227947324061391,
+              "n": 5,
+              "res": 5.02502455460019,
+              "span": 399.5,
+              "h": 100,
+              "boxes": [
+                [
+                  23,
+                  123,
+                  111,
+                  223
+                ],
+                [
+                  117,
+                  139,
+                  283,
+                  251
+                ],
+                [
+                  273,
+                  173,
+                  364,
+                  259
+                ],
+                [
+                  345,
+                  189,
+                  436,
+                  286
+                ],
+                [
+                  442,
+                  195,
+                  491,
+                  296
+                ]
+              ]
+            },
+            {
+              "angle": 11.631553490577225,
+              "n": 4,
+              "res": 0.30801160856229753,
+              "span": 59.5,
+              "h": 19,
+              "boxes": [
+                [
+                  232,
+                  319,
+                  253,
+                  343
+                ],
+                [
+                  215,
+                  320,
+                  230,
+                  339
+                ],
+                [
+                  255,
+                  326,
+                  272,
+                  348
+                ],
+                [
+                  274,
+                  330,
+                  290,
+                  351
+                ]
+              ]
+            }
+          ],
+          "method": "independent-mark-row-baselines",
+          "methodVersion": "1",
+          "limitations": [
+            "Text-like alignment proposal; no OCR or semantic identity guarantee.",
+            "Rotation only: perspective, curvature and intended decorative slant are not reconstructed."
+          ],
+          "applied": true,
+          "correctionDegrees": -10.409896271572702
+        },
+        "frame": {
+          "ok": true,
+          "shear": 0.12382837710979984,
+          "centerY": 259.67,
+          "residual": 0.5616716356318842,
+          "sampleRows": 200,
+          "baseline": {
+            "slope": -0.008928571428571428,
+            "boxes": [
+              [
+                365,
+                314,
+                466,
+                320
+              ],
+              [
+                141,
+                316,
+                242,
+                322
+              ]
+            ]
+          },
+          "method": "bilateral-frame-affine-rectification",
+          "methodVersion": "1",
+          "limitations": [
+            "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+            "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+          ],
+          "applied": true,
+          "alphaPreserved": true,
+          "analysisBasis": "temporary white composite of extracted photo matte"
+        },
+        "postTextEstimate": {
+          "degrees": -0.17643978711984276
+        },
+        "residualFrame": {
+          "ok": true,
+          "shear": 0.00021721138753073158,
+          "centerY": 259.6326530612245,
+          "residual": 0.5410571105952507,
+          "sampleRows": 196,
+          "baseline": {
+            "slope": -0.008928571428571428,
+            "boxes": [
+              [
+                393,
+                314,
+                494,
+                320
+              ],
+              [
+                169,
+                316,
+                270,
+                322
+              ]
+            ]
+          },
+          "method": "bilateral-frame-affine-rectification",
+          "methodVersion": "1",
+          "limitations": [
+            "Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.",
+            "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
+          ],
+          "applied": false
+        }
+      },
+      "retention": {
+        "geometryAlphaRatio": 1.0000093970196764,
+        "geometryPremultipliedRGBRatios": [
+          1.000097836107797,
+          1.0000614723393417,
+          1.0000673200779815
+        ],
+        "extractedAlphaMass": 26708.50980392157,
+        "semanticBrandRetention": "UNVERIFIED — mass conservation only; inspect source and output, not OCR or identity guarantee"
+      },
+      "outcome": "CORRECTION_APPLIED_REVIEW_REQUIRED"
+    },
+    {
+      "family": "original-photo",
+      "case": "rotation-30",
+      "inputSize": [
+        1771,
+        1687
+      ],
+      "rotationDegrees": 30,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 2
+        }
+      ],
+      "extraction": {
+        "produced": false,
+        "whiteProposal": false,
+        "method": null,
+        "sourceLimited": false
+      },
+      "outcome": "EXTRACTION_UNSUPPORTED"
+    },
+    {
+      "family": "original-photo",
+      "case": "perspective-top-18pct",
+      "inputSize": [
+        1374,
+        1145
+      ],
+      "rotationDegrees": 0,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 3
+        }
+      ],
+      "extraction": {
+        "produced": false,
+        "whiteProposal": false,
+        "method": null,
+        "sourceLimited": false
+      },
+      "outcome": "EXTRACTION_UNSUPPORTED"
+    },
+    {
+      "family": "original-photo",
+      "case": "perspective-left-12pct",
+      "inputSize": [
+        1374,
+        1145
+      ],
+      "rotationDegrees": 0,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 0
+        }
+      ],
+      "extraction": {
+        "produced": false,
+        "whiteProposal": false,
+        "method": null,
+        "sourceLimited": false
+      },
+      "outcome": "EXTRACTION_UNSUPPORTED"
+    },
+    {
+      "family": "original-photo",
+      "case": "perspective-combined",
+      "inputSize": [
+        1374,
+        1145
+      ],
+      "rotationDegrees": 0,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 1
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 1
+        },
+        {
+          "stage": "mask-extraction",
+          "module": "light-surface",
+          "ok": true,
+          "reason": null
+        }
+      ],
+      "extraction": {
+        "produced": true,
+        "whiteProposal": true,
+        "method": "light-surface-localized-marking",
+        "sourceLimited": false
+      },
+      "geometry": {
+        "orientation": null,
+        "frame": {
+          "ok": false,
+          "reason": "No independent upper and lower frame arcs",
+          "applied": false
+        },
+        "postTextEstimate": {
+          "reason": "Row orientation disagreement"
+        },
+        "residualFrame": {
+          "ok": false,
+          "reason": "No independent upper and lower frame arcs",
+          "applied": false
+        }
+      },
+      "retention": {
+        "geometryAlphaRatio": 1,
+        "geometryPremultipliedRGBRatios": [
+          1,
+          1,
+          1
+        ],
+        "extractedAlphaMass": 20933.043137254903,
+        "semanticBrandRetention": "UNVERIFIED — mass conservation only; inspect source and output, not OCR or identity guarantee"
+      },
+      "outcome": "GEOMETRY_UNSUPPORTED_OR_UNCERTAIN"
+    },
+    {
+      "family": "synthetic-nonbrand",
+      "case": "baseline",
+      "inputSize": [
+        900,
+        750
+      ],
+      "rotationDegrees": 0,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 2
+        }
+      ],
+      "extraction": {
+        "produced": false,
+        "whiteProposal": false,
+        "method": null,
+        "sourceLimited": false
+      },
+      "outcome": "EXTRACTION_UNSUPPORTED"
+    },
+    {
+      "family": "synthetic-nonbrand",
+      "case": "rotation--30",
+      "inputSize": [
+        1163,
+        1108
+      ],
+      "rotationDegrees": -30,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 3
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 3
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 1
+        },
+        {
+          "stage": "mask-extraction",
+          "module": "light-surface",
+          "ok": false,
+          "reason": "Empty, overfilled, or clipped marking"
+        }
+      ],
+      "extraction": {
+        "produced": false,
+        "whiteProposal": false,
+        "method": null,
+        "sourceLimited": false
+      },
+      "outcome": "EXTRACTION_UNSUPPORTED"
+    },
+    {
+      "family": "synthetic-nonbrand",
+      "case": "rotation--20",
+      "inputSize": [
+        1111,
+        1021
+      ],
+      "rotationDegrees": -20,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 2
+        }
+      ],
+      "extraction": {
+        "produced": false,
+        "whiteProposal": false,
+        "method": null,
+        "sourceLimited": false
+      },
+      "outcome": "EXTRACTION_UNSUPPORTED"
+    },
+    {
+      "family": "synthetic-nonbrand",
+      "case": "rotation--10",
+      "inputSize": [
+        1025,
+        903
+      ],
+      "rotationDegrees": -10,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 2
+        }
+      ],
+      "extraction": {
+        "produced": false,
+        "whiteProposal": false,
+        "method": null,
+        "sourceLimited": false
+      },
+      "outcome": "EXTRACTION_UNSUPPORTED"
+    },
+    {
+      "family": "synthetic-nonbrand",
+      "case": "rotation-10",
+      "inputSize": [
+        1025,
+        903
+      ],
+      "rotationDegrees": 10,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 2
+        }
+      ],
+      "extraction": {
+        "produced": false,
+        "whiteProposal": false,
+        "method": null,
+        "sourceLimited": false
+      },
+      "outcome": "EXTRACTION_UNSUPPORTED"
+    },
+    {
+      "family": "synthetic-nonbrand",
+      "case": "rotation-20",
+      "inputSize": [
+        1111,
+        1021
+      ],
+      "rotationDegrees": 20,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 2
+        }
+      ],
+      "extraction": {
+        "produced": false,
+        "whiteProposal": false,
+        "method": null,
+        "sourceLimited": false
+      },
+      "outcome": "EXTRACTION_UNSUPPORTED"
+    },
+    {
+      "family": "synthetic-nonbrand",
+      "case": "rotation-30",
+      "inputSize": [
+        1163,
+        1108
+      ],
+      "rotationDegrees": 30,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 3
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 3
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 2
+        }
+      ],
+      "extraction": {
+        "produced": false,
+        "whiteProposal": false,
+        "method": null,
+        "sourceLimited": false
+      },
+      "outcome": "EXTRACTION_UNSUPPORTED"
+    },
+    {
+      "family": "synthetic-nonbrand",
+      "case": "perspective-top-18pct",
+      "inputSize": [
+        900,
+        750
+      ],
+      "rotationDegrees": 0,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 2
+        }
+      ],
+      "extraction": {
+        "produced": false,
+        "whiteProposal": false,
+        "method": null,
+        "sourceLimited": false
+      },
+      "outcome": "EXTRACTION_UNSUPPORTED"
+    },
+    {
+      "family": "synthetic-nonbrand",
+      "case": "perspective-left-12pct",
+      "inputSize": [
+        900,
+        750
+      ],
+      "rotationDegrees": 0,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 2
+        }
+      ],
+      "extraction": {
+        "produced": false,
+        "whiteProposal": false,
+        "method": null,
+        "sourceLimited": false
+      },
+      "outcome": "EXTRACTION_UNSUPPORTED"
+    },
+    {
+      "family": "synthetic-nonbrand",
+      "case": "perspective-combined",
+      "inputSize": [
+        900,
+        750
+      ],
+      "rotationDegrees": 0,
+      "detection": [
+        {
+          "detector": "colorExtract",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "white-carrier",
+          "candidates": 0
+        },
+        {
+          "detector": "neutralDetect",
+          "module": "legacy",
+          "candidates": 0
+        },
+        {
+          "detector": "detect",
+          "module": "legacy",
+          "candidates": 2
+        },
+        {
+          "detector": "propose",
+          "module": "light-surface",
+          "candidates": 2
+        }
+      ],
+      "extraction": {
+        "produced": false,
+        "whiteProposal": false,
+        "method": null,
+        "sourceLimited": false
+      },
+      "outcome": "EXTRACTION_UNSUPPORTED"
+    }
+  ]
+}

@@ -47,3 +47,14 @@ body.contactHelpEditing #contactHelp { position: static; }
 #specialQuoteHelp select { width: 100%; min-height: 44px; font-size: 16px; }
 #specialQuoteHelp .contactDraftActions { display: flex; flex-wrap: wrap; gap: 10px; }
 #specialQuoteHelp :is(a, button) { display: inline-flex; align-items: center; min-height: 44px; padding: 10px; box-sizing: border-box; }
+
+/* A compact persistent pair; explanations remain visible in the message dialog. */
+#contactHelp { padding-top: 6px; padding-bottom: calc(6px + env(safe-area-inset-bottom)); }
+#contactHelp .contactHelpInner { flex-wrap: nowrap; }
+#contactHelp .contactHelpActions { flex: 1; max-width: 440px; }
+#contactHelp .contactHelpActions > * { flex: 1; }
+#contactHelpNote { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (max-width: 600px) {
+  #contactHelp .contactHelpInner > strong { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  #contactHelp .contactHelpActions { margin: 0 auto; }
+}
