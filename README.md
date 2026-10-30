@@ -1,3 +1,9 @@
+# Güncel demo: V31 — onaydan sonra boş arka yüz
+
+Ön yüz onaylanınca ambalaj dönerek boş arka yüzü gösterir. Ön yüze dönüp tasarımı koruyabilir veya mevcut fiyat adımına geçebilirsiniz. Arka yüze logo/yazı ekleme ve arka baskı fiyatları henüz eklenmedi; sonraki talimatlara bırakıldı.
+
+Önceki sürüm notları aşağıdadır.
+
 # Güncel demo: V30 — otomatik eğiklik düzeltme
 
 Açık yüzeyden çıkarılan marka önerisinde, iki bağımsız yazı satırının yönü uyuşuyorsa uygulama tüm logoyu otomatik düzleştirir. Simgeler ve yazılar birlikte döner; elle açı girilmesi gerekmez. Güvenilir açı bulunamazsa zorla dönüş yapılmaz. Bu özellik dönüş açısını düzeltir; tam perspektif veya kavis düzeltmesi değildir. Özgün fotoğrafla karşılaştırma adımı korunur.

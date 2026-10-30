@@ -43,4 +43,18 @@ main{max-width:960px;padding:20px 24px}header{margin-bottom:20px}header b{font-s
 header.companyHeader{align-items:flex-start;gap:12px}header .companyIdentity{display:flex;align-items:center;gap:20px;min-width:0}header #companyLogo{display:block;width:180px;height:auto;flex:none;object-fit:contain}header .companyInformation{display:block;min-width:0}header .companyInformation strong{display:block;font-size:15px;line-height:1.5}header .companyInformation p{display:flex;gap:8px 18px;flex-wrap:wrap;font-size:13px;line-height:1.5;margin:5px 0 0}header .companyInformation a{color:var(--blue);text-decoration:none}header #companyLogoError[hidden]{display:none}header #companyLogoError{color:#9e2020}header #retryCompanyLogo{padding:0;text-decoration:underline;font-size:13px}header.companyHeader>small{white-space:nowrap}
 @media(max-width:600px){header.companyHeader{position:relative;display:block;padding-top:6px}header .companyIdentity{display:flex;align-items:flex-start;flex-direction:column;gap:10px}header #companyLogo{width:150px}header .companyInformation strong{font-size:13px}header .companyInformation p{font-size:12px;gap:5px 15px}header.companyHeader>small{position:absolute;top:6px;right:0;font-size:11px;padding:7px 10px}}
 
+
+/* Actual front-to-rear flip; front artwork remains unchanged in its original canvas. */
+.rearFlipScene{perspective:1400px;width:100%;max-width:900px;margin:20px auto;aspect-ratio:1600/850;border:1px solid #dce3ed;border-radius:20px;background:#f6f8fb;overflow:hidden}
+.rearFlipCard{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s ease-in-out;transform:rotateY(0deg)}
+.rearFlipCard.is-flipped{transform:rotateY(180deg)}
+.rearFlipFace{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;align-items:center;justify-content:center}
+.rearFlipFace img{width:100%;height:100%;object-fit:contain}
+.rearFlipBack{transform:rotateY(180deg)}
+.rearActions{display:flex;justify-content:space-between;gap:12px;max-width:900px;margin:20px auto}.rearActions button{flex:1}
+@media(prefers-reduced-motion:reduce){.rearFlipCard{transition:none}}
+
+
+/* Presentation-only clipping of exterior alpha specks; retain side crimps and central rear fin seal. */
+.rearFlipBack img{width:93%;height:auto;clip-path:polygon(3.2% 7.4%,9.1% 13.5%,12.3% 15.2%,21% 15.4%,33% 16%,46% 14.8%,57% 14.8%,69% 14.5%,83% 14.3%,88.7% 15.9%,91% 12.2%,97% 7.4%,97% 93.5%,91% 90%,89.5% 88.9%,88.6% 89.9%,86.7% 88.4%,83% 88.3%,70% 87.5%,56% 87%,45% 86.8%,33% 88.3%,20% 88.4%,11.5% 88.1%,9.1% 90.4%,3.2% 93.5%)}
 .visualSide{position:static;top:auto}
