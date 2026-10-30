@@ -2,7 +2,7 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 const app=fs.readFileSync(__dirname+'/../frontend/app.js','utf8');
 const elements={},el=id=>elements[id]||(elements[id]={value:'',children:[],replaceChildren(){this.children=[];},append(...a){this.children.push(...a);}});
 const c={$:el,state:{requestedQuantity:null},document:{createElement(){return{children:[],append(...a){this.children.push(...a);}}}},syncQuantity:()=>10000,effectiveBackground:()=> '#ff0000',status(){},money:n=>String(n/100)};
-vm.createContext(c);
+c.isUnprinted=()=>false;vm.createContext(c);
 vm.runInContext(app.slice(app.indexOf('const VAT_EXCLUSION_NOTE'),app.indexOf('const $=')),c);
 vm.runInContext(app.slice(app.indexOf('function pricing('),app.indexOf('\nconst money=')),c);
 vm.runInContext(app.slice(app.indexOf('function calculateRaw(){'),app.indexOf("\n$('province')")),c);

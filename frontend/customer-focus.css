@@ -1,0 +1,10 @@
+/* Preserve every recovery/back action; only one action has primary visual weight. */
+main .focusPrimary, main .simplePrimary > .focusPrimary { background: #075dc9; color: #fff; border: 1px solid #075dc9; }
+main .focusSecondary, main .simplePrimary > .focusSecondary { background: #fff; color: #075dc9; border: 1px solid #b8cbe0; }
+main .focusPrimary:hover { background: #064da6; color: #fff; }
+main .focusSecondary:hover { background: #edf5ff; color: #075dc9; }
+.focusAdvanced { margin: 14px 0; padding: 12px; border: 1px solid #dce6f0; border-radius: 10px; }
+.focusAdvanced > summary { cursor: pointer; min-height: 32px; line-height: 1.5; font-weight: 600; }
+.commercialChange { font-size: 14px; line-height: 1.5; color: #344d67; margin: 12px 0; }
+.commercialChange:empty { display: none; }
+@media print { .commercialChange { display: none; } }

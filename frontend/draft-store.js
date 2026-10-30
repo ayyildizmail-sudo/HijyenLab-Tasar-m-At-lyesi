@@ -15,8 +15,20 @@ function str(value,max){if(typeof value!=='string'||value.length>max)fail('INVAL
 function number(value,min,max){if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max)fail('INVALID','Taslak sayısal alanı geçersiz.');return value;}
 function bool(value){if(typeof value!=='boolean')fail('INVALID','Taslak seçimi geçersiz.');return value;}
 function hex(value,empty=false){if(empty&&value==='')return value;if(typeof value!=='string'||!/^#[0-9a-f]{6}$/i.test(value))fail('INVALID','Taslak rengi geçersiz.');return value;}
+function topKeys(input){return input?.schemaVersion===2?TOP.concat('printMode'):TOP;}
 function validate(input){
- exact(input,TOP);if(input.schemaVersion!==1||!['BM12','BM15','BM545'].includes(input.productId))fail('INVALID','Taslak sürümü veya ürünü desteklenmiyor.');
+ exact(input,topKeys(input));if(![1,2].includes(input.schemaVersion)||!['BM12','BM15','BM545'].includes(input.productId))fail('INVALID','Taslak sürümü veya ürünü desteklenmiyor.');
+ if(input.schemaVersion===2&&!['printed','unprinted'].includes(input.printMode))fail('INVALID','Taslak baskı seçimi geçersiz.');
+ if(input.schemaVersion===2&&input.printMode==='unprinted'){
+  exact(input.design,['requestedQuantity']);const quantity=input.design.requestedQuantity;
+  // Dual browser/CommonJS module; catalog remains the single source for carton sizes.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const catalog=typeof module!=='undefined'&&module.exports?require('./product-catalog.js'):root.ProductCatalog;const units=catalog.rules(input.productId).unitsPerBox;
+  if(quantity!==null&&(!Number.isSafeInteger(quantity)||quantity<units||quantity>1000000||quantity%units!==0))fail('INVALID','Baskısız taslak adedi tam koli olmalıdır.');
+  if(input.rear!==null||input.frontFile!==null||input.rearFile!==null||input.frontName!==''||input.rearName!=='')fail('INVALID','Baskısız taslak baskı görseli içeremez.');
+  if(!['','flambau','green_tea','bodrum_mandarin','lemon'].includes(input.fragrance))fail('INVALID','Taslak kokusu geçersiz.');
+  return {schemaVersion:2,printMode:'unprinted',productId:input.productId,design:{requestedQuantity:quantity},rear:null,fragrance:input.fragrance,frontFile:null,rearFile:null,frontName:'',rearName:''};
+ }
  exact(input.design,DESIGN);exact(input.rear,REAR);const design={},rear={};
  for(const k of ['bg','color','textColor'])design[k]=hex(input.design[k]);
  design.text=str(input.design.text,500);if(!['sans-serif','serif','monospace','cursive'].includes(input.design.font))fail('INVALID','Taslak yazı tipi geçersiz.');design.font=input.design.font;
@@ -28,7 +40,7 @@ function validate(input){
  for(const k of ['instagram','website','phone','address','extra'])rear[k]=str(input.rear[k],1000);
  rear.inkColor=hex(input.rear.inkColor,true);rear.qrEnabled=bool(input.rear.qrEnabled);rear.qrUrl=str(input.rear.qrUrl,2048);
  if(!['','flambau','green_tea','bodrum_mandarin','lemon'].includes(input.fragrance))fail('INVALID','Taslak kokusu geçersiz.');
- const result={schemaVersion:1,productId:input.productId,design,rear,fragrance:input.fragrance};let size=0;
+ const result={schemaVersion:input.schemaVersion,...(input.schemaVersion===2?{printMode:'printed'}:{}),productId:input.productId,design,rear,fragrance:input.fragrance};let size=0;
  for(const side of ['front','rear']){
   const file=input[side+'File'],name=str(input[side+'Name'],255);
   if(file!==null&&(!(file instanceof Blob)||file.size===0||file.size>MAX_FILE_BYTES||!MIME.includes(file.type.toLowerCase())))fail('INVALID','Taslak görseli desteklenmiyor veya çok büyük.');
@@ -39,7 +51,7 @@ function validate(input){
  if(new TextEncoder().encode(JSON.stringify({...result,frontFile:null,rearFile:null})).length>MAX_METADATA_BYTES)fail('INVALID','Taslak alanları çok büyük.');
  return result;
 }
-function envelope(input){exact(input,TOP.concat(['savedAt','expiresAt']));const payload={};for(const k of TOP)payload[k]=input[k];const result=validate(payload);if(!Number.isSafeInteger(input.savedAt)||input.savedAt<0||!Number.isSafeInteger(input.expiresAt)||input.expiresAt!==input.savedAt+TTL_MS)fail('INVALID','Taslak saklama süresi geçersiz.');return {...result,savedAt:input.savedAt,expiresAt:input.expiresAt};}
+function envelope(input){exact(input,topKeys(input).concat(['savedAt','expiresAt']));const payload={};for(const k of topKeys(input))payload[k]=input[k];const result=validate(payload);if(!Number.isSafeInteger(input.savedAt)||input.savedAt<0||!Number.isSafeInteger(input.expiresAt)||input.expiresAt!==input.savedAt+TTL_MS)fail('INVALID','Taslak saklama süresi geçersiz.');return {...result,savedAt:input.savedAt,expiresAt:input.expiresAt};}
 function metadata(record){return JSON.stringify({...record,frontFile:record.frontFile?{size:record.frontFile.size,type:record.frontFile.type}:null,rearFile:record.rearFile?{size:record.rearFile.size,type:record.rearFile.type}:null});}
 async function equalBytes(a,b){if(a===null||b===null)return a===b;const x=new Uint8Array(await a.arrayBuffer()),y=new Uint8Array(await b.arrayBuffer());if(x.length!==y.length)return false;for(let i=0;i<x.length;i++)if(x[i]!==y[i])return false;return true;}
 function createStore(options={}){

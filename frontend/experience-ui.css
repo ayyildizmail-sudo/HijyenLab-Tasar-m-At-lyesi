@@ -13,3 +13,5 @@
 #summaryDiscussion { margin: 18px 0; }
 #summaryDiscussionError { color: #9e2020; font-size: 14px; }
 @media print { #journeyProgress, #uploadRecovery, #summaryDiscussion { display: none; } }
+
+#journeyProgress li[hidden] { display: none; }

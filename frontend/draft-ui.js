@@ -4,7 +4,8 @@
 const DESIGN_KEYS=['bg','color','textColor','text','font','textSize','tx','ty','x','y','size','rotation','recolorApplied','bgPantone','textPantone','requestedQuantity'];
 const REAR_KEYS=['instagram','website','phone','address','extra','inkColor','qrEnabled','qrUrl'];
 function pick(value,keys){return Object.fromEntries(keys.map(key=>[key,value[key]]));}
-function snapshot(){const front=(!state.removed||state.photoLayout)?lastUploadedFile:null,rear=rearSponsorSource?.file||null;return{schemaVersion:1,productId:root.selectedProductId||'BM12',design:pick(state,DESIGN_KEYS),rear:pick(rearContent,REAR_KEYS),fragrance:fragranceSnapshot()?.id||'',frontFile:front||null,frontName:front?.name||'',rearFile:rear,rearName:rear?.name||''};}
+function printMode(){return root.HijyenLabPrintMode?.get()||'printed';}
+function snapshot(){if(printMode()==='unprinted')return{schemaVersion:2,printMode:'unprinted',productId:root.selectedProductId||'BM12',design:{requestedQuantity:state.requestedQuantity??null},rear:null,fragrance:fragranceSnapshot()?.id||'',frontFile:null,frontName:'',rearFile:null,rearName:''};const front=(!state.removed||state.photoLayout)?lastUploadedFile:null,rear=rearSponsorSource?.file||null;return{schemaVersion:2,printMode:'printed',productId:root.selectedProductId||'BM12',design:pick(state,DESIGN_KEYS),rear:pick(rearContent,REAR_KEYS),fragrance:fragranceSnapshot()?.id||'',frontFile:front||null,frontName:front?.name||'',rearFile:rear,rearName:rear?.name||''};}
 const fileIds=new WeakMap();let fileSequence=0;function fileKey(file,name){if(!file)return null;if(!fileIds.has(file))fileIds.set(file,++fileSequence);return[name,file.size,file.lastModified||0,fileIds.get(file)];}
 function keyOf(p){return JSON.stringify({...p,frontFile:fileKey(p.frontFile,p.frontName),rearFile:fileKey(p.rearFile,p.rearName)});}
 const api={snapshot,keyOf,DESIGN_KEYS,REAR_KEYS};root.HijyenLabDraftUI=api;
@@ -22,17 +23,18 @@ async function save(){clearTimeout(timer);if(!enabled||restoring||offer||initial
 async function remove(){if(restoring)cancelRestore();generation++;clearTimeout(timer);dirty=false;offer=null;consent(false);$('restoreDraft').hidden=true;$('replaceDraft').hidden=true;try{await store.clear();lastKey='';$('deleteDraft').hidden=true;say('Cihazdaki taslak silindi. Açık tasarımınız değişmedi.');}catch(error){say('Cihazdaki taslağın silindiği doğrulanamadı. Yeniden silmeyi deneyin.');$('deleteDraft').hidden=false;}}
 function cancelRestore(){if(!restoring)return;generation++;restoring=false;cancelCurrentProcessing('draft-interrupted');rearSponsorOperation++;rearSponsorPending=false;state.extractionApprovalRequired=!!(state.logo||state.photoLayout);approvedDesignFingerprint=null;invalidateQuote();$('restoreDraft').disabled=false;say('Geri yükleme durduruldu. Mevcut tasarımı kontrol edin.');}
 async function restore(){if(!offer||restoring)return;const payload=offer,ticket=++generation;restoring=true;$('restoreDraft').disabled=true;say('Kaynak görseller yeniden kontrol ediliyor…');try{
+ const mode=payload.printMode||'printed';if(mode==='unprinted'&&!root.HijyenLabPrintMode)throw Error('Baskısız ürün akışı kullanılamıyor.');if(root.HijyenLabPrintMode)await root.HijyenLabPrintMode.set(mode);if(ticket!==generation)return;
  resetDesign();lastUploadedFile=null;await selectProduct(payload.productId);if(ticket!==generation)return;
- if(payload.frontFile)await routeUploadedFile(new File([payload.frontFile],payload.frontName,{type:payload.frontFile.type}));if(ticket!==generation)return;
+ if(mode==='printed'&&payload.frontFile)await routeUploadedFile(new File([payload.frontFile],payload.frontName,{type:payload.frontFile.type}));if(ticket!==generation)return;
  // Only validated original inputs above establish the artwork. Saved settings confer no approval.
  Object.assign(state,payload.design);state.textPending=!!state.text;state.textPlaced=false;state.productReviewRequired=!!(state.logo||state.photoLayout);state.extractionApprovalRequired=!!(state.logo||state.photoLayout);approvedDesignFingerprint=null;
- Object.assign(rearContent,payload.rear);syncRearFields();rearChanged();
- if(payload.rearFile)await processRearSponsor(new File([payload.rearFile],payload.rearName,{type:payload.rearFile.type}));if(ticket!==generation)return;
+ if(mode==='printed'){Object.assign(rearContent,payload.rear);syncRearFields();rearChanged();}
+ if(mode==='printed'&&payload.rearFile)await processRearSponsor(new File([payload.rearFile],payload.rearName,{type:payload.rearFile.type}));if(ticket!==generation)return;
  resetFragrance();if(Fragrance.validId(payload.fragrance)){fragranceChoice=payload.fragrance;fragranceConfirmed='';syncFragrance();}
  latest=null;invalidateQuote();containLogoPlacement();syncProductReview();refresh();
  // A pending source/PDF selection stays visible; do not pretend that manual region choices were restored.
  if($('photoEditor').hidden&&$('pdfPicker').hidden)go(1);
- offer=null;$('restoreDraft').hidden=true;$('replaceDraft').hidden=true;lastKey=keyOf(snapshot());say('Kaynak görseller ve tercihler geri yüklendi; logo yerleşimini yeniden kontrol edin. Alan seçimi, ön/arka onayları ve koku onayı yeniden gerekebilir. Teklif yeniden hesaplanacaktır.');
+ offer=null;$('restoreDraft').hidden=true;$('replaceDraft').hidden=true;lastKey=keyOf(snapshot());say(mode==='unprinted'?'Baskısız ürün ve koli tercihiniz geri yüklendi. Koku ve teslimat bilgilerini yeniden kontrol edin; teklif yeniden hesaplanacaktır.':'Kaynak görseller ve tercihler geri yüklendi; logo yerleşimini yeniden kontrol edin. Alan seçimi, ön/arka onayları ve koku onayı yeniden gerekebilir. Teklif yeniden hesaplanacaktır.');
  }catch(error){if(ticket===generation)say('Taslağın tamamı geri yüklenemedi. Kaynakları yeniden seçebilir veya tekrar deneyebilirsiniz. Eski teklif/onay kullanılmadı.');}
  finally{if(ticket===generation){restoring=false;$('restoreDraft').disabled=false;}}
 }

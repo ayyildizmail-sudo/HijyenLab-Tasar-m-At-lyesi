@@ -7,15 +7,15 @@
   let showDifferentProductDraft = null, activeDraftGuard = null;
   function summaryContext() {
     let context;
-    try { context = root.getHijyenLabSummaryHelpContext?.(); } catch (_) { return null; }
+    try { context = root.getHijyenLabSummaryHelpContext?.(); } catch { return null; }
     if (!context || typeof context.product !== 'string' || !context.product.trim() || typeof context.fragrance !== 'string' || !context.fragrance.trim() || !Number.isSafeInteger(context.quantity) || context.quantity <= 0 || context.quantity > 1000000) return null;
-    return { product: context.product.trim().slice(0, 140), quantity: context.quantity, fragrance: context.fragrance.trim().slice(0, 140) };
+    return { printMode: ['printed', 'unprinted'].includes(context.printMode) ? context.printMode : null, product: context.product.trim().slice(0, 140), quantity: context.quantity, fragrance: context.fragrance.trim().slice(0, 140) };
   }
   function openSummaryDraft() {
     const context = summaryContext();
     if (!context || !showDifferentProductDraft) return false;
     const key = JSON.stringify(context);
-    showDifferentProductDraft('Merhaba, bu tasarımı görüşmek istiyorum.\nÜrün: ' + context.product + '\nAdet: ' + context.quantity + '\nKoku: ' + context.fragrance);
+    showDifferentProductDraft((context.printMode === 'unprinted' ? 'Merhaba, baskısız ürün teklifini görüşmek istiyorum.\nBaskısız; klişe uygulanmaz.' : 'Merhaba, bu tasarımı görüşmek istiyorum.') + '\nÜrün: ' + context.product + '\nAdet: ' + context.quantity + '\nKoku: ' + context.fragrance);
     activeDraftGuard = () => { const fresh = summaryContext(); return !!fresh && JSON.stringify(fresh) === key; };
     return true;
   }
@@ -44,6 +44,8 @@
     // Allowlist only; never serialize the provider object or read customer fields.
     const clean = value => typeof value === 'string' ? value.replace(/[\r\n\t]+/g, ' ').trim().slice(0, 140) : '';
     const lines = [CONTACT.message];
+    if (context.printMode === 'unprinted') lines.push('Baskı seçimi: Baskısız; klişe uygulanmaz');
+    else if (context.printMode === 'printed') lines.push('Baskı seçimi: Baskılı');
     for (const [label, value] of [['Ürün', context.product], ['Bulunduğum aşama', context.stage], ['Seçtiğim koku', context.fragrance]]) {
       const text = clean(value);
       if (text) lines.push(label + ': ' + text);
@@ -130,7 +132,7 @@
     proceed.onclick = event => {
       if (activeDraftGuard && !activeDraftGuard()) {
         event.preventDefault(); proceed.removeAttribute('href'); proceed.setAttribute('aria-disabled', 'true');
-        freshnessError.textContent = 'Tasarım değişti. Teklif önizlemesini yeniden oluşturup mesajı tekrar açın.'; freshnessError.hidden = false;
+        freshnessError.textContent = 'Ürün veya tasarım bilgileri değişti. Teklif önizlemesini yeniden oluşturup mesajı tekrar açın.'; freshnessError.hidden = false;
         return;
       }
       syncDraft();
@@ -147,7 +149,7 @@
     };
     wa.onclick = () => {
       let context = {};
-      try { context = root.getHijyenLabHelpContext?.() || {}; } catch (_) { /* Generic help remains available. */ }
+      try { context = root.getHijyenLabHelpContext?.() || {}; } catch { /* Generic help remains available. */ }
       showDifferentProductDraft(buildMessage(context));
     };
     doc.body.classList.add('hasContactHelp');

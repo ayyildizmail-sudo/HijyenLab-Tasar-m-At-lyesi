@@ -15,7 +15,7 @@ ctx.showRearPreview();sourceImages.at(-1).onload();assert.equal(renderedBackgrou
 ctx.resetRearPreview();ctx.showRearPreview();const cancelledFirst=sourceImages.at(-1).onload;ctx.renderRearPreview(false);cancelledFirst();sourceImages.at(-1).onload();$('rearBlankImage').onload();while(raf.length)raf.shift()();assert($('rearFlipCard').classList.values.has('is-flipped'));assert.equal($('rearToPrice').disabled,false);
 approved=false;assert.equal(ctx.showRearPreview(),false);approved=true;issue=true;assert.equal(ctx.showRearPreview(),false);
 // Central route receives both native next/navigation and approved extracted logos.
-const goCode=app.slice(app.indexOf('function go(n){'),app.indexOf("$('useMinimum').onclick"));let shown=0;const c={state:{logo:'x'},step:1,$,approveNativeDesignIfEligible(){},designIssue:()=>false,showRearPreview:()=>shown++,showDesignIssue(){},validateLead:()=>true};vm.createContext(c);vm.runInContext(goCode,c);c.go(2);assert.equal(shown,1);
+const goCode=app.slice(app.indexOf('function go(n){'),app.indexOf("$('useMinimum').onclick"));let shown=0;const c={state:{logo:'x'},step:1,$,approveNativeDesignIfEligible(){},designIssue:()=>false,showRearPreview:()=>shown++,showDesignIssue(){},validateLead:()=>true};c.isUnprinted=()=>false;vm.createContext(c);vm.runInContext(goCode,c);c.go(2);assert.equal(shown,1);
 assert(app.includes("$('next').onclick=()=>go(2)"));assert(fs.readFileSync('frontend/brand-region-ui.js','utf8').includes('refresh();go(2);'));
 assert(fs.readFileSync('frontend/processing-lifecycle.js','utf8').includes("if(typeof resetRearPreview==='function')resetRearPreview();loading++"));
 assert(fs.readFileSync('frontend/style.css','utf8').includes('@media(prefers-reduced-motion:reduce){.rearFlipCard{transition:none}}'));

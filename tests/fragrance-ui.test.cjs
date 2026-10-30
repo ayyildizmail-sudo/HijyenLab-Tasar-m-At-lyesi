@@ -30,6 +30,9 @@ ctx.fetch=async()=>response(999999);select('flambau');await $('fragranceContinue
 ctx.localStorage.setItem=()=>{throw Error('storage blocked')};select('green_tea');lastGo=null;await $('fragranceContinue').onclick();assert.equal(lastGo,2);assert(ctx.fragranceReady());assert($('fragranceSyncStatus').textContent.includes('kaydedildiği doğrulanamadı'));
 const ui=fs.readFileSync('frontend/fragrance-ui.js','utf8'),css=fs.readFileSync('frontend/style.css','utf8');assert(ui.includes("fragrancePrice.className='fragrancePriceSummary'"));assert(!ui.includes("fragrancePrice.className='notice"));assert(css.includes('.fragrancePriceSummary{display:block;'));assert.equal($('fragrancePriceValue').textContent.includes('Koku:'),true);
 const app=fs.readFileSync('frontend/app.js','utf8'),life=fs.readFileSync('frontend/processing-lifecycle.js','utf8');assert(app.includes("(n===2||n===3)&&typeof fragranceReady==='function'&&!fragranceReady()"));assert(app.includes("async function renderQuote(){if(designIssue()){showDesignIssue();return;}if(typeof fragranceReady==='function'&&!fragranceReady()"));assert(app.includes("quoteSnapshot.fragrance.label"));assert(life.includes("fragrance:typeof fragranceSnapshot==='function'?fragranceSnapshot():null"));assert(app.includes("$('downloadQuote').onclick=()=>{if(designIssue()){showDesignIssue();return;}if(!validateLead(true))return;if(typeof fragranceReady==='function'&&!fragranceReady()"));
-assert(fs.readFileSync('frontend/index.html','utf8').includes('Yalnız anonim koku tercihi ortak istatistiğe kaydedilebilir'));
+const privacyHtml=fs.readFileSync('frontend/index.html','utf8');
+assert(privacyHtml.includes('Anonim koku tercihi ortak istatistiğe kaydedilebilir'));
+assert(privacyHtml.includes('müşteri talebi ancak ayrıca açılan talep formunda açık izninizle gönderilir'));
+assert(!privacyHtml.includes('Yalnız anonim koku tercihi ortak istatistiğe kaydedilebilir'));
 console.log('PASS fragrance UI: immediate local confirmation, pending duplicate guard, revision ACK validation, GET/POST ordering, change/reset/navigation races, honest offline/storage failures');
 })().catch(e=>{console.error(e);process.exitCode=1});

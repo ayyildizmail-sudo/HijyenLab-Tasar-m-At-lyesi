@@ -1,0 +1,428 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "b45a5717-c5a8-441c-a549-c14bf5d15fcc",
+  "prevId": "fe95647c-bbc7-4906-bac7-2338c1ddb748",
+  "tables": {
+    "fragrance_preferences": {
+      "name": "fragrance_preferences",
+      "columns": {
+        "product_family": {
+          "name": "product_family",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "anonymous_id": {
+          "name": "anonymous_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "fragrance": {
+          "name": "fragrance",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "revision": {
+          "name": "revision",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "fragrance_preferences_product_family_anonymous_id_pk": {
+          "columns": [
+            "product_family",
+            "anonymous_id"
+          ],
+          "name": "fragrance_preferences_product_family_anonymous_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "valid_revision": {
+          "name": "valid_revision",
+          "value": "\"fragrance_preferences\".\"revision\" >= 1 AND \"fragrance_preferences\".\"revision\" <= 9007199254740991"
+        },
+        "valid_family": {
+          "name": "valid_family",
+          "value": "\"fragrance_preferences\".\"product_family\" = 'towels'"
+        },
+        "valid_fragrance": {
+          "name": "valid_fragrance",
+          "value": "\"fragrance_preferences\".\"fragrance\" IN ('flambau', 'green_tea', 'bodrum_mandarin', 'lemon')"
+        }
+      }
+    },
+    "lead_analytics_events": {
+      "name": "lead_analytics_events",
+      "columns": {
+        "event_id": {
+          "name": "event_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "session_id": {
+          "name": "session_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "event_name": {
+          "name": "event_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "day": {
+          "name": "day",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "occurred_at": {
+          "name": "occurred_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "dedup_key": {
+          "name": "dedup_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "consent_version": {
+          "name": "consent_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "lead_analytics_events_dedup_key_unique": {
+          "name": "lead_analytics_events_dedup_key_unique",
+          "columns": [
+            "dedup_key"
+          ],
+          "isUnique": true
+        },
+        "analytics_time_idx": {
+          "name": "analytics_time_idx",
+          "columns": [
+            "occurred_at"
+          ],
+          "isUnique": false
+        },
+        "analytics_session_time_idx": {
+          "name": "analytics_session_time_idx",
+          "columns": [
+            "session_id",
+            "occurred_at"
+          ],
+          "isUnique": false
+        },
+        "analytics_expiry_idx": {
+          "name": "analytics_expiry_idx",
+          "columns": [
+            "expires_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "analytics_event": {
+          "name": "analytics_event",
+          "value": "\"lead_analytics_events\".\"event_name\" IN ('visit','design_started','design_ready','fragrance_selected','quote_viewed','whatsapp_clicked','phone_clicked')"
+        },
+        "analytics_expiry": {
+          "name": "analytics_expiry",
+          "value": "\"lead_analytics_events\".\"expires_at\" > \"lead_analytics_events\".\"occurred_at\""
+        }
+      }
+    },
+    "lead_status_audit": {
+      "name": "lead_status_audit",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "lead_id": {
+          "name": "lead_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "actor_id": {
+          "name": "actor_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "changed_at": {
+          "name": "changed_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "from_status": {
+          "name": "from_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "to_status": {
+          "name": "to_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "from_revision": {
+          "name": "from_revision",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "lead_status_audit_lead_id_leads_id_fk": {
+          "name": "lead_status_audit_lead_id_leads_id_fk",
+          "tableFrom": "lead_status_audit",
+          "tableTo": "leads",
+          "columnsFrom": [
+            "lead_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "leads": {
+      "name": "leads",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'new'"
+        },
+        "revision": {
+          "name": "revision",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "fragrance": {
+          "name": "fragrance",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "contact_json": {
+          "name": "contact_json",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "design_json": {
+          "name": "design_json",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "phone_key": {
+          "name": "phone_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "consent_version": {
+          "name": "consent_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "payload_hash": {
+          "name": "payload_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "leads_created_idx": {
+          "name": "leads_created_idx",
+          "columns": [
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "leads_phone_created_idx": {
+          "name": "leads_phone_created_idx",
+          "columns": [
+            "phone_key",
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "leads_expiry_idx": {
+          "name": "leads_expiry_idx",
+          "columns": [
+            "expires_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "lead_kind": {
+          "name": "lead_kind",
+          "value": "\"leads\".\"kind\" IN ('complete','contact_request')"
+        },
+        "lead_status": {
+          "name": "lead_status",
+          "value": "\"leads\".\"status\" IN ('new','contacted','quote_sent','closed')"
+        },
+        "lead_revision": {
+          "name": "lead_revision",
+          "value": "\"leads\".\"revision\" >= 0 AND \"leads\".\"revision\" <= 9007199254740991"
+        },
+        "lead_expiry": {
+          "name": "lead_expiry",
+          "value": "\"leads\".\"expires_at\" > \"leads\".\"created_at\""
+        },
+        "lead_quantity": {
+          "name": "lead_quantity",
+          "value": "\"leads\".\"quantity\" IS NULL OR (\"leads\".\"quantity\" >= 1 AND \"leads\".\"quantity\" <= 1000000)"
+        },
+        "lead_product": {
+          "name": "lead_product",
+          "value": "\"leads\".\"product_id\" IS NULL OR \"leads\".\"product_id\" IN ('BM12','BM15','BM545')"
+        },
+        "lead_fragrance": {
+          "name": "lead_fragrance",
+          "value": "\"leads\".\"fragrance\" IS NULL OR \"leads\".\"fragrance\" IN ('flambau','green_tea','bodrum_mandarin','lemon')"
+        },
+        "lead_complete": {
+          "name": "lead_complete",
+          "value": "\"leads\".\"kind\" != 'complete' OR (\"leads\".\"product_id\" IS NOT NULL AND \"leads\".\"quantity\" IS NOT NULL AND \"leads\".\"fragrance\" IS NOT NULL AND \"leads\".\"design_json\" IS NOT NULL)"
+        }
+      }
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}

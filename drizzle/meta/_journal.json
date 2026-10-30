@@ -8,6 +8,27 @@
       "when": 1793369573859,
       "tag": "0000_green_lightspeed",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1793382905437,
+      "tag": "0001_colorful_echo",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793382975676,
+      "tag": "0002_nostalgic_the_leader",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1793383864491,
+      "tag": "0003_slimy_iron_lad",
+      "breakpoints": true
     }
   ]
 }

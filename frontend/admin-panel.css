@@ -1,0 +1,35 @@
+:root { color-scheme: light; font-family: Arial, sans-serif; color: #18334b; background: #f4f7fb; }
+* { box-sizing: border-box; }
+.adminBody { margin: 0; }
+.adminMain { max-width: 1120px; padding: 28px 22px 44px; margin: auto; }
+.adminHeader { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 28px; }
+.adminEyebrow { color: #526577; font-size: 14px; margin: 0 0 8px; }
+h1 { font-size: 30px; margin: 0; } h2 { font-size: 22px; margin: 0 0 12px; } h3 { font-size: 19px; margin: 0 0 10px; }
+a { color: #075dc9; }
+section { background: #fff; border: 1px solid #dce3ed; border-radius: 14px; margin: 20px 0; padding: 22px; }
+p { line-height: 1.5; }
+.adminHint, .adminFootnote { color: #526577; font-size: 14px; }
+.adminToolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+button, select { min-height: 44px; font: inherit; padding: 10px 14px; border: 1px solid #8298ae; border-radius: 8px; background: #fff; color: #18334b; }
+button { cursor: pointer; } button:disabled { cursor: default; opacity: .55; }
+button:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid #075dc9; outline-offset: 3px; }
+label { display: block; font-size: 14px; margin-bottom: 7px; }
+#adminStatusFilter { width: min(100%, 300px); }
+.adminMetrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 18px 0; }
+.adminMetric { padding: 14px; border: 1px solid #dce3ed; border-radius: 10px; background: #f8fafc; }
+.adminMetric strong { display: block; font-size: 27px; margin-bottom: 6px; }
+.adminMetric span { font-size: 14px; }
+.adminTableWrap { overflow-x: auto; } table { width: 100%; border-collapse: collapse; font-size: 14px; } th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #e2e8f0; } th { color: #526577; font-weight: 600; }
+.adminLead { border: 1px solid #dce3ed; border-radius: 12px; margin-top: 16px; padding: 18px; }
+.adminLeadHeader { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.adminBadge { border: 1px solid #c7d4e4; border-radius: 20px; padding: 5px 10px; font-size: 13px; white-space: nowrap; }
+dl { display: grid; grid-template-columns: minmax(110px, 150px) minmax(0, 1fr); gap: 10px 14px; font-size: 14px; line-height: 1.5; } dt { color: #526577; } dd { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.adminLeadActions { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.adminLeadActions button { background: #075dc9; border-color: #075dc9; color: #fff; }
+.adminLeadMessage { flex-basis: 100%; font-size: 14px; margin: 0; }
+.adminEmpty { padding: 20px 0; color: #526577; }
+.adminNotice { border-color: #dfbc78; background: #fff9ed; }
+.adminIdentity { font-family: monospace; }
+#adminLoadMore { margin-top: 18px; }
+[hidden] { display: none !important; }
+@media(max-width: 600px) { .adminMain { padding: 20px 14px; } h1 { font-size: 26px; } section { padding: 16px; } .adminLead { padding: 14px; } dl { grid-template-columns: 1fr; gap: 4px; } dd { margin-bottom: 8px; } .adminLeadActions > div { width: 100%; } .adminLeadActions select, .adminLeadActions button { width: 100%; } }

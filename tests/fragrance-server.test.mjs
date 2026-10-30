@@ -48,7 +48,11 @@ test('new handler/redeployment does not recreate seed or reset votes',async()=>{
  const second=await import('../server/fragrance-preferences.mjs?redeploy');
  assert.equal((await second.handleFragrancePreferences(get(),db)).status,200);
  assert.deepEqual(counts(db).map(r=>({...r})),[{fragrance:'flambau',count:1}]);
- for(const f of readdirSync(new URL('../drizzle/',import.meta.url)).filter(f=>f.endsWith('.sql'))) assert.doesNotMatch(readFileSync(new URL('../drizzle/'+f,import.meta.url),'utf8'),/\b(?:INSERT|UPDATE|DELETE)\b/i);
+ for(const f of readdirSync(new URL('../drizzle/',import.meta.url)).filter(f=>f.endsWith('.sql'))) {
+  const migration=readFileSync(new URL('../drizzle/'+f,import.meta.url),'utf8');
+  // Lead-only schema rebuilds may copy lead rows; fragrance state must never be rewritten or dropped.
+  assert.doesNotMatch(migration,/\b(?:INSERT\s+(?:OR\s+\w+\s+)?INTO|REPLACE\s+INTO|UPDATE|DELETE\s+FROM|DROP\s+TABLE|ALTER\s+TABLE)\s+[`"]?fragrance_preferences\b/i);
+ }
 });
 test('invalid family, fields, enum, UUID and injection do not write',async()=>{
  const db=database(),id=randomUUID();
@@ -83,4 +87,11 @@ test('late and duplicated older revisions cannot overwrite the newer preference'
  await Promise.all([response(post(id,'lemon',{revision:1}),db,409),response(post(id,'flambau',{revision:2}),db,409),response(post(id,'lemon',{revision:3}),db,409)]);
  assert.deepEqual(counts(db).map(r=>({...r})),[{fragrance:'green_tea',count:1}]);
  for(const revision of [0,-1,1.5,'2',9007199254740992,null]) await response(post(id,'lemon',{revision}),db,400);
+});
+
+// DDL foreign-key actions are not data-changing migration statements.
+test('migration DML guard rejects real writes but allows foreign-key actions',()=>{
+ const dml=/\b(?:INSERT\s+(?:OR\s+\w+\s+)?INTO|REPLACE\s+INTO|UPDATE\s+[`"\w]+\s+SET|DELETE\s+FROM)\b/i;
+ for(const sql of ['INSERT INTO fragrance_preferences VALUES (1);','INSERT OR REPLACE INTO fragrance_preferences VALUES (1);','REPLACE INTO fragrance_preferences VALUES (1);','UPDATE fragrance_preferences SET revision=0;','DELETE FROM fragrance_preferences;']) assert.match(sql,dml);
+ assert.doesNotMatch('FOREIGN KEY (lead_id) REFERENCES leads(id) ON UPDATE no action ON DELETE cascade',dml);
 });

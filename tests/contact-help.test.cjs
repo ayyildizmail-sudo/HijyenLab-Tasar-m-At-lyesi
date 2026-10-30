@@ -104,3 +104,9 @@ dialog.close(); browser.HijyenLabContactHelp.openDifferentProductDraft('Other pr
 assert.equal(nodes.get('contactFreshnessError').hidden, true);
 assert.equal(new URL(proceed.href).searchParams.get('text'), draft.value);
 console.log('PASS summary draft: fresh validated quote only, product/quantity/fragrance allowlist, stale snapshot prevented on proceed, no upload/PII, other help remains available.');
+const unprintedMessage=api.buildMessage({printMode:'unprinted',product:'BM545',quantity:625,phone:'PRIVATE'});
+assert.match(unprintedMessage,/Baskısız; klişe uygulanmaz/);assert(!unprintedMessage.includes('PRIVATE'));
+browser.getHijyenLabSummaryHelpContext=()=>({printMode:'unprinted',product:'BM545',quantity:625,fragrance:'Flambau'});
+assert.equal(browser.HijyenLabContactHelp.openSummaryDraft(),true);assert.match(nodes.get('contactMessage').value,/baskısız ürün teklifini/);assert.match(nodes.get('contactMessage').value,/Baskısız; klişe uygulanmaz/);
+browser.getHijyenLabSummaryHelpContext=()=>({printMode:'printed',product:'BM545',quantity:625,fragrance:'Limon'});let blockedMode=false;nodes.get('contactProceed').onclick({preventDefault(){blockedMode=true;}});assert.equal(blockedMode,true);
+console.log('PASS unprinted help: explicit mode, carton quantity context, no PII, and mode-switch freshness guard; no outbound activation.');

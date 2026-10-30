@@ -68,6 +68,10 @@
     const visible = id => { const el = doc.getElementById(id); return !!el && !el.hidden; };
     function sync() {
       const current = stepFromPanels(visible);
+      const blank = root.HijyenLabPrintMode?.get() === 'unprinted';
+      const designLabel = blank ? 'Ürün' : 'Tasarım';
+      if (steps.get('design').textContent !== designLabel) steps.get('design').textContent = designLabel;
+      if (steps.get('fragrance').hidden !== blank) steps.get('fragrance').hidden = blank;
       for (const [key, item] of steps) {
         if (key === current) { if (item.getAttribute('aria-current') !== 'step') item.setAttribute('aria-current', 'step'); }
         else item.removeAttribute('aria-current');
@@ -79,6 +83,7 @@
     if (root.MutationObserver) new root.MutationObserver(sync).observe(main, { subtree: true, attributes: true, attributeFilter: ['hidden', 'src'] });
     doc.addEventListener('input', sync); doc.addEventListener('change', sync);
     doc.addEventListener('hijyenlab:quote-state', sync);
+    root.addEventListener?.('hijyenlab:print-mode-change', sync);
     const existing = doc.getElementById('status')?.textContent;
     if (existing) onStatus(existing);
     sync();
