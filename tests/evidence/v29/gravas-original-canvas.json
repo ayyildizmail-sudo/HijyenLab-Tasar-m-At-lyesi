@@ -1,0 +1,35 @@
+{
+  "sourceSha256": "f44084bdcb500ca91c9244a93309dcc568b19bb3be7f9f995506f61b600f8822",
+  "width": 1374,
+  "height": 1145,
+  "candidates": [
+    {
+      "box": [
+        423,
+        382,
+        942,
+        793
+      ],
+      "sourceWidth": 1374,
+      "sourceHeight": 1145,
+      "method": "light-surface-localized-marking",
+      "methodVersion": "1",
+      "sourceCoordinates": "browser-decoded",
+      "componentCount": 23,
+      "quietBorderRatio": 1,
+      "limitations": [
+        "Review-only marking proposal, not semantic brand recognition.",
+        "No perspective or curved-surface correction; photographed geometry retained.",
+        "White-ground preview only; all words and symbols require comparison."
+      ],
+      "maskOk": true,
+      "quality": {
+        "strongInkPixels": 16789,
+        "retainedStrongInkPixels": 16789,
+        "coverage": 1
+      }
+    }
+  ],
+  "reviewRequired": true,
+  "semanticAcceptance": "NOT_AUTOMATED"
+}

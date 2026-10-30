@@ -1,0 +1,177 @@
+[
+  {
+    "name": "original",
+    "proposals": [
+      {
+        "box": [
+          423,
+          382,
+          942,
+          793
+        ],
+        "sourceWidth": 1374,
+        "sourceHeight": 1145,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 23,
+        "quietBorderRatio": 1,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ],
+    "maskOk": true
+  },
+  {
+    "name": "rotate-10",
+    "proposals": [
+      {
+        "box": [
+          506,
+          486,
+          1030,
+          907
+        ],
+        "sourceWidth": 1552,
+        "sourceHeight": 1367,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 25,
+        "quietBorderRatio": 1,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ],
+    "maskOk": true
+  },
+  {
+    "name": "rotate10",
+    "proposals": [
+      {
+        "box": [
+          517,
+          491,
+          1030,
+          904
+        ],
+        "sourceWidth": 1552,
+        "sourceHeight": 1367,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 24,
+        "quietBorderRatio": 1,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      },
+      {
+        "box": [
+          657,
+          284,
+          758,
+          342
+        ],
+        "sourceWidth": 1552,
+        "sourceHeight": 1367,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 3,
+        "quietBorderRatio": 1,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ]
+  },
+  {
+    "name": "resize0.7",
+    "proposals": [
+      {
+        "box": [
+          296,
+          267,
+          659,
+          555
+        ],
+        "sourceWidth": 962,
+        "sourceHeight": 802,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 23,
+        "quietBorderRatio": 1,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ],
+    "maskOk": true
+  },
+  {
+    "name": "resize1.25",
+    "proposals": [
+      {
+        "box": [
+          529,
+          477,
+          1177,
+          991
+        ],
+        "sourceWidth": 1718,
+        "sourceHeight": 1431,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 24,
+        "quietBorderRatio": 1,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ],
+    "maskOk": true
+  },
+  {
+    "name": "embed",
+    "proposals": [
+      {
+        "box": [
+          811,
+          669,
+          1352,
+          1101
+        ],
+        "sourceWidth": 2174,
+        "sourceHeight": 1745,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 35,
+        "quietBorderRatio": 1,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ],
+    "maskOk": true
+  }
+]

@@ -1,3 +1,9 @@
+# Güncel demo: V29 — açık yüzeyde marka önerisi
+
+V28’de reddedilen bazı beyaz ürün/peçete fotoğrafları için, mevcut çalışan yolların ardından ayrı bir yerel marka alanı önerisi denenir. Özgün piksel bölgesi ayrıştırılır; yazı yeniden çizilmez. Tek aday ve kalite kontrolleri sağlandığında orijinal/öneri karşılaştırması gösterilir; müşteri onayı olmadan ambalaja uygulanmaz. Genel marka anlama, eğik/kavisli yüzeyin eksiksiz düzeltilmesi ve baskıya hazır grafik garantisi yoktur. Birden çok aday veya eksik maske güvenli biçimde durur. Fotoğraf rengi yaklaşık, önizleme beyaz zeminde sınırlıdır.
+
+V28 ve daha eski bölümler aşağıda tarihsel geliştirme notlarıdır; fiyat/kargo kuralları değiştirilmedi.
+
 # HijyenLab Tasarım Atölyesi · V28 deneme sürümü
 
 Müşteri için amaç: görsel yüklemek, ambalaj önizlemesini görmek ve iletişim bilgilerini girerek örnek fiyatı incelemek. Bu uygulama baskıya hazır veya vektörel dosya üretmez. Telefon görüşmesinden sonra Aytuğ Bey baskı grafiğini hazırlayıp onaya sunar. Henüz arama düğmesi veya gerçek müşteri kaydı/gönderimi yoktur.

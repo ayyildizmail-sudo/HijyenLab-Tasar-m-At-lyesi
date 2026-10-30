@@ -1,0 +1,301 @@
+[
+  {
+    "name": "original",
+    "width": 864,
+    "height": 1536,
+    "aw": 338,
+    "ah": 600,
+    "expectedBox": [
+      312,
+      770,
+      597,
+      921
+    ],
+    "candidates": [
+      {
+        "box": [
+          301,
+          755,
+          611,
+          937
+        ],
+        "sourceWidth": 864,
+        "sourceHeight": 1536,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 39,
+        "quietBorderRatio": 1,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ],
+    "roi": [
+      301,
+      755,
+      611,
+      937
+    ],
+    "quality": {
+      "strongInkPixels": 4132,
+      "retainedStrongInkPixels": 4019,
+      "coverage": 0.9726524685382382
+    },
+    "coverage": 1,
+    "expectedInkInside": 1,
+    "expectedInkRetained": 1,
+    "pass": true
+  },
+  {
+    "name": "rotate-10",
+    "width": 1118,
+    "height": 1664,
+    "aw": 403,
+    "ah": 600,
+    "expectedBox": [
+      438,
+      826,
+      716,
+      998
+    ],
+    "candidates": [
+      {
+        "box": [
+          424,
+          809,
+          733,
+          1013
+        ],
+        "sourceWidth": 1118,
+        "sourceHeight": 1664,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 37,
+        "quietBorderRatio": 0.9944444444444445,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      },
+      {
+        "box": [
+          693,
+          1181,
+          941,
+          1271
+        ],
+        "sourceWidth": 1118,
+        "sourceHeight": 1664,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 3,
+        "quietBorderRatio": 0.9615384615384616,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ],
+    "pass": false
+  },
+  {
+    "name": "rotate10",
+    "width": 1118,
+    "height": 1664,
+    "aw": 403,
+    "ah": 600,
+    "expectedBox": [
+      444,
+      806,
+      735,
+      996
+    ],
+    "candidates": [
+      {
+        "box": [
+          810,
+          1064,
+          1060,
+          1149
+        ],
+        "sourceWidth": 1118,
+        "sourceHeight": 1664,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 3,
+        "quietBorderRatio": 0.9612068965517241,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ],
+    "roi": [
+      810,
+      1064,
+      1060,
+      1149
+    ],
+    "reason": "Empty, overfilled, or clipped marking",
+    "pass": false
+  },
+  {
+    "name": "resize0.7",
+    "width": 605,
+    "height": 1075,
+    "aw": 338,
+    "ah": 600,
+    "expectedBox": [
+      218,
+      539,
+      418,
+      645
+    ],
+    "candidates": [
+      {
+        "box": [
+          211,
+          528,
+          428,
+          656
+        ],
+        "sourceWidth": 605,
+        "sourceHeight": 1075,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 40,
+        "quietBorderRatio": 1,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ],
+    "roi": [
+      211,
+      528,
+      428,
+      656
+    ],
+    "quality": {
+      "strongInkPixels": 1979,
+      "retainedStrongInkPixels": 1891,
+      "coverage": 0.9555330975240021
+    },
+    "coverage": 1,
+    "expectedInkInside": 1,
+    "expectedInkRetained": 0.9921186833565137,
+    "pass": true
+  },
+  {
+    "name": "resize1.25",
+    "width": 1080,
+    "height": 1920,
+    "aw": 338,
+    "ah": 600,
+    "expectedBox": [
+      390,
+      963,
+      746,
+      1151
+    ],
+    "candidates": [
+      {
+        "box": [
+          377,
+          944,
+          764,
+          1172
+        ],
+        "sourceWidth": 1080,
+        "sourceHeight": 1920,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 39,
+        "quietBorderRatio": 1,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ],
+    "roi": [
+      377,
+      944,
+      764,
+      1172
+    ],
+    "quality": {
+      "strongInkPixels": 6429,
+      "retainedStrongInkPixels": 6223,
+      "coverage": 0.9679576917094416
+    },
+    "coverage": 1,
+    "expectedInkInside": 1,
+    "expectedInkRetained": 0.9917796365734064,
+    "pass": true
+  },
+  {
+    "name": "embed",
+    "width": 1664,
+    "height": 2136,
+    "aw": 467,
+    "ah": 600,
+    "expectedBox": [
+      712,
+      1070,
+      997,
+      1221
+    ],
+    "candidates": [
+      {
+        "box": [
+          694,
+          1046,
+          1016,
+          1243
+        ],
+        "sourceWidth": 1664,
+        "sourceHeight": 2136,
+        "method": "light-surface-localized-marking",
+        "methodVersion": "1",
+        "sourceCoordinates": "browser-decoded",
+        "componentCount": 28,
+        "quietBorderRatio": 1,
+        "limitations": [
+          "Review-only marking proposal, not semantic brand recognition.",
+          "No perspective or curved-surface correction; photographed geometry retained.",
+          "White-ground preview only; all words and symbols require comparison."
+        ]
+      }
+    ],
+    "roi": [
+      694,
+      1046,
+      1016,
+      1243
+    ],
+    "quality": {
+      "strongInkPixels": 4132,
+      "retainedStrongInkPixels": 4021,
+      "coverage": 0.973136495643756
+    },
+    "coverage": 1,
+    "expectedInkInside": 1,
+    "expectedInkRetained": 1,
+    "pass": true
+  }
+]
