@@ -1,3 +1,11 @@
+# Güncel demo: V34 — gerçek provalara göre ortalı arka yerleşim
+
+Arka yüzde tüm müşteri içeriği orta yapıştırma dikişinin üstündeki panelde toplanır; alt bant boş bırakılır. Tek bilgi ortalı, kısa iletişim bilgileri ikonlarla yan yana; uzun bilgiler ortalı çok satır halinde düzenlenir. Sponsor logosu ve altındaki kısa bilgiler birlikte ortalanır. Bu kurallar dosya veya müşteri adına bağlı değildir. Farklı ürün ölçülü provalar yalnız kompozisyon için kullanılır; BM12 ambalaj ölçüsü değiştirilmez.
+
+İsteğe bağlı “Ek yazı / slogan” ve arka yazı rengi gelişmiş küçük bölümde sunulur. Açıkça seçilmiş ön logo rengi varsa otomatik renk onu izler; aksi halde okunaklı siyah/beyaz seçilir. Palet ekran önizlemesidir, Pantone eşleşmesi değildir. Renk seçmek sponsor logosunu yeniden boyamaz; QR siyah ve opak beyaz güvenli boşlukla kalır.
+
+QR yerleşimi müşteri provasından doğrulanmış sayılmaz: görülen provalardaki QR'ler düz açınımın üretici bilgi bölümündedir. Uygulamanın isteğe bağlı müşteri QR'si üst panelde ayrı okunabilir alan kullanır; gerçek baskı doğrulaması gereklidir. Özel müşteri provası dosyaları uygulama paketine dahil edilmez. Önceki V33 güvenlik, revizyon ve belirsiz klişe kuralları korunur.
+
 # Güncel demo: V33 — isteğe bağlı arka yüz düzenleme
 
 Instagram, web sitesi, telefon, adres ve temiz sponsor logosu isteğe bağlıdır. QR varsayılan olarak kapalıdır; müşteri açarsa bağlantı gerekir. QR yerel, paketlenmiş Nayuki kodlayıcıyla üretilir; üçüncü tarafa görsel/bağlantı gönderilmez. Beyaz boşluk ve tam piksel modülleri korunur. Uzun içerik sığmazsa açık hata gösterilir; kesilerek kabul edilmez.
