@@ -15,7 +15,7 @@
     const description = doc.createElement('p'); description.className = 'welcomeDescription'; description.textContent = 'Markanıza özel ıslak havlu ve mendil ambalajını tasarlayın, fiyat teklifinizi oluşturun.';
     intro.append(eyebrow, title, description); picker.before(intro);
     const upload = doc.querySelector('.simplePrimary label'), originalUploadText = upload?.textContent;
-    const hint = doc.createElement('p'); hint.id = 'welcomeUploadHint'; hint.textContent = 'Logo, hazır grafik veya ürün fotoğrafı · PNG, JPG, SVG, PDF';
+    const hint = doc.createElement('p'); hint.id = 'welcomeUploadHint'; hint.textContent = 'Logo, hazır grafik veya ürün fotoğrafı';
     const privacy = doc.createElement('small'); privacy.textContent = 'Görseliniz cihazınızda kalır.'; hint.append(privacy);
     doc.querySelector('.simplePrimary')?.after(hint);
     const draft = doc.getElementById('draftPanel'); let draftOptions = null, draftSummary = null, previousDraftAttention = '';

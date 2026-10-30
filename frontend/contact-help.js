@@ -15,7 +15,7 @@
     const context = summaryContext();
     if (!context || !showDifferentProductDraft) return false;
     const key = JSON.stringify(context);
-    showDifferentProductDraft((context.printMode === 'unprinted' ? 'Merhaba, baskısız ürün teklifini görüşmek istiyorum.\nBaskısız; klişe uygulanmaz.' : 'Merhaba, bu tasarımı görüşmek istiyorum.') + '\nÜrün: ' + context.product + '\nAdet: ' + context.quantity + '\nKoku: ' + context.fragrance);
+    if (!showDifferentProductDraft((context.printMode === 'unprinted' ? 'Merhaba, baskısız ürün teklifini görüşmek istiyorum.\nBaskısız; klişe uygulanmaz.' : 'Merhaba, bu tasarımı görüşmek istiyorum.') + '\nÜrün: ' + context.product + '\nAdet: ' + context.quantity + '\nKoku: ' + context.fragrance)) return false;
     activeDraftGuard = () => { const fresh = summaryContext(); return !!fresh && JSON.stringify(fresh) === key; };
     return true;
   }
@@ -25,7 +25,27 @@
   }
   function openDifferentProductDraft(description) {
     if (!showDifferentProductDraft) return false;
-    showDifferentProductDraft(differentProductMessage(description));
+    return showDifferentProductDraft(differentProductMessage(description));
+  }
+  const SPECIAL_GROUPS = Object.freeze({ reseller: 'Satıcı Müşteri', public_institution: 'Kamu Kurumu' });
+  function specialQuoteMessage(group, context = {}) {
+    if (!Object.hasOwn(SPECIAL_GROUPS, group)) return null;
+    // Intentionally exclude stage and all customer, image and price fields.
+    const message = buildMessage({ product: context.product, printMode: context.printMode, quantity: context.quantity, fragrance: context.fragrance });
+    return 'Merhaba, özel teklif talebimi görüşmek istiyorum.\nTalep grubu (kendi beyanım): ' + SPECIAL_GROUPS[group] + message.slice(CONTACT.message.length);
+  }
+  function specialQuoteContext() {
+    try { return root.getHijyenLabSpecialQuoteContext?.() || null; } catch { return null; }
+  }
+  function openSpecialQuoteDraft(group) {
+    const context = specialQuoteContext();
+    if (!context || !showDifferentProductDraft) return false;
+    const message = specialQuoteMessage(group, context);
+    if (!message || !showDifferentProductDraft(message)) return false;
+    activeDraftGuard = () => {
+      const fresh = specialQuoteContext();
+      return !!fresh && specialQuoteMessage(group, fresh) === message;
+    };
     return true;
   }
   const CONTACT = Object.freeze({
@@ -127,12 +147,13 @@
     const freshnessError = doc.createElement('p'); freshnessError.id = 'contactFreshnessError'; freshnessError.setAttribute('role', 'alert'); freshnessError.hidden = true; buttons.before(freshnessError);
     const closeDraft = () => dialog.close();
     cancel.onclick = closeDraft;
-    dialog.addEventListener('close', () => wa.focus({ preventScroll: true }));
+    let returnFocus = wa;
+    dialog.addEventListener('close', () => returnFocus.focus({ preventScroll: true }));
     draft.addEventListener('input', syncDraft);
     proceed.onclick = event => {
       if (activeDraftGuard && !activeDraftGuard()) {
         event.preventDefault(); proceed.removeAttribute('href'); proceed.setAttribute('aria-disabled', 'true');
-        freshnessError.textContent = 'Ürün veya tasarım bilgileri değişti. Teklif önizlemesini yeniden oluşturup mesajı tekrar açın.'; freshnessError.hidden = false;
+        freshnessError.textContent = 'Ürün veya tasarım bilgileri değişti. Bu pencereyi kapatıp ilgili mesajı yeniden açın.'; freshnessError.hidden = false;
         return;
       }
       syncDraft();
@@ -140,18 +161,46 @@
       closeDraft();
     };
     showDifferentProductDraft = message => {
+      // Never stack dialogs or overwrite an in-progress draft on repeated activation.
+      if (dialog.open || doc.querySelector?.('dialog[open]')) return false;
+      returnFocus = doc.activeElement?.focus ? doc.activeElement : wa;
       activeDraftGuard = null; freshnessError.hidden = true;
       draft.value = message;
       syncDraft();
       dialog.showModal();
       // Read the summary first; do not immediately summon the phone keyboard.
       heading.focus({ preventScroll: true });
+      return true;
     };
     wa.onclick = () => {
       let context = {};
       try { context = root.getHijyenLabHelpContext?.() || {}; } catch { /* Generic help remains available. */ }
       showDifferentProductDraft(buildMessage(context));
     };
+    const pricing = doc.getElementById('pricing');
+    if (pricing) {
+      const section = doc.createElement('details'); section.id = 'specialQuoteHelp';
+      const title = doc.createElement('summary'); title.textContent = 'Satıcı Müşteri / Kamu Kurumu için özel teklif';
+      const copy = doc.createElement('p'); copy.textContent = 'Özel fiyat, firma/kurum bilgileri ve talep incelendikten sonra belirlenir.';
+      const label = doc.createElement('label'); label.htmlFor = 'specialQuoteGroup'; label.textContent = 'Talep grubunuz (kendi beyanınız)';
+      const group = doc.createElement('select'); group.id = 'specialQuoteGroup';
+      for (const [value, text] of [['', 'Seçiniz'], ...Object.entries(SPECIAL_GROUPS)]) {
+        const option = doc.createElement('option'); option.value = value; option.textContent = text; group.append(option);
+      }
+      const help = doc.createElement('p'); help.className = 'hint'; help.textContent = 'Kamuya satış yapan firma iseniz Satıcı Müşteri’yi seçin. Bu seçim indirim veya doğrulanmış müşteri statüsü sağlamaz.';
+      const actions = doc.createElement('div'); actions.className = 'contactDraftActions';
+      const call = doc.createElement('a'); call.href = links.telephone; call.textContent = 'Telefonla ara';
+      const ask = doc.createElement('button'); ask.type = 'button'; ask.id = 'specialQuoteDraft'; ask.textContent = 'WhatsApp mesajını hazırla'; ask.setAttribute('aria-haspopup', 'dialog');
+      const error = doc.createElement('p'); error.id = 'specialQuoteError'; error.hidden = true; error.setAttribute('role', 'alert');
+      ask.onclick = () => {
+        error.hidden = true;
+        if (!Object.hasOwn(SPECIAL_GROUPS, group.value)) { error.textContent = 'Lütfen talep grubunuzu seçin.'; error.hidden = false; group.focus(); return; }
+        if (!openSpecialQuoteDraft(group.value)) { error.textContent = 'Mesaj açılamadı. Açık pencereyi kapatıp fiyat ekranından yeniden deneyin.'; error.hidden = false; }
+      };
+      actions.append(call, ask); section.append(title, copy, label, group, help, actions, error);
+      const review = doc.getElementById('review');
+      if (review) review.before(section); else pricing.append(section);
+    }
     doc.body.classList.add('hasContactHelp');
     const measure = () => doc.documentElement.style.setProperty('--contact-help-height', Math.ceil(bar.getBoundingClientRect().height) + 'px');
     const updateEditing = () => {
@@ -167,7 +216,7 @@
     if (root.ResizeObserver) new root.ResizeObserver(measure).observe(bar);
     measure();
   }
-  const api = Object.freeze({ CONTACT, links, messageLink, buildMessage, differentProductMessage, openDifferentProductDraft, openSummaryDraft, mount });
+  const api = Object.freeze({ CONTACT, links, messageLink, buildMessage, differentProductMessage, openDifferentProductDraft, openSummaryDraft, specialQuoteMessage, openSpecialQuoteDraft, mount });
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else {
     root.HijyenLabContactHelp = api;

@@ -6,15 +6,15 @@
   'use strict';
   const sharedApprovedMapping = Object.freeze({
     approved: true,
-    primary: Object.freeze({ productId: 'BM12', reason: 'Bu grup için öncelikli önerimiz.' }),
+    primary: Object.freeze({ productId: 'BM12', reason: 'Rulo biçiminde sunulur; açılmış havlu ölçüsü 25 × 30 cm, koli içeriği 400 adettir.' }),
     alternatives: Object.freeze([
-      Object.freeze({ productId: 'BM545', condition: 'Katlı havlu isterseniz', reason: 'Katlı tercihinde 20 × 25 cm ıslak havlu.' }),
+      Object.freeze({ productId: 'BM545', condition: 'Katlı havlu isterseniz', reason: 'Rulo yerine katlı biçimde sunulur; koli içeriği 625 adettir.' }),
       Object.freeze({ catalogPending: true, label: '7 × 12 cm Islak Mendil', condition: 'Islak mendil isterseniz', reason: 'Islak mendil tercihinde 7 × 12 cm seçeneği.' })
     ])
   });
   const mapped = new Set(['restaurant-cafe-patisserie', 'hotel-accommodation', 'school-education', 'hospital-dental-health', 'shop-jeweler-retail']);
   const healthApprovedMapping = Object.freeze({ ...sharedApprovedMapping,
-    primary: Object.freeze({ productId: 'BM12', reason: 'Tıbbi işlem dışında müşteriye sunulan havlu için öncelikli önerimiz.' })
+    primary: Object.freeze({ productId: 'BM12', reason: 'Tıbbi işlem dışında müşteriye sunulan rulo havlu; koli içeriği 400 adettir.' })
   });
   const additionalLargeApprovedMapping = Object.freeze({ ...sharedApprovedMapping,
     alternatives: Object.freeze([...sharedApprovedMapping.alternatives,
@@ -29,11 +29,11 @@
   const personalApprovedMapping = Object.freeze({
     approved: true,
     choices: Object.freeze([
-      Object.freeze({ productId: 'BM15', reason: '25 × 25 cm rulo seçeneği.' }),
-      Object.freeze({ productId: 'BM12', reason: '25 × 30 cm rulo seçeneği.' }),
+      Object.freeze({ productId: 'BM15', reason: 'Rulo biçiminde sunulur; koli içeriği 500 adettir.' }),
+      Object.freeze({ productId: 'BM12', reason: 'Rulo biçiminde sunulur; koli içeriği 400 adettir.' }),
       Object.freeze({ catalogPending: true, label: '30 × 30 cm Rulo Islak Havlu', condition: 'Seçenek', reason: '30 × 30 cm rulo seçeneği.' }),
       Object.freeze({ catalogPending: true, label: '30 × 35 cm Rulo Islak Havlu', condition: 'Seçenek', reason: '30 × 35 cm rulo seçeneği.' }),
-      Object.freeze({ productId: 'BM545', reason: '20 × 25 cm katlı seçeneği.' }),
+      Object.freeze({ productId: 'BM545', reason: 'Rulo yerine katlı biçimde sunulur; koli içeriği 625 adettir.' }),
       Object.freeze({ catalogPending: true, label: '7 × 12 cm Islak Mendil', condition: 'Seçenek', reason: '7 × 12 cm ıslak mendil seçeneği.' })
     ])
   });

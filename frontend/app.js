@@ -312,6 +312,15 @@ globalThis.getHijyenLabHelpContext=function(){
  return {printMode:isUnprinted()?'unprinted':'printed',product:typeof currentProduct==='function'?currentProduct().label:'25 × 30 cm rulo ıslak havlu',stage,quantity:(isUnprinted()?UnprintedFlow.validQuantity(q,rules):Number.isInteger(q)&&q>=min&&q<=rules.maxQuantity)?q:null,fragrance:typeof fragranceSnapshot==='function'?fragranceSnapshot()?.label||'':''};
 };
 
+// Optional special-quote help reads current controls, without opening standard price gates.
+globalThis.getHijyenLabSpecialQuoteContext=function(){
+ if($('pricing').hidden)return null;
+ const context=globalThis.getHijyenLabHelpContext(),rules=productRules(),q=Number($('qty').value);
+ const min=state.photoLayout&&state.photoQuoteBg==='unknown'?Math.max(rules.minimum.white,rules.minimum.colored):effectiveBackground()==='#ffffff'?rules.minimum.white:rules.minimum.colored;
+ context.quantity=(isUnprinted()?UnprintedFlow.validQuantity(q,rules):Number.isSafeInteger(q)&&q>=min&&q<=rules.maxQuantity)?q:null;
+ return context;
+};
+
 // Read-only message context; no contact, location, price or image leaves this provider.
 globalThis.getHijyenLabSummaryHelpContext=function(){
  if($('summary').hidden||!latest||!globalThis.currentRenderedQuoteToken||!processingSession.isQuoteCurrent(globalThis.currentRenderedQuoteToken,makeQuoteSnapshot())||designIssue()||!fragranceReady()||!rearQuoteReady())return null;
