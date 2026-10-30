@@ -1,3 +1,11 @@
+# Güncel aday: V36 — kenar kalitesi ve isteğe bağlı renk önerileri
+
+Koyu zemindeki açık benek sorunu ayrı bir ayrıştırma hatasıdır; düşük kontrast uyarısıyla geçiştirilmez. Bu sürümün kenar düzeltmesi ve karşı örnekleri `rear-logo` testlerinde izlenir. Görselde olmayan harf/simge yeniden üretilmez; açık taşıyıcıyla gerçek beyaz baskının belirsizliği sürer.
+
+Tek mürekkep görünümü tutarlı arka logolarda, açık kullanıcı seçimiyle yalnız arka logoyu beyaz/siyah yapma ve özgün renge dönme seçeneği vardır. Alfa/siluet korunur; ön logo ve ortak zemin bu seçenekle değişmez. Çok renkli logo otomatik düzleştirilmez.
+
+Logo–zemin kontrastı düşük olduğunda, mevcut logo piksellerini koruyan en fazla üç zemin alternatifi küçük önizlemelerle önerilir. Kullanıcı seçmeden renk değiştirilmez. Seçim iki yüzün ortak zeminini değiştirir; ön yüz yeniden onaylanır ve eski teklif geçersizleşir. Önceki zemine dönüş vardır. Zemin önerileri arka logo için hesaplanır; ön tasarımın uyumu ayrıca kontrol edilir. Öneriler ekran kontrastına göredir; fiziksel Pantone/baskı garantisi değildir. Çok renkli marka sessizce tek renge dönüştürülmez.
+
 # Güncel demo: V35 — sponsor logosunu ayrıştırma ve logo önceliği
 
 Arka yüze yüklenen görsel artık ham dikdörtgen olarak basılmaz. Saydam logo kırpılır; doğrulanmış düz açık/krem zemin ayrıştırılır. Uygun fotoğraflarda mevcut beyaz taşıyıcı/açık yüzey çıkarıcıları ayrı, ön yüz durumuna dokunmayan bir yoldan denenir. Tek aday ve kalite kontrolü gerekir. Özgün görüntü ile öneri karşılaştırılır; müşteri “Bu logoyu kullan” demeden arka tasarıma alınmaz. Başarısız sonuç ham fotoğrafla doldurulmaz; hata kaldırılana veya yeni girdi gelene kadar ilerleme durur.

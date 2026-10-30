@@ -16,13 +16,29 @@ function extractRGBA(raw,w,h){
   for(let i=0;i<n;i++){const j=i*4,p=Array.from(raw.subarray(j,j+3));if(raw[j+3]<240)return fail('Karışık saydamlık ve zemin birlikte çözümlenemedi.');if(dist(p,background)>65){strong++;const key=p.map(v=>Math.floor(v/32)).join(',');const v=bins.get(key)||{n:0,sum:[0,0,0]};v.n++;p.forEach((c,k)=>v.sum[k]+=c);bins.set(key,v);}}
   const ranked=[...bins.values()].sort((a,b)=>b.n-a.n),dominant=ranked.slice(0,16),concentration=dominant.reduce((s,v)=>s+v.n,0)/Math.max(1,strong);
   if(strong<12||strong/n>.6||concentration<.97)return fail('Fotoğraf dokusu veya belirsiz baskı ayrıştırmayı engelliyor.');
-  const palette=dominant.filter(v=>v.n>=Math.max(3,strong*.03)).map(v=>v.sum.map(c=>c/v.n));
+  // Estimate ink only from locally stable interiors, never the pale antialias ring.
+  const interior=new Uint8Array(n),coreBins=new Map();
+  for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){const i=y*w+x,j=i*4,p=Array.from(raw.subarray(j,j+3));if(dist(p,background)<=18)continue;
+   let stable=true;for(let yy=Math.max(0,y-2);yy<=Math.min(h-1,y+2)&&stable;yy++)for(let xx=Math.max(0,x-2);xx<=Math.min(w-1,x+2);xx++)if(dist(p,raw.subarray((yy*w+xx)*4,(yy*w+xx)*4+3))>12){stable=false;break;}if(!stable)continue;
+   interior[i]=1;const key=p.map(v=>Math.floor(v/24)).join(',');const q=coreBins.get(key)||{n:0,sum:[0,0,0]};q.n++;p.forEach((v,k)=>q.sum[k]+=v);coreBins.set(key,q);
+  }
+  const palette=[...coreBins.values()].filter(v=>v.n>=4).sort((a,b)=>b.n-a.n).slice(0,32).map(v=>v.sum.map(c=>c/v.n));
+  if(!palette.length)return fail('Logo için güvenilir iç baskı rengi bulunamadı.');
   let uncertain=0;
   for(let i=0;i<n;i++){const j=i*4,p=Array.from(raw.subarray(j,j+3)),d=dist(p,background);if(d<=12){out[j+3]=0;continue;}
-   let best=null;for(const ink of palette){const v=ink.map((c,k)=>c-background[k]),den=v.reduce((s,c)=>s+c*c,0),a=Math.max(0,Math.min(1,v.reduce((s,c,k)=>s+c*(p[k]-background[k]),0)/den)),r=dist(p,background.map((c,k)=>c+a*v[k]));if(!best||r<best.r)best={a,r};}
-   if(!best||best.r>14){if(d<65)uncertain++;continue;}const a=best.a;if(a>=.97){out[j+3]=255;continue;}if(a<.04){out[j+3]=0;continue;}out[j+3]=Math.round(255*a);for(let k=0;k<3;k++)out[j+k]=Math.max(0,Math.min(255,Math.round((p[k]-background[k]*(1-a))/a)));
+   if(interior[i])continue; // Actual opaque ink remains byte-for-byte unchanged.
+   let best=null;for(const ink of palette){const v=ink.map((c,k)=>c-background[k]),den=v.reduce((s,c)=>s+c*c,0),a=Math.max(0,Math.min(1,v.reduce((s,c,k)=>s+c*(p[k]-background[k]),0)/den)),r=dist(p,background.map((c,k)=>c+a*v[k]));if(!best||r<best.r)best={a,r,ink};}
+   let localSupport=false;
+   if(best&&best.r<=65){const x=i%w,y=Math.floor(i/w);for(let yy=Math.max(1,y-6);yy<Math.min(h-1,y+7)&&!localSupport;yy++)for(let xx=Math.max(1,x-6);xx<Math.min(w-1,x+7);xx++){const q=yy*w+xx;if(dist(raw.subarray(q*4,q*4+3),background)>65&&dist(raw.subarray(q*4,q*4+3),best.ink)<=50){localSupport=true;break;}}}
+   if(best&&best.a>=.97&&localSupport&&best.r<=65){out[j+3]=255;continue;}
+   if(!best||best.r>35||(!localSupport&&(best.a>.1||best.r>14))){uncertain++;continue;}
+   const a=best.a;if(a>=.97&&best.r<=14){out[j+3]=255;continue;}if(a<.04){out[j+3]=0;continue;}
+   // Only boundary pixels receive an estimated foreground/coverage pair.
+   // Using supported interior ink avoids retaining JPEG carrier contamination.
+   out[j+3]=Math.round(255*a);for(let k=0;k<3;k++)out[j+k]=Math.round(best.ink[k]);
   }
-  if(uncertain>Math.max(12,strong*.02))return fail('Soluk ayrıntılar veya gölgeler güvenilir biçimde ayrılamadı.');
+  // No unexplained opaque pixel is silently passed through as a successful matte.
+  if(uncertain)return fail('Bazı kenar veya soluk baskı ayrıntıları güvenle ayrılamadı; daha net logo gerekir.');
   limitations=['Açık ve tekdüze taşıyıcı tahmini; marka anlamı otomatik doğrulanmaz.','Kenar saydamlığı ve kenar rengi fotoğraftan tahmin edilir; kaynakta kaybolmuş ayrıntı geri üretilmez.','Beyaz logo ayrıntıları açık taşıyıcıdan kesin ayırt edilemez; önizlemeyi kaynakla karşılaştırın.'];
  }
  let x0=w,y0=h,x1=0,y1=0,count=0,boundary=0;const colors=new Map();
