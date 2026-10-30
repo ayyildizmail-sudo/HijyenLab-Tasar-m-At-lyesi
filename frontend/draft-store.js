@@ -15,10 +15,11 @@ function str(value,max){if(typeof value!=='string'||value.length>max)fail('INVAL
 function number(value,min,max){if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max)fail('INVALID','Taslak sayısal alanı geçersiz.');return value;}
 function bool(value){if(typeof value!=='boolean')fail('INVALID','Taslak seçimi geçersiz.');return value;}
 function hex(value,empty=false){if(empty&&value==='')return value;if(typeof value!=='string'||!/^#[0-9a-f]{6}$/i.test(value))fail('INVALID','Taslak rengi geçersiz.');return value;}
-function topKeys(input){return input?.schemaVersion===2?TOP.concat('printMode'):TOP;}
+function topKeys(input){return input?.schemaVersion===3?TOP.concat('printMode','frontExtras','rearExtras'):input?.schemaVersion===2?TOP.concat('printMode'):TOP;}
 function validate(input){
- exact(input,topKeys(input));if(![1,2].includes(input.schemaVersion)||!['BM12','BM15','BM545'].includes(input.productId))fail('INVALID','Taslak sürümü veya ürünü desteklenmiyor.');
- if(input.schemaVersion===2&&!['printed','unprinted'].includes(input.printMode))fail('INVALID','Taslak baskı seçimi geçersiz.');
+ exact(input,topKeys(input));if(![1,2,3].includes(input.schemaVersion)||!['BM12','BM15','BM545'].includes(input.productId))fail('INVALID','Taslak sürümü veya ürünü desteklenmiyor.');
+ if(input.schemaVersion>=2&&!['printed','unprinted'].includes(input.printMode))fail('INVALID','Taslak baskı seçimi geçersiz.');
+ if(input.schemaVersion===3&&input.printMode!=='printed')fail('INVALID','Çok logolu taslak yalnız baskılı tasarımı destekler.');
  if(input.schemaVersion===2&&input.printMode==='unprinted'){
   exact(input.design,['requestedQuantity']);const quantity=input.design.requestedQuantity;
   // Dual browser/CommonJS module; catalog remains the single source for carton sizes.
@@ -40,19 +41,31 @@ function validate(input){
  for(const k of ['instagram','website','phone','address','extra'])rear[k]=str(input.rear[k],1000);
  rear.inkColor=hex(input.rear.inkColor,true);rear.qrEnabled=bool(input.rear.qrEnabled);rear.qrUrl=str(input.rear.qrUrl,2048);
  if(!['','flambau','green_tea','bodrum_mandarin','lemon'].includes(input.fragrance))fail('INVALID','Taslak kokusu geçersiz.');
- const result={schemaVersion:input.schemaVersion,...(input.schemaVersion===2?{printMode:'printed'}:{}),productId:input.productId,design,rear,fragrance:input.fragrance};let size=0;
+ const result={schemaVersion:input.schemaVersion,...(input.schemaVersion>=2?{printMode:'printed'}:{}),productId:input.productId,design,rear,fragrance:input.fragrance};let size=0;
  for(const side of ['front','rear']){
   const file=input[side+'File'],name=str(input[side+'Name'],255);
   if(file!==null&&(!(file instanceof Blob)||file.size===0||file.size>MAX_FILE_BYTES||!MIME.includes(file.type.toLowerCase())))fail('INVALID','Taslak görseli desteklenmiyor veya çok büyük.');
   if((file===null&&name!=='')||(file!==null&&name==='')||/[\u0000-\u001f]/.test(name))fail('INVALID','Taslak dosya adı geçersiz.');
   result[side+'File']=file;result[side+'Name']=name;size+=file?.size||0;
  }
+ if(input.schemaVersion===3)for(const side of ['front','rear']){
+  const extras=input[side+'Extras'];if(!Array.isArray(extras)||extras.length>3)fail('INVALID','Bir yüzde en fazla üç ek logo saklanabilir.');
+  const ids=new Set();result[side+'Extras']=extras.map(item=>{
+   exact(item,['id','file','name','opticalScale']);const id=str(item.id,128),name=str(item.name,255),file=item.file;
+   if(!id.trim()||/[\u0000-\u001f]/.test(id)||ids.has(id))fail('INVALID','Ek logo kimliği geçersiz veya yinelenmiş.');ids.add(id);
+   if(!(file instanceof Blob)||file.size===0||file.size>MAX_FILE_BYTES||!MIME.includes(file.type.toLowerCase()))fail('INVALID','Ek logo dosyası desteklenmiyor veya çok büyük.');
+   if(!name||/[\u0000-\u001f]/.test(name))fail('INVALID','Ek logo dosya adı geçersiz.');
+   const opticalScale=number(item.opticalScale,.75,1.25);size+=file.size;return {id,file,name,opticalScale};
+  });
+ }
  if(size>MAX_TOTAL_BYTES)fail('INVALID','Taslak toplam boyut sınırını aşıyor.');
- if(new TextEncoder().encode(JSON.stringify({...result,frontFile:null,rearFile:null})).length>MAX_METADATA_BYTES)fail('INVALID','Taslak alanları çok büyük.');
+ if(new TextEncoder().encode(metadata(result)).length>MAX_METADATA_BYTES)fail('INVALID','Taslak alanları çok büyük.');
  return result;
 }
 function envelope(input){exact(input,topKeys(input).concat(['savedAt','expiresAt']));const payload={};for(const k of topKeys(input))payload[k]=input[k];const result=validate(payload);if(!Number.isSafeInteger(input.savedAt)||input.savedAt<0||!Number.isSafeInteger(input.expiresAt)||input.expiresAt!==input.savedAt+TTL_MS)fail('INVALID','Taslak saklama süresi geçersiz.');return {...result,savedAt:input.savedAt,expiresAt:input.expiresAt};}
-function metadata(record){return JSON.stringify({...record,frontFile:record.frontFile?{size:record.frontFile.size,type:record.frontFile.type}:null,rearFile:record.rearFile?{size:record.rearFile.size,type:record.rearFile.type}:null});}
+function fileMetadata(file){return file?{size:file.size,type:file.type}:null;}
+function metadata(record){const value={...record,frontFile:fileMetadata(record.frontFile),rearFile:fileMetadata(record.rearFile)};if(record.schemaVersion===3)for(const side of ['front','rear'])value[side+'Extras']=record[side+'Extras'].map(item=>({...item,file:fileMetadata(item.file)}));return JSON.stringify(value);}
+async function equalSourceBytes(a,b){if(!await equalBytes(a.frontFile,b.frontFile)||!await equalBytes(a.rearFile,b.rearFile))return false;if(a.schemaVersion===3)for(const side of ['front','rear']){const first=a[side+'Extras'],second=b[side+'Extras'];if(first.length!==second.length)return false;for(let i=0;i<first.length;i++)if(!await equalBytes(first[i].file,second[i].file))return false;}return true;}
 async function equalBytes(a,b){if(a===null||b===null)return a===b;const x=new Uint8Array(await a.arrayBuffer()),y=new Uint8Array(await b.arrayBuffer());if(x.length!==y.length)return false;for(let i=0;i<x.length;i++)if(x[i]!==y[i])return false;return true;}
 function createStore(options={}){
  let idb;try{idb=options.indexedDB===undefined?root.indexedDB:options.indexedDB;}catch{idb=null;}const now=options.now||Date.now;let connection=null;
@@ -70,7 +83,7 @@ function createStore(options={}){
   return serial(async()=>{if(ticket!==coordination.epoch)fail('STALE','Bekleyen taslak kaydı iptal edildi.');const savedAt=now();if(!Number.isSafeInteger(savedAt)||savedAt<0||!Number.isSafeInteger(savedAt+TTL_MS))fail('INVALID','Cihaz zamanı geçersiz.');const record={...clean,savedAt,expiresAt:savedAt+TTL_MS};
    const stored=await transaction('readwrite',(store,result,tx)=>{if(ticket!==coordination.epoch){tx.abort();return;}store.put(record,KEY);const read=store.get(KEY);read.onsuccess=()=>result(read.result);}).catch(error=>{if(ticket!==coordination.epoch)fail('STALE','Bekleyen taslak kaydı iptal edildi.');throw error;});
    if(ticket!==coordination.epoch)fail('STALE','Bekleyen taslak kaydı iptal edildi.');let checked;try{checked=envelope(stored);}catch{fail('VERIFY_FAILED','Taslak kaydı doğrulanamadı.');}
-   if(metadata(record)!==metadata(checked)||!await equalBytes(record.frontFile,checked.frontFile)||!await equalBytes(record.rearFile,checked.rearFile))fail('VERIFY_FAILED','Taslak kaydı doğrulanamadı.');
+   if(metadata(record)!==metadata(checked)||!await equalSourceBytes(record,checked))fail('VERIFY_FAILED','Taslak kaydı doğrulanamadı.');
    if(ticket!==coordination.epoch)fail('STALE','Bekleyen taslak kaydı iptal edildi.');return checked;
   });
  }

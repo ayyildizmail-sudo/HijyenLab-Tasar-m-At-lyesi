@@ -40,7 +40,7 @@
     "status": "PASS"
   },
   {
-    "name": "Quote navigation renders inline document",
+    "name": "Quote navigation renders inline document through race-safe wrapper",
     "status": "PASS"
   },
   {

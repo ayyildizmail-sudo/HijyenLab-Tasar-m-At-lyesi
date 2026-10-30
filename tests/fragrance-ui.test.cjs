@@ -1,3 +1,5 @@
+/* CommonJS test harness. */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),Fragrance=require('../frontend/fragrance');
 (async()=>{
 const nodes={},storage=new Map(),calls=[],make=()=>({hidden:false,disabled:false,children:[],append(...items){this.children=this.children.filter(x=>!items.includes(x));this.children.push(...items)},before(){},focus(){},querySelector(){return make()}}),$=id=>nodes[id]||(nodes[id]=make());let invalidations=0,lastGo=null;
@@ -28,7 +30,15 @@ select('lemon');const seventh=$('fragranceContinue').onclick();ctx.hideFragrance
 ctx.fetch=async()=>response(999999);select('flambau');await $('fragranceContinue').onclick();assert(ctx.fragranceReady());assert($('fragranceSyncStatus').textContent.includes('kaydedildiği doğrulanamadı'));
 // Storage failure cannot block immediate local quote confirmation either.
 ctx.localStorage.setItem=()=>{throw Error('storage blocked')};select('green_tea');lastGo=null;await $('fragranceContinue').onclick();assert.equal(lastGo,2);assert(ctx.fragranceReady());assert($('fragranceSyncStatus').textContent.includes('kaydedildiği doğrulanamadı'));
+// Percentages remain descending on entry, but asynchronous updates cannot move cards during selection.
+ctx.fetch=async()=>response(1);ctx.hideFragrance();vm.runInContext('fragranceStats.percentages={flambau:10,green_tea:20,bodrum_mandarin:30,lemon:40};',ctx);ctx.showFragrance();
+const order=()=>vm.runInContext("$('fragranceCards').children.map(n=>[...fragranceButtons].find(([,v])=>v.label===n)[0]).join(',')",ctx);
+assert.equal(order(),'lemon,bodrum_mandarin,green_tea,flambau');
+vm.runInContext('fragranceStats.percentages={flambau:80,green_tea:10,bodrum_mandarin:6,lemon:4};syncFragrance();',ctx);assert.equal(order(),'lemon,bodrum_mandarin,green_tea,flambau');
+ctx.hideFragrance();ctx.showFragrance();assert.equal(order(),'flambau,green_tea,bodrum_mandarin,lemon');await tick();
 const ui=fs.readFileSync('frontend/fragrance-ui.js','utf8'),css=fs.readFileSync('frontend/style.css','utf8');assert(ui.includes("fragrancePrice.className='fragrancePriceSummary'"));assert(!ui.includes("fragrancePrice.className='notice"));assert(css.includes('.fragrancePriceSummary{display:block;'));assert.equal($('fragrancePriceValue').textContent.includes('Koku:'),true);
+const disclosure=ui.match(/<details id="fragrancePreferenceDetails"[^>]*>(.*?)<\/details>/)?.[0];assert(disclosure,'optional disclosure exists');assert(!/<details[^>]*\bopen(?:[ >])/.test(disclosure),'details closed by default');assert(disclosure.includes('Tercihler nasıl hesaplanır?'));for(const fact of ['anonim tarayıcı kimliği','İsim, telefon ve görsel gönderilmez','önceki tercihin yerini alır','tekil kişi sayısı değildir','başlangıç verisi'])assert(disclosure.includes(fact),fact);
+assert.equal((ui.match(/<p id="fragrancePrivacyNote" class="hint">Onayladığınız seçim anonim tercih istatistiğine eklenir\.<\/p>/g)||[]).length,1,'one compact visible disclosure');assert(ui.includes('aria-describedby="fragrancePrivacyNote"'));assert(!/500/.test(ui),'no seed count in presentation');
 const app=fs.readFileSync('frontend/app.js','utf8'),life=fs.readFileSync('frontend/processing-lifecycle.js','utf8');assert(app.includes("(n===2||n===3)&&typeof fragranceReady==='function'&&!fragranceReady()"));assert(app.includes("async function renderQuote(){if(designIssue()){showDesignIssue();return;}if(typeof fragranceReady==='function'&&!fragranceReady()"));assert(app.includes("quoteSnapshot.fragrance.label"));assert(life.includes("fragrance:typeof fragranceSnapshot==='function'?fragranceSnapshot():null"));assert(app.includes("$('downloadQuote').onclick=()=>{if(designIssue()){showDesignIssue();return;}if(!validateLead(true))return;if(typeof fragranceReady==='function'&&!fragranceReady()"));
 const privacyHtml=fs.readFileSync('frontend/index.html','utf8');
 assert(privacyHtml.includes('Anonim koku tercihi ortak istatistiğe kaydedilebilir'));

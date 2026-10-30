@@ -1,3 +1,5 @@
+/* CommonJS test harness. */
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),app=fs.readFileSync('frontend/app.js','utf8'),rear=fs.readFileSync('frontend/rear-preview.js','utf8');
 const nodes={},make=()=>({hidden:false,disabled:false,naturalWidth:1200,classList:{values:new Set(),add(x){this.values.add(x)},remove(x){this.values.delete(x)}},removeAttribute(k){delete this[k]},focus(){},after(){}}),$=id=>nodes[id]||(nodes[id]=make());
 const sourceImages=[];function ImageMock(){const image=make();image.naturalHeight=600;sourceImages.push(image);return image;}
@@ -11,6 +13,10 @@ fingerprint='front-B';$('rearToPrice').onclick();assert.equal(goCalls.pop(),1);
 ctx.resetRearPreview();assert.equal(ctx.step,1);assert(!$('rearFlipCard').classList.values.has('is-flipped'));assert.equal($('rearFrontImage').src,undefined);
 state.bg='#102f59';ctx.showRearPreview();const staleSource=sourceImages.at(-1).onload;const stale=$('rearBlankImage').onload;ctx.resetRearPreview();staleSource();stale();assert.equal($('rearToPrice').disabled,true);
 ctx.showRearPreview();sourceImages.at(-1).onload();assert.equal(renderedBackground,'#102f59');$('rearBlankImage').onerror();assert.equal($('rearAssetError').hidden,false);assert.equal($('rearToPrice').disabled,true);
+// Truly empty rear can continue even if its decorative asset fails; nonempty/pending states cannot.
+assert.equal($('skipEmptyRear').disabled,false);$('skipEmptyRear').onclick();assert.equal(goCalls.pop(),2);
+vm.runInContext("rearContent.extra='Keep this';",ctx);ctx.syncRearSkip();assert($('skipEmptyRear').disabled);$('rearToPrice').onclick();assert.equal(goCalls.pop(),1);
+vm.runInContext("rearContent.extra='';rearSponsorPending=true;",ctx);ctx.syncRearSkip();assert($('skipEmptyRear').disabled);const count=goCalls.length;$('skipEmptyRear').onclick();assert.equal(goCalls.length,count);vm.runInContext('rearSponsorPending=false;',ctx);
 // Typing/rerender can supersede the first asset load; the latest successful render must still flip.
 ctx.resetRearPreview();ctx.showRearPreview();const cancelledFirst=sourceImages.at(-1).onload;ctx.renderRearPreview(false);cancelledFirst();sourceImages.at(-1).onload();$('rearBlankImage').onload();while(raf.length)raf.shift()();assert($('rearFlipCard').classList.values.has('is-flipped'));assert.equal($('rearToPrice').disabled,false);
 approved=false;assert.equal(ctx.showRearPreview(),false);approved=true;issue=true;assert.equal(ctx.showRearPreview(),false);

@@ -42,5 +42,5 @@ function render(ctx,width,height,fields={},options={}){
  }finally{ctx.restore();}
  return {boxes:plans.map(p=>({type:p.type,x:p.x*width/source.width,y:p.y*height/source.height,width:p.width*width/source.width,height:p.height*height/source.height,...(p.lines?{lines:p.lines.map(l=>l.items.map(i=>i.text).join(' · ')),fontSize:p.font*height/source.height,contentWidths:p.lines.map(l=>(l.items.reduce((n,i)=>n+i.width,0)+(l.items.length-1)*32)*width/source.width)}:{}),...(p.qr?{quietModules:4,moduleSize:p.qr.moduleSize*width/source.width}:{} )})),textColor:color,previewOnly:true,coordinateBasis:'output-canvas-pixels',limitations:['Preview placement only; physical print margins, minimum text/QR size and rear ink plates require technical confirmation.']};
 }
-const api={render,textColor,validateQrColor,SOURCE,SAFE};if(typeof module!=='undefined')module.exports=api;else root.RearLayout=api;
+const api={render,textColor,validateQrColor,resolveProfile:validateProfile,SOURCE,SAFE};if(typeof module!=='undefined')module.exports=api;else root.RearLayout=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

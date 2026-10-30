@@ -35,6 +35,16 @@ function estimate(input={}){
  else if(!Array.isArray(s.inkSamples)||!s.inkSamples.length||s.inkSamples.length>64||s.inkSamples.some(p=>!parse(p.rgb)||!Number.isFinite(p.count)||p.count<=0))reasons.push('Sponsor logosunun renk örnekleri eksik veya geçersiz.');
  else{const samples=s.inkSamples.filter(p=>!sampleWhite(parse(p.rgb))).sort((a,b)=>b.count-a.count),anchor=samples[0]&&parse(samples[0].rgb);if(anchor){if(samples.every(p=>distance(parse(p.rgb),anchor)<=32))add(anchor);else if(s.monochrome===true&&samples.every(p=>neutral(parse(p.rgb))))add(samples.map(p=>parse(p.rgb)).reduce((a,b)=>a.reduce((s,n)=>s+n,0)<b.reduce((s,n)=>s+n,0)?a:b));else reasons.push('Sponsor logosunun çok renkli veya tonlu ayrımı henüz doğrulanmadı.');}}
  }
+ // Additional prepared assets contribute palettes, never per-asset plate counts.
+ // Preserve every asset's uncertainty even when other logos use known inks.
+ if(input.additional!==undefined){
+  if(!Array.isArray(input.additional)||input.additional.length>6)reasons.push('Ek logoların renk bilgileri eksik veya geçersiz.');
+  else for(const asset of input.additional){
+   if(!asset||asset.status!=='estimated'||asset.uncertain===true||(asset.uncertain!==undefined&&typeof asset.uncertain!=='boolean'))reasons.push('Ek logolardan birinin baskı renkleri henüz güvenilir biçimde tahmin edilemedi.');
+   else if(!Array.isArray(asset.colors)||asset.colors.length>12||Array.from(asset.colors).some(c=>typeof c!=='string'||!parse(c)))reasons.push('Ek logo renk paleti eksik veya geçersiz.');
+   else asset.colors.forEach(c=>add(c));
+  }
+ }
  if(colors.length>6)reasons.push('Birleşik renk tahmini desteklenen otomatik sınırı aşıyor.');
  let qrColor=null;if(rear.qr===true&&!reasons.length){const selection=selectQrInk(actualInkColors);if(selection.ok)qrColor=selection.color;else reasons.push(selection.reason);}
  return {qrColor,actualInkColors:actualInkColors.map(hex),status:reasons.length?'unknown':'estimated',count:reasons.length?null:colors.length,colors:colors.map(hex),reason:reasons.length?[...new Set(reasons)].join(' '):'Ön ve arka yüz birlikte yaklaşık hesaplandı; ortak renk bir kez, beyaz hariç. Fiziksel klişe ayrımı teknik onay gerektirir.',estimateOnly:true};
