@@ -1,3 +1,13 @@
+# Güncel demo: V35 — sponsor logosunu ayrıştırma ve logo önceliği
+
+Arka yüze yüklenen görsel artık ham dikdörtgen olarak basılmaz. Saydam logo kırpılır; doğrulanmış düz açık/krem zemin ayrıştırılır. Uygun fotoğraflarda mevcut beyaz taşıyıcı/açık yüzey çıkarıcıları ayrı, ön yüz durumuna dokunmayan bir yoldan denenir. Tek aday ve kalite kontrolü gerekir. Özgün görüntü ile öneri karşılaştırılır; müşteri “Bu logoyu kullan” demeden arka tasarıma alınmaz. Başarısız sonuç ham fotoğrafla doldurulmaz; hata kaldırılana veya yeni girdi gelene kadar ilerleme durur.
+
+Logo ve marka yazıları yeniden çizilmez. Koyu logo koyu zemin üzerinde zor görünüyorsa uyarılır; müşterinin logosu sessizce beyaza çevrilmez. Saydam fotoğraf otomatik olarak anlamsal logo sayılmaz; karşılaştırma onayı gerekir. Açık zemindeki gerçek beyaz baskı detaylarını kusursuz ayırma ve genel fotoğraftan marka tanıma garantisi yoktur.
+
+Sponsor varken yerleşim önce büyük logoya alan ayırır, iletişim satırlarını ikincil tutar. Anonim aynı içerikli testte logo yüksekliği yaklaşık78'den119,6 kaynak pikseline, metin alanı104'ten62,4'e değişti. Sponsorsuz kısa yazı büyüklüğü korunur. Bütün içerik üst panelde, QR güvenli beyaz boşlukla kalır; fiyat sabitleri değişmedi.
+
+Doğrulama: Porselano Library adayında krem kutu kaldırılıp ana marka, kıvrım, COFFEE ve EST.2017 görsel olarak karşılaştırıldı; kullanıcı ekranıyla benzerliği doğrulandı, birebir aynı yüklenen dosya kimliği varsayılmadı. Çok renkli/saydam/sınır teması, ret, eski yükleme ve ön yüz koruması testleri var. Fotoğraf adaptörü sentetik gerçek algoritma aileleriyle sınandı; bu tüm müşteri fotoğrafları testi değildir. Özel kullanıcı görüntüleri uygulama paketine eklenmedi.
+
 # Güncel demo: V34 — gerçek provalara göre ortalı arka yerleşim
 
 Arka yüzde tüm müşteri içeriği orta yapıştırma dikişinin üstündeki panelde toplanır; alt bant boş bırakılır. Tek bilgi ortalı, kısa iletişim bilgileri ikonlarla yan yana; uzun bilgiler ortalı çok satır halinde düzenlenir. Sponsor logosu ve altındaki kısa bilgiler birlikte ortalanır. Bu kurallar dosya veya müşteri adına bağlı değildir. Farklı ürün ölçülü provalar yalnız kompozisyon için kullanılır; BM12 ambalaj ölçüsü değiştirilmez.

@@ -31,3 +31,8 @@ console.log('PASS large simple text, compact phone/Instagram readability, dense 
 const readablePair=L.render(ec,1857,847,{phone:'0555 123 45 67',instagram:'@ornekrestoran'},{}).boxes[0];const pairFraction=readablePair.contentWidths[0]/1857;assert(pairFraction>=.45&&pairFraction<=.60);
 const readableSlogan=L.render(ec,1857,847,{extra:'Güzel günlerde kullanın'},{}).boxes[0];const sloganFraction=readableSlogan.contentWidths[0]/1857;assert(sloganFraction>=.25&&sloganFraction<=.40);
 console.log('PASS anonymous representative natural-width proportions',JSON.stringify({pairFraction,sloganFraction}));
+
+const priorityFields={address:'Örnek Mahallesi / Bodrum',phone:'0555 123 45 67',instagram:'@ornekrestoran',website:'example.com'};
+const priority=L.render(ec,1857,847,priorityFields,{sponsorImage:sponsor,qrMatrix:qr});const priorityLogo=priority.boxes.find(b=>b.type==='sponsor'),priorityText=priority.boxes.find(b=>b.type==='contact');assert(priorityLogo.height>=115);assert(priorityLogo.height>priorityText.height);assert(priorityLogo.height>90);assert(priorityText.fontSize>=22&&priorityText.fontSize<=30);assert(priorityLogo.y+priorityLogo.height<priorityText.y);assert(priorityText.y+priorityText.height<=365);
+const densePriority=L.render(ec,1857,847,{extra:'Afiyet olsun',...priorityFields},{sponsorImage:sponsor});assert(densePriority.boxes.find(b=>b.type==='sponsor').height>densePriority.boxes.find(b=>b.type==='contact').height);
+console.log('PASS V35 sponsor priority: logo',priorityLogo.height,'secondary text',priorityText.height,'font',priorityText.fontSize);
