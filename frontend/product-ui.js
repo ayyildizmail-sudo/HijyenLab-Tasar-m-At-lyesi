@@ -12,3 +12,8 @@ const productReview=document.createElement('div');productReview.id='productRevie
 function syncProductReview(){productReview.hidden=!(state.productReviewRequired||state.productAssetFailure||state.productAssetPending);$('approveProductLayout').disabled=!!(state.productAssetPending||state.productAssetFailure);$('approveProductLayout').hidden=!(state.logo||state.photoLayout);$('retryProductAsset').hidden=!state.productAssetFailure;}
 $('approveProductLayout').onclick=()=>{if(state.productAssetPending||state.productAssetFailure)return;state.productReviewRequired=false;if(approveCurrentDesign()){state.extractionApprovalRequired=false;syncProductReview();refresh();status('Yeni ürün yerleşimi onaylandı.');}else{state.productReviewRequired=true;syncProductReview();}};
 $('retryProductAsset').onclick=()=>selectProduct(globalThis.selectedProductId);
+
+// Optional public advisor: only explicitly approved category mappings, no automatic selection.
+if (globalThis.HijyenLabProductAdvisor && globalThis.HijyenLabProductAdvisorConfig) {
+  globalThis.HijyenLabProductAdvisor.mount(globalThis.HijyenLabProductAdvisorConfig, { selectProduct });
+}

@@ -4,6 +4,16 @@
  */
 (function (root) {
   'use strict';
+  let showDifferentProductDraft = null;
+  function differentProductMessage(description) {
+    const text = typeof description === 'string' ? description.trim().slice(0, 300) : '';
+    return text ? 'Merhaba, önerilen ürünlerden farklı bir ürün arıyorum. İstediğim ürün: ' + text : 'Merhaba, ürün seçimi konusunda yardım almak istiyorum.';
+  }
+  function openDifferentProductDraft(description) {
+    if (!showDifferentProductDraft) return false;
+    showDifferentProductDraft(differentProductMessage(description));
+    return true;
+  }
   const CONTACT = Object.freeze({
     international: '+905425699869',
     display: '0 (542) 569 98 69',
@@ -107,14 +117,17 @@
       if (!draft.value.trim()) { event.preventDefault(); draft.focus(); return; }
       closeDraft();
     };
-    wa.onclick = () => {
-      let context = {};
-      try { context = root.getHijyenLabHelpContext?.() || {}; } catch (_) { /* Generic help remains available. */ }
-      draft.value = buildMessage(context);
+    showDifferentProductDraft = message => {
+      draft.value = message;
       syncDraft();
       dialog.showModal();
       // Read the summary first; do not immediately summon the phone keyboard.
       heading.focus({ preventScroll: true });
+    };
+    wa.onclick = () => {
+      let context = {};
+      try { context = root.getHijyenLabHelpContext?.() || {}; } catch (_) { /* Generic help remains available. */ }
+      showDifferentProductDraft(buildMessage(context));
     };
     doc.body.classList.add('hasContactHelp');
     const measure = () => doc.documentElement.style.setProperty('--contact-help-height', Math.ceil(bar.getBoundingClientRect().height) + 'px');
@@ -131,7 +144,7 @@
     if (root.ResizeObserver) new root.ResizeObserver(measure).observe(bar);
     measure();
   }
-  const api = Object.freeze({ CONTACT, links, messageLink, buildMessage, mount });
+  const api = Object.freeze({ CONTACT, links, messageLink, buildMessage, differentProductMessage, openDifferentProductDraft, mount });
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else {
     root.HijyenLabContactHelp = api;

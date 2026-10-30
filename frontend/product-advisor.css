@@ -1,0 +1,20 @@
+/* Dormant until an approved mapping explicitly mounts the optional advisor. */
+#productAdvisorButton { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; margin-top: 12px; padding: 10px 14px; font-size: 15px; white-space: normal; }
+#productAdvisorDialog { box-sizing: border-box; width: min(590px, calc(100% - 24px)); max-height: calc(100dvh - 32px); overflow-y: auto; margin: auto; padding: 22px; border: 1px solid #b9cadc; border-radius: 16px; background: #fff; color: #17324b; }
+#productAdvisorDialog::backdrop { background: #102f5966; }
+#productAdvisorDialog h2 { margin: 0 0 12px; font-size: 23px; }
+#productAdvisorDialog h3 { margin: 0 0 10px; font-size: 19px; line-height: 1.4; }
+#productAdvisorDialog p { font-size: 15px; line-height: 1.5; }
+#productAdvisorDialog label { display: block; margin: 20px 0 8px; font-weight: 700; }
+#productAdvisorDialog select { min-height: 48px; font-size: 16px; }
+#productAdvisorDialog article { padding: 16px; margin: 16px 0; }
+#productAdvisorDialog button { min-height: 44px; padding: 10px 14px; white-space: normal; font-size: 15px; }
+#productAdvisorCancel { margin-top: 16px; border: 1px solid #8298ae; border-radius: 8px; }
+#productAdvisorDialog :is(button, select):focus-visible, #productAdvisorButton:focus-visible { outline: 3px solid #075dc9; outline-offset: 3px; }
+@media (max-width: 600px) { #productAdvisorDialog { padding: 18px; } }
+@media print { #productAdvisorButton, #productAdvisorDialog { display: none; } }
+
+#productAdvisorDifferent { display: block; margin-top: 20px; }
+#productAdvisorDialog textarea { box-sizing: border-box; width: 100%; min-height: 100px; resize: vertical; border: 1px solid #8298ae; border-radius: 8px; padding: 12px; font: 16px/1.5 Arial, sans-serif; color: #17324b; }
+#productAdvisorDifferentFields[hidden] { display: none; }
+#productAdvisorDialog textarea:focus-visible { outline: 3px solid #075dc9; outline-offset: 3px; }

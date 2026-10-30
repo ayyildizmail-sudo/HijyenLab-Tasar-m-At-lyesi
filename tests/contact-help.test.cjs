@@ -74,3 +74,15 @@ let prevented = false; proceed.onclick({ preventDefault() { prevented = true; } 
 dialog.close(); assert.equal(doc.activeElement, trigger);
 browser.getHijyenLabHelpContext = () => { throw new Error('Unavailable'); }; trigger.onclick(); assert.equal(draft.value, api.CONTACT.message);
 console.log('PASS editable draft: context allowlist, valid quantity, encoding, local preview, edit/cancel/reopen, snapshot refresh, empty-message guard, focus restoration and generic fallback. No outbound link activated.');
+// Narrow explicit different-product request never serializes or merges the old design.
+assert.equal(api.differentProductMessage({ customerName: 'SECRET' }), 'Merhaba, ürün seçimi konusunda yardım almak istiyorum.');
+assert.equal(api.differentProductMessage('x'.repeat(500)).split('İstediğim ürün: ')[1].length, 300);
+browser.getHijyenLabHelpContext = () => ({ product: 'OLD PRODUCT', quantity: 5200, fragrance: 'OLD FRAGRANCE' });
+dialog.close();
+assert.equal(browser.HijyenLabContactHelp.openDifferentProductDraft('Farklı ölçü & ambalaj'), true);
+assert.equal(draft.value, 'Merhaba, önerilen ürünlerden farklı bir ürün arıyorum. İstediğim ürün: Farklı ölçü & ambalaj');
+assert(!/OLD|5200/.test(draft.value));
+assert.equal(new URL(proceed.href).searchParams.get('text'), draft.value);
+nodes.get('contactCancel').onclick(); assert.equal(dialog.open, false);
+browser.HijyenLabContactHelp.openDifferentProductDraft(''); assert.equal(draft.value, 'Merhaba, ürün seçimi konusunda yardım almak istiyorum.');
+console.log('PASS different-product draft: explicit bounded string only, no stale selected SKU/quantity/fragrance, empty generic request, editable local preview and cancel; no outbound activation.');
