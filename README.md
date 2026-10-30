@@ -1,3 +1,11 @@
+# Güncel aday: V39 — üç havlu ürünü
+
+Ürün seçimi: BM12 25×30 rulo (varsayılan, mevcut görünüm ve fiyatlar korunur), BM15 25×25 rulo, BM545 20×25 katlı. Her yeni ürün ayrı ön/arka görsel, siluet kırpma ve dikiş üstü arka içerik alanı kullanır. Görseller gerçek provalardan türetilmiş yaklaşık boş önizlemelerdir; üreticinin baskı ölçüsü onayı değildir. Kaynak PNG’lerdeki dış alfa artıkları canvas poligonuyla kırpılır, renkli görünüm ve JPG’ye sızmaz.
+
+BM15: beyaz2,50/renkli3,00TL; minimum5000/10000; koli500. BM545: beyaz2,40/renkli2,90TL; minimum5000/10000; koli625. Kaynak `HijyenLab_Guncel_Fiyat_ve_Kosullar_2026-10-23.txt` Library `libfile_0249c4b67ac48191a75cbbd3ad8d428d` sürüm4 ve kullanıcı onayı. Renkli fiyata fark yeniden eklenmez. BM12 son kullanıcı istisnası2,90/3,30TL ve5200/10000minimum,400/koli aynıdır.
+
+Ürün değişince kullanıcı görseli korunur ve yeni alana sığdırılır; yeni yerleşim onayı gerekir. Eski teklif, render ve görsel yükleme işlemleri ürün kimliğiyle geçersizleşir. Arka sponsor/iletişim, ortak zemin ve havlu koku tercihi korunur; ürün değişimi yeni koku oyu göndermez. Farklı havlu biçimi ıslak mendil istatistiği oluşturmaz. Ek ürünler30×30/30×35 doğrulanmadığından eklenmedi.
+
 # Güncel aday: V38 — havlu koku tercihi
 
 Ön/arka tasarımdan sonra, fiyat öncesinde dört kokudan biri açıkça seçilir: Flambau çiçeği, Yeşil çay, Bodrum mandalinası, Limon. Varsayılan seçim yoktur. Son kullanıcı dağılımı %63/%19/%11/%7 olup yalnız rulo ve katlı havlu ailesine aittir; ıslak mendile uygulanmaz. UI yalnız isim/emoji/yüzde ve kaynağı gösterir; kişi/sipariş sayısı iddiası yoktur.
