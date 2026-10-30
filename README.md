@@ -1,3 +1,9 @@
+# Güncel aday: V40 — teklif görseli ve ortak klişe tahmini
+
+Teklif ön/arka görsellerinin şeffaf canvas kenarları çıkarılır; aynı görünür genişlikte, oranları bozulmadan çizilir. Görsel bandı ve belge yüksekliği ürün oranına göre büyür. Olası tamamen opak çıktı için renk silmek yerine bilinen ürün geometrisi kullanılır. Müşteriye iç fiyat kaynağı ve personel adı gösterilmez; dahili kaynak bilgileri katalogda korunur.
+
+Ön ve arka yüzün bilinen baskı paletleri birleştirilir: ortak renk/zemin bir kez, yalnız beyaz hariç. Güvenilir temiz nötr grafik tonları yaklaşık tek siyah baskı olarak değerlendirilir; bu fiziksel klişe onayı değildir. Arka metin/QR varlığı tek başına bütün sayıyı belirsiz yapmaz. Karmaşık fotoğraf veya güvenilir ayrılmayan çok renkli sponsor bilinmeyen kalır. Gerçek soluk gri baskı beyaz diye sıfırlanmaz; güvenilir palet sayılır, ayrım yetersizse bilinmeyen bırakılır. Manuel sayı tasarım değişene kadar korunur.
+
 # Güncel aday: V39 — üç havlu ürünü
 
 Ürün seçimi: BM12 25×30 rulo (varsayılan, mevcut görünüm ve fiyatlar korunur), BM15 25×25 rulo, BM545 20×25 katlı. Her yeni ürün ayrı ön/arka görsel, siluet kırpma ve dikiş üstü arka içerik alanı kullanır. Görseller gerçek provalardan türetilmiş yaklaşık boş önizlemelerdir; üreticinin baskı ölçüsü onayı değildir. Kaynak PNG’lerdeki dış alfa artıkları canvas poligonuyla kırpılır, renkli görünüm ve JPG’ye sızmaz.
@@ -273,3 +279,6 @@ A bounded generic detector separates uniform exterior padding from a validated f
 ## V25 local candidate — source-bound processing and reviewed carrier proposal
 
 This supersedes the V24 implementation notes for the changed paths. See `LOCAL_STATUS_V25.md` for mechanisms, new tests and explicit limits. Central operation/source/revision guards prevent stale image/editor/quote results. Unknown ink separation is no longer charged as a definite count. A bounded light-carrier photo fallback now offers original-versus-proposal review BEFORE mockup placement, with a white-target-only restriction. It is not general semantic photo recognition and does not certify arbitrary customer photos, signs, cards or menus. The final integrated browser/iPhone path has not been exercised because the browser reload was blocked; passing local tests does not replace that test. No additional service or paid API was added.
+
+### Kalıcı uygulama kuralı — QR baskı rengi
+QR için otomatik olarak ayrı siyah mürekkep/klişe eklenmez. Ön ve arka tasarımdaki mevcut beyaz dışı baskı renklerinin en koyusu kullanılır; zemin ve onaylı sponsor/yazı renkleri aynı palete dahildir. Klişe tahminindeki ton gruplaması gerçek QR rengini siyaha dönüştürmez. Palet belirsizse veya mevcut en koyu renk beyaz QR boş kenarında yeterli kontrast vermiyorsa QR durdurulur; yeni renk uydurulmaz. Beyaz dört modül boş kenar korunur. Renk değişikliği önizleme/teklifi geçersizleştirir; ekranda bağımsız çözücü testleri fiziksel baskı/telefon garantisi değildir.

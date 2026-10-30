@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict'),Q=require('../frontend/quote-layout.js');
+function pixels(w,h,b){const a=new Uint8ClampedArray(w*h*4);for(let y=b.y;y<b.y+b.height;y++)for(let x=b.x;x<b.x+b.width;x++)a[(y*w+x)*4+3]=255;return a;}
+const allocated={x:80,y:290,width:1240,height:700};
+for(const [w,h] of [[1857,847],[2060,763],[1616,973]]){const fb={x:30,y:60,width:1500,height:Math.round(1500*h/w)},bb={x:40,y:25,width:w-80,height:h-50};const frontCanvasH=fb.y+fb.height+45,f=Q.alphaVisibleBounds(pixels(1600,frontCanvasH,fb),1600,frontCanvasH),b=Q.alphaVisibleBounds(pixels(w,h,bb),w,h);assert.deepEqual(f,fb);assert.deepEqual(b,bb);for(const direction of ['vertical','horizontal']){const plan=Q.pairPlan(f,b,allocated,{direction});assert.equal(plan.front.destination.width,plan.back.destination.width);for(const face of [plan.front,plan.back]){const d=face.destination,p=face.panel;assert(Math.abs(d.width/d.height-face.source.width/face.source.height)<1e-12);assert(d.x>=p.x&&d.y>=p.y&&d.x+d.width<=p.x+p.width+1e-9&&d.y+d.height<=p.y+p.height+1e-9);assert(Math.abs(d.x+d.width/2-(p.x+p.width/2))<1e-9);assert(d.width<=1180&&d.height<=330+1e-9);}}}
+const data=new Uint8ClampedArray(4*4*4);data[3]=8;data[(2*4+1)*4+3]=9;assert.deepEqual(Q.alphaVisibleBounds(data,4,4),{x:1,y:2,width:1,height:1});data[(2*4+1)*4+3]=8;assert.throws(()=>Q.alphaVisibleBounds(data,4,4),/görünür/);
+for(const args of [[[],0,0],[[],1,1],[new Uint8Array(4),1.5,1],[[-1,-1,-1,NaN],1,1]])assert.throws(()=>Q.alphaVisibleBounds(...args));
+const bounds={x:0,y:0,width:100,height:50};for(const rect of [null,{x:0,y:0,width:0,height:1},{x:-1,y:0,width:1,height:1}])assert.throws(()=>Q.pairPlan(bounds,bounds,rect));
+for(const options of [{direction:'diagonal'},{gap:1000},{gap:-1},{maxWidth:NaN},{maxHeight:0}])assert.throws(()=>Q.pairPlan(bounds,bounds,allocated,options));
+assert.deepEqual(Q.pairPlan(bounds,bounds,allocated),Q.pairPlan(bounds,bounds,allocated,{direction:'vertical',gap:30}));
+console.log('PASS quote visible-alpha crops, BM12/BM15/BM545 equal-width geometry, aspect preservation, symmetric panels, empty/invalid rejection');
