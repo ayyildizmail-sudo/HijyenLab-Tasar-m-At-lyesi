@@ -1,0 +1,39 @@
+{
+  "decoder": "jsQR 1.4.0 independent decoder",
+  "renderer": "RearLayout.render full 1857x847 canvas",
+  "results": [
+    {
+      "background": "#000000",
+      "withContact": false,
+      "decoded": "https://hijyenlab.com/menu",
+      "modulePixels": 5,
+      "quietZoneModules": 4,
+      "status": "PASS"
+    },
+    {
+      "background": "#000000",
+      "withContact": true,
+      "decoded": "https://hijyenlab.com/menu",
+      "modulePixels": 5,
+      "quietZoneModules": 4,
+      "status": "PASS"
+    },
+    {
+      "background": "#deb843",
+      "withContact": false,
+      "decoded": "https://hijyenlab.com/menu",
+      "modulePixels": 5,
+      "quietZoneModules": 4,
+      "status": "PASS"
+    },
+    {
+      "background": "#deb843",
+      "withContact": true,
+      "decoded": "https://hijyenlab.com/menu",
+      "modulePixels": 5,
+      "quietZoneModules": 4,
+      "status": "PASS"
+    }
+  ],
+  "longUrlSafelyRejected": true
+}

@@ -57,4 +57,10 @@ header.companyHeader{align-items:flex-start;gap:12px}header .companyIdentity{dis
 
 /* Presentation-only clipping of exterior alpha specks; retain side crimps and central rear fin seal. */
 .rearFlipBack img{width:93%;height:auto;clip-path:polygon(3.2% 7.4%,9.1% 13.5%,12.3% 15.2%,21% 15.4%,33% 16%,46% 14.8%,57% 14.8%,69% 14.5%,83% 14.3%,88.7% 15.9%,91% 12.2%,97% 7.4%,97% 93.5%,91% 90%,89.5% 88.9%,88.6% 89.9%,86.7% 88.4%,83% 88.3%,70% 87.5%,56% 87%,45% 86.8%,33% 88.3%,20% 88.4%,11.5% 88.1%,9.1% 90.4%,3.2% 93.5%)}
+
+
+.rearEditor{max-width:900px;margin:24px auto;padding:20px;border:1px solid #dce3ed;border-radius:18px;background:white}.rearFieldGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.rearEditor label{display:block;font-weight:600}.rearEditor input:not([type=checkbox]){display:block;width:100%;box-sizing:border-box;margin-top:7px}.rearOptional{margin:18px 0}.rearQrToggle{display:flex!important;align-items:center;gap:10px;margin:18px 0}.rearQrToggle input{width:20px;height:20px}.rearQrToggle small{font-weight:400}.rearEditor .notice{margin-top:14px}#rearSponsorName{display:block;overflow-wrap:anywhere;margin:8px 0}@media(max-width:600px){.rearFieldGrid{grid-template-columns:1fr}.rearEditor{padding:16px}.rearActions{flex-direction:column}}
+
+
+.rearQuickLinks{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}.rearQuickLinks .textButton{min-height:44px;padding:10px 14px;border:1px solid #b9cce5;border-radius:10px;background:#f5f9ff;font-size:14px;line-height:1.4}
 .visualSide{position:static;top:auto}

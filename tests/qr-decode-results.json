@@ -1,0 +1,77 @@
+{
+  "encoder": "Project Nayuki 1.8.0 (MIT)",
+  "independentDecoder": "jsQR 1.4.0 (Apache-2.0)",
+  "scope": "Decoded actual canvas RGBA output; not a physical print/camera certification",
+  "cases": [
+    {
+      "case": "https://hijyenlab.com/menu",
+      "encodedUrl": "https://hijyenlab.com/menu",
+      "length": 26,
+      "version": 2,
+      "modules": 25,
+      "modulePixels": 11,
+      "decoded": true,
+      "status": "PASS"
+    },
+    {
+      "case": "https://www.instagram.com/hijyenlab/",
+      "encodedUrl": "https://www.instagram.com/hijyenlab/",
+      "length": 36,
+      "version": 3,
+      "modules": 29,
+      "modulePixels": 10,
+      "decoded": true,
+      "status": "PASS"
+    },
+    {
+      "case": "https://wa.me/905551112233?text=Merhaba",
+      "encodedUrl": "https://wa.me/905551112233?text=Merhaba",
+      "length": 39,
+      "version": 3,
+      "modules": 29,
+      "modulePixels": 10,
+      "decoded": true,
+      "status": "PASS"
+    },
+    {
+      "case": "https://maps.google.com/?q=37.0344,27.4305",
+      "encodedUrl": "https://maps.google.com/?q=37.0344,27.4305",
+      "length": 42,
+      "version": 3,
+      "modules": 29,
+      "modulePixels": 10,
+      "decoded": true,
+      "status": "PASS"
+    },
+    {
+      "case": "http://example.org/menu",
+      "encodedUrl": "http://example.org/menu",
+      "length": 23,
+      "version": 2,
+      "modules": 25,
+      "modulePixels": 11,
+      "decoded": true,
+      "status": "PASS"
+    },
+    {
+      "case": "https://example.com/menü?dil=Türkçe",
+      "encodedUrl": "https://example.com/men%C3%BC?dil=T%C3%BCrk%C3%A7e",
+      "length": 50,
+      "version": 4,
+      "modules": 33,
+      "modulePixels": 9,
+      "decoded": true,
+      "status": "PASS"
+    },
+    {
+      "case": "512-character URL",
+      "encodedUrl": "https://example.com/menu?data=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "length": 512,
+      "version": 18,
+      "modules": 89,
+      "modulePixels": 3,
+      "decoded": true,
+      "status": "PASS"
+    }
+  ]
+}

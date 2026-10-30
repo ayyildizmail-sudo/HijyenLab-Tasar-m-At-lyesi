@@ -1,3 +1,15 @@
+# Güncel demo: V33 — isteğe bağlı arka yüz düzenleme
+
+Instagram, web sitesi, telefon, adres ve temiz sponsor logosu isteğe bağlıdır. QR varsayılan olarak kapalıdır; müşteri açarsa bağlantı gerekir. QR yerel, paketlenmiş Nayuki kodlayıcıyla üretilir; üçüncü tarafa görsel/bağlantı gönderilmez. Beyaz boşluk ve tam piksel modülleri korunur. Uzun içerik sığmazsa açık hata gösterilir; kesilerek kabul edilmez.
+
+Ön/arka tek zemin rengi kuralı korunur. Metin ve logo, orta yapıştırma dikişinden ayrı alanlarda gösterilir. Teklif JPEG'si dolu arka yüzü de içerir; her değişiklik eski teklifi geçersizleştirir. Arka içerik varsa toplam baskı renk/klişe sayısı teknik incelemeye bırakılır; kesin klişe/kapora uydurulmaz, bilinen bedellerin ara toplamı gösterilir. Ticari birim fiyatlar değişmedi.
+
+Bu bir tasarım önizlemesidir; baskıya hazır grafik veya vektör değildir. Sponsor görseli mevcut haliyle kullanılır: şeffaf PNG/SVG önerilir, beyaz zemini otomatik silme veya fotoğraftan sponsor marka çıkarımı eklenmedi. Baskı boyutu ve gerçek telefon kamerasıyla QR okunurluğu Aytuğ Bey'in baskı onayında doğrulanmalıdır. Genel fotoğraf anlamlandırma ve tam perspektif düzeltmesi çözülmüş sayılmaz.
+
+Testler: optional alanlar, QR aç/kapat/doğrulama, sponsor yükleme/reset yarışı, eski teklif iptali; yedi bağımsız QR çözümleme örneği ve dört tam arka-render QR çözümleme örneği. Gerçek iPhone ve fiziksel baskı testi değildir. QR lisansları: `dist/vendor/QR-LIBRARY-NOTICE.md`; bağımsız test çözücüsü `tests/qr-vendor/`.
+
+Aşağıdaki sürüm notları tarihseldir; eski kapsam ifadeleri güncel V33 özelliklerini geçersiz kılmaz.
+
 # Güncel demo: V32 — ön ve arka yüzde aynı zemin
 
 ## Kalıcı ürün kuralı
