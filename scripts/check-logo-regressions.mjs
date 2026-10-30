@@ -9,6 +9,7 @@ const fixtures = [
   'tests/fixtures/technical-frame/source.jpeg',
 ];
 const suites = [
+  'tests/frame-geometry.test.cjs',
   'tests/screenshot-artwork.test.cjs',
   'tests/composite-screenshot.test.cjs',
   'tests/screenshot-background.test.cjs',
