@@ -22,3 +22,11 @@ Known-development Lucia source was replayed in module/canvas tools: native532×2
 - Lucia source: original→proposal→mockup, no old photo-paste or missing outline; compare colored/white target carefully.
 - Ocean Prime clean artwork: colors, minimum10000,25cartons,2plates, Bodrum35000TL exVAT preserved.
 - Repeated upload/reset/undo and JPEG preview still work. Real iPhone saving remains NOT_RUN unless independently tested.
+
+## Browser QA copy corrections
+- Removed the later V25 detail-label override; runtime release remains derived from one meta field.
+- Photo-extracted transparent logo feedback now reports its chosen photo-estimated background, not a false white background.
+- Expanded upload help matches the enforced 8 MB limit.
+- Size percentage is rounded for display only; containment geometry retains full precision.
+- Later brand-region notice wrapper now retains the Turkish phone/print handoff.
+- New browser-copy-v28 regression executes actual backgroundFeedback and size display; checks release ownership, upload limit and handoff.
