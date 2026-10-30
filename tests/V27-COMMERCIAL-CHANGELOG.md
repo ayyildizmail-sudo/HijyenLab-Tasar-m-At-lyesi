@@ -16,7 +16,7 @@ Commands from repository root:
 
 ```sh
 for f in tests/*.test.cjs; do node "$f" || exit; done
-node --check dist/app.js
+node --check frontend/app.js
 ```
 
 40 test files passed, including all 37 previous test files, two new independent commercial files (18 narrow cases) and a release-identity regression:

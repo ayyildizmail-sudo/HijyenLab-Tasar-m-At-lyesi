@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
-const app=fs.readFileSync('dist/app.js','utf8'),html=fs.readFileSync('dist/index.html','utf8'),region=fs.readFileSync('dist/brand-region-ui.js','utf8');
+const app=fs.readFileSync('frontend/app.js','utf8'),html=fs.readFileSync('frontend/index.html','utf8'),region=fs.readFileSync('frontend/brand-region-ui.js','utf8');
 const nodes={};const $=id=>nodes[id]||(nodes[id]={style:{},append(){}});
 const c={state:{bgDetection:{kind:'transparent'},bg:'#deb843',bgSource:'photo-estimate',removed:false},$,document:{createElement:()=>({})},panels:[{},{}]};vm.createContext(c);
 vm.runInContext(app.slice(app.indexOf('function backgroundFeedback()'),app.indexOf('function renderSuggestions()')),c);
@@ -8,6 +8,6 @@ c.state.bgSource='auto';c.backgroundFeedback();assert.equal(nodes.backgroundResu
 c.state.bgSource='manual';c.backgroundFeedback();assert.equal(nodes.backgroundResult.textContent,'Ambalaj rengi seçiminizle güncellendi: #DEB843');
 const size=41.98010673316585; c.state.size=size;vm.runInContext(app.match(/\$\('sizeValue'\)\.textContent=[^;]+;/)[0],c);assert.equal(nodes.sizeValue.textContent,'%42');assert.equal(c.state.size,size);
 assert(!/Çalışan uygulama: V\d+/.test(region));assert(!region.includes('runtimeBuild.textContent='));
-assert(!html.includes('5 MB'));assert(html.includes('En fazla 8 MB.'));assert.equal(require('../dist/upload-format.js').MAX_BYTES,8*1024*1024);
+assert(!html.includes('5 MB'));assert(html.includes('En fazla 8 MB.'));assert.equal(require('../frontend/upload-format.js').MAX_BYTES,8*1024*1024);
 assert(region.includes("extractionNotice.textContent+=' Bu yalnız önizlemedir. Telefonla görüşme sonrası Aytuğ Bey baskı grafiğini hazırlar.'"));
 console.log('PASS actual background display, rounded-only size, shared release, upload limit and handoff copy');

@@ -1,4 +1,4 @@
-const assert=require('node:assert/strict'),R=require('../dist/rear-logo.js');
+const assert=require('node:assert/strict'),R=require('../frontend/rear-logo.js');
 const cases=[];const test=(n,f)=>cases.push([n,f]);
 function fixture(bg=[250,247,238,255]){const w=120,h=80,d=new Uint8ClampedArray(w*h*4);for(let i=0;i<w*h;i++)d.set(bg,i*4);return {w,h,d};}
 function rect(f,x0,y0,x1,y1,c){for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)f.d.set(c,(y*f.w+x)*4);}

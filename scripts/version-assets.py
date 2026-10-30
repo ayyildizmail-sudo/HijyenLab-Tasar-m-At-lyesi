@@ -1,6 +1,6 @@
 from pathlib import Path
 import hashlib,re
-root=Path(__file__).resolve().parents[1]/'dist'
+root=Path(__file__).resolve().parents[1]/'frontend'
 p=root/'index.html';s=p.read_text()
 def replace(m):
  prefix,name,quote=m.groups();asset=root/name

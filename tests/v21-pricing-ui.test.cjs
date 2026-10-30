@@ -1,4 +1,4 @@
-const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');const source=fs.readFileSync('dist/app.js','utf8'),html=fs.readFileSync('dist/index.html','utf8'),ui=fs.readFileSync('dist/print-inks-ui.js','utf8'),cases=[];
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');const source=fs.readFileSync('frontend/app.js','utf8'),html=fs.readFileSync('frontend/index.html','utf8'),ui=fs.readFileSync('frontend/print-inks-ui.js','utf8'),cases=[];
 function test(name,fn){try{fn();cases.push({name,status:'PASS'});}catch(e){cases.push({name,status:'FAIL',error:e.message});}}
 const model={};vm.createContext(model);vm.runInContext(source.slice(source.indexOf('function pricing('),source.indexOf('\nconst money=')),model);
 test('Latest user colored 3.30, two inks, 10000 outside = 40000 ex VAT',()=>assert.equal(model.pricing(10000,'#000000','İstanbul','Kadıköy','new',2).subtotal,4000000));

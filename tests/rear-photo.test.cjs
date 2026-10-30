@@ -1,5 +1,5 @@
-const assert=require('assert/strict'),fs=require('fs'),vm=require('vm'),{createCanvas}=require('@napi-rs/canvas'),RearPhoto=require('../dist/rear-photo.js');
-const src=fs.readFileSync('dist/rear-photo.js','utf8');
+const assert=require('assert/strict'),fs=require('fs'),vm=require('vm'),{createCanvas}=require('@napi-rs/canvas'),RearPhoto=require('../frontend/rear-photo.js');
+const src=fs.readFileSync('frontend/rear-photo.js','utf8');
 const make=(w,h)=>createCanvas(w,h);function photo(){const c=make(500,340),x=c.getContext('2d');x.fillStyle='#646464';x.fillRect(0,0,500,340);x.fillStyle='#f5f5f5';x.fillRect(30,100,440,140);for(const [a,b,col]of [[180,220,'#0014aa'],[230,270,'#b40014'],[280,320,'#149600']]){x.fillStyle=col;x.fillRect(a,135,b-a,23);}x.fillStyle='#191919';x.fillRect(195,180,110,7);return c;}
 function mocked(engine){const scope={WhiteCarrier:engine,LightSurface:{propose:()=>[]},MarkOrientation:{correct:r=>r}};vm.createContext(scope);vm.runInContext(src,scope);return scope.RearPhoto;}
 (async()=>{

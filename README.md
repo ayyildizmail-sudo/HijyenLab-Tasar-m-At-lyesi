@@ -1,3 +1,11 @@
+# Güncel aday: V38 — havlu koku tercihi
+
+Ön/arka tasarımdan sonra, fiyat öncesinde dört kokudan biri açıkça seçilir: Flambau çiçeği, Yeşil çay, Bodrum mandalinası, Limon. Varsayılan seçim yoktur. Son kullanıcı dağılımı %63/%19/%11/%7 olup yalnız rulo ve katlı havlu ailesine aittir; ıslak mendile uygulanmaz. UI yalnız isim/emoji/yüzde ve kaynağı gösterir; kişi/sipariş sayısı iddiası yoktur.
+
+Tercih geri dönüşlerde korunur; teklif anlık görüntüsü ve JPG içinde yer alır. Değişiklik eski teklifi geçersizleştirir. Anonim kimlik tarayıcıda saklanır; aynı tarayıcı tercihini değiştirince önceki kayıt güncellenir. Kimlik kişiyi doğrulamaz. Görsel, isim ve telefon istatistik API’sine gönderilmez. Servis hatasında tercih taslak teklifte korunur fakat ortak kayda yazıldığı söylenmez. Yüzdeler localStorage’dan küresel istatistik gibi üretilmez.
+
+Frontend API: GET `/api/fragrance-preferences?productFamily=towels`, POST `/api/fragrance-preferences` gövde `{productFamily:"towels",anonymousId,fragrance,revision}`. Ortak dağılım ayrı sunucu depolaması gerektirir; statik önizleme API yoksa bunu açık gösterir. Yeni koku seçimi fiyat sabitlerini değiştirmez.
+
 # Güncel aday: V37 — anlaşılır hata ve aynı kaynakla yeniden deneme
 
 Yüklenen sponsor dosyasının adı ve özgün önizlemesi başarıda ve hatada korunur. Aynı dosya tekrar seçilmeden yeniden denenebilir. Düz logo ve fotoğraf aşamalarının ayrı hataları isteğe bağlı işlem ayrıntılarında gösterilir; otomatik telemetri yoktur. Geometrik aday çokluğu artık kesin “birden fazla marka” diye sunulmaz. Hata/işlem/inceleme sırasında eski arka yüz gizlenir; kabul edilmiş yeni sonuç veya logoyu kaldırma olmadan teklif açılmaz. Yeni dosya, sıfırlama ve kaldırma eski işlemleri geçersizleştirir.
@@ -38,7 +46,7 @@ Instagram, web sitesi, telefon, adres ve temiz sponsor logosu isteğe bağlıdı
 
 Bu bir tasarım önizlemesidir; baskıya hazır grafik veya vektör değildir. Sponsor görseli mevcut haliyle kullanılır: şeffaf PNG/SVG önerilir, beyaz zemini otomatik silme veya fotoğraftan sponsor marka çıkarımı eklenmedi. Baskı boyutu ve gerçek telefon kamerasıyla QR okunurluğu Aytuğ Bey'in baskı onayında doğrulanmalıdır. Genel fotoğraf anlamlandırma ve tam perspektif düzeltmesi çözülmüş sayılmaz.
 
-Testler: optional alanlar, QR aç/kapat/doğrulama, sponsor yükleme/reset yarışı, eski teklif iptali; yedi bağımsız QR çözümleme örneği ve dört tam arka-render QR çözümleme örneği. Gerçek iPhone ve fiziksel baskı testi değildir. QR lisansları: `dist/vendor/QR-LIBRARY-NOTICE.md`; bağımsız test çözücüsü `tests/qr-vendor/`.
+Testler: optional alanlar, QR aç/kapat/doğrulama, sponsor yükleme/reset yarışı, eski teklif iptali; yedi bağımsız QR çözümleme örneği ve dört tam arka-render QR çözümleme örneği. Gerçek iPhone ve fiziksel baskı testi değildir. QR lisansları: `frontend/vendor/QR-LIBRARY-NOTICE.md`; bağımsız test çözücüsü `tests/qr-vendor/`.
 
 Aşağıdaki sürüm notları tarihseldir; eski kapsam ifadeleri güncel V33 özelliklerini geçersiz kılmaz.
 
@@ -73,7 +81,7 @@ Müşteri için amaç: görsel yüklemek, ambalaj önizlemesini görmek ve ileti
 
 ## Çalıştırma ve kapsam
 
-Statik web kökü `dist/` klasörüdür. Sitenin sahibi yayına aldığında müşteri doğrudan bağlantıyı açar; müşteriye kod veya ZIP açtırılmaz. Yerel masaüstü inceleme için bir statik sunucu gereklidir. `file://` kullanımı güvenli dosya kimliklendirmesi ve PDF yüklemesini desteklemez.
+Kalıcı tarayıcı kaynakları `frontend/` klasöründedir. Sites/Vinext derlemesi `dist/client` ve `dist/server` çıktısını oluşturur; kaynaklar build çıktısına yazılmaz. Müşteri doğrudan site bağlantısını açar; kod veya ZIP açması gerekmez. Ortak koku yüzdeleri sunucu ve D1 gerektirir; yalnız statik dosya sunucusu bunu çalıştırmaz. Sunucu hazırlığı ve testleri için `server/README.md` dosyasına bakın. `file://` desteklenmez.
 
 - Başlangıç boş beyaz ambalajdır; kendiliğinden “afiyet olsun” eklenmez.
 - Temiz logo, desteklenen düz grafikler ve bazı ürün fotoğraflarında önizleme vardır. Her menü, tabela ve kartvizitten doğru markayı otomatik ayırma çözülmüş değildir.
@@ -117,9 +125,11 @@ Aşağıdaki eski sürüm notları ve fiyat açıklamaları tarihsel kayıttır,
 Bu bağımsız demo canlı hijyenlab.com veya mevcut muhasebe/kayıt sistemine bağlı değildir. V1 ve V2 korunur. V3 sürüm3/commit80a928feb1a26c5ab3d34452dce581502c7ccdca başlangıç referansıdır.
 
 ## Çalıştırma ve test
-- Statik dosyalar: `dist/`
-- `sites-preview start /workspace/scratch/d698780c5c28/hijyenlab_mockup_prototype`
-- `node --check dist/app.js`
+- Kalıcı tarayıcı kaynakları: `frontend/`; build çıktıları: `dist/client` + `dist/server`.
+- Desteklenen Sites/Vinext akışı: `npm run dev`, üretim derlemesi `npm run build`; D1 ve servis testi ayrıntıları `server/README.md`.
+- `node --check frontend/app.js`
+- `for f in tests/*.test.cjs; do node "$f" || exit 1; done`
+- `npm run test:server`
 - `node tests/pricing.test.cjs` —31 fiyat/statik kontrol; ayrıca `node tests/background.test.cjs` ile27 zemin/renk ve `node tests/photo.test.cjs` ile16 bölge/geometri/koruma kontrolü.
 
 ## Tasarım
@@ -129,7 +139,7 @@ Bu bağımsız demo canlı hijyenlab.com veya mevcut muhasebe/kayıt sistemine b
 - Logo renkleri varsayılan olarak korunur. Tek renkli güvenli SVG kullanıcı isterse yeniden renklendirilebilir; raster logolara otomatik renk ayrımı uygulanmaz.
 - Tek renkli görsel zemini varsayılan olarak kenara bağlı renk maskesiyle ambalajla birleştirilir. Checkbox kapatılarak orijinal görünüm geri getirilir. Kaynak dosya değişmez. Alfa/zemini ayrılan görsel anlamlı çizim sınırlarına göre güvenli payla önizlemeye sığdırılır; kaynak kırpılmaz. Çok öğeli prova otomatik ayıklanmaz.
 - Baskı hissi için hafif yüzey deformasyonu ve gri malzeme gölgesi uygulanır; renkli zemin logoyu otomatik başka renge çevirmez.
-- Pantone önerileri MIT beyanlı topluluk sRGB verisindeki893 Coated(C) aday arasında CIELAB D65 ΔE76 yakınlığıdır.907 kaynak satırından14 floresan renk çıkarılmıştır. Lisans/provenans `dist/licenses` altında. Resmî/lisanslı Pantone ölçümü değildir; U desteklenmez. Zemin ve düz baskın logo renkleri ayrı incelenir; üretim renk sayısı otomatik belirlenmez. BilinenC kodu yaklaşıkHEX verir ve yalnız kullanıcı Uygula seçerse ekran rengi değişir. Bilinmeyen/U kodlar sahte eşleşme üretmez.
+- Pantone önerileri MIT beyanlı topluluk sRGB verisindeki893 Coated(C) aday arasında CIELAB D65 ΔE76 yakınlığıdır.907 kaynak satırından14 floresan renk çıkarılmıştır. Lisans/provenans `frontend/licenses` altında. Resmî/lisanslı Pantone ölçümü değildir; U desteklenmez. Zemin ve düz baskın logo renkleri ayrı incelenir; üretim renk sayısı otomatik belirlenmez. BilinenC kodu yaklaşıkHEX verir ve yalnız kullanıcı Uygula seçerse ekran rengi değişir. Bilinmeyen/U kodlar sahte eşleşme üretmez.
 - Ambalaj görseli özgün BM12 30×25 / OPP16×17 çiziminin yaklaşık2,2:1 ön yüz siluetinden türetilmiş maske ve temizlenmiş üretken doku kullanır. Orijinal boş şablon değildir; baskı geometrisi garantisi vermez.25×30 cm havlu ölçüsüdür.
 - PNG indirme yalnız ekran önizlemesidir, baskıya hazır dosya değildir.
 
@@ -159,7 +169,7 @@ Test sonuçları `tests/results.json`, tarayıcı kapsamı ayrıca `tests/browse
 
 **Aktif son işlem kaynak korur:** fotoğrafta seçilen ürünün bağlantılı bölgesi ve dolu iç delikleri kaynak koordinatlarında tutulur; yalnız bölge dışı alpha sıfırlanır. Ürün içi RGBA renkleri değiştirilmez. Onaylanan perspektif-düzeltilmiş canvas bundan sonra aynı nesne olarak korunur; sonrasında kaynak renk/alpha silme veya harf temizleme yapılmaz. Kenar örneklerinden yaklaşık bir zemin renk alanı yalnız alttaki boş ambalaja uygulanır; ön yüz piksellerinin yerine renk doldurulmaz. Bu alan ekran simülasyonudur ve kullanıcı renkleri kontrol etmelidir. Sabit BM12 görsel geometrisinin baskı alanına orantılı sığdırılır. Fotoğraf ışığı/gölgesi kalabilir. Fotoğraftan otomatik temiz vektör/ayrı düzenlenebilir logo/metin üretilmez; gizli, silinmiş veya okunmayan içerik yeniden oluşturulmaz. Temiz üretim grafiği için grafik hizmeti gerekir. Kaynak görsel yanında gösterilir. Karmaşık veya yanlış öneride kullanıcı doğru ön yüzü seçmelidir; her fotoğrafı otomatik tanıma garantisi yoktur.
 
-PDF.js5.6.205 legacy build, Apache2, yerel `dist/vendor/` içinde; CDN yok, dosya sunucuya gönderilmez. En fazla8MB/12sayfa; çok sayfalı belgede açık sayfa seçimi. PDF eylem/script/bağlantıları çalıştırılmaz; yalnız canvas görüntüsü. AI/CDR yerel önizleme desteklenmez. Çok büyük/kötü biçimliPDF güvenlik matrisi kapsamlı sınanmış değildir.
+PDF.js5.6.205 legacy build, Apache2, yerel `frontend/vendor/` içinde; CDN yok, dosya sunucuya gönderilmez. En fazla8MB/12sayfa; çok sayfalı belgede açık sayfa seçimi. PDF eylem/script/bağlantıları çalıştırılmaz; yalnız canvas görüntüsü. AI/CDR yerel önizleme desteklenmez. Çok büyük/kötü biçimliPDF güvenlik matrisi kapsamlı sınanmış değildir.
 
 Fotoğraf/grafik fiyatında zemin varsayımı açıkça seçilir. Baskı rengi varsayılanı teknik incelemedir; toplam klişe hariç gösterilir, bilinmeyen klişe ücretsiz sayılmaz. Renk sayısı zemin dahil teknik ayrımı ifade eder. Özel baskı/CMYK/özel bölge kesin teklif gerektirir. Süre25takvimgünü, ödemeonay/faturalama sonrası50%, kalanüretimbitimindesevköncesi50% olarak kaynaklandırılmıştır.
 

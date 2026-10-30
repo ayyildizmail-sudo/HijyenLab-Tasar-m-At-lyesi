@@ -1,9 +1,9 @@
-const assert=require('assert/strict'),fs=require('fs'),M=require('../dist/mark-orientation');
+const assert=require('assert/strict'),fs=require('fs'),M=require('../frontend/mark-orientation');
 function fixture(slopes=[-.18,-.18]){const w=360,h=320,d=new Uint8ClampedArray(w*h*4);const set=(x,y)=>{if(x>=0&&x<w&&y>=0&&y<h)d.set([80,50,30,255],(Math.round(y)*w+x)*4);};for(let row=0;row<slopes.length;row++)for(let k=0;k<5;k++){const x=35+k*55,y=85+row*110+Math.round(slopes[row]*x);for(let yy=0;yy<35;yy++)for(let xx=0;xx<19;xx++)if(xx<3||xx>=16||yy>15&&yy<19)set(x+xx,y+yy);}return {data:d,width:w,height:h,metadata:{transformOrder:['source'],limitations:[]}};}
 for(const slope of [-.25,-.18,.12,.27]){const f=fixture([slope,slope]),e=M.estimate(f.data,f.width,f.height);assert(e.ok);assert(Math.abs(e.degrees-Math.atan(slope)*180/Math.PI)<.7);const r=M.correct(f);assert(r.orientation.applied);assert(r.width>=f.width);const sum=d=>d.reduce((s,v,i)=>s+(i%4===3?v:0),0);assert(Math.abs(sum(r.data)/sum(f.data)-1)<.01);const after=M.estimate(r.data,r.width,r.height);assert(after.ok);assert(Math.abs(after.degrees)<1);}
 const one=fixture([-.18]);assert.equal(M.estimate(one.data,one.width,one.height).ok,false);
 const conflict=fixture([-.25,.2]);assert.equal(M.estimate(conflict.data,conflict.width,conflict.height).ok,false);
 const flat=fixture([0,0]),unchanged=M.correct(flat);assert.equal(unchanged.orientation.applied,false);assert.equal(unchanged.data,flat.data);
 assert.equal(M.estimate(new Uint8Array(4),0,1).ok,false);
-const source=fs.readFileSync('dist/mark-orientation.js','utf8');assert(!/GRAVAS|YAZZ|10\.3|10\.4/.test(source));assert(fs.readFileSync('dist/app.js','utf8').includes('result=MarkOrientation.correct(result);c.width=result.width;c.height=result.height;'));
+const source=fs.readFileSync('frontend/mark-orientation.js','utf8');assert(!/GRAVAS|YAZZ|10\.3|10\.4/.test(source));assert(fs.readFileSync('frontend/app.js','utf8').includes('result=MarkOrientation.correct(result);c.width=result.width;c.height=result.height;'));
 console.log('PASS independent-row angle evidence, full-mask rotation, opacity retention, ambiguity refusal and no hardcoded brand angle');

@@ -10,7 +10,7 @@ A bounded quality guard rejects a result when more than 5% of retained pixels ha
 ## Executed checks
 - `node tests/colored-fidelity.test.cjs`: 13 PASS. Source-coordinate mapping, native single-pixel stroke, real-white stroke, mixed-edge alpha, support exclusion, empty source, 4MP cap, malformed input, incompatible third ink, boundary clipping, input alpha, nonuniform mapping and no generated letters/external calls.
 - `node tests/ink-extraction.test.cjs`: existing 7 PASS.
-- `node --check dist/colored-fidelity.js` and `dist/ink-extraction.js`: PASS.
+- `node --check frontend/colored-fidelity.js` and `frontend/ink-extraction.js`: PASS.
 - Legacy colorExtract result on known Lucia source: old HEAD/current data byte-identical; box/background identical. Only metadata added.
 
 ## Known-source visual diagnostic

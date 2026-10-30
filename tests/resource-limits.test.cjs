@@ -1,4 +1,4 @@
-const assert=require('node:assert/strict'),R=require('../dist/upload-format.js');const cases=[];
+const assert=require('node:assert/strict'),R=require('../frontend/upload-format.js');const cases=[];
 function test(name,fn){try{fn();cases.push({name,status:'PASS'});}catch(e){cases.push({name,status:'FAIL',error:e.message});}}
 function png(w,h){const b=Buffer.alloc(24);b.set([137,80,78,71,13,10,26,10]);b.write('IHDR',12);b.writeUInt32BE(w,16);b.writeUInt32BE(h,20);return b;}
 function jpeg(w,h){const b=Buffer.alloc(15);b.set([255,216,255,192,0,11,8]);b.writeUInt16BE(h,7);b.writeUInt16BE(w,9);return b;}

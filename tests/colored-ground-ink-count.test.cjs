@@ -1,5 +1,5 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
-const app=fs.readFileSync(__dirname+'/../dist/app.js','utf8');
+const app=fs.readFileSync(__dirname+'/../frontend/app.js','utf8');
 const elements={},el=id=>elements[id]||(elements[id]={value:'',children:[],replaceChildren(){this.children=[];},append(...a){this.children.push(...a);}});
 const c={$:el,state:{requestedQuantity:null},document:{createElement(){return{children:[],append(...a){this.children.push(...a);}}}},syncQuantity:()=>10000,effectiveBackground:()=> '#ff0000',status(){},money:n=>String(n/100)};
 vm.createContext(c);

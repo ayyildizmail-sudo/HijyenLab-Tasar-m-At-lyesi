@@ -10,7 +10,7 @@ Scope follows the user's request: after front artwork approval, visibly turn the
 - New upload/reset clears the rear view; a failed rear asset has an explicit retry.
 
 ## Asset evidence and limits
-`dist/assets/bm12-back-blank.png` is the parent-provided blank derivative of the verified rear reference, not an untouched product photograph. It retains a rear fin seal and side crimps. The supplied bitmap has exterior alpha specks; CSS clips only the displayed exterior silhouette. The bitmap itself is not claimed to be clean or pixel-accurate production geometry. Parent visual browser review is required before publishing.
+`frontend/assets/bm12-back-blank.png` is the parent-provided blank derivative of the verified rear reference, not an untouched product photograph. It retains a rear fin seal and side crimps. The supplied bitmap has exterior alpha specks; CSS clips only the displayed exterior silhouette. The bitmap itself is not claimed to be clean or pixel-accurate production geometry. Parent visual browser review is required before publishing.
 
 ## Tests
 `tests/rear-preview.test.cjs` runs front approval routing, front-state retention, delayed animation activation, quote continuation, changed-front blocking, stale load callback/reset, missing asset handling and reduced-motion rule checks.

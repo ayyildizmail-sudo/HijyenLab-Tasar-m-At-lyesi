@@ -1,4 +1,4 @@
-const a=require('node:assert/strict'), {inspect,dimensions}=require('../dist/upload-format.js');let n=0;function test(name,f){f();n++;console.log('PASS',name)}
+const a=require('node:assert/strict'), {inspect,dimensions}=require('../frontend/upload-format.js');let n=0;function test(name,f){f();n++;console.log('PASS',name)}
 const png=Buffer.alloc(24);png.set([137,80,78,71,13,10,26,10]);png.write('IHDR',12);png.writeUInt32BE(200,16);png.writeUInt32BE(100,20);
 test('PNG signature/dimensions',()=>a.equal(inspect(png).width,200));
 test('PNG bytes independent of filename/mime',()=>a.equal(inspect(png).type,'png'));

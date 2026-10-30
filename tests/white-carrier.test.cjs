@@ -1,4 +1,4 @@
-const assert=require('assert/strict'),fs=require('fs'),W=require('../dist/white-carrier.js'),tests=[];
+const assert=require('assert/strict'),fs=require('fs'),W=require('../frontend/white-carrier.js'),tests=[];
 function test(name,fn){try{fn();tests.push({name,status:'PASS'});}catch(e){tests.push({name,status:'FAIL',error:e.message});}}
 const width=500,height=340,data=new Uint8ClampedArray(width*height*4);function rect(x0,y0,x1,y1,rgb){for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)data.set([...rgb,255],(y*width+x)*4);}
 rect(0,0,width,height,[100,100,100]);rect(30,100,470,240,[245,245,245]);rect(180,135,220,158,[0,20,170]);rect(230,135,270,158,[180,0,20]);rect(280,135,320,158,[20,150,0]);rect(195,180,305,187,[25,25,25]);

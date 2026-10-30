@@ -1,6 +1,6 @@
 // Independent decoder verifies the actual rear compositor output, not encoder metadata.
-const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),{createCanvas}=require('@napi-rs/canvas'),jsQR=require('./qr-vendor/jsQR-1.4.0.js'),RearLayout=require('../dist/rear-layout.js');
-const scope={URL};vm.createContext(scope);for(const file of ['dist/vendor/qrcodegen-v1.8.0.js','dist/qr-preview.js'])vm.runInContext(fs.readFileSync(file,'utf8'),scope);
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),{createCanvas}=require('@napi-rs/canvas'),jsQR=require('./qr-vendor/jsQR-1.4.0.js'),RearLayout=require('../frontend/rear-layout.js');
+const scope={URL};vm.createContext(scope);for(const file of ['frontend/vendor/qrcodegen-v1.8.0.js','frontend/qr-preview.js'])vm.runInContext(fs.readFileSync(file,'utf8'),scope);
 const qr=scope.QRPreview.encodeUrl('https://hijyenlab.com/menu'),results=[];
 for(const background of ['#000000','#deb843'])for(const fields of [{},{instagram:'@hijyenlab',website:'hijyenlab.com',phone:'+90 555 111 22 33',address:'Bodrum / Muğla'}]){
  const canvas=createCanvas(1857,847),ctx=canvas.getContext('2d');ctx.fillStyle=background;ctx.fillRect(0,0,1857,847);

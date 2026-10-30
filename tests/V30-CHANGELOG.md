@@ -15,8 +15,8 @@ The napkin photograph's camera tilt must not be carried straight onto the new mo
 This corrects in-plane rotation, not full perspective or film curvature. The napkin's lower-left corner is outside the source frame and folded lower edges are ambiguous; unconstrained homography could distort proportions. The logo is not forcibly reshaped into a circle. Decorative intentional text slant can remain ambiguous; original/proposal review is retained. Existing successful extraction paths, commercial values and main accounting data are unchanged.
 
 ## Files
-- `dist/mark-orientation.js`: bounded row evidence, agreement gate, whole-mask rotation.
-- `dist/app.js`: invokes correction after validated LightSurface extraction and before preview creation.
+- `frontend/mark-orientation.js`: bounded row evidence, agreement gate, whole-mask rotation.
+- `frontend/app.js`: invokes correction after validated LightSurface extraction and before preview creation.
 - `tests/mark-orientation.test.cjs`: synthetic orientations, alpha retention, conflicting/insufficient evidence, integration assertion.
 - `tests/evidence/v30/`: actual source-mask/variant measurements and negative results. These test orientation independently of upstream extraction; V29's open whole-photo extraction failures remain open.
 

@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
-const source=fs.readFileSync('dist/app.js','utf8'),html=fs.readFileSync('dist/index.html','utf8'),cases=[];
+const source=fs.readFileSync('frontend/app.js','utf8'),html=fs.readFileSync('frontend/index.html','utf8'),cases=[];
 function check(name,fn){try{fn();cases.push({name,status:'PASS'});}catch(e){cases.push({name,status:'FAIL',error:e.message});}}
 const model={};vm.createContext(model);vm.runInContext(source.slice(source.indexOf('function pricing('),source.indexOf('\nconst money=')),model);
 const white=model.pricing(5200,'#ffffff','İstanbul','Kadıköy','new',1),colored=model.pricing(10000,'#102f59','İstanbul','Kadıköy','new',1),bodrum=model.pricing(5200,'#ffffff','Muğla','Bodrum','new',1);

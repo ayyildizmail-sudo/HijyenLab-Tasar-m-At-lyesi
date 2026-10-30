@@ -1,4 +1,4 @@
-const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),app=fs.readFileSync('dist/app.js','utf8'),rear=fs.readFileSync('dist/rear-preview.js','utf8');
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),app=fs.readFileSync('frontend/app.js','utf8'),rear=fs.readFileSync('frontend/rear-preview.js','utf8');
 const nodes={},make=()=>({hidden:false,disabled:false,naturalWidth:1200,classList:{values:new Set(),add(x){this.values.add(x)},remove(x){this.values.delete(x)}},removeAttribute(k){delete this[k]},focus(){},after(){}}),$=id=>nodes[id]||(nodes[id]=make());
 const sourceImages=[];function ImageMock(){const image=make();image.naturalHeight=600;sourceImages.push(image);return image;}
 let fingerprint='front-A',approved=true,issue=false,raf=[],goCalls=[];const state={logo:'unaltered-front',size:80,rotation:7,bg:'#990000'},initial=JSON.stringify(state);
@@ -16,8 +16,8 @@ ctx.resetRearPreview();ctx.showRearPreview();const cancelledFirst=sourceImages.a
 approved=false;assert.equal(ctx.showRearPreview(),false);approved=true;issue=true;assert.equal(ctx.showRearPreview(),false);
 // Central route receives both native next/navigation and approved extracted logos.
 const goCode=app.slice(app.indexOf('function go(n){'),app.indexOf("$('useMinimum').onclick"));let shown=0;const c={state:{logo:'x'},step:1,$,approveNativeDesignIfEligible(){},designIssue:()=>false,showRearPreview:()=>shown++,showDesignIssue(){},validateLead:()=>true};vm.createContext(c);vm.runInContext(goCode,c);c.go(2);assert.equal(shown,1);
-assert(app.includes("$('next').onclick=()=>go(2)"));assert(fs.readFileSync('dist/brand-region-ui.js','utf8').includes('refresh();go(2);'));
-assert(fs.readFileSync('dist/processing-lifecycle.js','utf8').includes("if(typeof resetRearPreview==='function')resetRearPreview();loading++"));
-assert(fs.readFileSync('dist/style.css','utf8').includes('@media(prefers-reduced-motion:reduce){.rearFlipCard{transition:none}}'));
+assert(app.includes("$('next').onclick=()=>go(2)"));assert(fs.readFileSync('frontend/brand-region-ui.js','utf8').includes('refresh();go(2);'));
+assert(fs.readFileSync('frontend/processing-lifecycle.js','utf8').includes("if(typeof resetRearPreview==='function')resetRearPreview();loading++"));
+assert(fs.readFileSync('frontend/style.css','utf8').includes('@media(prefers-reduced-motion:reduce){.rearFlipCard{transition:none}}'));
 assert(!/pricing\(/.test(rear)); // rear editor does not invent a separate price calculation
 console.log('PASS front approval routing, animated rear, front-state preservation, stale callback/reset, asset failure, quote continuation and reduced motion');

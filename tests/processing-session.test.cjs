@@ -1,4 +1,4 @@
-const fs=require('fs'),assert=require('assert/strict'),S=require('../dist/processing-session.js'),cases=[];function test(name,fn){try{fn();cases.push({name,status:'PASS'});}catch(e){cases.push({name,status:'FAIL',error:e.message});}}
+const fs=require('fs'),assert=require('assert/strict'),S=require('../frontend/processing-session.js'),cases=[];function test(name,fn){try{fn();cases.push({name,status:'PASS'});}catch(e){cases.push({name,status:'FAIL',error:e.message});}}
 const SHA='a'.repeat(64),frame={width:100,height:80,coordinateFrame:'browser-decoded'};
 function result(extra={}){return{method:'native-alpha',methodVersion:'1',box:[0,0,100,80],sourceCoordinates:'browser-decoded',candidates:[],preservedRegions:[{box:[0,0,100,80],reason:'Full native source retained'}],excludedRegions:[],maskBasis:'prepared-logo-alpha; output-local',transformOrder:['browser-decode','native-alpha'],limitations:['Not a print-ready color separation'],...extra};}
 function ready(){const s=S.create(),t=s.begin({filename:'logo.png',size:24});s.setSource(t,{sha256:SHA});s.decoded(t,frame);s.commit(t,result());s.touchDesign('design-1');s.approve('design-1');return{s,t};}

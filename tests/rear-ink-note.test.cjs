@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
-const source=fs.readFileSync('dist/print-inks-ui.js','utf8'),part=source.slice(source.indexOf("let frontInkNoteText="),source.indexOf('function syncPrintInks(){'));
+const source=fs.readFileSync('frontend/print-inks-ui.js','utf8'),part=source.slice(source.indexOf("let frontInkNoteText="),source.indexOf('function syncPrintInks(){'));
 const nodes={inkEstimateNote:{textContent:'Otomatik tahmin: 2 klişe.'},inks:{disabled:false}};let rear=true;const context={$:id=>nodes[id],rearHasContent:()=>rear};vm.createContext(context);vm.runInContext(part,context);context.syncRearInkNote();assert(nodes.inkEstimateNote.textContent.startsWith('Arka yüz içeriği dahil:'));assert(!nodes.inkEstimateNote.textContent.includes('2 klişe'));assert(nodes.inks.disabled);context.syncRearInkNote();rear=false;context.syncRearInkNote();assert.equal(nodes.inkEstimateNote.textContent,'Otomatik tahmin: 2 klişe.');assert.equal(nodes.inks.disabled,false);
-const css=fs.readFileSync('dist/style.css','utf8');assert(css.includes('.rearQuickLinks{display:flex;flex-wrap:wrap;gap:12px'));assert(css.includes('.rearQuickLinks .textButton{min-height:44px'));
+const css=fs.readFileSync('frontend/style.css','utf8');assert(css.includes('.rearQuickLinks{display:flex;flex-wrap:wrap;gap:12px'));assert(css.includes('.rearQuickLinks .textButton{min-height:44px'));
 console.log('PASS rear combined ink note, front-only restoration and QR shortcut touch targets');

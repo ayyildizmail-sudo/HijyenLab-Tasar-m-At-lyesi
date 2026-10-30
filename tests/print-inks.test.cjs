@@ -1,5 +1,5 @@
 const fs=require('fs'),assert=require('assert/strict'),cp=require('child_process'),os=require('os'),path=require('path');
-const {estimate}=require('../dist/print-inks'),cases=[];
+const {estimate}=require('../frontend/print-inks'),cases=[];
 function check(name,fn){try{fn();cases.push({name,status:'PASS'});}catch(e){cases.push({name,status:'FAIL',error:e.message});}}
 function image(colors,w=120,h=60){const d=new Uint8ClampedArray(w*h*4);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const c=colors[Math.min(colors.length-1,Math.floor(x/w*colors.length))];d.set([...c,255],(y*w+x)*4);}return[d,w,h];}
 function count(colors,options){return estimate(...image(colors),options);}

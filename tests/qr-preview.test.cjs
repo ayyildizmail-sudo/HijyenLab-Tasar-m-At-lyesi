@@ -1,5 +1,5 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict'),crypto=require('crypto'),{createCanvas}=require('@napi-rs/canvas'),jsQR=require('./qr-vendor/jsQR-1.4.0.js');
-const vendor=fs.readFileSync('dist/vendor/qrcodegen-v1.8.0.js','utf8'),helper=fs.readFileSync('dist/qr-preview.js','utf8'),scope={URL};vm.createContext(scope);vm.runInContext(vendor,scope);vm.runInContext(helper,scope);const QR=scope.QRPreview;
+const vendor=fs.readFileSync('frontend/vendor/qrcodegen-v1.8.0.js','utf8'),helper=fs.readFileSync('frontend/qr-preview.js','utf8'),scope={URL};vm.createContext(scope);vm.runInContext(vendor,scope);vm.runInContext(helper,scope);const QR=scope.QRPreview;
 assert.equal(crypto.createHash('sha256').update(vendor).digest('hex'),'6a1116192ed1dd67fa1bf31e77f5817103d71c23bbac24c382e698b7668bdd01');
 assert.equal(QR.normalizeUrl('hijyenlab.com/menu'),'https://hijyenlab.com/menu');assert.equal(QR.normalizeUrl(' https://hijyenlab.com/menu '),'https://hijyenlab.com/menu');
 for(const value of ['',null,'javascript:alert(1)','data:text/html,test','ftp://example.com/menu','https://user:password@example.com/menu','https://example.com/a b','https://example.com/\nmenu','https://example.com/'+ 'a'.repeat(512),'https://'])assert.throws(()=>QR.encodeUrl(value));
