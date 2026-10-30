@@ -41,6 +41,26 @@ await ctx.processRearSponsor({...event.target.files[0],name:'new-logo.png'});ass
 oldResolve({canvas:{toDataURL:()=> 'data:image/png;base64,OLD'},method:'test'});await oldUpload;
 assert.equal($('rearSponsorExtracted').src,'data:image/png;base64,NEW');assert.equal($('rearSponsorName').textContent,'new-logo.png');$('removeRearSponsor').onclick();
 
+// Same-file region recovery is opt-in, source-bound, bounded and review-only.
+const canvasContext={drawImage(){},strokeRect(){}};
+const priorCreate=ctx.document.createElement;ctx.document.createElement=(tag)=>{const n=priorCreate(tag);if(tag==='canvas'){n.getContext=()=>canvasContext;n.toDataURL=()=> 'data:image/png;base64,CROP';}return n;};
+$('rearSponsorRegionCanvas').getContext=()=>canvasContext;
+ctx.loadImage=async()=>({width:1000,height:1800});
+let photoCalls=0;const regionRequired=()=>Object.assign(Error('Alan seçin'),{code:'SOURCE_REGION_REQUIRED'});
+ctx.RearLogo.prepare=async()=>{throw regionRequired();};ctx.RearPhoto.prepare=async()=>{photoCalls++;throw Error('must not run');};
+await ctx.processRearSponsor(event.target.files[0]);assert.equal(photoCalls,0);assert.equal($('rearSponsorRegionPanel').hidden,false);assert.equal($('previewRearRegion').disabled,true);assert.equal(ctx.rearQuoteReady(),false);assert.equal(ctx.rearQuoteSnapshot().sponsorHash,null);
+assert.equal(ctx.rearRegionBox([0,0,1000,1800],1000,1800),true);assert.equal(ctx.rearRegionBox([-1,0,100,100],1000,1800),false);assert.equal(ctx.rearRegionBox([0,0,3000,3000],3000,3000),false);
+$('rearSponsorRegionCanvas').getBoundingClientRect=()=>({left:10,top:20,width:250,height:450});$('rearSponsorRegionCanvas').setPointerCapture=()=>{};
+$('rearSponsorRegionCanvas').onpointerdown({clientX:35,clientY:70,pointerId:1});$('rearSponsorRegionCanvas').onpointermove({clientX:210,clientY:245});$('rearSponsorRegionCanvas').onpointerup();assert.equal($('rearRegionLeft').value,10);assert.equal($('rearRegionTop').value,11.11);assert.equal($('rearRegionRight').value,80);assert.equal($('rearRegionBottom').value,50);
+$('rearSponsorRegionCanvas').onpointercancel();assert.equal($('previewRearRegion').disabled,true);
+ctx.setRearRegionBox([100,200,800,900]);assert.equal($('previewRearRegion').disabled,false);
+let cropSize;ctx.RearPhoto.prepareSelected=async image=>{cropSize=[image.width,image.height];return {canvas:{width:90,height:40,toDataURL:()=> 'data:image/png;base64,REGION'},method:'selected-test'};};
+await $('previewRearRegion').onclick();assert.deepEqual(cropSize,[700,700]);assert.equal($('rearSponsorSourceImage').src,'data:image/png;base64,x');assert.equal($('rearSponsorReview').hidden,false);assert.equal(ctx.rearQuoteSnapshot().sponsorHash,null);assert.equal($('rearSponsorRegionPanel').hidden,true);$('acceptRearSponsor').onclick();assert.equal(ctx.rearQuoteSnapshot().sponsorHash,'new-sponsor');assert.equal(JSON.stringify(ctx.state),frontBefore);
+// Re-upload same file invalidates the accepted output; cancel does not restore it.
+ctx.RearLogo.prepare=async()=>{throw regionRequired();};await ctx.processRearSponsor(event.target.files[0]);assert.equal(ctx.rearQuoteSnapshot().sponsorHash,null);$('cancelRearRegion').onclick();assert.equal($('rearSponsorRegionPanel').hidden,true);assert.equal(ctx.rearQuoteReady(),false);$('acceptRearSponsor').onclick();assert.equal(ctx.rearQuoteSnapshot().sponsorHash,null);
+await $('retryRearSponsor').onclick();ctx.setRearRegionBox([100,200,800,900]);let selectedResolve;ctx.RearPhoto.prepareSelected=()=>new Promise(resolve=>selectedResolve=resolve);const selectedPending=$('previewRearRegion').onclick();for(let i=0;i<12&&!selectedResolve;i++)await Promise.resolve();assert.equal(typeof selectedResolve,'function');
+ctx.RearLogo.prepare=async()=>({canvas:{toDataURL:()=> 'data:image/png;base64,LATEST'},method:'native'});await ctx.processRearSponsor({...event.target.files[0],name:'latest.png'});selectedResolve({canvas:{toDataURL:()=> 'data:image/png;base64,STALECROP'},method:'selected'});await selectedPending;assert.equal($('rearSponsorExtracted').src,'data:image/png;base64,LATEST');assert.equal($('rearSponsorName').textContent,'latest.png');assert.equal($('rearSponsorRegionPanel').hidden,true);$('rejectRearSponsor').onclick();assert.equal(ctx.rearQuoteSnapshot().sponsorHash,null);assert.equal($('rearSponsorSourcePanel').hidden,true);
+
 const app=fs.readFileSync('frontend/app.js','utf8'),life=fs.readFileSync('frontend/processing-lifecycle.js','utf8');assert(app.includes("rearInkUnknown=!isUnprinted()&&typeof rearHasContent==='function'&&rearHasContent()"));assert(app.includes("inks=isUnprinted()?0:rearInkUnknown||$('inks').value===''?null"));assert(app.includes("plan.back.destination,'Arka yüz',bandTop+rowHeight+80"));assert(life.includes("rear:unprinted?null:(typeof rearQuoteSnapshot==='function'?rearQuoteSnapshot():null)"));assert(app.includes("if(typeof rearQuoteReady==='function'&&!rearQuoteReady())"));
 console.log('PASS optional rear fields, Turkish content, QR off/on validation, quote invalidation, preserved back navigation and sponsor-reset race');
 })().catch(error=>{console.error(error);process.exitCode=1});

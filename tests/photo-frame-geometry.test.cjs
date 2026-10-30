@@ -5,6 +5,7 @@ function make(w=1,h=1){const c=createCanvas(w,h);c.toBlob=fn=>fn(new Blob([c.toB
 class Reader{readAsDataURL(file){file.arrayBuffer().then(b=>{this.result='data:image/png;base64,'+Buffer.from(b).toString('base64');this.onload();},e=>this.onerror(e));}}
 const context={document:{createElement:()=>make()},loadImage,ImageData,File,FileReader:Reader,loading:0,requestAnimationFrame:f=>f(),MarkOrientation:M};
 for(const [name,file]of Object.entries({LocalInkExtraction:'ink-extraction',ColoredFidelity:'colored-fidelity',BackgroundAnalysis:'background',PhotoFidelity:'photo-fidelity',WhiteCarrier:'white-carrier',LightSurface:'light-surface'}))context[name]=require('../frontend/'+file+'.js');
+context.StandardPhoto={prepare:img=>require('../frontend/standard-photo').prepare(img,{createCanvas:make})};
 vm.createContext(context);vm.runInContext(app.slice(app.indexOf('async function extractStandardPhotoInk('),app.indexOf('const prepareSourceWithoutInk='))+app.slice(app.indexOf('async function extractWhiteCarrierProposal('),app.indexOf('// Help drafts')),context);
 async function decoded(file){const image=await loadImage(Buffer.from(await file.arrayBuffer())),canvas=make(image.width,image.height);canvas.getContext('2d').drawImage(image,0,0);return {data:canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data,width:canvas.width,height:canvas.height,canvas};}
 function sum(data,c){let n=0;for(let i=0;i<data.length;i+=4)n+=c===3?data[i+3]:data[i+c]*data[i+3]/255;return n;}

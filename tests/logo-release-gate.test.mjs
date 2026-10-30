@@ -10,7 +10,9 @@ try {
   for(const file of ['check-logo-regressions.mjs','prepare-legacy-frontend.mjs'])await cp(new URL(`../scripts/${file}`,import.meta.url),join(tmp,'scripts',file));
   const run=()=>spawnSync(process.execPath,['scripts/prepare-legacy-frontend.mjs'],{cwd:tmp,encoding:'utf8'});
   const missing=run();assert.notEqual(missing.status,0);assert.match(missing.stderr,/ENOENT/);
-  const inputs=['tests/photo-frame-geometry.test.cjs','tests/fixtures/photo-frame-geometry/source.jpeg','tests/fixtures/screenshot-artwork/source.jpeg','tests/fixtures/composite-screenshot/source.jpeg','tests/fixtures/technical-frame/source.jpeg','tests/screenshot-artwork.test.cjs','tests/composite-screenshot.test.cjs','tests/screenshot-background.test.cjs','tests/screenshot-integration.test.cjs','tests/frame-geometry.test.cjs'];
+  const gateSource=await readFile(new URL('../scripts/check-logo-regressions.mjs',import.meta.url),'utf8');
+  const inputs=[...gateSource.matchAll(/'((?:tests\/)[^']+)'/g)].map(match=>match[1]);
+  assert(inputs.includes('tests/sponsor-source.test.cjs'));assert(inputs.includes('tests/fixtures/sponsor-source/packet.jpeg'));
   for(const file of inputs){await mkdir(dirname(join(tmp,file)),{recursive:true});await writeFile(join(tmp,file),file.endsWith('.cjs')?'process.exit(7);':'required fixture');}
   const failed=run();assert.notEqual(failed.status,0);assert.match(failed.stderr,/Logo regression gate failed/);
   assert.equal(await readFile(join(tmp,'public/sentinel.txt'),'utf8'),'untouched');
@@ -20,3 +22,8 @@ try {
   await assert.rejects(access(join(tmp,'public/tests')));
   console.log('PASS missing fixture and failed test stop before public mutation; passing gate copies frontend only.');
 } finally {await rm(tmp,{recursive:true,force:true});}
+
+const pkg=JSON.parse(await readFile(new URL('../package.json',import.meta.url),'utf8'));
+assert.equal(pkg.scripts.prebuild,'node scripts/prepare-legacy-frontend.mjs');
+assert(!pkg.scripts.build.includes('--preview-only'));
+assert(!(await readFile(new URL('../scripts/build-verified.sh',import.meta.url),'utf8')).includes('--preview-only'));

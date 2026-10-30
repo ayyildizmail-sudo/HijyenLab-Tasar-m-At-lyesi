@@ -57,6 +57,7 @@ function contrastWarning(result,background){
 }
 async function prepare(img,options={}){
  const w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;if(!w||!h||w*h>MAX_PIXELS)throw Error('Görsel en fazla 4 milyon piksel olmalı.');
+ const context=typeof module!=='undefined'?require('./source-context.js'):root.SourceContext;if(!context)throw Error('Kaynak alanı kontrol aracı yüklenemedi.');context.assertRegion(img,options);
  const make=options.createCanvas||((w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;}),source=make(w,h),ctx=source.getContext('2d');ctx.drawImage(img,0,0,w,h);
  const r=extractRGBA(ctx.getImageData(0,0,w,h).data,w,h);if(!r.ok)throw Error(r.reason);
  const canvas=make(r.width,r.height),target=canvas.getContext('2d'),pixels=target.createImageData(r.width,r.height);pixels.data.set(r.data);target.putImageData(pixels,0,0);return {...r,canvas,contrastWarning:contrastWarning(r,options.background)};
