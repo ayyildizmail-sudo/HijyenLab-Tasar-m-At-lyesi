@@ -1,0 +1,78 @@
+[
+  {
+    "name": "Actual composite: full graphic, no photo, no duplicate, no UI",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual layout at scale 0.5",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual layout at scale 0.75",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual layout at scale 1.5",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual layout at scale 2",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual layout with phone status and share header cropped off",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual layout with blank top padding, independent of absolute Y",
+    "status": "PASS"
+  },
+  {
+    "name": "Clean source panel alone is not misidentified as screenshot",
+    "status": "PASS"
+  },
+  {
+    "name": "Photo and clean graphic reordered: choose clean graphic, not largest photo",
+    "status": "PASS"
+  },
+  {
+    "name": "Two isolated clean representations require selection, never union or choose by size",
+    "status": "PASS"
+  },
+  {
+    "name": "Unrelated surrounding photo changes do not alter selected graphic",
+    "status": "PASS"
+  },
+  {
+    "name": "Paragraph help card without logo is not proposed as artwork",
+    "status": "PASS"
+  },
+  {
+    "name": "Independent geometric brand with photo/control context, shift -40",
+    "status": "PASS"
+  },
+  {
+    "name": "Independent geometric brand with photo/control context, shift 0",
+    "status": "PASS"
+  },
+  {
+    "name": "Independent geometric brand with photo/control context, shift 90",
+    "status": "PASS"
+  },
+  {
+    "name": "Close but detached tagline is not silently discarded",
+    "status": "PASS"
+  },
+  {
+    "name": "Graphic with multiline interior lettering preserves whole group",
+    "status": "PASS"
+  },
+  {
+    "name": "Original pixels are not mutated by detection",
+    "status": "PASS"
+  },
+  {
+    "name": "Detector is bounded and contains no brand, filename, network or OCR lookup",
+    "status": "PASS"
+  }
+]

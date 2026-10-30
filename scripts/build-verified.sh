@@ -18,6 +18,9 @@ if [[ ! -x "${vinext}" ]]; then
   exit 69
 fi
 
+# Direct invocations must use the same mandatory release gate as npm prebuild.
+(cd "${SITES_PROJECT_ROOT}" && node "${script_dir}/prepare-legacy-frontend.mjs")
+
 echo "Running bounded vinext build..."
 timeout \
   --signal=TERM \
