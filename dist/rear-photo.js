@@ -13,7 +13,7 @@ async function prepare(img,options={}){
  for(const route of routes){if(!route.engine||typeof route.engine.propose!=='function'||typeof route.engine.extractCrop!=='function')continue;
  const candidates=route.engine.propose(pixels,small.width,small.height,w,h);
  if(!Array.isArray(candidates))throw Error('Fotoğraf analizi geçerli bir sonuç vermedi.');
- if(candidates.length>1)throw Error('Fotoğrafta birden fazla marka bölgesi var. Tek markayı gösteren daha yakın bir görsel yükleyin.');
+ if(candidates.length>1)throw Error('Fotoğrafta hangi bölgenin logoya ait olduğu net seçilemedi. Logoyu daha yakından gösteren bir görsel yükleyin.');
  if(candidates.length!==1)continue;
  const candidate=candidates[0],b=candidate.box;
  if(!Array.isArray(b)||b.length!==4||!b.every(Number.isSafeInteger)||b[0]<0||b[1]<0||b[2]>w||b[3]>h||b[2]<=b[0]||b[3]<=b[1])throw Error('Fotoğraftaki marka bölgesi geçerli değil.');

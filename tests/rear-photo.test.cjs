@@ -8,7 +8,7 @@ function mocked(engine){const scope={WhiteCarrier:engine,LightSurface:{propose:(
  const light=make(400,240),lc=light.getContext('2d');lc.fillStyle='#cdcdcd';lc.fillRect(0,0,400,240);lc.fillStyle='#644223';for(let k=0;k<4;k++){const x=130+k*27;lc.fillRect(x,90,3,30);lc.fillRect(x,90,18,3);lc.fillRect(x+15,90,3,30);}for(let k=0;k<8;k++)lc.fillRect(145+k*9,128,3,6);const lr=await RearPhoto.prepare(light,{createCanvas:make});assert.equal(lr.method,'rear-light-surface-photo');assert(lr.canvas.width>0);
  const blank=make(400,240);blank.getContext('2d').fillRect(0,0,400,240);await assert.rejects(()=>RearPhoto.prepare(blank,{createCanvas:make}),/ayrılamadı/);
  await assert.rejects(()=>RearPhoto.prepare({width:0,height:1},{createCanvas:make}),/boyutu/);
- const ambiguous=mocked({propose:()=>[{box:[0,0,30,30]},{box:[40,40,70,70]}],extractCrop:()=>{throw Error('must not extract');}});await assert.rejects(()=>ambiguous.prepare(input,{createCanvas:make}),/birden fazla/);
+ const ambiguous=mocked({propose:()=>[{box:[0,0,30,30]},{box:[40,40,70,70]}],extractCrop:()=>{throw Error('must not extract');}});await assert.rejects(()=>ambiguous.prepare(input,{createCanvas:make}),/hangi bölgenin logoya ait olduğu net seçilemedi/);
  const invalid=mocked({propose:()=>[{box:[-1,0,20,20]}],extractCrop:()=>{throw Error('must not extract');}});await assert.rejects(()=>invalid.prepare(input,{createCanvas:make}),/geçerli değil/);
  // Large image never creates full-image canvas; oversized ROI is rejected before allocation.
  const big=make(2500,2000),allocations=[],bounded=(w,h)=>{allocations.push([w,h]);return make(w,h);};let scan;

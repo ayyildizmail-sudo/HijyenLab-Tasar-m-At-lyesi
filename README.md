@@ -1,3 +1,9 @@
+# Güncel aday: V37 — anlaşılır hata ve aynı kaynakla yeniden deneme
+
+Yüklenen sponsor dosyasının adı ve özgün önizlemesi başarıda ve hatada korunur. Aynı dosya tekrar seçilmeden yeniden denenebilir. Düz logo ve fotoğraf aşamalarının ayrı hataları isteğe bağlı işlem ayrıntılarında gösterilir; otomatik telemetri yoktur. Geometrik aday çokluğu artık kesin “birden fazla marka” diye sunulmaz. Hata/işlem/inceleme sırasında eski arka yüz gizlenir; kabul edilmiş yeni sonuç veya logoyu kaldırma olmadan teklif açılmaz. Yeni dosya, sıfırlama ve kaldırma eski işlemleri geçersizleştirir.
+
+Bu sürüm kalite eşiklerini gevşetmez. Özgün Porselano dosyası V36 Chrome ve yerel çözümleyicide başarılıydı; kullanıcının iPhone hatasının cihaz-özel kök nedeni henüz tekrar üretilemedi. Bu değişiklik sorunun gizlenmesini ve yanıltıcı açıklamasını giderir; Safari ayrıştırma hatası çözüldü iddiası değildir.
+
 # Güncel aday: V36 — kenar kalitesi ve isteğe bağlı renk önerileri
 
 Koyu zemindeki açık benek sorunu ayrı bir ayrıştırma hatasıdır; düşük kontrast uyarısıyla geçiştirilmez. Bu sürümün kenar düzeltmesi ve karşı örnekleri `rear-logo` testlerinde izlenir. Görselde olmayan harf/simge yeniden üretilmez; açık taşıyıcıyla gerçek beyaz baskının belirsizliği sürer.

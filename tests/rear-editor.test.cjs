@@ -18,6 +18,29 @@ const frontBefore=JSON.stringify(ctx.state);await $('rearSponsorUpload').onchang
 // Unsupported input is not silently copied; clearing/replacing an old sponsor revokes it.
 ctx.RearLogo.prepare=async()=>{throw Error('flat unsupported')};ctx.RearPhoto={prepare:async()=>{throw Error('Bu fotoğraf ayrıştırılamadı.')}};await $('rearSponsorUpload').onchange(event);assert.equal(ctx.rearQuoteSnapshot().sponsorHash,null);assert($('rearEditorError').textContent.includes('ayrıştırılamadı'));assert.equal($('rearToPrice').disabled,true);assert.equal(ctx.rearQuoteReady(),false);assert(ctx.rearValidationError().includes('ayrıştırılamadı'));$('removeRearSponsor').onclick();assert.equal(ctx.rearValidationError(),'');
 
+// V37: first and fallback errors retained, original stays visible, retry uses the same File.
+let calls=0;ctx.RearLogo.prepare=async()=>{calls++;throw Error('Düz logo: kenar belirsiz');};ctx.RearPhoto.prepare=async()=>{throw Error('Bölge seçimi belirsiz');};
+await $('rearSponsorUpload').onchange(event);
+assert.equal($('rearSponsorName').textContent,'logo.png');assert.equal($('rearSponsorSourcePanel').hidden,false);assert.equal($('rearSponsorSourceImage').src,'data:image/png;base64,x');
+assert($('rearSponsorDiagnosticText').textContent.includes('Düz logo: kenar belirsiz'));assert($('rearSponsorDiagnosticText').textContent.includes('Bölge seçimi belirsiz'));assert($('rearSponsorDiagnosticText').textContent.includes('V37'));
+assert.equal($('rearFlipCard').hidden,true);assert.equal($('rearPreviewStatus').hidden,false);assert.equal($('retryRearSponsor').hidden,false);assert.equal($('rearToPrice').disabled,true);
+await $('retryRearSponsor').onclick();assert.equal(calls,2);assert.equal(ctx.rearQuoteReady(),false);
+ctx.RearLogo.prepare=async()=>({canvas:{width:90,height:40,toDataURL:()=> 'data:image/png;base64,CLEAN'},method:'test',contrastWarning:''});
+await $('retryRearSponsor').onclick();assert.equal($('rearSponsorReview').hidden,false);assert.equal($('rearFlipCard').hidden,true);assert.equal($('rearSponsorName').textContent,'logo.png');
+$('acceptRearSponsor').onclick();assert.equal($('rearFlipCard').hidden,false);assert.equal($('rearSponsorSourcePanel').hidden,false);assert.equal(ctx.rearQuoteSnapshot().sponsorHash,'new-sponsor');
+// Removing during an in-flight retry cannot resurrect the source or logo.
+ctx.RearLogo.prepare=()=>new Promise(resolve=>{resolveLogo=resolve;});resolveLogo=null;
+const retry=ctx.processRearSponsor(event.target.files[0]);for(let i=0;i<12&&!resolveLogo;i++)await Promise.resolve();assert.equal(typeof resolveLogo,'function');$('removeRearSponsor').onclick();resolveLogo({canvas:{toDataURL:()=> 'data:image/png;base64,STALE'},method:'test'});await retry;
+assert.equal(ctx.rearQuoteSnapshot().sponsorHash,null);assert.equal($('rearSponsorSourcePanel').hidden,true);assert.equal($('rearSponsorName').textContent,'');assert.equal($('rearPreviewStatus').hidden,true);
+
+// A slower older upload cannot overwrite a newer accepted proposal, name or source.
+let oldResolve;ctx.RearLogo.prepare=()=>new Promise(resolve=>{oldResolve=resolve;});
+const oldUpload=ctx.processRearSponsor(event.target.files[0]);for(let i=0;i<12&&!oldResolve;i++)await Promise.resolve();assert.equal(typeof oldResolve,'function');
+ctx.RearLogo.prepare=async()=>({canvas:{width:90,height:40,toDataURL:()=> 'data:image/png;base64,NEW'},method:'test',contrastWarning:''});
+await ctx.processRearSponsor({...event.target.files[0],name:'new-logo.png'});assert.equal($('rearSponsorName').textContent,'new-logo.png');
+oldResolve({canvas:{toDataURL:()=> 'data:image/png;base64,OLD'},method:'test'});await oldUpload;
+assert.equal($('rearSponsorExtracted').src,'data:image/png;base64,NEW');assert.equal($('rearSponsorName').textContent,'new-logo.png');$('removeRearSponsor').onclick();
+
 const app=fs.readFileSync('dist/app.js','utf8'),life=fs.readFileSync('dist/processing-lifecycle.js','utf8');assert(app.includes("rearInkUnknown=typeof rearHasContent==='function'&&rearHasContent()"));assert(app.includes("inks=rearInkUnknown||$('inks').value===''?null"));assert(app.includes("c.fillText('Arka yüz',80,520)"));assert(life.includes("rear:typeof rearQuoteSnapshot==='function'?rearQuoteSnapshot():null"));assert(app.includes("if(typeof rearQuoteReady==='function'&&!rearQuoteReady())"));
 console.log('PASS optional rear fields, Turkish content, QR off/on validation, quote invalidation, preserved back navigation and sponsor-reset race');
 })().catch(error=>{console.error(error);process.exitCode=1});
