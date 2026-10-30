@@ -1,3 +1,32 @@
+# HijyenLab Tasarım Atölyesi · V28 deneme sürümü
+
+Müşteri için amaç: görsel yüklemek, ambalaj önizlemesini görmek ve iletişim bilgilerini girerek örnek fiyatı incelemek. Bu uygulama baskıya hazır veya vektörel dosya üretmez. Telefon görüşmesinden sonra Aytuğ Bey baskı grafiğini hazırlayıp onaya sunar. Henüz arama düğmesi veya gerçek müşteri kaydı/gönderimi yoktur.
+
+## Çalıştırma ve kapsam
+
+Statik web kökü `dist/` klasörüdür. Sitenin sahibi yayına aldığında müşteri doğrudan bağlantıyı açar; müşteriye kod veya ZIP açtırılmaz. Yerel masaüstü inceleme için bir statik sunucu gereklidir. `file://` kullanımı güvenli dosya kimliklendirmesi ve PDF yüklemesini desteklemez.
+
+- Başlangıç boş beyaz ambalajdır; kendiliğinden “afiyet olsun” eklenmez.
+- Temiz logo, desteklenen düz grafikler ve bazı ürün fotoğraflarında önizleme vardır. Her menü, tabela ve kartvizitten doğru markayı otomatik ayırma çözülmüş değildir.
+- Logo orantısı korunur. Sürükleme, ölçekleme ve döndürmede mevcut önizleme alanı korunur; bu alan üreticinin fiziksel baskı sertifikası değildir.
+- Renkli fotoğraf yolu, desteklenen adayın son maskesini kaynak çözünürlüklü bölgede hesaplar. Eksik harfler çizilmez; renk ve kenar tahminleri kesin baskı garantisi değildir.
+- İletişim bilgileri açık sayfada tutulur. Sunucuya kaydedilmez, otomatik aranma veya sipariş alındı mesajı verilmez.
+- Gerçek iPhone/Safari dosya kaydetme ve görülmemiş görsel ailesi kabulü henüz doğrulanmamıştır.
+
+## Ticari koşulların tek kaynağı
+
+Çalışan kodun `COMMERCIAL_RULES` nesnesi ve sürümlü teklif anlık görüntüsü esas alınır. V28, V27 fiyatlarını değiştirmez: beyaz 2,90 TL, renkli 3,30 TL; minimum 5.200/10.000 adet; koli içi 400 adet; klişe 1.000 TL/renk; Bodrum dışı standart kargo 200 TL/koli. Fiyatlara %20 KDV dahil değildir. Bilinmeyen klişe sıfır sayılmaz; bu durumda kısmi toplam açıkça belirtilir. Bunlar demo koşullarıdır; kesin teklif teknik görüşmede doğrulanır.
+
+## Doğrulama
+
+`for f in tests/*.test.cjs; do node "$f" || exit; done`
+
+Testler dar kapsamlarını doğrular; her fotoğrafta başarı veya yayına alındı anlamına gelmez. Mevcut yayın sürümü Sites yayın kaydından ayrıca kontrol edilir.
+
+## Tarihsel notlar
+
+Aşağıdaki eski sürüm notları ve fiyat açıklamaları tarihsel kayıttır, güncel çalışma talimatı değildir.
+
 # Latest local candidate: V24
 
 29 October 2026: thin tapered technical-outline region proposal, original/proposed comparison and preserved circular screenshot behavior. See `LOCAL_STATUS_V24.md`. Earlier sections are historical.
