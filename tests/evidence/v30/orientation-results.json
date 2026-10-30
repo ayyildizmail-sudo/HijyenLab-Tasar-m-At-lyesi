@@ -1,0 +1,259 @@
+[
+  {
+    "name": "gravas",
+    "variant": "source",
+    "estimated": -10.187364467421483,
+    "estimateOk": true,
+    "rows": [
+      {
+        "angle": -10.303178557906865,
+        "n": 5,
+        "res": 5.695581693829511,
+        "h": 98
+      },
+      {
+        "angle": -9.400221242258116,
+        "n": 4,
+        "res": 0.3190856625862204,
+        "h": 20
+      }
+    ],
+    "applied": true,
+    "after": 0.38349931979813495,
+    "afterOk": true,
+    "alphaRatio": 1.0000035505836864
+  },
+  {
+    "name": "gravas",
+    "variant": "minus10",
+    "estimateOk": false,
+    "reason": "Fewer than two independent text-like rows",
+    "rows": [
+      {
+        "angle": -18.197475990409558,
+        "n": 4,
+        "res": 0.3471420165129588,
+        "h": 21
+      }
+    ],
+    "applied": false,
+    "afterOk": false,
+    "alphaRatio": 1
+  },
+  {
+    "name": "gravas",
+    "variant": "plus10",
+    "estimated": 0.3843746604020217,
+    "estimateOk": true,
+    "rows": [
+      {
+        "angle": 0.31559401979578666,
+        "n": 5,
+        "res": 3.816832228597319,
+        "h": 86
+      },
+      {
+        "angle": 0.8465123530703609,
+        "n": 4,
+        "res": 0.27271790652414785,
+        "h": 19
+      }
+    ],
+    "applied": false,
+    "after": 0.3843746604020217,
+    "afterOk": true,
+    "alphaRatio": 1
+  },
+  {
+    "name": "gravas",
+    "variant": "small",
+    "estimated": -10.357934966302526,
+    "estimateOk": true,
+    "rows": [
+      {
+        "angle": -10.444159453315272,
+        "n": 5,
+        "res": 3.9250711051876137,
+        "h": 68
+      },
+      {
+        "angle": -9.775140542035661,
+        "n": 4,
+        "res": 0.15771248136922847,
+        "h": 14
+      }
+    ],
+    "applied": true,
+    "after": 0.8028282014251842,
+    "afterOk": true,
+    "alphaRatio": 1.0000009062034154
+  },
+  {
+    "name": "gravas",
+    "variant": "large",
+    "estimated": -10.210161257197585,
+    "estimateOk": true,
+    "rows": [
+      {
+        "angle": -10.371264117287156,
+        "n": 5,
+        "res": 6.749020282473468,
+        "h": 108
+      },
+      {
+        "angle": -9.118362820239222,
+        "n": 4,
+        "res": 0.13192390185661296,
+        "h": 26
+      }
+    ],
+    "applied": true,
+    "after": 0.4354230848988307,
+    "afterOk": true,
+    "alphaRatio": 0.999998674542284
+  },
+  {
+    "name": "yazz",
+    "variant": "source",
+    "estimated": -1.9342259519068512,
+    "estimateOk": true,
+    "rows": [
+      {
+        "angle": -2.0289611391644926,
+        "n": 16,
+        "res": 0.34624614834659656,
+        "h": 9
+      },
+      {
+        "angle": -1.481895105932073,
+        "n": 4,
+        "res": 0.2604348094699637,
+        "h": 13
+      },
+      {
+        "angle": -2.0762767243246754,
+        "n": 4,
+        "res": 0.2344299429471618,
+        "h": 76
+      }
+    ],
+    "applied": true,
+    "after": -0.09471590994614076,
+    "afterOk": true,
+    "alphaRatio": 1.0000132169536509
+  },
+  {
+    "name": "yazz",
+    "variant": "minus10",
+    "estimated": -11.569479150940218,
+    "estimateOk": true,
+    "rows": [
+      {
+        "angle": -11.964938592258523,
+        "n": 16,
+        "res": 0.4926377870290836,
+        "h": 9
+      },
+      {
+        "angle": -11.836308143679075,
+        "n": 5,
+        "res": 0.4690062137912602,
+        "h": 14
+      },
+      {
+        "angle": -11.06432049562911,
+        "n": 4,
+        "res": 2.3060605721634144,
+        "h": 83
+      }
+    ],
+    "applied": true,
+    "after": -0.5091530288785727,
+    "afterOk": true,
+    "alphaRatio": 0.9999497756203812
+  },
+  {
+    "name": "yazz",
+    "variant": "plus10",
+    "estimated": 8.479209793503507,
+    "estimateOk": true,
+    "rows": [
+      {
+        "angle": 8.000515350729112,
+        "n": 16,
+        "res": 0.3001082042979182,
+        "h": 9
+      },
+      {
+        "angle": 8.787818077466182,
+        "n": 4,
+        "res": 0.5403614310722742,
+        "h": 13
+      },
+      {
+        "angle": 8.760063388947506,
+        "n": 4,
+        "res": 1.4577265912079995,
+        "h": 76
+      }
+    ],
+    "applied": true,
+    "after": -0.5092962644204149,
+    "afterOk": true,
+    "alphaRatio": 0.9999744467501113
+  },
+  {
+    "name": "yazz",
+    "variant": "small",
+    "estimated": -1.994016971077037,
+    "estimateOk": true,
+    "rows": [
+      {
+        "angle": -1.585046604164341,
+        "n": 4,
+        "res": 0.2316318940474768,
+        "h": 9
+      },
+      {
+        "angle": -2.1998129569914386,
+        "n": 4,
+        "res": 0.471929567756216,
+        "h": 53
+      }
+    ],
+    "applied": true,
+    "after": 0,
+    "afterOk": true,
+    "alphaRatio": 0.9999353308902781
+  },
+  {
+    "name": "yazz",
+    "variant": "large",
+    "estimated": -1.9267950256410429,
+    "estimateOk": true,
+    "rows": [
+      {
+        "angle": -1.9006072075972698,
+        "n": 18,
+        "res": 0.5296115909686334,
+        "h": 11
+      },
+      {
+        "angle": -1.6500799423964294,
+        "n": 4,
+        "res": 0.051448031853534186,
+        "h": 17
+      },
+      {
+        "angle": -2.0891705969878283,
+        "n": 4,
+        "res": 0.17744673644058623,
+        "h": 94
+      }
+    ],
+    "applied": true,
+    "after": -0.21531970240825438,
+    "afterOk": true,
+    "alphaRatio": 0.9999571843046675
+  }
+]

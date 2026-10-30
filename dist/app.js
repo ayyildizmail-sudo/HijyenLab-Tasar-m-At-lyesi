@@ -278,7 +278,7 @@ async function extractPhotoInk(img){
  const candidates=LightSurface.propose(sc.getImageData(0,0,small.width,small.height).data,small.width,small.height,img.width,img.height);small.width=small.height=1;
  if(candidates.length!==1||ticket!==loading)return null;
  const candidate=candidates[0],b=candidate.box,c=document.createElement('canvas');c.width=b[2]-b[0];c.height=b[3]-b[1];const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(img,b[0],b[1],c.width,c.height,0,0,c.width,c.height);
- const result=LightSurface.extractCrop(cx.getImageData(0,0,c.width,c.height).data,c.width,c.height,candidate);if(!result.ok||ticket!==loading){c.width=c.height=1;return null;}
- cx.putImageData(new ImageData(result.data,c.width,c.height),0,0);const blob=await new Promise(resolve=>c.toBlob(resolve,'image/png'));c.width=c.height=1;if(!blob||ticket!==loading)return null;
+ let result=LightSurface.extractCrop(cx.getImageData(0,0,c.width,c.height).data,c.width,c.height,candidate);if(!result.ok||ticket!==loading){c.width=c.height=1;return null;}
+ result=MarkOrientation.correct(result);c.width=result.width;c.height=result.height;cx.putImageData(new ImageData(result.data,c.width,c.height),0,0);const blob=await new Promise(resolve=>c.toBlob(resolve,'image/png'));c.width=c.height=1;if(!blob||ticket!==loading)return null;
  return {file:new File([blob],'acik-yuzey-marka-onerisi.png',{type:'image/png'}),background:'#ffffff',whiteCarrier:true,processing:result.metadata};
 }

@@ -1,3 +1,9 @@
+# Güncel demo: V30 — otomatik eğiklik düzeltme
+
+Açık yüzeyden çıkarılan marka önerisinde, iki bağımsız yazı satırının yönü uyuşuyorsa uygulama tüm logoyu otomatik düzleştirir. Simgeler ve yazılar birlikte döner; elle açı girilmesi gerekmez. Güvenilir açı bulunamazsa zorla dönüş yapılmaz. Bu özellik dönüş açısını düzeltir; tam perspektif veya kavis düzeltmesi değildir. Özgün fotoğrafla karşılaştırma adımı korunur.
+
+Önceki sürüm notları aşağıdadır.
+
 # Güncel demo: V29 — açık yüzeyde marka önerisi
 
 V28’de reddedilen bazı beyaz ürün/peçete fotoğrafları için, mevcut çalışan yolların ardından ayrı bir yerel marka alanı önerisi denenir. Özgün piksel bölgesi ayrıştırılır; yazı yeniden çizilmez. Tek aday ve kalite kontrolleri sağlandığında orijinal/öneri karşılaştırması gösterilir; müşteri onayı olmadan ambalaja uygulanmaz. Genel marka anlama, eğik/kavisli yüzeyin eksiksiz düzeltilmesi ve baskıya hazır grafik garantisi yoktur. Birden çok aday veya eksik maske güvenli biçimde durur. Fotoğraf rengi yaklaşık, önizleme beyaz zeminde sınırlıdır.

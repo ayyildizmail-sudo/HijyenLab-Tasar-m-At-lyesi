@@ -1,0 +1,37 @@
+{
+  "one": {
+    "ok": false,
+    "reason": "Fewer than two independent text-like rows",
+    "applied": false,
+    "unchanged": true,
+    "rows": [
+      8.450698893602048
+    ]
+  },
+  "conflicting": {
+    "ok": false,
+    "reason": "Row orientation disagreement",
+    "applied": false,
+    "unchanged": true,
+    "rows": [
+      -10.203973721731684,
+      10.203973721731684
+    ]
+  },
+  "blank": {
+    "ok": false,
+    "reason": "Fewer than two independent text-like rows",
+    "applied": false,
+    "unchanged": true,
+    "rows": []
+  },
+  "agree": {
+    "ok": true,
+    "applied": true,
+    "unchanged": false,
+    "rows": [
+      8.450698893602048,
+      8.450698893602048
+    ]
+  }
+}
