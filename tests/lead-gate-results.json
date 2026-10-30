@@ -32,7 +32,15 @@
     "status": "PASS"
   },
   {
-    "name": "Missing district rejected",
+    "name": "Muğla missing district rejected",
+    "status": "PASS"
+  },
+  {
+    "name": "Non-Muğla blank district accepted",
+    "status": "PASS"
+  },
+  {
+    "name": "Unknown province rejected",
     "status": "PASS"
   },
   {

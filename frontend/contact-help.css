@@ -1,0 +1,41 @@
+/* Reserved footer space + scroll clearance protect the primary action. */
+body.hasContactHelp { padding-bottom: calc(var(--contact-help-height, 130px) + 16px); }
+html:has(body.hasContactHelp) { scroll-padding-bottom: calc(var(--contact-help-height, 130px) + 20px); }
+body.hasContactHelp main :is(button, input, select, textarea, a, summary) { scroll-margin-bottom: calc(var(--contact-help-height, 130px) + 20px); }
+#contactHelp { position: fixed; inset: auto 0 0; z-index: 20; border-top: 1px solid #d8e2ed; background: #fff; color: #17324b; padding: 10px max(16px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); box-shadow: 0 -2px 12px #17324b0b; }
+#contactHelp .contactHelpInner { max-width: 912px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 6px 16px; flex-wrap: wrap; }
+#contactHelp strong { font-size: 14px; }
+#contactHelp .contactHelpActions { display: flex; gap: 10px; }
+#contactHelp :is(a, button) { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; box-sizing: border-box; padding: 9px 15px; border: 1px solid #8298ae; border-radius: 9px; color: #17324b; background: #fff; text-decoration: none; font-size: 15px; font-weight: 700; line-height: 1.35; }
+#contactHelp #contactWhatsApp { color: #075b38; border-color: #8ab6a3; background: #f1faf5; }
+#contactHelp :is(a, button):hover { text-decoration: underline; }
+#contactHelp :is(a, button):focus-visible { outline: 3px solid #075dc9; outline-offset: 3px; }
+#contactHelp p { flex-basis: 100%; margin: 0; color: #526577; font-size: 12px; line-height: 1.45; }
+body.contactHelpEditing { padding-bottom: 0; }
+body.contactHelpEditing #contactHelp { position: static; }
+@media (max-width: 600px) {
+  #contactHelp .contactHelpInner { gap: 6px; }
+  #contactHelp strong { font-size: 13px; }
+  #contactHelp .contactHelpActions { width: 100%; gap: 8px; }
+  #contactHelp :is(a, button) { flex: 1; padding: 9px 6px; font-size: 14px; }
+  #contactHelp p { font-size: 11px; }
+}
+@media (max-height: 500px), (max-width: 320px) {
+  body.hasContactHelp { padding-bottom: 0; }
+  #contactHelp { position: static; }
+}
+@media print { #contactHelp { display: none; } body.hasContactHelp { padding-bottom: 0; } }
+
+#contactHelpDialog { box-sizing: border-box; width: min(560px, calc(100% - 24px)); max-height: calc(100dvh - 32px); margin: auto; overflow-y: auto; border: 1px solid #b9cadc; border-radius: 16px; padding: 22px; color: #17324b; background: white; }
+#contactHelpDialog::backdrop { background: #102f5966; }
+#contactHelpDialog h2 { margin: 0 0 12px; font-size: 22px; }
+#contactHelpDialog p { font-size: 14px; line-height: 1.5; }
+#contactHelpDialog label { display: block; margin: 16px 0 8px; font-weight: 700; }
+#contactHelpDialog textarea { box-sizing: border-box; display: block; width: 100%; min-height: 140px; max-height: 40dvh; resize: vertical; padding: 12px; font: 16px/1.5 Arial, sans-serif; color: #17324b; border: 1px solid #8298ae; border-radius: 8px; }
+#contactHelpDialog .contactDraftActions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+#contactHelpDialog :is(button, a) { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; box-sizing: border-box; padding: 10px 14px; border: 1px solid #8298ae; border-radius: 8px; font-size: 15px; color: #17324b; background: white; text-decoration: none; }
+#contactHelpDialog #contactProceed { color: white; background: #075b38; border-color: #075b38; }
+#contactHelpDialog #contactProceed[aria-disabled=true] { opacity: .55; }
+#contactHelpDialog :is(button, a, textarea):focus-visible { outline: 3px solid #075dc9; outline-offset: 3px; }
+@media (max-width: 600px) { #contactHelpDialog { padding: 18px; } }
+@media print { #contactHelpDialog { display: none; } }

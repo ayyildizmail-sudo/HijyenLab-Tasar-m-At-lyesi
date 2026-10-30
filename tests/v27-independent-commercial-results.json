@@ -12,7 +12,7 @@
     "status": "PASS"
   },
   {
-    "id": "freight_label_uses_same_policy",
+    "id": "freight_total_uses_same_policy_without_form_tariff",
     "status": "PASS"
   },
   {

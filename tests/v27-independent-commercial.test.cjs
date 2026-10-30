@@ -15,7 +15,7 @@ test('unknown_plate_not_reported_as_final_zero',()=>{assert(c.latest.plateUnknow
 el('inks').value='2';c.calculateRaw();
 const texts=()=>elements.breakdown.children.flatMap(r=>r.children.flatMap(e=>[e.textContent,...(e.children||[]).map(n=>n.textContent)])).filter(Boolean).join('|');
 test('plate_label_uses_same_policy',()=>assert(texts().includes('1234')));
-test('freight_label_uses_same_policy',()=>assert(texts().includes('222')));
+test('freight_total_uses_same_policy_without_form_tariff',()=>{assert.equal(c.latest.shipping,20*22200);assert(texts().includes('4440'));assert(texts().includes('İstanbul'));});
 test('production_rules_nested_immutable',()=>{const original=vm.runInContext('COMMERCIAL_RULES',c);assert(Object.isFrozen(original));assert(Object.isFrozen(original.minimum));});
 test('quote_snapshot_deeply_immutable',()=>{const snap=c.makeQuoteSnapshot();assert(Object.isFrozen(snap));assert(Object.isFrozen(snap.rules));assert(Object.isFrozen(snap.rules.minimum));assert(Object.isFrozen(snap.price));});
 const a=JSON.stringify(c.makeQuoteSnapshot());rules.revision='qa-B';rules.platePerInkKurus=123500;const b=JSON.stringify(c.makeQuoteSnapshot());
