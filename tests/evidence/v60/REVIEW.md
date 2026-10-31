@@ -1,0 +1,20 @@
+# V60 — customer-declared color quote and approved contact icons
+
+User approved the two-field no-upload proposal and final iOS-style icons, then explicitly requested testing and a shareable release. This adds a distinct customer-declared quote source; it does not mark a blank package as uploaded/approved artwork.
+
+## Flow and protections
+The existing no-logo collapse becomes “Görsel yüklemeden fiyat al”. White/colored ground plus explicit total nonwhite ink count 1–3; no default ink count. Total includes both sides and colored ground, same ink once. Four-plus/unknown prepare a user-editable contact draft and cannot issue an automatic quote. No messages are sent automatically. Existing six-product integer pricing, minima/cartons, scent, contact and delivery requirements are reused.
+Quote snapshots validate declaration exact keys/types, current canonical product tariff, price arithmetic, lead/fragrance and shared location rules. They contain null design/rear and explicit designApproval=false. JPG says customer-declared estimate and clearly labels blank reference/no logo or ground tone applied. Unknown tone is not invented. Old quote jobs cannot overwrite newer ones.
+Product changes preserve color choices but invalidate fragrance/quote and refresh rules/assets. Upload/reset and printed/unprinted transitions clear declarations before processing; uploaded-image guards still apply. Existing artwork or processing sources cannot enter the blank declaration route without a reset. Declared choices are deliberately not persisted as an approved draft; the old opt-in draft is not overwritten by a fabricated design.
+
+Icons: existing SVGs/handlers, WhatsApp solid green, phone solid blue, white glyphs, 48px rounded squares with 12px corner radius and 32px edge gap. Footer clearance, focus, safe-area and keyboard/narrow-screen behavior retained.
+
+## Verification
+Final aggregate: 370 PASS, 0 FAIL, 0 SKIP with private regression fixtures supplied. Independent malformed/fabricated-tariff and async-render tests cover fresh and stale tokens, new uploads, repeated submissions, contact/location/fragrance/product/count/rule edits. Existing isolated VM tests load the newly introduced context rather than weakening their artwork/unprinted assertions.
+Browser QA found and fixed a real boot observer loop before publication: redundant disabled writes triggered a cross-observer childList cycle. Equality guards and a permanent convergence regression now prevent it (21 writes/pending before, 1 write/settled after). Fresh local Chrome boot verified after closing the old starved test tab. This defect was never deployed.
+Actual local Chrome: declared BM12 colored/2 inks → fragrance/contact/Ankara/10,000 → 40,000 TL excluding VAT, correct 2,000 cliché and 5,000 freight; JPG download opened and visually checked. Four-plus opens local editable draft; cancel leaves continuation disabled. Back/collapse/reopen preserve selections. BM21 switch preserves choices and invalidates old quote. Upload after manual one-color selection exits declaration and measures actual synthetic two-color artwork, advances to rear. BM21 unprinted returns fixed Green Tea/1,000, zero cliché and 1,600 TL including Ankara freight before VAT, with successful quote. A 388 CSS-pixel browser view has no horizontal overflow; icons measure 48×48, 12px corners, 32px gap.
+
+## Limits
+Physical iPhone/Safari not tested; narrow Chrome is not an iOS certification. Declared pricing is based on customer statements, not graphic verification or a final order. Existing general photo-segmentation and tiny-ink estimator limits remain. No customer/accounting records, mail, or live lead/admin activation changed.
+
+Final release checks: TypeScript no-emit PASS; guarded build PASS; source/dist parity and git diff whitespace PASS. Final prepared assets cold-loaded in Chrome without the observer loop; declared back button correctly reads “Renk seçimine dön”. Earlier failing legacy fixtures and the gate's new .mjs fixture handling were repaired without skipping cases or changing the protected business expectations.

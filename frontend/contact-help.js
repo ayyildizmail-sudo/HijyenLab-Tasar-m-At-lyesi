@@ -27,6 +27,11 @@
     if (!showDifferentProductDraft) return false;
     return showDifferentProductDraft(differentProductMessage(description));
   }
+  function openDeclaredQuoteDraft(context={}) {
+    if(!showDifferentProductDraft||!['white','colored'].includes(context.ground)||![1,2,3,'4+','unknown'].includes(context.count))return false;
+    const product=typeof context.product==='string'?context.product.replace(/[\r\n\t]+/g,' ').slice(0,140):'';
+    return showDifferentProductDraft('Merhaba, görsel yüklemeden fiyat için yardım istiyorum.\nÜrün: '+product+'\nAmbalaj zemini: '+(context.ground==='white'?'Beyaz':'Renkli')+'\nToplam baskı rengi (beyanım): '+(context.count==='unknown'?'Emin değilim':context.count)+'.\nLogo ve grafik kontrolü henüz yapılmadı.');
+  }
   const SPECIAL_GROUPS = Object.freeze({ reseller: 'Satıcı Müşteri', public_institution: 'Kamu Kurumu' });
   function specialQuoteMessage(group, context = {}) {
     if (!Object.hasOwn(SPECIAL_GROUPS, group)) return null;
@@ -241,7 +246,7 @@
     if (root.ResizeObserver) new root.ResizeObserver(measure).observe(bar);
     measure();
   }
-  const api = Object.freeze({ CONTACT, links, messageLink, buildMessage, differentProductMessage, openDifferentProductDraft, openSummaryDraft, specialQuoteMessage, openSpecialQuoteDraft, mount });
+  const api = Object.freeze({ CONTACT, links, messageLink, buildMessage, differentProductMessage, openDifferentProductDraft, openSummaryDraft, specialQuoteMessage, openSpecialQuoteDraft, openDeclaredQuoteDraft, mount });
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else {
     root.HijyenLabContactHelp = api;

@@ -1,0 +1,38 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const D=require('../frontend/declared-quote.js'),C=require('../frontend/product-catalog.js'),S=require('../frontend/processing-session.js'),P=require('../frontend/print-policy.js');
+const app=fs.readFileSync('frontend/app.js','utf8'),pricingLine=app.split('\n').find(x=>x.startsWith('function pricing('));
+const ctx={PrintPolicy:P};vm.createContext(ctx);vm.runInContext(pricingLine,ctx);
+function snapshot(product,ground,count,province='Muğla',district='Bodrum'){
+ const rules=C.get(product).priceRules,q=rules.minimum[ground],price=ctx.pricing(q,ground==='white'?'#ffffff':'declared-colored',province,district,'new',count,rules);
+ return {quoteSource:'customer-declared',printMode:'printed',product,declaration:D.create(ground,count),design:null,rear:null,designApproval:false,ruleVersion:rules.revision,quantity:String(q),inkCount:String(count),cliche:'new',rules,price,lead:{customer:'Test firma',contact:'Test kişi',phone:'05551234567',province,district},fragrance:{id:'green_tea',productFamily:product==='BM21'?'wet_wipes':'towels'}};
+}
+for(const p of C.items)for(const ground of ['white','colored'])for(const count of [1,2,3])test(`${p.id} ${ground} ${count}: same catalog arithmetic and independent token`,()=>{
+ const s=snapshot(p.id,ground,count),r=p.priceRules;assert(D.snapshotValid(s));assert.equal(s.price.plate,count*r.platePerInkKurus);assert.equal(s.price.base+s.price.color,Number(s.quantity)*(ground==='white'?r.whiteUnitKurus:r.coloredUnitKurus));assert.equal(s.price.shipping,0);
+ const other=snapshot(p.id,ground,count,'İstanbul','');assert(D.snapshotValid(other));assert.equal(other.price.shipping,Math.ceil(Number(s.quantity)/r.unitsPerBox)*r.freightPerBoxKurus);
+ assert.throws(()=>ctx.pricing(Number(s.quantity)-1,ground==='white'?'#ffffff':'declared-colored','Muğla','Bodrum','new',count,r));
+ const session=S.create();session.touchDesign('blank-reference');const t=session.quoteToken(s);assert(t);assert.equal(session.isApproved('blank-reference'),false);assert(session.isQuoteCurrent(t,s));
+ const newer=session.quoteToken(s);assert(!session.isQuoteCurrent(t,s));assert(session.isQuoteCurrent(newer,s));session.cancel();assert(!session.isQuoteCurrent(newer,s));
+});
+test('strict statement: unknown never becomes zero, four never becomes three',()=>{for(const count of [null,undefined,0,4,5,'1','unknown','4+',NaN,Infinity,-1,1.5])assert.equal(D.valid(D.create('white',count)),false);for(const ground of ['#ffffff','color',null,''])assert(!D.valid(D.create(ground,1)));assert(!D.valid({...D.create('white',1),approved:true}));assert(!D.valid(Object.assign([],D.create('white',1))));});
+test('snapshot rejects forgery, cross-product rules, missing contact/fragrance and stale prices',()=>{const good=snapshot('BM12','white',1);for(const patch of [{product:'BM21'},{quantity:['5200']},{declaration:D.create('colored',1)},{declaration:D.create('white',4)},{design:'fake-approved-logo'},{designApproval:true},{rear:{}},{ruleVersion:'old'},{inkCount:'0'},{lead:{...good.lead,phone:''}},{lead:{...good.lead,customer:''}},{lead:{...good.lead,contact:''}},{fragrance:null},{price:{...good.price,plate:0}}]){const bad={...good,...patch};assert(!D.snapshotValid(bad),JSON.stringify(patch));assert.equal(S.create().quoteToken(bad),null);}});
+test('normal uploaded path still needs artwork approval and three-ink limit',()=>{assert.equal(S.create().quoteToken({printMode:'printed',quoteSource:'uploaded-artwork'}),null);for(const p of C.items)assert.throws(()=>ctx.pricing(p.priceRules.minimum.white,'#ffffff','Muğla','Bodrum','new',4,p.priceRules));});
+test('new uploads exit before all await points; drafts are explicitly omitted; existing contact gates retained',()=>{const lifecycle=fs.readFileSync('frontend/processing-lifecycle.js','utf8'),route=lifecycle.slice(lifecycle.indexOf('async function routeUploadedFile'),lifecycle.indexOf('function restoreProcessingResult'));assert(route.indexOf('clearDeclaration()')<route.indexOf('await '));assert(app.includes('if(n===3&&!validateLead(true))return'));assert(app.includes('processingSession.isQuoteCurrent(globalThis.currentRenderedQuoteToken,makeQuoteSnapshot())'));assert(fs.readFileSync('frontend/draft-ui.js','utf8').includes('Görselsiz renk beyanı bu cihazda taslak olarak saklanmaz'));assert(app.includes('Logo ve zemin tonu uygulanmamıştır'));assert(app.includes('state.logo||state.photoLayout||state.sourcePhoto||state.designProcessing||state.designBlocked||state.text?.trim()'));});
+test('rapid product switches preserve declaration, reset quantity/fragrance and reject older assets',async()=>{
+ const source=fs.readFileSync('frontend/product-ui.js','utf8').split('\n').find(x=>x.startsWith('async function selectProduct('));let resets=0;const loads=[];
+ const state={quoteSource:'customer-declared',declaration:D.create('colored',3),requestedQuantity:20000,size:100,text:'',logo:null,photoLayout:null};
+ const scope={state,ProductCatalog:C,selectedProductId:'BM12',productAssetOperation:0,latest:{old:true},history:[{}],packageImage:{old:true},tintedMaterialCache:{},invalidateQuote(){},currentPrintArea:()=>({top:0,bottom:500}),resetFragrance(){resets++;},go(){},syncProductLabels(){},syncProductReview(){},refresh(){},status(){},isDeclaredQuote:()=>true,loadImage:()=>new Promise(resolve=>loads.push(resolve)),containLogoPlacement(){}};
+ vm.createContext(scope);vm.runInContext(source,scope);const first=scope.selectProduct('BM15'),second=scope.selectProduct('BM21');
+ assert.equal(state.quoteSource,'customer-declared');assert.deepEqual(state.declaration,D.create('colored',3));assert.equal(state.requestedQuantity,null);assert.equal(scope.latest,null);assert.equal(resets,2);
+ loads[1]({newest:true});await second;loads[0]({stale:true});await first;assert.equal(scope.selectedProductId,'BM21');assert.equal(scope.packageImage.newest,true);assert.equal(state.productAssetPending,false);
+});
+
+test('declared token uses canonical shipping validation including required Muğla district',()=>{for(const [province,district] of [['Unknown',''],['Muğla',''],['Muğla','Unknown'],['Muğla',null]]){const bad=snapshot('BM12','white',1,province,district);assert(!D.snapshotValid(bad));assert.equal(S.create().quoteToken(bad),null);}for(const [province,district] of [['Muğla','Bodrum'],['Muğla','Menteşe'],['İstanbul','']])assert(D.snapshotValid(snapshot('BM12','white',1,province,district)));});
+test('declaration observer settles: disabled mutation cannot loop through customer-focus childList writes',()=>{
+ const source=fs.readFileSync('frontend/persona-ux.js','utf8'),fn=source.split('\n').find(x=>x.includes('function syncDeclaration(){'));
+ // Browser property assignment emits an attribute mutation even for unchanged values.
+ // CustomerFocus observes disabled and updates summary text (childList); Persona observes childList.
+ const queue=[];let disabled=false,writes=0;
+ const proceed={get disabled(){return disabled;},set disabled(value){disabled=value;writes++;queue.push(()=>scope.syncDeclaration());}};
+ const attrs={};const scope={state:{},root:{DeclaredQuote:D},isDeclaredQuote:()=>false,proceed,choices:[{b:{getAttribute:k=>attrs[k],setAttribute:(k,v)=>attrs[k]=v},kind:'ground',value:'white'}]};vm.createContext(scope);vm.runInContext(fn,scope);scope.syncDeclaration();let turns=0;while(queue.length&&turns<20){turns++;queue.shift()();}assert.equal(queue.length,0,'observer microtasks must settle');assert.equal(writes,1,'unchanged disabled state must not write another mutation');scope.syncDeclaration();scope.syncDeclaration();assert.equal(writes,1);
+});

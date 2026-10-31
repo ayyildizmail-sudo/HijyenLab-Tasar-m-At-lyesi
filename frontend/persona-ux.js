@@ -38,10 +38,24 @@
     // Move the actual action, not a second upload trigger. Return to its exact original slot after opening.
     const home = make('span', 'personaActionHome'); home.hidden = true; action.before(home);
     const noLogo = make('details', 'personaNoLogo');
-    const noLogoTitle = make('summary', '', 'Logom hazır değil');
-    const noLogoText = make('p', '', 'Hazır grafik veya mevcut ürün fotoğrafı da yükleyebilirsiniz. Dosyanız yoksa hazırlık için yardım isteyebilirsiniz.');
-    const help = make('button', 'personaLogoHelp', 'Dosya için yardım iste'); help.type = 'button'; help.className = 'textButton';
-    help.onclick = () => get('contactWhatsApp')?.click(); noLogo.append(noLogoTitle, noLogoText, help);
+    const noLogoTitle = make('summary', '', 'Görsel yüklemeden fiyat al');
+    noLogo.append(noLogoTitle);
+    const declarationPanel=make('div','declarationPanel');declarationPanel.className='declarationPanel';
+    const groundGroup=make('fieldset'),groundLegend=make('legend','','Ambalaj zemini');groundGroup.append(groundLegend);
+    const countGroup=make('fieldset'),countLegend=make('legend','','Kaç renk baskı olacak?');countGroup.append(countLegend);
+    const choices=[];
+    function choose(kind,value,label,group){const b=make('button','',label);b.type='button';b.className='declarationChoice';b.setAttribute('aria-pressed','false');b.onclick=()=>{const d=state.declaration||root.DeclaredQuote.create();setDeclaration(kind==='ground'?value:d.ground,kind==='count'?value:d.count);syncDeclaration();};group.append(b);choices.push({b,kind,value});}
+    choose('ground','white','Beyaz',groundGroup);choose('ground','colored','Renkli',groundGroup);
+    for(const n of [1,2,3])choose('count',n,n+' renk',countGroup);
+    const note=make('p','','Beyazı saymayın. Renkli zemini ve iki yüzün baskısını toplam renk sayısına dahil edin; aynı rengi bir kez sayın.');note.className='hint';
+    const helpRow=make('div');helpRow.className='declarationHelp';
+    for(const [value,label] of [['4+','4 veya daha fazla'],['unknown','Emin değilim']]){const b=make('button','',label);b.type='button';b.className='textButton';b.onclick=()=>{const d=state.declaration||root.DeclaredQuote.create();setDeclaration(d.ground,value);syncDeclaration();root.HijyenLabContactHelp?.openDeclaredQuoteDraft({product:root.ProductCatalog.get(root.selectedProductId||'BM12').label,ground:d.ground,count:value});};helpRow.append(b);}
+    const proceed=make('button','declarationContinue','Devam et →');proceed.type='button';proceed.className='primary full';proceed.onclick=()=>continueDeclaredQuote();
+    const disclaimer=make('p','','Teklif, belirttiğiniz renk sayısına göre hazırlanır; görsel kontrolü yapılmış sayılmaz.');disclaimer.className='hint';
+    declarationPanel.append(groundGroup,countGroup,note,helpRow,proceed,disclaimer);noLogo.append(declarationPanel);
+    function syncDeclaration(){const active=typeof isDeclaredQuote==='function'&&isDeclaredQuote(),d=active?state.declaration:root.DeclaredQuote.create();for(const {b,kind,value} of choices){const pressed=String(d[kind]===value);if(b.getAttribute('aria-pressed')!==pressed)b.setAttribute('aria-pressed',pressed);}const disabled=!active||!root.DeclaredQuote.valid(d);if(proceed.disabled!==disabled)proceed.disabled=disabled;}
+    noLogo.addEventListener('toggle',()=>{if(noLogo.open&&!(typeof isDeclaredQuote==='function'&&isDeclaredQuote()))startDeclaredQuote();syncDeclaration();});
+
     const hint = get('welcomeUploadHint'); (hint || action).after(noLogo);
     const prompt = make('aside', 'personaDraftPrompt'); prompt.hidden = true; prompt.setAttribute('aria-label', 'İsteğe bağlı taslak saklama');
     const promptText = make('p', '', 'Daha sonra devam etmek ister misiniz? Taslak saklamayı siz açarsınız; ortak cihazda açmayın.');
@@ -71,7 +85,8 @@
       if (hint && action.nextElementSibling !== hint) action.after(hint);
       const helpAnchor = opening ? preview : (hint || action);
       if (helpAnchor.nextElementSibling !== noLogo) helpAnchor.after(noLogo);
-      hide(noLogo, !opening);
+      hide(noLogo, !opening||!!value.text?.trim()||(typeof rearHasContent==='function'&&rearHasContent())||!!root.MultiLogo?.has('front')||!!root.MultiLogo?.has('rear'));
+      syncDeclaration();
       const consented = !!get('draftConsent')?.checked, hasRestore = !!get('restoreDraft') && !get('restoreDraft').hidden;
       if (draftPromptEligible(value, { seen, consented, hasRestore, mode, designVisible: visible })) { seen = true; hide(prompt, false); }
       if (consented || hasRestore || !visible || mode === 'unprinted' || !meaningfulArtwork(value)) hide(prompt, true);

@@ -35,9 +35,11 @@ class Node {
   before(n) { const p=this.parentElement;n.detach();n.parentElement=p;p.children.splice(p.children.indexOf(this),0,n);n.moves++; }
   after(n) { const p=this.parentElement;n.detach();n.parentElement=p;p.children.splice(p.children.indexOf(this)+1,0,n);n.moves++; }
   setAttribute(k,v){this.attrs[k]=v;}
+  getAttribute(k){return this.attrs[k]??null;}
   get nextElementSibling(){return this.parentElement?.children[this.parentElement.children.indexOf(this)+1]||null;}
   focus(){this.focused=true;}
   click(){this.onclick?.();}
+  addEventListener(name,fn){this['on'+name]=fn;}
 }
 const main=new Node('main'), nodes={}, events={}; let sync, observers=0, mode='printed';
 function add(id,tag='div',parent=main){const n=new Node(tag);n.id=id;nodes[id]=n;parent.append(n);return n;}
@@ -46,9 +48,9 @@ const picker=add('picker'),design=add('design'),visual=add('visual','div',design
 const draft=add('welcomeDraftOptions','details'),consent=add('draftConsent','input',draft),restore=add('restoreDraft','button',draft);consent.checked=false;restore.hidden=true;
 const sharing=add('sharing'),contact=add('contactWhatsApp','button');let helpCalls=0;contact.onclick=()=>helpCalls++;
 const doc={readyState:'complete',createElement:tag=>new Node(tag),getElementById:id=>find(main,id),querySelector:s=>({'main':main,'.productPicker':picker,'.simplePrimary':action,'.preview':preview,'#summaryDiscussion .hint':sharing}[s]||null),addEventListener:(name,fn)=>{(events[name]??=[]).push(fn);}};
-const state={bg:'#ffffff',bgPantone:''}, browser={document:doc,ProductCatalog:catalog,selectedProductId:'BM12',HijyenLabPrintMode:{get:()=>mode},HijyenLabWelcome:{isOpening:(v,visible,blank)=>visible&&!blank&&!v.logo&&!v.photoLayout&&!v.designProcessing&&!v.designBlocked&&!v.sourcePhoto&&!v.screenSelectionRequired},addEventListener:(name,fn)=>{events[name]=[fn];},MutationObserver:class{constructor(fn){sync=fn;observers++;}observe(){}}};
+const state={bg:'#ffffff',bgPantone:''}, browser={document:doc,ProductCatalog:catalog,DeclaredQuote:require('../frontend/declared-quote.js'),selectedProductId:'BM12',HijyenLabPrintMode:{get:()=>mode},HijyenLabWelcome:{isOpening:(v,visible,blank)=>visible&&!blank&&!v.logo&&!v.photoLayout&&!v.designProcessing&&!v.designBlocked&&!v.sourcePhoto&&!v.screenSelectionRequired},addEventListener:(name,fn)=>{events[name]=[fn];},MutationObserver:class{constructor(fn){sync=fn;observers++;}observe(){}}};
 const actualGroundFunction=fs.readFileSync('frontend/app.js','utf8').split('\n').find(line=>line.startsWith('function effectiveBackground()'));
-vm.runInNewContext(actualGroundFunction+'\n'+source,{window:browser,state,isUnprinted:()=>mode==='unprinted'});
+vm.runInNewContext(actualGroundFunction+'\n'+source,{window:browser,state,isUnprinted:()=>mode==='unprinted',isDeclaredQuote:()=>state.quoteSource==='customer-declared'});
 const get=id=>doc.getElementById(id),at=n=>visual.children.indexOf(n);
 state.bg='#FFFFFF';sync();assert.match(get('personaMinimum').textContent,/Beyaz.*5.200/,'uppercase white renders the white minimum in the mounted UI');
 state.bg='#F5F6FA';sync();assert.match(get('personaMinimum').textContent,/Renkli.*10.000/,'explicit pale grey retains coloured tariff');
@@ -57,7 +59,7 @@ assert(at(action)<at(preview));assert(at(get('personaNoLogo'))>at(preview),'opti
 assert.equal(get('personaNoLogo').hidden,false);assert.match(sharing.textContent,/1 · JPG’yi kaydet → 2 · WhatsApp’ı aç → 3 · Görseli ekle/);
 let moves=action.moves+hint.moves+get('personaNoLogo').moves;sync();sync();assert.equal(action.moves+hint.moves+get('personaNoLogo').moves,moves,'stable observer no node churn');
 browser.HijyenLabPersonaUX.mount(doc);assert.equal(observers,1,'idempotent mount');
-get('personaLogoHelp').click();assert.equal(helpCalls,1,'existing general help only');
+assert.equal(get('declarationContinue').disabled,true,'no default count');state.quoteSource='customer-declared';state.declaration=browser.DeclaredQuote.create('white',2);get('personaNoLogo').open=false;get('personaNoLogo').ontoggle();assert.equal(get('personaNoLogo').open,false,'active declaration can collapse without reopening');delete state.quoteSource;delete state.declaration;assert.equal(get('personaNoLogo').children[0].textContent,'Görsel yüklemeden fiyat al');
 state.designProcessing=true;sync();assert.equal(get('personaProductFacts').parentElement,picker,'facts return to picker outside opening');assert(at(action)>at(preview));assert.equal(get('personaDraftPrompt').hidden,true);
 state.designProcessing=false;state.designBlocked=true;sync();assert.equal(get('personaDraftPrompt').hidden,true);
 state.designBlocked=false;state.logo='real';sync();assert.equal(get('personaDraftPrompt').hidden,false);assert.equal(consent.checked,false);

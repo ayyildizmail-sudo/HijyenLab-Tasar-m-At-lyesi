@@ -13,7 +13,7 @@ function syncUnprintedUI(){
  document.querySelector('#productReview p').textContent=blank?'Ürün görseli yüklenemedi. Yeniden yükleyin.':printedProductReview;
  modePicker.querySelectorAll('input').forEach(input=>{input.checked=input.value===(blank?'unprinted':'printed');});$('unprintedInfo').hidden=!blank;cartonLabel.hidden=!blank;$('qty').closest('label').hidden=blank;
  $('next').textContent=blank?'Fiyatı gör →':'Ön yüzü onayla';
- if(!blank)return;
+ if(!blank){if(typeof isDeclaredQuote==='function'&&isDeclaredQuote()){$('next').textContent='Devam et →';$('previewCaption').textContent='Boş ambalaj referansı · Logo ve zemin tonu uygulanmamıştır';document.querySelector('.simpleQuoteNote').textContent='Müşteri renk beyanına göre ön teklif; görsel kontrolü yapılmamıştır.';}return;}
  cartonInput.max=String(Math.floor(rules.maxQuantity/rules.unitsPerBox));const q=state.requestedQuantity===null?rules.unitsPerBox:state.requestedQuantity;if(document.activeElement!==cartonInput)cartonInput.value=Number.isFinite(q)?String(q/rules.unitsPerBox):'';
  $('previewCaption').textContent='Baskısız · Beyaz ambalaj · '+fixedLabel+' kokulu';$('minimumNote').textContent='En az 1 koli · '+rules.unitsPerBox.toLocaleString('tr-TR')+' adet / koli · '+fixedLabel+' kokulu';
  for(const el of document.querySelectorAll('[data-commercial-prices]'))el.textContent='Baskısız beyaz ürün: '+money(rules.whiteUnitKurus)+'/adet.';
@@ -22,6 +22,7 @@ function syncUnprintedUI(){
 }
 async function setPrintMode(mode){
  if(!['printed','unprinted'].includes(mode))throw Error('Geçersiz baskı seçimi.');if(mode===globalThis.selectedPrintMode){syncUnprintedUI();return;}
+ if(typeof isDeclaredQuote==='function'&&isDeclaredQuote())clearDeclaration();
  if(mode==='unprinted')printedModeMemory={state:{...state},history:[...history],logoImg,photoImg,lastUploadedFile,productId:globalThis.selectedProductId};
  cancelCurrentProcessing('print-mode-change');rearPreviewGeneration++;hideRearPreview();hideFragrance();resetRegionEditor();
  globalThis.selectedPrintMode=mode;resetFragrance();latest=null;approvedDesignFingerprint=null;history=[];

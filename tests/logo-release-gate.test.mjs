@@ -13,10 +13,10 @@ try {
   const gateSource=await readFile(new URL('../scripts/check-logo-regressions.mjs',import.meta.url),'utf8');
   const inputs=[...gateSource.matchAll(/'((?:tests\/)[^']+)'/g)].map(match=>match[1]);
   assert(inputs.includes('tests/sponsor-source.test.cjs'));assert(inputs.includes('tests/fixtures/sponsor-source/packet.jpeg'));
-  for(const file of inputs){await mkdir(dirname(join(tmp,file)),{recursive:true});await writeFile(join(tmp,file),file.endsWith('.cjs')?'process.exit(7);':'required fixture');}
+  for(const file of inputs){await mkdir(dirname(join(tmp,file)),{recursive:true});await writeFile(join(tmp,file),/\.[cm]js$/.test(file)?'process.exit(7);':'required fixture');}
   const failed=run();assert.notEqual(failed.status,0);assert.match(failed.stderr,/Logo regression gate failed/);
   assert.equal(await readFile(join(tmp,'public/sentinel.txt'),'utf8'),'untouched');
-  for(const file of inputs.filter(x=>x.endsWith('.cjs')))await writeFile(join(tmp,file),'process.exit(0);');
+  for(const file of inputs.filter(x=>/\.[cm]js$/.test(x)))await writeFile(join(tmp,file),'process.exit(0);');
   await mkdir(join(tmp,'frontend'));await writeFile(join(tmp,'frontend/index.html'),'frontend only');
   const passed=run();assert.equal(passed.status,0,passed.stderr);assert.equal(await readFile(join(tmp,'public/index.html'),'utf8'),'frontend only');
   await assert.rejects(access(join(tmp,'public/tests')));

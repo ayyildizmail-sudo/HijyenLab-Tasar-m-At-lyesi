@@ -64,7 +64,7 @@ test('draft colour spelling is canonical without changing white, grey or pastel 
  for(const [input,expected,isWhite] of [['#FFFFFF','#ffffff',true],['#F5F6FA','#f5f6fa',false],['#FAF7E8','#faf7e8',false],['#808080','#808080',false]]){
   const p=payload();p.design.bg=input;p.design.color='#AABBCC';p.rear.inkColor='#ABCDEF';
   const normalized=D.validate(p);assert.equal(normalized.design.bg,expected);assert.equal(normalized.design.color,'#aabbcc');assert.equal(normalized.rear.inkColor,'#abcdef');
-  const scope={state:{...normalized.design,photoLayout:null},isUnprinted:()=>false};vm.createContext(scope);vm.runInContext(groundFunction,scope);
+  const scope={state:{...normalized.design,photoLayout:null},isUnprinted:()=>false,isDeclaredQuote:()=>false};vm.createContext(scope);vm.runInContext(groundFunction,scope);
   assert.equal(scope.effectiveBackground()==='#ffffff',isWhite,'rendered RGB and commercial white identity must agree');
   const idb=fakeIDB(),store=D.createStore({indexedDB:idb,now:()=>100});await store.save(p);
   // Simulate an otherwise valid older envelope with upper-case CSS colour strings.

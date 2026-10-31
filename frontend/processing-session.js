@@ -13,6 +13,7 @@ function unprintedQuote(snapshot){
  const units={BM12:400,BM11:400,BM13:400,BM15:500,BM545:625,BM21:1000}[snapshot.product],quantity=Number(snapshot.quantity);
  return !!units&&Number.isSafeInteger(quantity)&&quantity>=units&&quantity<=1000000&&quantity%units===0;
 }
+function declaredQuote(snapshot){const validator=typeof module!=='undefined'&&module.exports?require('./declared-quote.js'):root.DeclaredQuote;return !!validator?.snapshotValid(snapshot);}
 function create(){
  const quoteTokens=new WeakSet();
  let quoteJobSequence=0;
@@ -34,8 +35,8 @@ function create(){
   approve(value){if(status!=='ready'||!result||typeof value!=='string'||value!==fingerprint)return false;approval={operationId,designRevision,fingerprint:value};result.approval={required:true,approvedRevision:designRevision};return true;},
   isApproved(value){return status==='ready'&&!!approval&&approval.operationId===operationId&&approval.designRevision===designRevision&&approval.fingerprint===fingerprint&&value===fingerprint;},
   invalidateQuotes(){quoteJobSequence++;return quoteJobSequence;},
-  quoteToken(snapshot){const blank=unprintedQuote(snapshot);if(!blank&&!api.isApproved(fingerprint))return null;if(snapshot?.printMode==='unprinted'&&!blank)return null;quoteJobSequence++;const token=Object.freeze({operationId,designRevision,fingerprint,quoteJobSequence,unprinted:blank,snapshot:stable(snapshot)});quoteTokens.add(token);return token;},
-  isQuoteCurrent(token,snapshot){return !!token&&quoteTokens.has(token)&&token.quoteJobSequence===quoteJobSequence&&(token.unprinted?unprintedQuote(snapshot):api.isApproved(fingerprint))&&token.operationId===operationId&&token.designRevision===designRevision&&token.fingerprint===fingerprint&&token.snapshot===stable(snapshot);},
+  quoteToken(snapshot){const blank=unprintedQuote(snapshot),declared=declaredQuote(snapshot);if(snapshot?.quoteSource==='customer-declared'&&!declared)return null;if(!blank&&!declared&&!api.isApproved(fingerprint))return null;if(snapshot?.printMode==='unprinted'&&!blank)return null;quoteJobSequence++;const token=Object.freeze({operationId,designRevision,fingerprint,quoteJobSequence,unprinted:blank,declared,snapshot:stable(snapshot)});quoteTokens.add(token);return token;},
+  isQuoteCurrent(token,snapshot){return !!token&&quoteTokens.has(token)&&token.quoteJobSequence===quoteJobSequence&&(token.declared?declaredQuote(snapshot):token.unprinted?unprintedQuote(snapshot):api.isApproved(fingerprint))&&token.operationId===operationId&&token.designRevision===designRevision&&token.fingerprint===fingerprint&&token.snapshot===stable(snapshot);},
   getState(){return clone({operationId,quoteJobSequence,status,source,frame,result,candidates:pendingCandidates,designRevision,fingerprint,approval,error});}
  };
  return api;

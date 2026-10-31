@@ -53,6 +53,7 @@ function textColorAllowed(color,side='rear'){
  return PrintPolicy.permitsTextColor(palette.colors,color);
 }
 function currentPrintPolicy(){
+ if(typeof isDeclaredQuote==='function'&&isDeclaredQuote())return {blocked:false}; // The independent declaration gate is not an artwork policy bypass.
  if(typeof PrintPolicy==='undefined'||(typeof isUnprinted==='function'&&isUnprinted()))return {blocked:false};
  const input=rearInkBaseInput();
  if(typeof rearContent!=='undefined'&&['instagram','website','phone','address','extra'].some(k=>rearContent[k].trim())&&rearContent.inkColor)input.rear.textColor=rearContent.inkColor;
@@ -108,6 +109,13 @@ function syncRearInkNote(){
  if($('rearPriceNote'))$('rearPriceNote').textContent=$('inks').value===''?'Arka yüz dahil renk ayrımı belirsiz. Gösterilen ara toplam klişe bedelini içermez.':`Ön ve arka yüz için ${$('inks').value} tahmini klişe fiyat hesabına dahil edilir. Aynı renk bir kez, beyaz hariç.`;
 }
 function syncPrintInks(){
+ if(typeof isDeclaredQuote==='function'&&isDeclaredQuote()){
+  const d=state.declaration;$('inks').value=DeclaredQuote.valid(d)?String(d.count):'';$('inks').disabled=true;
+  state.inkSelection={status:'customer-declared',selectedCount:DeclaredQuote.valid(d)?d.count:null,estimatedCount:null};
+  $('inkEstimateNote').textContent='Müşteri renk beyanı; görsel kontrolü yapılmamıştır. Sayıyı değiştirmek için tasarım adımına dönün.';return;
+ }
+ $('inks').disabled=false;
+
  const key=printInkFingerprint();if(key===printInkKey){syncRearInkNote();return;}
  printInkKey=key;printInkManual=false;invalidateQuote();
  let pixels=null,w=0,h=0;

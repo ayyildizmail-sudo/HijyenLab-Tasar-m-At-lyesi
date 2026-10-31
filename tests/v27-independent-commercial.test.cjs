@@ -1,8 +1,9 @@
+// Legacy artwork/unprinted fixture: declaration mode is explicitly inactive.
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 const path=__dirname,app=fs.readFileSync(require('path').join(__dirname,'../frontend/app.js'),'utf8'),life=fs.readFileSync(require('path').join(__dirname,'../frontend/processing-lifecycle.js'),'utf8'),results=[];
 const rules={source:'QA-only injected policy',revision:'qa-A',minimum:{white:6000,colored:12000},unitsPerBox:300,whiteUnitKurus:311,coloredSurchargeKurus:44,platePerInkKurus:123400,freightPerBoxKurus:22200,vat:.18,vatPercent:18,coloredUnitKurus:355,maxQuantity:900000};
 const elements={},values={qty:'6000',inks:'',province:'İstanbul',district:'Kadıköy',cliche:'new'};const el=id=>elements[id]||(elements[id]={value:values[id]??'',children:[],replaceChildren(){this.children=[];},append(...a){this.children.push(...a);}});
-const c={$:el,state:{requestedQuantity:null,inkSelection:{status:'unknown'}},document:{createElement(){return{children:[],append(...a){this.children.push(...a);}}}},syncQuantity:()=>6000,effectiveBackground:()=> '#ffffff',status(){},money:n=>String(n/100),syncProcessingDesign(){},designFingerprint:()=> 'design-A',leadValues:()=> ['same']};c.isUnprinted=()=>false;vm.createContext(c);
+const c={$:el,state:{requestedQuantity:null,inkSelection:{status:'unknown'}},document:{createElement(){return{children:[],append(...a){this.children.push(...a);}}}},syncQuantity:()=>6000,effectiveBackground:()=> '#ffffff',status(){},money:n=>String(n/100),syncProcessingDesign(){},designFingerprint:()=> 'design-A',leadValues:()=> ['same']};c.isUnprinted=()=>false;c.isDeclaredQuote=()=>false;vm.createContext(c);
 vm.runInContext(app.slice(app.indexOf('const VAT_EXCLUSION_NOTE'),app.indexOf('const $=')),c);
 vm.runInContext(app.slice(app.indexOf('function pricing('),app.indexOf('\nconst money=')),c);
 c.productRules=()=>rules;

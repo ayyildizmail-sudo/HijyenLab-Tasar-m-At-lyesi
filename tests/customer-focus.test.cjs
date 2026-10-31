@@ -1,3 +1,4 @@
+// Legacy artwork/unprinted fixture: declaration mode is explicitly inactive.
 'use strict';
 // CommonJS test runner loads Node built-ins synchronously for the isolated VM harness.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -60,7 +61,7 @@ let printMode='printed';const modeEvents={};
 const browser={document:doc,HijyenLabPrintMode:{get:()=>printMode},addEventListener:(name,fn)=>{modeEvents[name]=fn;},queueMicrotask:fn=>microtasks.push(fn),setTimeout:fn=>tasks.push(fn),MutationObserver:class{constructor(fn){sync=fn;}observe(){}}};
 const actualGroundFunction=fs.readFileSync('frontend/app.js','utf8').split('\n').find(line=>line.startsWith('function effectiveBackground()'));
 assert(actualGroundFunction,'real application ground resolver available');
-vm.runInNewContext(actualGroundFunction+'\n'+source,{window:browser,state,productRules:()=>rules,isUnprinted:()=>printMode==='unprinted',designIssue:()=>blocked});
+vm.runInNewContext(actualGroundFunction+'\n'+source,{window:browser,state,isDeclaredQuote:()=>false,productRules:()=>rules,isUnprinted:()=>printMode==='unprinted',designIssue:()=>blocked});
 const get=id=>doc.getElementById(id), primary=id=>assert(get(id).classList.contains('focusPrimary'),id+' should be primary');
 assert.equal(get('commercialChange').textContent,'');assert.equal(get('commercialChange').attrs['aria-live'],'polite');
 let chooserOpens=0,prevented=0;const fileInput=add('unifiedUpload','input');fileInput.click=()=>chooserOpens++;assert.equal(upload.attrs.role,'button');assert.equal(upload.tabIndex,0);for(const key of ['Enter',' '])upload.listeners.keydown({key,preventDefault:()=>prevented++});assert.equal(chooserOpens,2);assert.equal(prevented,2);

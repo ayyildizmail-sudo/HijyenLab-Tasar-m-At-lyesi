@@ -5,20 +5,19 @@ body.hasContactHelp main :is(button, input, select, textarea, a, summary) { scro
 #contactHelp { position: fixed; inset: auto 0 0; z-index: 20; border-top: 1px solid #d8e2ed; background: #fff; color: #17324b; padding: 6px max(16px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); box-shadow: 0 -2px 12px #17324b0b; }
 #contactHelp .contactHelpInner { max-width: 912px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 6px 16px; flex-wrap: nowrap; }
 #contactHelp strong { font-size: 14px; }
-#contactHelp .contactHelpActions { display: flex; gap: 10px; flex: 0 0 auto; }
-#contactHelp :is(a, button) { display: inline-flex; justify-content: center; align-items: center; width: 48px; height: 48px; min-width: 48px; min-height: 44px; flex: 0 0 48px; box-sizing: border-box; padding: 10px; border: 1px solid #8298ae; border-radius: 50%; color: #17324b; background: #fff; text-decoration: none; font-size: 15px; font-weight: 700; line-height: 1.35; }
-#contactHelp #contactWhatsApp { color: #075b38; border-color: #8ab6a3; background: #f1faf5; }
-#contactHelp :is(a, button):hover { background: #eaf0f6; }
+#contactHelp .contactHelpActions { display: flex; gap: 32px; flex: 0 0 auto; }
+#contactHelp :is(a, button) { display: inline-flex; justify-content: center; align-items: center; width: 48px; height: 48px; min-width: 48px; min-height: 44px; flex: 0 0 48px; box-sizing: border-box; padding: 10px; border: 1px solid transparent; border-radius: 12px; color: #fff; background: #1877f2; text-decoration: none; font-size: 15px; font-weight: 700; line-height: 1.35; }
+#contactHelp #contactWhatsApp { color: #fff; background: #25d366; }
+#contactHelp :is(a, button):hover { background: #0965d9; }
 #contactHelp :is(a, button):focus-visible { outline: 3px solid #075dc9; outline-offset: 3px; }
 #contactHelp svg { display: block; flex: none; pointer-events: none; }
 #contactHelpNote { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-#contactHelp #contactWhatsApp:hover { background: #dcf3e6; }
+#contactHelp #contactWhatsApp:hover { background: #1ab957; }
 body.contactHelpEditing { padding-bottom: 0; }
 body.contactHelpEditing #contactHelp { position: static; }
 @media (max-width: 600px) {
   #contactHelp .contactHelpInner { gap: 6px; }
   #contactHelp strong { font-size: 13px; }
-  #contactHelp .contactHelpActions { gap: 8px; }
 }
 @media (max-height: 500px), (max-width: 320px) {
   body.hasContactHelp { padding-bottom: 0; }

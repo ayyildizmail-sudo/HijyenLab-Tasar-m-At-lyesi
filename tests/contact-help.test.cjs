@@ -160,10 +160,11 @@ for (const id of ['contactWhatsApp', 'contactTelephone']) {
   assert.equal(control.textContent, undefined);
 }
 assert(css.includes('width: 48px; height: 48px; min-width: 48px; min-height: 44px; flex: 0 0 48px'));
-assert(css.includes('border-radius: 50%'));
+assert(css.includes('border-radius: 12px'));
+assert(!css.includes('border-radius: 50%'));
 assert(css.includes(':focus-visible { outline: 3px solid'));
 assert(!css.includes('.contactHelpActions { width: 100%'));
-console.log('PASS compact contact icons: local decorative SVG, accessible labels/title, fixed round 48px controls, visible keyboard focus and no stretched mobile boxes.');
+console.log('PASS compact contact icons: local decorative SVG, accessible labels/title, fixed iOS rounded-square 48px controls, visible keyboard focus and no stretched mobile boxes.');
 // Colour-limit handoff remains an editable local draft and expires after design changes.
 if(dialog.open)dialog.close();
 let inkPolicy={blocked:true,count:4};browser.currentPrintPolicy=()=>inkPolicy;
