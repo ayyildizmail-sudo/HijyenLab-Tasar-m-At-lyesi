@@ -29,6 +29,7 @@ const suites = [
   'tests/carrier-printed-planes.test.cjs',
   'tests/print-policy.test.cjs',
   'tests/bm21.test.cjs',
+  'tests/shared-rulo.test.cjs',
   'tests/reference-recovery.test.cjs',
   'tests/print-policy-ui.test.cjs',
   'tests/pending-text-readiness.test.cjs',

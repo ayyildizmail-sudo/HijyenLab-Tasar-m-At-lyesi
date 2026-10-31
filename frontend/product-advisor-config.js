@@ -18,12 +18,12 @@
   });
   const additionalLargeApprovedMapping = Object.freeze({ ...sharedApprovedMapping,
     alternatives: Object.freeze([...sharedApprovedMapping.alternatives,
-      Object.freeze({ catalogPending: true, label: '30 × 30 cm Rulo Islak Havlu', condition: 'Ek seçenek', reason: 'Bu grup için ek 30 × 30 cm seçeneği.' })
+      Object.freeze({ productId: 'BM11', condition: 'Ek seçenek', reason: 'Bu grup için ek 30 × 30 cm seçeneği.' })
     ])
   });
   const expandedLargeApprovedMapping = Object.freeze({ ...sharedApprovedMapping,
     alternatives: Object.freeze([...additionalLargeApprovedMapping.alternatives,
-      Object.freeze({ catalogPending: true, label: '30 × 35 cm Rulo Islak Havlu', condition: 'Ek seçenek', reason: 'Bu grup için ek 30 × 35 cm seçeneği.' })
+      Object.freeze({ productId: 'BM13', condition: 'Ek seçenek', reason: 'Bu grup için ek 30 × 35 cm seçeneği.' })
     ])
   });
   const personalApprovedMapping = Object.freeze({
@@ -31,8 +31,8 @@
     choices: Object.freeze([
       Object.freeze({ productId: 'BM15', reason: 'Rulo biçiminde sunulur; koli içeriği 500 adettir.' }),
       Object.freeze({ productId: 'BM12', reason: 'Rulo biçiminde sunulur; koli içeriği 400 adettir.' }),
-      Object.freeze({ catalogPending: true, label: '30 × 30 cm Rulo Islak Havlu', condition: 'Seçenek', reason: '30 × 30 cm rulo seçeneği.' }),
-      Object.freeze({ catalogPending: true, label: '30 × 35 cm Rulo Islak Havlu', condition: 'Seçenek', reason: '30 × 35 cm rulo seçeneği.' }),
+      Object.freeze({ productId: 'BM11', condition: 'Seçenek', reason: '30 × 30 cm rulo seçeneği.' }),
+      Object.freeze({ productId: 'BM13', condition: 'Seçenek', reason: '30 × 35 cm rulo seçeneği.' }),
       Object.freeze({ productId: 'BM545', reason: 'Rulo yerine katlı biçimde sunulur; koli içeriği 625 adettir.' }),
       Object.freeze({ productId: 'BM21', condition: 'Seçenek', reason: '7 × 12 cm ıslak mendil seçeneği.' })
     ])

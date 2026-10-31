@@ -2,7 +2,7 @@
 export const LEAD_CONSENT_VERSION='lead-v1',ANALYTICS_CONSENT_VERSION='analytics-v1';
 export const EVENTS=Object.freeze(['visit','design_started','design_ready','fragrance_selected','quote_viewed','whatsapp_clicked','phone_clicked']);
 export const STATUSES=Object.freeze(['new','contacted','quote_sent','closed']);
-const PRODUCTS=['BM12','BM15','BM545','BM21'],FRAGRANCES=['flambau','green_tea','bodrum_mandarin','lemon'];
+const PRODUCTS=['BM12','BM11','BM13','BM15','BM545','BM21'],FRAGRANCES=['flambau','green_tea','bodrum_mandarin','lemon'];
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,DAY=86400000;
 export function adminIds(env={}){try{const ids=JSON.parse(env.ADMIN_USER_IDS||'[]');return Array.isArray(ids)&&ids.length>0&&ids.length<=10&&ids.every(x=>typeof x==='string'&&x.length>0&&x.length<=256&&x.trim()===x)?ids:[];}catch{return [];}}
 const days=(value,max)=>typeof value==='string'&&/^\d+$/.test(value)&&+value>=1&&+value<=max?+value:null;
@@ -24,8 +24,8 @@ export function validateLead(value){
  const partial=value.kind==='contact_request';
  if(!(PRODUCTS.includes(value.productId)||(partial&&value.productId===null))||!((Number.isInteger(value.quantity)&&value.quantity>=1&&value.quantity<=1000000)||(partial&&value.quantity===null))||!(FRAGRANCES.includes(value.fragrance)||(partial&&value.fragrance===null))||!(value.printMode==='unprinted'?value.design===null:(validateDesign(value.design)||(partial&&value.design===null))))return false;
  if(value.printMode==='unprinted'&&value.fragrance!==null&&value.fragrance!==(value.productId==='BM21'?'green_tea':'flambau'))return false;
- if(value.printMode==='unprinted'&&value.quantity!==null){const carton={BM12:400,BM15:500,BM545:625,BM21:1000}[value.productId];if(!carton||value.quantity<carton||value.quantity%carton!==0)return false;}
- if(value.printMode==='printed'&&!partial&&value.quantity<(value.productId==='BM12'?5200:value.productId==='BM21'?10000:5000))return false;
+ if(value.printMode==='unprinted'&&value.quantity!==null){const carton={BM12:400,BM11:400,BM13:400,BM15:500,BM545:625,BM21:1000}[value.productId];if(!carton||value.quantity<carton||value.quantity%carton!==0)return false;}
+ if(value.printMode==='printed'&&!partial&&value.quantity<(['BM12','BM11','BM13'].includes(value.productId)?5200:value.productId==='BM21'?10000:5000))return false;
  const c=value.contact;if(!exact(c,['companyName','contactName','phone','email','province','district'])||!text(c.companyName,120,partial?0:1)||!text(c.contactName,120,1)||!text(c.phone,32,1)||!/^\+?[0-9 ()-]+$/.test(c.phone)||c.phone.replace(/\D/g,'').length<7||c.phone.replace(/\D/g,'').length>15||!text(c.email,254)||!text(c.province,80)||!text(c.district,80))return false;
  return c.email===''||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email);
 }

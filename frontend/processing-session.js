@@ -10,7 +10,7 @@ function validateResult(value,frame,source){validateCandidate(value,frame,true);
 // A blank catalog product is not artwork and must never manufacture an approval.
 function unprintedQuote(snapshot){
  if(!snapshot||snapshot.printMode!=='unprinted'||snapshot.design!==null||snapshot.rear!==null||String(snapshot.inkCount)!=='0'||snapshot.cliche!=='none'||snapshot.fragrance?.id!==(snapshot.product==='BM21'?'green_tea':'flambau'))return false;
- const units={BM12:400,BM15:500,BM545:625,BM21:1000}[snapshot.product],quantity=Number(snapshot.quantity);
+ const units={BM12:400,BM11:400,BM13:400,BM15:500,BM545:625,BM21:1000}[snapshot.product],quantity=Number(snapshot.quantity);
  return !!units&&Number.isSafeInteger(quantity)&&quantity>=units&&quantity<=1000000&&quantity%units===0;
 }
 function create(){

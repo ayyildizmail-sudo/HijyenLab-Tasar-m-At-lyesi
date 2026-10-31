@@ -18,7 +18,7 @@ function bool(value){if(typeof value!=='boolean')fail('INVALID','Taslak seçimi 
 function hex(value,empty=false){if(empty&&value==='')return value;if(typeof value!=='string'||!/^#[0-9a-f]{6}$/i.test(value))fail('INVALID','Taslak rengi geçersiz.');return value.toLowerCase();}
 function topKeys(input){return input?.schemaVersion===3?TOP.concat('printMode','frontExtras','rearExtras'):input?.schemaVersion===2?TOP.concat('printMode'):TOP;}
 function validate(input){
- exact(input,topKeys(input));if(![1,2,3].includes(input.schemaVersion)||!['BM12','BM15','BM545','BM21'].includes(input.productId))fail('INVALID','Taslak sürümü veya ürünü desteklenmiyor.');
+ exact(input,topKeys(input));if(![1,2,3].includes(input.schemaVersion)||!['BM12','BM11','BM13','BM15','BM545','BM21'].includes(input.productId))fail('INVALID','Taslak sürümü veya ürünü desteklenmiyor.');
  if(input.schemaVersion>=2&&!['printed','unprinted'].includes(input.printMode))fail('INVALID','Taslak baskı seçimi geçersiz.');
  if(input.schemaVersion===3&&input.printMode!=='printed')fail('INVALID','Çok logolu taslak yalnız baskılı tasarımı destekler.');
  if(input.schemaVersion===2&&input.printMode==='unprinted'){

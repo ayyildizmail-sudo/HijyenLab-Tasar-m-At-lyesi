@@ -85,3 +85,13 @@ test('BM21 validation uses wet-wipe carton, printed minimum and fixed unprinted 
  assert.equal(api.validateLead(lead({productId:'BM21',printMode:'unprinted',quantity:1000,fragrance:'flambau',design:null})),false);
  assert.equal(api.validateLead(lead({productId:'BM21',quantity:9999})),false);assert.equal(api.validateLead(lead({productId:'BM21',quantity:10000})),true);
 });
+
+test('BM11 and BM13 accept confirmed printed minimum and unprinted full cartons only',()=>{
+ for(const productId of ['BM11','BM13']){
+  assert.equal(api.validateLead(lead({productId,quantity:5200})),true);
+  assert.equal(api.validateLead(lead({productId,quantity:5199})),false);
+  for(const quantity of [400,800])assert.equal(api.validateLead(lead({productId,printMode:'unprinted',quantity,fragrance:'flambau',design:null})),true);
+  for(const quantity of [0,399,401,600])assert.equal(api.validateLead(lead({productId,printMode:'unprinted',quantity,fragrance:'flambau',design:null})),false);
+  assert.equal(api.validateLead(lead({productId,printMode:'unprinted',quantity:400,fragrance:'green_tea',design:null})),false);
+ }
+});

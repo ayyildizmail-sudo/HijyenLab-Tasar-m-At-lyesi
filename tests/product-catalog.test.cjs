@@ -1,12 +1,12 @@
 'use strict';
 const assert=require('assert/strict'),fs=require('fs'),vm=require('vm'),catalog=require('../frontend/product-catalog.js');
-assert.equal(catalog.defaultId,'BM12');assert.deepEqual(catalog.items.map(p=>p.id),['BM12','BM15','BM21','BM545']);
-for(const [id,white,colored,min,box,towel,opp]of [['BM12',290,330,5200,400,[25,30],null],['BM15',250,300,5000,500,[25,25],[14,17]],['BM545',240,290,5000,625,[20,25],[14,19]]]){
+assert.equal(catalog.defaultId,'BM12');assert.deepEqual(catalog.items.map(p=>p.id),['BM12','BM11','BM13','BM15','BM21','BM545']);
+for(const [id,white,colored,min,box,towel,opp]of [['BM12',290,330,5200,400,[25,30],[16,17]],['BM15',250,300,5000,500,[25,25],[14,17]],['BM545',240,290,5000,625,[20,25],[14,19]]]){
  const p=catalog.get(id),r=catalog.rules(id);assert.equal(r,p.priceRules);assert.equal(r.product,id);assert.equal(r.whiteUnitKurus,white);assert.equal(r.coloredUnitKurus,colored);assert.equal(r.coloredSurchargeKurus,colored-white);assert.deepEqual(r.minimum,{white:min,colored:10000});assert.equal(r.unitsPerBox,box);assert.deepEqual(p.towelDimensions,towel);assert.deepEqual(p.oppDimensions,opp);assert.equal(r.platePerInkKurus,100000);assert.equal(r.freightPerBoxKurus,20000);assert.equal(r.vatPercent,20);assert.equal(r.vat,.2);assert.equal(r.maxQuantity,1000000);assert.equal(min%box,0);assert.equal(10000%box,0);assert.equal(r.minimum.white/box,id==='BM12'?13:id==='BM15'?10:8);assert(r.source.includes(id==='BM12'?'29 Ekim':'23 Ekim'));assert(r.revision.includes(id));
  assert.throws(()=>{r.minimum.white=1;},TypeError);assert.throws(()=>{r.unitsPerBox=1;},TypeError);assert.throws(()=>{p.towelDimensions.push(99);},TypeError);if(opp)assert.throws(()=>{p.oppDimensions[0]=1;},TypeError);assert.throws(()=>{p.label='wrong';},TypeError);assert(Object.isFrozen(r));assert(Object.isFrozen(p));
 }
 assert.equal(catalog.get('BM12').frontAsset,'assets/bm12-blank.png');assert.equal(catalog.get('BM12').backAsset,'assets/bm12-back-blank.png');assert.equal(catalog.get('BM15').frontAsset,'assets/bm15-front.png');assert.equal(catalog.get('BM545').backAsset,'assets/bm545-back.png');
 assert.throws(()=>catalog.items.push({}),TypeError);assert.throws(()=>{catalog.defaultId='BM15';},TypeError);
-for(const invalid of [undefined,null,'','BM13','bm12','__proto__',{},12]){assert.throws(()=>catalog.get(invalid),/doğrulanmış/);assert.throws(()=>catalog.rules(invalid),/doğrulanmış/);}
+for(const invalid of [undefined,null,'','BM99','bm12','__proto__',{},12]){assert.throws(()=>catalog.get(invalid),/doğrulanmış/);assert.throws(()=>catalog.rules(invalid),/doğrulanmış/);}
 const scope={};vm.createContext(scope);vm.runInContext(fs.readFileSync('frontend/product-catalog.js','utf8'),scope);assert.equal(scope.ProductCatalog.rules('BM545').coloredUnitKurus,290);assert(Object.isFrozen(scope.ProductCatalog.items));
-console.log('PASS product catalog: four verified products, prices/minimums/cartons/VAT, dimensions, frozen rules, unknown refusal and browser UMD');
+console.log('PASS product catalog: six verified products, prices/minimums/cartons/VAT, dimensions, frozen rules, unknown refusal and browser UMD');
