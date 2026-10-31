@@ -71,7 +71,25 @@
       if (text) lines.push(label + ': ' + text);
     }
     if (Number.isSafeInteger(context.quantity) && context.quantity > 0 && context.quantity <= 1000000) lines.push('Seçtiğim adet: ' + context.quantity);
+    if(Number.isSafeInteger(context.printInkCount)&&context.printInkCount>0&&context.printInkCount<=12)lines.push('Tasarımım '+context.printInkCount+' baskı rengi içeriyor. Uygun baskı seçeneklerini görüşmek istiyorum.');
+    else if(context.printInkUncertain===true)lines.push('Tasarımımın baskı renkleri üç renk sınırı içinde doğrulanamadı. Uygun baskı seçeneklerini görüşmek istiyorum.');
     return lines.join('\n');
+  }
+  // Local SVG artwork; control labels stay on the button/link, not the decorative icon.
+  function contactIcon(doc, kind) {
+    const svg = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', '26'); svg.setAttribute('height', '26');
+    svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false');
+    svg.setAttribute('fill', 'none'); svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.8'); svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    const path = doc.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', kind === 'whatsapp'
+      ? 'M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3 20.5l1.4-4.8a8.5 8.5 0 1 1 16.1-4.1Z M8.1 7.2l1.6-.2 1.1 2.6-1.2 1.1a9.1 9.1 0 0 0 3.7 3.7l1.1-1.2 2.6 1.1-.2 1.6c-.1.9-1 1.4-1.9 1.2-4.3-.9-7.6-4.2-8.5-8.5-.2-.9.3-1.8 1.2-1.9Z'
+      : 'M7.1 3.5H4.8c-.8 0-1.4.7-1.3 1.5 1 8.2 7.5 14.7 15.7 15.5.8.1 1.3-.5 1.3-1.3v-2.3c0-.6-.4-1.1-.9-1.3l-3.1-1.1c-.5-.2-1.1 0-1.4.4l-1.4 1.5a15 15 0 0 1-6.1-6.1l1.5-1.4c.4-.3.6-.9.4-1.4L8.4 4.4c-.2-.5-.7-.9-1.3-.9Z');
+    svg.append(path);
+    return svg;
   }
   function mount(doc) {
     if (doc.getElementById('contactHelp')) return;
@@ -88,12 +106,14 @@
     wa.id = 'contactWhatsApp';
     wa.type = 'button';
     wa.setAttribute('aria-haspopup', 'dialog');
-    wa.textContent = 'WhatsApp’tan sor';
+    wa.append(contactIcon(doc, 'whatsapp'));
+    wa.title = 'WhatsApp’tan sor';
     wa.setAttribute('aria-label', 'WhatsApp yardım mesajını hazırla');
     const phone = doc.createElement('a');
     phone.id = 'contactTelephone';
     phone.href = links.telephone;
-    phone.textContent = 'Telefonla ara';
+    phone.append(contactIcon(doc, 'telephone'));
+    phone.title = 'Telefonla ara';
     phone.setAttribute('aria-label', 'HijyenLab’ı telefonla ara: ' + CONTACT.display);
     actions.append(wa, phone);
     const note = doc.createElement('p');
@@ -172,10 +192,15 @@
       heading.focus({ preventScroll: true });
       return true;
     };
-    wa.onclick = () => {
+    const helpContext = () => {
       let context = {};
       try { context = root.getHijyenLabHelpContext?.() || {}; } catch { /* Generic help remains available. */ }
-      showDifferentProductDraft(buildMessage(context));
+      let policy=null;try{policy=root.currentPrintPolicy?.();}catch{/* No unverified policy claim. */}
+      return {...context,printInkCount:policy?.blocked&&Number.isSafeInteger(policy.count)&&policy.count>0&&policy.count<=12?policy.count:null,printInkUncertain:policy?.blocked===true&&policy.count===null};
+    };
+    wa.onclick = () => {
+      const message=buildMessage(helpContext());
+      if(showDifferentProductDraft(message))activeDraftGuard=()=>buildMessage(helpContext())===message;
     };
     const pricing = doc.getElementById('pricing');
     if (pricing) {

@@ -37,7 +37,7 @@ async function add(side,file,options={}){
   // Never fall back to photographic masking or bypass source-context guards.
   const prepared=await RearLogo.prepare(image,{background:state.bg});if(!model.current(token))return false;
   const identity=await sourceIdentity(file,bytes);if(!model.current(token))return false;
-  const estimate=PrintInks.estimate(prepared.data,prepared.width,prepared.height,{});
+  const estimate=PrintInks.estimate(prepared.data,prepared.width,prepared.height,{acceptedArtwork:true});
   const uncertain=estimate.uncertain||paleForegroundUnresolved(prepared.data,prepared.width,prepared.height,false);
   model.finish(token,{status:'ready',identity:identity.sha256,canvas:prepared.canvas,preview:prepared.canvas.toDataURL('image/png'),prepared,whiteOnly:prepared.method==='uniform-light-carrier-source-pixels',palette:{status:uncertain?'unknown':'estimated',colors:estimate.colors,uncertain}});
   changed(side);return true;

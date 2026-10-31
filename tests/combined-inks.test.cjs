@@ -1,5 +1,5 @@
 'use strict';const assert=require('assert/strict'),fs=require('fs'),vm=require('vm'),C=require('../frontend/combined-inks.js');
-const base={front:{status:'estimated',colors:['#000000']},background:'#ffffff',rear:{textColor:'#111111',qr:true}};
+const base={front:{status:'estimated',colors:['#000000']},background:'#ffffff',rear:{textColor:'#000000',qr:true}};
 assert.equal(C.estimate(base).count,1);assert.equal(C.estimate(base).status,'estimated');assert(C.estimate(base).estimateOnly);
 assert.equal(C.estimate({...base,background:'#800d2e'}).count,2);
 assert.equal(C.estimate({...base,front:{status:'estimated',colors:['#800d2e']},background:'#800d2e',rear:{textColor:'#800d2e'}}).count,1);
@@ -32,7 +32,22 @@ const paleQr=C.estimate({front:{status:'estimated',colors:['#f5f5f5']},backgroun
 assert.equal(C.estimate({front:{status:'none'},background:'#ffffff',rear:{qr:true}}).status,'unknown');
 const sponsorQr=C.estimate({front:{status:'estimated',colors:['#f5f5f5']},background:'#ffffff',rear:{qr:true,sponsor:{status:'estimated',method:'native-alpha-trim',inkSamples:[{rgb:[20,40,80],count:100}]}}});assert.equal(sponsorQr.qrColor,'#142850');assert.equal(sponsorQr.count,2);
 assert.equal(C.selectQrInk(['#800d2e','#142850']).color,'#142850');assert.equal(C.selectQrInk(['#ffffff']).ok,false);assert.equal(C.selectQrInk(['invalid']).ok,false);assert.equal(C.selectQrInk(['#f5f5f5']).ok,false);assert.equal(C.selectQrInk(['#000000']).contrast,21);
-const charcoal=C.estimate({front:{status:'estimated',colors:['#181818']},background:'#ffffff',rear:{qr:true,textColor:'#222222'}});assert.equal(charcoal.count,1);assert.equal(charcoal.qrColor,'#181818');assert.deepEqual(charcoal.actualInkColors,['#181818','#222222']);
-const sampledDark=C.estimate({front:{status:'estimated',colors:['#2b2b2b']},background:'#ffffff',rear:{textColor:'#111111',qr:true}});assert.equal(sampledDark.count,1);assert.equal(sampledDark.qrColor,'#111111');assert.deepEqual(sampledDark.actualInkColors,['#2b2b2b','#111111']);
+const charcoal=C.estimate({front:{status:'estimated',colors:['#181818']},background:'#ffffff',rear:{qr:true,textColor:'#222222'}});assert.equal(charcoal.count,2);assert.equal(charcoal.qrColor,'#181818');assert.deepEqual(charcoal.actualInkColors,['#181818','#222222']);
+const sampledDark=C.estimate({front:{status:'estimated',colors:['#2b2b2b']},background:'#ffffff',rear:{textColor:'#111111',qr:true}});assert.equal(sampledDark.count,2);assert.equal(sampledDark.qrColor,'#111111');assert.deepEqual(sampledDark.actualInkColors,['#2b2b2b','#111111']);
 assert.equal(C.estimate({front:{status:'estimated',colors:['#000000']},background:'#ffffff',rear:{textColor:'#2b2b2b',qr:true}}).count,2,'Explicitly chosen gray must remain separate from black');
 console.log('PASS combined inks: existing darkest ink QR without new black; unknown/light-only guards; sponsor included before QR selection; front/rear union, pale-gray ink and immutable inputs');
+
+assert.equal(C.estimate({...base,rear:{textColor:'#111111'}}).count,2,'Explicitly different dark ink is not silently merged into sampled black');
+assert.equal(C.estimate({front:{status:'estimated',colors:['#992133']},background:'#992134'}).count,2,'Explicit near-burgundy ground stays distinct');
+// Explicit text/background/recolor must not disappear into subsequently visited artwork.
+for(const explicit of ['#163b67','#153b67']){
+ const target=explicit==='#153b67'?3:4,art=['#aa1122','#119944'];
+ const placements=[
+  {front:{status:'estimated',colors:art},frontTextColor:explicit,background:'#ffffff',rear:{sponsor:{status:'estimated',palette:{colors:['#153b67'],uncertain:false}}}},
+  {front:{status:'estimated',colors:['#153b67']},frontTextColor:explicit,background:'#ffffff',additional:[{status:'estimated',colors:art}]},
+  {front:{status:'estimated',colors:art},background:explicit,additional:[{status:'estimated',colors:['#153b67']}]},
+  {front:{status:'estimated',colors:art},background:'#ffffff',rear:{textColor:explicit},additional:[{status:'estimated',colors:['#153b67']}]},
+  {front:{status:'estimated',colors:art},background:'#ffffff',rear:{sponsor:{status:'estimated',recolor:explicit}},additional:[{status:'estimated',colors:['#153b67']}]}
+ ];
+ for(const input of placements){const result=C.estimate(input);assert.equal(result.count,target,JSON.stringify(input));assert.equal(require('../frontend/print-policy.js').evaluate(result).blocked,target>3);}
+}

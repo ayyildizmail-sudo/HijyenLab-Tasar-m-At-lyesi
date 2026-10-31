@@ -24,7 +24,7 @@
     "status": "PASS"
   },
   {
-    "name": "Quote CTA never silently disables",
+    "name": "Quote CTA disabled only with an explained policy block",
     "status": "PASS"
   },
   {

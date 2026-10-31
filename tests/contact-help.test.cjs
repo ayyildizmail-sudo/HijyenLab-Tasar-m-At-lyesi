@@ -40,7 +40,7 @@ function element(tag) {
   };
 }
 const doc = { readyState: 'complete', activeElement: null, body: element('body'), documentElement: element('html'),
-  createElement: element, getElementById: id => nodes.get(id), addEventListener: (name, fn) => { events[name] = fn; } };
+  createElement: element, createElementNS: (namespace, tag) => { assert.equal(namespace, 'http://www.w3.org/2000/svg'); return element(tag); }, getElementById: id => nodes.get(id), addEventListener: (name, fn) => { events[name] = fn; } };
 nodes.set('pricing', element('section'));
 const browser = { document: doc, addEventListener() {}, setTimeout(fn) { fn(); } };
 vm.runInNewContext(source, { window: browser });
@@ -147,3 +147,31 @@ doc.querySelector = selector => selector === 'dialog[open]' ? { open: true } : n
 assert.equal(special.openSpecialQuoteDraft('reseller'),false); assert.equal(dialog.open,false);
 doc.querySelector = () => null;
 assert.equal(special.openSpecialQuoteDraft('reseller'),true); dialog.close();
+
+// Icon-only contact controls retain accessible names and normal interactive semantics.
+for (const id of ['contactWhatsApp', 'contactTelephone']) {
+  const control = nodes.get(id);
+  assert(control.attrs['aria-label']); assert(control.title);
+  assert.equal(control.children.length, 1);
+  const svg = control.children[0];
+  assert.equal(svg.tagName, 'SVG'); assert.equal(svg.attrs['aria-hidden'], 'true');
+  assert.equal(svg.attrs.focusable, 'false'); assert.equal(svg.attrs.viewBox, '0 0 24 24');
+  assert.equal(svg.children[0].tagName, 'PATH'); assert(svg.children[0].attrs.d);
+  assert.equal(control.textContent, undefined);
+}
+assert(css.includes('width: 48px; height: 48px; min-width: 48px; min-height: 44px; flex: 0 0 48px'));
+assert(css.includes('border-radius: 50%'));
+assert(css.includes(':focus-visible { outline: 3px solid'));
+assert(!css.includes('.contactHelpActions { width: 100%'));
+console.log('PASS compact contact icons: local decorative SVG, accessible labels/title, fixed round 48px controls, visible keyboard focus and no stretched mobile boxes.');
+// Colour-limit handoff remains an editable local draft and expires after design changes.
+if(dialog.open)dialog.close();
+let inkPolicy={blocked:true,count:4};browser.currentPrintPolicy=()=>inkPolicy;
+browser.getHijyenLabHelpContext=()=>({product:'BM12',stage:'Arka yüz',customerName:'PRIVATE',phone:'PRIVATE',image:'PRIVATE'});
+trigger.onclick();assert.match(draft.value,/Tasarımım 4 baskı rengi içeriyor\. Uygun baskı seçeneklerini görüşmek istiyorum\./);assert(!draft.value.includes('PRIVATE'));assert(dialog.open);
+inkPolicy={blocked:true,count:5};let staleInk=false;proceed.onclick({preventDefault(){staleInk=true;}});assert(staleInk);assert(!proceed.href);
+dialog.close();trigger.onclick();assert.match(draft.value,/Tasarımım 5 baskı rengi/);dialog.close();
+inkPolicy={blocked:false,count:3};trigger.onclick();assert(!draft.value.includes('baskı rengi içeriyor'));dialog.close();
+for(const bad of [null,-1,0,4.5,Infinity,13,'4'])assert(!api.buildMessage({printInkCount:bad}).includes('baskı rengi içeriyor'));
+console.log('PASS colour-limit help includes actual bounded count, excludes PII, waits for customer action and invalidates stale policy context');
+inkPolicy={blocked:true,count:null};trigger.onclick();assert.match(draft.value,/üç renk sınırı içinde doğrulanamadı/);assert(!draft.value.includes('0 baskı'));dialog.close();

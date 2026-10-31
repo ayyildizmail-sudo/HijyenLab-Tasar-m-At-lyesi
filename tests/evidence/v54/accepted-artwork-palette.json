@@ -1,0 +1,81 @@
+{
+  "source": "Private offline Library asset Ecem_Beyaz_Zemin_Ayristirma_Denemesi.png; supplied via HIJYENLAB_PRIVATE_INK_FIXTURE, not included in source or public build",
+  "sourceSha256": "5c4db1ba6fb628be323aaf7f8c4e526b0081ac9e74efd81bf02485a5caa31517",
+  "dimensions": [
+    302,
+    308
+  ],
+  "baseline": {
+    "count": 5,
+    "visibleNonWhite": 19873,
+    "colors": [
+      "#556f0b",
+      "#042b6b",
+      "#992133",
+      "#cde5f6",
+      "#031540"
+    ],
+    "uncertain": true,
+    "reason": "Renk ayrımı bu görselde güvenilir değil; teknik kontrol gerekli."
+  },
+  "current": {
+    "count": 3,
+    "visibleNonWhite": 19873,
+    "colors": [
+      "#556f0b",
+      "#042b6b",
+      "#992133"
+    ],
+    "uncertain": false,
+    "method": "accepted-artwork-core-palette",
+    "evidence": {
+      "coreSupport": [
+        302,
+        346,
+        270,
+        0,
+        0
+      ],
+      "explainedFraction": 0.9782116439390127,
+      "discardedUnsupportedShades": 2
+    },
+    "reason": "Ayrıştırılmış görseldeki renk çekirdeklerinden yaklaşık klişe hesabı; baskı ayrımı garantisi değildir."
+  },
+  "explicitBlackRear": {
+    "qrColor": null,
+    "actualInkColors": [
+      "#556f0b",
+      "#042b6b",
+      "#992133",
+      "#000000"
+    ],
+    "status": "estimated",
+    "count": 4,
+    "colors": [
+      "#556f0b",
+      "#042b6b",
+      "#992133",
+      "#000000"
+    ],
+    "reason": "Ön ve arka yüz birlikte yaklaşık hesaplandı; ortak renk bir kez, beyaz hariç. Fiziksel klişe ayrımı teknik onay gerektirir.",
+    "estimateOnly": true
+  },
+  "automaticExistingRear": {
+    "qrColor": "#042b6b",
+    "actualInkColors": [
+      "#556f0b",
+      "#042b6b",
+      "#992133"
+    ],
+    "status": "estimated",
+    "count": 3,
+    "colors": [
+      "#556f0b",
+      "#042b6b",
+      "#992133"
+    ],
+    "reason": "Ön ve arka yüz birlikte yaklaşık hesaplandı; ortak renk bir kez, beyaz hariç. Fiziksel klişe ayrımı teknik onay gerektirir.",
+    "estimateOnly": true
+  },
+  "scope": "Offline accepted artwork only; no original customer photograph uploaded or externally sent; does not establish actual physical ink separation."
+}

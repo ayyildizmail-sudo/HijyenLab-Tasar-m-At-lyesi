@@ -1,0 +1,60 @@
+{
+  "source": "Private raw photograph via HIJYENLAB_PRIVATE_RAW_INK_FIXTURE; no asset bytes bundled",
+  "sourceSha256": "cfcdd5464ec9045b4de4ca8b780e026b2a6863c28261d871c96cd24a62994cd8",
+  "sourceDimensions": [
+    864,
+    1536
+  ],
+  "extractMethod": "white-carrier-chromatic-and-dark-components",
+  "extractedDimensions": [
+    301,
+    307
+  ],
+  "preparedDimensions": [
+    237,
+    218
+  ],
+  "geometry": {
+    "ok": false,
+    "reason": "No independent upper and lower frame arcs",
+    "applied": false,
+    "status": "insufficient-evidence"
+  },
+  "baseline": {
+    "count": 4,
+    "visibleNonWhite": 16891,
+    "colors": [
+      "#556f0c",
+      "#042b6b",
+      "#992133",
+      "#cae4f6"
+    ],
+    "uncertain": true,
+    "reason": "Renk ayrımı bu görselde güvenilir değil; teknik kontrol gerekli."
+  },
+  "current": {
+    "count": 3,
+    "visibleNonWhite": 16891,
+    "colors": [
+      "#556f0c",
+      "#042b6b",
+      "#992133"
+    ],
+    "uncertain": false,
+    "method": "accepted-artwork-core-palette",
+    "evidence": {
+      "coreSupport": [
+        289,
+        331,
+        257,
+        0
+      ],
+      "explainedFraction": 0.9741282339707537,
+      "discardedUnsupportedShades": 1
+    },
+    "reason": "Ayrıştırılmış görseldeki renk çekirdeklerinden yaklaşık klişe hesabı; baskı ayrımı garantisi değildir."
+  },
+  "uiAutomaticExistingRearCount": 3,
+  "uiExplicitBlackRearCount": 4,
+  "scope": "Actual extractPhotoInk + prepareLogo + syncPrintInks offline. Reviewable proposal accepted by harness; not browser visual approval or geometry guarantee."
+}

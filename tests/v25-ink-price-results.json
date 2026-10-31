@@ -1,30 +1,30 @@
 [
   {
-    "name": "Uncertainpositive1 not charged as knownplate",
+    "name": "Accepted uncertain positive 1 requires contact instead of a plate-excluded quote",
     "status": "PASS"
   },
   {
-    "name": "Uncertainpositive2 not charged as knownplate",
+    "name": "Accepted uncertain positive 2 requires contact instead of a plate-excluded quote",
     "status": "PASS"
   },
   {
-    "name": "Uncertainpositive3 not charged as knownplate",
+    "name": "Accepted uncertain positive 3 requires contact instead of a plate-excluded quote",
     "status": "PASS"
   },
   {
-    "name": "Uncertainpositive4 not charged as knownplate",
+    "name": "Accepted uncertain positive 4 requires contact instead of a plate-excluded quote",
     "status": "PASS"
   },
   {
-    "name": "Uncertainpositive5 not charged as knownplate",
+    "name": "Accepted uncertain positive 5 requires contact instead of a plate-excluded quote",
     "status": "PASS"
   },
   {
-    "name": "Uncertainpositive6 not charged as knownplate",
+    "name": "Accepted uncertain positive 6 requires contact instead of a plate-excluded quote",
     "status": "PASS"
   },
   {
-    "name": "Manual count2 works withoutnamesorPantone",
+    "name": "Manual count2 cannot bypass uncertain accepted source",
     "status": "PASS"
   },
   {
