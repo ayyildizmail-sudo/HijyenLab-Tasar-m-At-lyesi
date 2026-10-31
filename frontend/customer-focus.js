@@ -62,7 +62,8 @@
         details.dataset.used = String(used);
         const summary = details.querySelector('summary');
         if (summary && !summary.dataset.base) summary.dataset.base = summary.textContent;
-        if (summary) summary.textContent = summary.dataset.base + (used ? ' · Kullanılıyor' : '');
+        const label = summary?.dataset.base + (used ? ' · Kullanılıyor' : '');
+        if (summary && summary.textContent !== label) summary.textContent = label;
       }
       const recovery = ['rearSponsorReview', 'rearSponsorWarning', 'retryRearSponsor', 'rearEditorError'].map(id => {
         const el = get(id); return el && !el.hidden ? id + ':' + (el.textContent || '') : '';
@@ -74,7 +75,9 @@
       }
       previousRecovery = recovery;
       const stage = ['summary', 'pricing', 'fragrancePanel', 'whiteCarrierPanel', 'photoEditor', 'pdfPicker', 'rearPreview', 'design'].find(id => visible(get(id)));
-      const context = { stage, unprinted: root.HijyenLabPrintMode?.get() === 'unprinted', hasDesign: typeof state !== 'undefined' && !!(state.logo || state.photoLayout), blocked: typeof designIssue === 'function' && designIssue(), productRetry: visible(get('retryProductAsset')), productReview: visible(get('approveProductLayout')) && !get('approveProductLayout').disabled, inkReview: visible(get('approveInk')), sponsorReview: visible(get('acceptRearSponsor')), rearEmpty: visible(get('skipEmptyRear')) };
+      // Contact typing must not prepare/compose artwork just to choose a pricing CTA.
+      // Actual navigation and quote generation retain their full readiness checks.
+      const context = { stage, unprinted: root.HijyenLabPrintMode?.get() === 'unprinted', hasDesign: typeof state !== 'undefined' && !!(state.logo || state.photoLayout), blocked: stage === 'design' && typeof designIssue === 'function' && designIssue(), productRetry: visible(get('retryProductAsset')), productReview: visible(get('approveProductLayout')) && !get('approveProductLayout').disabled, inkReview: visible(get('approveInk')), sponsorReview: visible(get('acceptRearSponsor')), rearEmpty: visible(get('skipEmptyRear')) };
       const activeDialog = main.querySelector('dialog[open]');
       const chosen = activeDialog ? [...activeDialog.querySelectorAll('.primary')].find(el => visible(el) && !el.disabled) : get(primaryId(context));
       const candidates = new Set([...main.querySelectorAll('.primary'), ...main.querySelectorAll('[data-focus-action]'), chosen].filter(Boolean));

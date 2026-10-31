@@ -33,6 +33,7 @@ const suites = [
   'tests/contact-icon-style.test.mjs',
   'tests/contact-help.test.cjs',
   'tests/lead-gate.test.cjs',
+  'tests/lead-input-observers.test.cjs',
   'tests/institution-contact.test.cjs',
   'tests/paired-cta-order.test.cjs',
   'tests/draft-v4.test.cjs',

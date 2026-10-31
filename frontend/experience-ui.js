@@ -78,7 +78,7 @@
       }
       let ready = false;
       if (visible('summary')) { try { ready = !!root.getHijyenLabSummaryHelpContext?.(); } catch (_) { /* Invalid/unavailable snapshot fails closed. */ } }
-      discuss.disabled = !ready;
+      if (discuss.disabled !== !ready) discuss.disabled = !ready;
     }
     if (root.MutationObserver) new root.MutationObserver(sync).observe(main, { subtree: true, attributes: true, attributeFilter: ['hidden', 'src'] });
     doc.addEventListener('input', sync); doc.addEventListener('change', sync);

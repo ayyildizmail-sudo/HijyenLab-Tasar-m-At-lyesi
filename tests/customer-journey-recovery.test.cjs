@@ -8,7 +8,7 @@ const fixtureContext={require,__dirname};vm.createContext(fixtureContext);
 vm.runInContext(fixture.slice(0,fixture.indexOf('async function test('))+'\nglobalThis.getSetup=setup;',fixtureContext);
 function setup(){const h=fixtureContext.getSetup();h.note={setAttribute(){}};h.el('summary').querySelector=()=>h.note;
 vm.runInContext(source.slice(source.indexOf('function setQuotePreviewState('),source.indexOf('async function renderQuote(){')),h.c);
-vm.runInContext(source.slice(source.indexOf('function invalidateQuote(){'),source.indexOf('function syncLeadGate(){')),h.c);return h;}
+vm.runInContext(source.slice(source.indexOf('function invalidateQuote(){'),source.indexOf('function syncLeadGate(')),h.c);return h;}
 (async()=>{
 let h=setup(),job=h.c.renderQuoteSafely();assert.match(h.note.textContent,/hazırlanıyor/);assert(h.el('downloadQuote').disabled);assert(h.el('retryQuotePreview').hidden);
 h.waits[0].reject(Error('missing asset'));await job;assert.match(h.note.textContent,/oluşturulamadı/);assert(!h.el('retryQuotePreview').hidden);assert(!h.el('quoteImage').src);

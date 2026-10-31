@@ -9,7 +9,7 @@ const ctx={Fragrance,$,state:{},step:4,latest:{value:100},document:{createElemen
 const select=id=>vm.runInContext(`(()=>{const r=fragranceButtons.get('${id}').radio;r.checked=true;r.onchange();})()`,ctx);
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
 assert.equal(ctx.fragranceReady(),false);assert.equal(ctx.fragranceSnapshot(),null);assert.equal($('fragranceContinue').disabled,true);assert.equal($('fragranceCards').children.length,4);
-ctx.showFragrance();await tick();assert(calls[0].url.endsWith('?productFamily=towels'));assert(!$('fragranceStatsNote').textContent.includes('500'));
+ctx.showFragrance();await tick();assert(calls[0].url.endsWith('?productFamily=towels'));
 select('green_tea');assert(invalidations>0);assert.equal(ctx.latest,null);await $('fragranceContinue').onclick();assert.equal(lastGo,2);assert.equal(ctx.fragranceReady(),true);assert.equal(ctx.fragranceSnapshot().label,'Yeşil çay');assert.equal(ctx.fragranceSnapshot().productFamily,'towels');
 const post=calls.find(c=>c.options.method==='POST'),body=JSON.parse(post.options.body);assert.deepEqual(Object.keys(body).sort(),['anonymousId','fragrance','productFamily','revision']);
 select('lemon');await $('fragranceContinue').onclick();const latest=JSON.parse(calls.at(-1).options.body);assert.equal(latest.anonymousId,body.anonymousId);assert.equal(latest.revision,body.revision+1);await $('fragranceContinue').onclick();assert.equal(JSON.parse(calls.at(-1).options.body).revision,latest.revision);
@@ -30,23 +30,33 @@ select('lemon');const seventh=$('fragranceContinue').onclick();ctx.hideFragrance
 ctx.fetch=async()=>response(999999);select('flambau');await $('fragranceContinue').onclick();assert(ctx.fragranceReady());assert($('fragranceSyncStatus').textContent.includes('kaydedildiği doğrulanamadı'));
 // Storage failure cannot block immediate local quote confirmation either.
 ctx.localStorage.setItem=()=>{throw Error('storage blocked')};select('green_tea');lastGo=null;await $('fragranceContinue').onclick();assert.equal(lastGo,2);assert(ctx.fragranceReady());assert($('fragranceSyncStatus').textContent.includes('kaydedildiği doğrulanamadı'));
-// Percentages remain descending on entry, but asynchronous updates cannot move cards during selection.
+// Recommendation order is stable, independent of backend preference statistics.
 ctx.fetch=async()=>response(1);ctx.hideFragrance();vm.runInContext('fragranceStats.percentages={flambau:10,green_tea:20,bodrum_mandarin:30,lemon:40};',ctx);ctx.showFragrance();
 const order=()=>vm.runInContext("$('fragranceCards').children.map(n=>[...fragranceButtons].find(([,v])=>v.label===n)[0]).join(',')",ctx);
-assert.equal(order(),'lemon,bodrum_mandarin,green_tea,flambau');
-vm.runInContext('fragranceStats.percentages={flambau:80,green_tea:10,bodrum_mandarin:6,lemon:4};syncFragrance();',ctx);assert.equal(order(),'lemon,bodrum_mandarin,green_tea,flambau');
+assert.equal(order(),'flambau,green_tea,bodrum_mandarin,lemon');
+vm.runInContext('fragranceStats.percentages={flambau:80,green_tea:10,bodrum_mandarin:6,lemon:4};syncFragrance();',ctx);assert.equal(order(),'flambau,green_tea,bodrum_mandarin,lemon');
 ctx.hideFragrance();ctx.showFragrance();assert.equal(order(),'flambau,green_tea,bodrum_mandarin,lemon');await tick();
 const ui=fs.readFileSync('frontend/fragrance-ui.js','utf8'),css=fs.readFileSync('frontend/style.css','utf8');assert(ui.includes("fragrancePrice.className='fragrancePriceSummary'"));assert(!ui.includes("fragrancePrice.className='notice"));assert(css.includes('.fragrancePriceSummary{display:block;'));assert.equal($('fragrancePriceValue').textContent.includes('Koku:'),true);
-const disclosure=ui.match(/<details id="fragrancePreferenceDetails"[^>]*>(.*?)<\/details>/)?.[0];assert(disclosure,'optional disclosure exists');assert(!/<details[^>]*\bopen(?:[ >])/.test(disclosure),'details closed by default');assert(disclosure.includes('Tercihler nasıl hesaplanır?'));for(const fact of ['anonim tarayıcı kimliği','İsim, telefon ve görsel gönderilmez','önceki tercihin yerini alır','tekil kişi sayısı değildir','başlangıç verisi'])assert(disclosure.includes(fact),fact);
-assert.equal((ui.match(/<p id="fragrancePrivacyNote" class="hint">Onayladığınız seçim anonim tercih istatistiğine eklenir\.<\/p>/g)||[]).length,1,'one compact visible disclosure');assert(ui.includes('aria-describedby="fragrancePrivacyNote"'));assert(!/500/.test(ui),'no seed count in presentation');
+assert(!ui.includes('fragrancePreferenceDetails'),'no long statistical explanation');
+assert(!/başlangıç|yüzde|%|fragrancePercent|fragranceStatsNote/i.test(ui),'no seeded percentages or distribution explanation in presentation');
+assert(ui.includes('aria-describedby="fragrancePrivacyNote"'));
+for(const fact of ['anonim tarayıcı kimliğiyle kaydedilir','İsim, telefon ve görsel gönderilmez'])assert(ui.includes(fact),fact);
+const cards=$('fragranceCards').children;
+assert.equal(cards.filter(card=>card.className.includes('fragranceRecommended')).length,1);
+assert.equal(cards[0].children[0].value,'flambau');
+assert.equal(cards[0].children[1].children[1].textContent,'HijyenLab önerisi');
+for(const id of ['flambau','green_tea','bodrum_mandarin','lemon']){select(id);assert.equal(ctx.fragranceSnapshot().id,id);assert.equal(ctx.fragranceReady(),false);assert.equal($('fragranceContinue').disabled,false);assert(vm.runInContext('[...fragranceButtons.values()].every(v=>!v.radio.disabled)',ctx));}
+// Failed legacy stats reads do not add distribution/error clutter or affect selection.
+ctx.fetch=async()=>{throw Error('offline')};ctx.resetFragrance();ctx.showFragrance();await tick();assert.equal($('fragranceSyncStatus').hidden,true);assert.equal(order(),'flambau,green_tea,bodrum_mandarin,lemon');
+
 const app=fs.readFileSync('frontend/app.js','utf8'),life=fs.readFileSync('frontend/processing-lifecycle.js','utf8');assert(app.includes("(n===2||n===3)&&typeof fragranceReady==='function'&&!fragranceReady()"));assert(app.slice(app.indexOf("async function renderQuote(){"),app.indexOf("function preparePhotoCutout")).includes("if(designIssue()){showDesignIssue();return;}if(typeof fragranceReady==='function'&&!fragranceReady()"));assert(app.includes("quoteSnapshot.fragrance.label"));assert(life.includes("fragrance:typeof fragranceSnapshot==='function'?fragranceSnapshot():null"));assert(app.split("\n").find(line=>line.startsWith("$('downloadQuote').onclick=")).includes("if(designIssue()){showDesignIssue();return;}if(!validateLead(true))return;if(typeof fragranceReady==='function'&&!fragranceReady()"));
 const privacyHtml=fs.readFileSync('frontend/index.html','utf8');
 assert(privacyHtml.includes('Anonim koku tercihi ortak istatistiğe kaydedilebilir'));
 assert(privacyHtml.includes('müşteri talebi ancak ayrıca açılan talep formunda açık izninizle gönderilir'));
 assert(!privacyHtml.includes('Yalnız anonim koku tercihi ortak istatistiğe kaydedilebilir'));
 // Wet-wipe choices must remain separate from towel percentages and network votes.
-ctx.selectedProductId='BM21';ctx.resetFragrance();let wetCalls=0;ctx.fetch=async()=>{wetCalls++;throw Error('must not call towel statistics')};ctx.showFragrance();await tick();assert.equal(wetCalls,0);assert($('fragrancePreferenceDetails').hidden);assert($('fragranceStatsNote').hidden);assert.equal($('fragranceStatsNote').textContent,'');assert($('fragrancePrivacyNote').hidden);assert.equal($('fragrancePrivacyNote').textContent,'');assert(vm.runInContext('[...fragranceButtons.values()].every(v=>v.percent.hidden&&v.percent.textContent==="")',ctx));
+ctx.selectedProductId='BM21';ctx.resetFragrance();let wetCalls=0;ctx.fetch=async()=>{wetCalls++;throw Error('must not call towel statistics')};ctx.showFragrance();await tick();assert.equal(wetCalls,0);assert($('fragrancePrivacyNote').hidden);
 select('lemon');await $('fragranceContinue').onclick();assert.equal(wetCalls,0);assert(ctx.fragranceReady());assert.equal(ctx.fragranceSnapshot().productFamily,'wet_wipes');assert.equal(ctx.fragranceSnapshot().id,'lemon');assert.throws(()=>ctx.fragranceSubmission('lemon'),/havlu istatistiğine/);
-ctx.isUnprinted=()=>true;ctx.syncFragrance();assert.equal(ctx.fragranceSnapshot().id,'green_tea');assert.equal(ctx.fragranceSnapshot().fixed,true);assert(ctx.fragranceReady());ctx.selectedProductId='BM12';ctx.resetFragrance();assert.equal(ctx.fragranceSnapshot().id,'flambau');ctx.isUnprinted=()=>false;ctx.syncFragrance();assert(!$('fragrancePreferenceDetails').hidden);assert(!$('fragranceStatsNote').hidden);assert(!$('fragrancePrivacyNote').hidden);assert(vm.runInContext('[...fragranceButtons.values()].every(v=>!v.percent.hidden&&v.percent.textContent.startsWith("%"))',ctx));
-console.log('PASS fragrance UI: immediate local confirmation, pending duplicate guard, revision ACK validation, GET/POST ordering, change/reset/navigation races, honest offline/storage failures');
+ctx.isUnprinted=()=>true;ctx.syncFragrance();assert.equal(ctx.fragranceSnapshot().id,'green_tea');assert.equal(ctx.fragranceSnapshot().fixed,true);assert(ctx.fragranceReady());ctx.selectedProductId='BM12';ctx.resetFragrance();assert.equal(ctx.fragranceSnapshot().id,'flambau');ctx.isUnprinted=()=>false;ctx.syncFragrance();assert(!$('fragrancePrivacyNote').hidden);
+console.log('PASS fragrance UI: recommended Flambau first, all four selectable, no percentages or seed notes, immediate local confirmation, pending duplicate guard, revision ACK validation, GET/POST ordering, change/reset/navigation races, honest offline/storage failures');
 })().catch(e=>{console.error(e);process.exitCode=1});

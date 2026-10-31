@@ -54,6 +54,7 @@ for(const prefix of ['bg','text']){const label=add(prefix+'Label','label',nodes.
 const detail=add('simpleDetails','details',nodes.design);add('simpleSummary','summary',detail);
 const doc={readyState:'complete',createElement:t=>new Node(t),getElementById:id=>[main,...main.querySelectorAll('*')].find(n=>n.id===id)||find(main,id),querySelector:s=>s==='main'?main:s==='.simplePrimary label'?upload:null,addEventListener:(type,fn,capture)=>{assert.equal(capture,true);(events[type]??=[]).push(fn);}};
 function find(n,id){if(n.id===id)return n;for(const c of n.children){const found=find(c,id);if(found)return found;}return null;}
+let designChecks=0;
 let rules={product:'BM12',minimum:{white:5200,colored:10000},whiteUnitKurus:290,coloredUnitKurus:330};let ground='#ffffff',blocked=false;
 const state={logo:null,photoLayout:null,photoQuoteBg:'white',bgPantone:''};
 Object.defineProperty(state,'bg',{get:()=>ground,set:value=>{ground=value;}});
@@ -61,7 +62,7 @@ let printMode='printed';const modeEvents={};
 const browser={document:doc,HijyenLabPrintMode:{get:()=>printMode},addEventListener:(name,fn)=>{modeEvents[name]=fn;},queueMicrotask:fn=>microtasks.push(fn),setTimeout:fn=>tasks.push(fn),MutationObserver:class{constructor(fn){sync=fn;}observe(){}}};
 const actualGroundFunction=fs.readFileSync('frontend/app.js','utf8').split('\n').find(line=>line.startsWith('function effectiveBackground()'));
 assert(actualGroundFunction,'real application ground resolver available');
-vm.runInNewContext(actualGroundFunction+'\n'+source,{window:browser,state,isDeclaredQuote:()=>false,productRules:()=>rules,isUnprinted:()=>printMode==='unprinted',designIssue:()=>blocked});
+vm.runInNewContext(actualGroundFunction+'\n'+source,{window:browser,state,isDeclaredQuote:()=>false,productRules:()=>rules,isUnprinted:()=>printMode==='unprinted',designIssue:()=>{designChecks++;return blocked;}});
 const get=id=>doc.getElementById(id), primary=id=>assert(get(id).classList.contains('focusPrimary'),id+' should be primary');
 assert.equal(get('commercialChange').textContent,'');assert.equal(get('commercialChange').attrs['aria-live'],'polite');
 let chooserOpens=0,prevented=0;const fileInput=add('unifiedUpload','input');fileInput.click=()=>chooserOpens++;assert.equal(upload.attrs.role,'button');assert.equal(upload.tabIndex,0);for(const key of ['Enter',' '])upload.listeners.keydown({key,preventDefault:()=>prevented++});assert.equal(chooserOpens,2);assert.equal(prevented,2);
@@ -120,3 +121,18 @@ assert.equal(primaryId({stage:'design',unprinted:true,productRetry:true}), 'retr
 state.logo=null;blocked=false;nodes.approveInk.hidden=true;nodes.approveProductLayout.hidden=true;nodes.retryProductAsset.hidden=true;printMode='unprinted';modeEvents['hijyenlab:print-mode-change']();primary('next');assert(!upload.classList.contains('focusPrimary'));
 printMode='printed';modeEvents['hijyenlab:print-mode-change']();primary('focusUpload');state.logo='fixture';blocked=true;nodes.approveInk.hidden=false;modeEvents['hijyenlab:print-mode-change']();primary('approveInk');
 console.log('PASS customer focus explicit mode gives blank unprinted continuation without weakening printed upload/reapproval guards.');
+
+// Lead edits are not design edits: pricing/summary observer deliveries must not
+// decode, compose, or test placement of the uploaded image on each keystroke.
+nodes.design.hidden=true;nodes.pricing.hidden=false;
+const checksBeforeLead=designChecks;
+for(let i=0;i<100;i++){sync();event('input');modeEvents['hijyenlab:quote-state']();}
+assert.equal(designChecks,checksBeforeLead,'pricing contact edits never evaluate artwork readiness');
+const summaryLabels=['bgPantoneOptions','textPantoneOptions','rearAdvancedOptions'].map(id=>get(id).querySelector('summary'));
+let summaryWrites=0;
+for(const label of summaryLabels){let value=label.textContent;Object.defineProperty(label,'textContent',{get:()=>value,set:next=>{value=next;summaryWrites++;}});}
+for(let i=0;i<100;i++)sync();
+assert.equal(summaryWrites,0,'stable observer deliveries never rewrite advanced summary children');
+nodes.pricing.hidden=true;nodes.design.hidden=false;sync();
+assert(designChecks>checksBeforeLead,'design stage still checks actual artwork readiness');
+console.log('PASS lead typing hot path: 300 pricing synchronizations skip artwork work; stable summary writes zero; design guards retained.');
