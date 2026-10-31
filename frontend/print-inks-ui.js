@@ -1,6 +1,6 @@
 // Estimate printing separations from artwork pixels, never the shaded mockup.
 let printInkKey=null,printInkEstimate=null,printInkManual=false,frontInkStatus="unknown",frontMonochrome=false,frontArtworkInkEstimate=null;
-function printInkFingerprint(){return JSON.stringify([state.logo,state.photoLayout,state.screenCropApplied,state.technicalFrameProposed,state.extractionApproximate,state.processingResult?.method,state.removed,state.removeWhite,state.bg,state.bgPantone,state.recolorApplied,state.color,state.textPending?'':state.text,state.textColor,state.textPantone,typeof rearQuoteSnapshot==='function'?rearQuoteSnapshot():null,globalThis.MultiLogo?.fingerprint('front')||null]);}
+function printInkFingerprint(){return JSON.stringify([state.logo,state.photoLayout,state.screenCropApplied,state.technicalFrameProposed,state.extractionApproximate,state.extractionApprovalRequired,state.processingResult?.method,state.processingResult?.flatPrintProposal?.outputPixelSHA256,state.removed,state.removeWhite,state.bg,state.bgPantone,state.recolorApplied,state.color,state.textPending?'':state.text,state.textColor,state.textPantone,typeof rearQuoteSnapshot==='function'?rearQuoteSnapshot():null,globalThis.MultiLogo?.fingerprint('front')||null]);}
 let frontInkNoteText='';
 function cleanNeutralArtwork(data,w,h){if(!data)return false;let n=0,dark=0,colored=0;for(let i=0;i<data.length;i+=4){if(data[i+3]<220)continue;const r=data[i],g=data[i+1],b=data[i+2];if(Math.min(r,g,b)>238)continue;n++;if(Math.max(r,g,b)-Math.min(r,g,b)>18)colored++;if(Math.max(r,g,b)<120)dark++;}return n>=20&&dark>=10&&colored===0;}
 function neutralArtworkInk(data){const bins=new Map();for(let i=0;i<data.length;i+=4){const rgb=[data[i],data[i+1],data[i+2]];if(data[i+3]<220||Math.max(...rgb)>=120||Math.max(...rgb)-Math.min(...rgb)>18)continue;const color='#'+rgb.map(v=>v.toString(16).padStart(2,'0')).join('');bins.set(color,(bins.get(color)||0)+1);}return [...bins.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0]||null;}
@@ -107,6 +107,8 @@ function currentFlexoProductionPolicy(){
 function currentPrintPolicy(){
  if(typeof isDeclaredQuote==='function'&&isDeclaredQuote())return {blocked:false}; // The independent declaration gate is not an artwork policy bypass.
  if(typeof PrintPolicy==='undefined'||(typeof isUnprinted==='function'&&isUnprinted()))return {blocked:false};
+ const originalKnown=state.processingResult?.flatPrintProposal?.originalKnownActualInkCount;
+ if(Number.isInteger(originalKnown)&&originalKnown>PrintPolicy.MAX_PRINT_INKS)return PrintPolicy.evaluate({count:originalKnown,status:'estimated'});
  const input=rearInkBaseInput();
  if(typeof rearContent!=='undefined'&&['instagram','website','phone','address','extra'].some(k=>rearContent[k].trim())&&rearContent.inkColor)input.rear.textColor=rearContent.inkColor;
  const estimate=CombinedInks.estimate(input);
@@ -122,17 +124,17 @@ function printPolicyError(){const policy=currentPrintPolicy();return policy.bloc
 // A current, accepted idea preview is not approval of separations or pricing.
 // Use the processing authority, never a source-kind label alone, to reject stale
 // outputs left on screen during replacement, failure, cancellation or selection.
-function currentVisualArtworkReady(){
+function currentVisualArtworkReady(previewOnly=false){
  if(!state.logo||state.removed||state.photoLayout||typeof logoImg==='undefined'||!logoImg||!(logoImg.width>0&&logoImg.height>0))return false;
- if(state.designProcessing||state.designBlocked||state.extractionSourceLimited||state.extractionApprovalRequired||state.screenSelectionRequired||state.bgDecisionPending||state.productAssetPending||state.productAssetFailure||state.productReviewRequired||(state.textPending&&state.text?.trim()))return false;
+ if(state.designProcessing||state.designBlocked||state.extractionSourceLimited||(!previewOnly&&state.extractionApprovalRequired)||state.screenSelectionRequired||state.bgDecisionPending||state.productAssetPending||state.productAssetFailure||state.productReviewRequired||(state.textPending&&state.text?.trim()))return false;
  if(['unsupported','candidate','photo-region','photo','screen'].includes(state.sourceKind))return false;
- if(typeof designIssue!=='function'||designIssue()||typeof designFingerprint!=='function'||typeof processingSession==='undefined')return false;
+ if(typeof designIssue!=='function'||designIssue(previewOnly)||typeof designFingerprint!=='function'||typeof processingSession==='undefined')return false;
  const live=processingSession.getState(),record=state.processingResult,result=live.result,fingerprint=designFingerprint();
  if(live.status!=='ready'||live.error||!record||!result||live.fingerprint!==fingerprint||result.designRevision!==live.designRevision)return false;
  if(result.operation?.operationId!==live.operationId||record.operation?.operationId!==live.operationId||record.extractionRevision!==result.extractionRevision)return false;
  if(!/^[a-f0-9]{64}$/i.test(result.source?.sha256||'')||record.source?.sha256!==result.source.sha256||live.source?.sha256!==result.source.sha256)return false;
  if(result.status==='needs-selection'||!result.method||!result.frame?.width||!result.frame?.height)return false;
- return !state.extractionApproximate||processingSession.isApproved(fingerprint);
+ return previewOnly||!state.extractionApproximate||processingSession.isApproved(fingerprint);
 }
 function visualPreviewPolicyError(){
  const policy=currentPrintPolicy();if(!policy.blocked)return '';
@@ -143,9 +145,15 @@ function visualPreviewPolicyError(){
  if(!knownOverLimit&&frontInkStatus==='unknown'&&policy.count===null&&currentVisualArtworkReady())return '';
  return policy.reason;
 }
+function pendingFlatPhotoNotice(){
+ if(state.extractionApprovalRequired!==true)return '';
+ const palette=approvedFlatPhotoPalette(null,0,0,true);
+ return palette?`Logo önizlemesi ${palette.count} baskı rengiyle hazır; tasarımınızı onaylayarak devam edin.`:'';
+}
+function deferUncertainPrintNotice(policy){return policy?.blocked===true&&policy.count===null&&state.extractionApprovalRequired===true&&!!state.logo&&!state.removed&&!state.designBlocked&&!state.designProcessing&&!state.extractionSourceLimited;}
 function syncPrintPolicyNotice(){
  if(typeof document==='undefined'||typeof document.querySelector!=='function'||typeof PrintPolicy==='undefined')return;
- const policy=currentPrintPolicy();let panel=document.querySelector('#printPolicyNotice');
+ const policy=currentPrintPolicy(),previewNotice=policy.count===null?pendingFlatPhotoNotice():'';let panel=document.querySelector('#printPolicyNotice');
  if(!panel&&policy.blocked){
   panel=document.createElement('section');panel.id='printPolicyNotice';panel.className='notice';panel.setAttribute('role','status');
   const message=document.createElement('p');message.dataset.policyMessage='';
@@ -153,7 +161,7 @@ function syncPrintPolicyNotice(){
   const telephone=document.createElement('button');telephone.type='button';telephone.className='outline';telephone.textContent='Telefonla ara';telephone.onclick=()=>document.querySelector('#contactTelephone')?.click();
   panel.append(message,whatsapp,telephone);document.querySelector('#status')?.before(panel);
  }
- if(panel){panel.hidden=!policy.blocked;if(policy.blocked){panel.querySelector('[data-policy-message]').textContent=policy.reason;
+ if(panel){panel.hidden=!policy.blocked||deferUncertainPrintNotice(policy);if(policy.blocked){panel.querySelector('[data-policy-message]').textContent=previewNotice||policy.reason;for(const button of panel.querySelectorAll('button'))button.hidden=!!previewNotice;
   const candidates=[document.querySelector('#rearToPrice'),document.querySelector('#review'),document.querySelector('.simplePrimary'),document.querySelector('#next')];
   const target=candidates.find(node=>node&&!node.hidden&&!node.closest('[hidden]')&&node.getClientRects?.().length);
   if(target)target.before(panel);
@@ -186,6 +194,23 @@ function syncRearInkNote(){
  syncPrintPolicyNotice();
  if($('rearPriceNote'))$('rearPriceNote').textContent=$('inks').value===''?'Arka yüz dahil renk ayrımı belirsiz. Gösterilen ara toplam klişe bedelini içermez.':`Ön ve arka yüz için ${$('inks').value} tahmini klişe fiyat hesabına dahil edilir. Aynı renk bir kez, beyaz hariç.`;
 }
+function approvedFlatPhotoPalette(data,w,h,previewOnly=false){
+ const proposal=state.processingResult?.flatPrintProposal;
+ if(!proposal||proposal.method!=='audited-photo-glyph-flat-proposal-v1'||proposal.renderedPixelsVerified!==true||proposal.originalKnownActualInkCount>3||!proposal.alphaUnchanged||!proposal.whiteIsSubstrate||state.recolorApplied||(!previewOnly&&state.extractionApprovalRequired)||!currentVisualArtworkReady(previewOnly)||(!previewOnly&&!processingSession.isApproved(designFingerprint())))return null;
+ if(proposal.sourceSHA256!==state.processingResult?.source?.sha256||!['sourcePixelSHA256','outputPixelSHA256'].every(k=>/^[a-f0-9]{64}$/i.test(proposal[k]||'')))return null;
+ const colors=proposal.actualProposedPalette;
+ if(!Array.isArray(colors)||colors.length<1||colors.length>3||proposal.proposedInkCount!==colors.length||colors.some(c=>!/^#[a-f0-9]{6}$/i.test(c)||c.toLowerCase()==='#ffffff'))return null;
+ if(!logoImg||logoImg.width!==proposal.width||logoImg.height!==proposal.height||proposal.width*proposal.height>2500000)return null;
+ const layer=document.createElement('canvas');layer.width=w=logoImg.width;layer.height=h=logoImg.height;const context=layer.getContext('2d',{willReadFrequently:true});context.drawImage(logoImg,0,0);data=context.getImageData(0,0,w,h).data;
+ const rgb=colors.map(c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16))),seen=new Set();
+ // Verify the actually drawn prepared artwork, not the old photo estimate.
+ // Resizing/PNG premultiplication may perturb AA; every opaque core must still
+ // agree with a proposed ink, and every declared ink must be visibly present.
+ if(!data||data.length!==w*h*4)return null;
+ for(let i=0;i<data.length;i+=4){if(data[i+3]<250||[0,1,2].every(k=>data[i+k]===255))continue;const index=rgb.findIndex(c=>c.every((v,k)=>Math.abs(v-data[i+k])<=2));if(index<0)return null;seen.add(index);}
+ if(seen.size!==colors.length)return null;
+ return {count:colors.length,colors:colors.slice(),uncertain:false,method:'approved-rendered-flat-photo-proposal',contentEvidence:{content:'flat-colors',basis:'customer-approved-rendered-proposal',physicalInksConfirmed:false},reason:'Onaylanan düz renkli fikir tasarımındaki baskı renkleri; beyaz ambalaj rengi hariç.'};
+}
 function photographicInkSource(){
  if(state.photoLayout)return true;
  if(!state.extractionApproximate)return false;
@@ -216,10 +241,11 @@ function syncPrintInks(){
  frontMonochrome=nativeMonochromeSafe&&!!image&&!state.photoLayout&&(!state.extractionApproximate||state.technicalFrameProposed||state.screenCropApplied)&&cleanNeutralArtwork(pixels,w,h)&&!(state.recolor&&state.recolorApplied);
  frontArtworkInkEstimate=!(state.recolor&&state.recolorApplied)&&!frontMonochrome?nativeEstimate:PrintInks.estimate(pixels,w,h,{acceptedArtwork:!!image&&!state.photoLayout,photoDerived,recolor:state.recolor&&state.recolorApplied?state.color:frontMonochrome?neutralArtworkInk(pixels):null});
  if(!(state.recolor&&state.recolorApplied)&&paleForegroundUnresolved(pixels,w,h,state.removeWhite&&state.bgDetection?.kind==='white',!state.extractionApproximate&&!state.photoLayout?nativeEstimate:null))frontArtworkInkEstimate.uncertain=true;
+ const approvedProposal=approvedFlatPhotoPalette(pixels,w,h);if(approvedProposal)frontArtworkInkEstimate=approvedProposal;
  printInkEstimate={...frontArtworkInkEstimate};
  const neutralFrameTones=!frontMonochrome&&state.technicalFrameProposed&&printInkEstimate.colors.length>1&&printInkEstimate.colors.every(c=>{const rgb=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));return Math.max(...rgb)-Math.min(...rgb)<20;});
  const neutralToneCount=printInkEstimate.colors.filter(c=>{const rgb=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));return Math.max(...rgb)-Math.min(...rgb)<24;}).length;
- const sourceInkUnverified=!frontMonochrome&&(!!state.extractionApproximate||!!state.photoLayout)&&neutralToneCount>1;
+ const sourceInkUnverified=!approvedProposal&&!frontMonochrome&&(!!state.extractionApproximate||!!state.photoLayout)&&neutralToneCount>1;
  frontInkStatus=!sourceInkUnverified&&!neutralFrameTones&&!frontArtworkInkEstimate.uncertain?'estimated':'unknown';
  const frontCombined=CombinedInks.estimate({front:{status:frontInkStatus,colors:frontArtworkInkEstimate.colors},background:state.bg,frontTextColor:state.text&&!state.textPending?state.textColor:null});
  printInkEstimate={...frontArtworkInkEstimate,...frontCombined,uncertain:frontCombined.status!=='estimated'};
@@ -230,6 +256,7 @@ function syncPrintInks(){
  state.productionCompatibility=currentFlexoProductionPolicy();
  if(state.productionCompatibility?.adaptationRequired)$('inkEstimateNote').textContent=state.productionCompatibility.notice+' '+$('inkEstimateNote').textContent;
  syncRearInkNote();
+ const pendingNotice=pendingFlatPhotoNotice();if(pendingNotice){$('inkEstimateNote').textContent=pendingNotice;frontInkNoteText=pendingNotice;}
 }
 const calculateBeforePrintInks=calculateRaw;calculateRaw=function(){syncPrintInks();invalidateQuote();return calculateBeforePrintInks();};
 const refreshBeforePrintInks=refresh;refresh=function(){const result=refreshBeforePrintInks();syncPrintInks();return result;};

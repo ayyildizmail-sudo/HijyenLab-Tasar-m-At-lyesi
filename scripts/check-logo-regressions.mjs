@@ -13,6 +13,8 @@ const fixtures = [
   'tests/fixtures/technical-frame/source.jpeg',
 ];
 const suites = [
+  'tests/pending-proposal-design-issue.test.cjs',
+  'tests/photo-flat-hook.test.cjs',
   'tests/white-carrier-ui.test.cjs',
   'tests/customer-no-manual-region.test.cjs',
   'tests/flexo-policy.test.cjs',
