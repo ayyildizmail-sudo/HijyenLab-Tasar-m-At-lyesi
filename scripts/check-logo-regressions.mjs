@@ -26,6 +26,7 @@ const suites = [
   'tests/flat-jpeg-ink-palette.test.cjs',
   'tests/private-raw-ink-palette.test.cjs',
   'tests/print-policy.test.cjs',
+  'tests/reference-recovery.test.cjs',
   'tests/print-policy-ui.test.cjs',
   'tests/pending-text-readiness.test.cjs',
   'tests/screenshot-artwork.test.cjs',
