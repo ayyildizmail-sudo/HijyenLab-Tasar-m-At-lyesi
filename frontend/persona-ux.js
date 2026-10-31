@@ -39,6 +39,7 @@
     const home = make('span', 'personaActionHome'); home.hidden = true; action.before(home);
     const noLogo = make('details', 'personaNoLogo');
     const noLogoTitle = make('summary', '', 'Görsel yüklemeden fiyat al');
+    noLogoTitle.setAttribute('aria-controls', 'declarationPanel');
     noLogo.append(noLogoTitle);
     const declarationPanel=make('div','declarationPanel');declarationPanel.className='declarationPanel';
     const groundGroup=make('fieldset'),groundLegend=make('legend','','Ambalaj zemini');groundGroup.append(groundLegend);
@@ -53,8 +54,9 @@
     const proceed=make('button','declarationContinue','Devam et →');proceed.type='button';proceed.className='primary full';proceed.onclick=()=>continueDeclaredQuote();
     const disclaimer=make('p','','Teklif, belirttiğiniz renk sayısına göre hazırlanır; görsel kontrolü yapılmış sayılmaz.');disclaimer.className='hint';
     declarationPanel.append(groundGroup,countGroup,note,helpRow,proceed,disclaimer);noLogo.append(declarationPanel);
+    function syncExpanded(){const expanded=String(noLogo.open);if(noLogoTitle.getAttribute('aria-expanded')!==expanded)noLogoTitle.setAttribute('aria-expanded',expanded);}
     function syncDeclaration(){const active=typeof isDeclaredQuote==='function'&&isDeclaredQuote(),d=active?state.declaration:root.DeclaredQuote.create();for(const {b,kind,value} of choices){const pressed=String(d[kind]===value);if(b.getAttribute('aria-pressed')!==pressed)b.setAttribute('aria-pressed',pressed);}const disabled=!active||!root.DeclaredQuote.valid(d);if(proceed.disabled!==disabled)proceed.disabled=disabled;}
-    noLogo.addEventListener('toggle',()=>{if(noLogo.open&&!(typeof isDeclaredQuote==='function'&&isDeclaredQuote()))startDeclaredQuote();syncDeclaration();});
+    noLogo.addEventListener('toggle',()=>{syncExpanded();if(noLogo.open&&!(typeof isDeclaredQuote==='function'&&isDeclaredQuote()))startDeclaredQuote();syncDeclaration();});
 
     const hint = get('welcomeUploadHint'); (hint || action).after(noLogo);
     const prompt = make('aside', 'personaDraftPrompt'); prompt.hidden = true; prompt.setAttribute('aria-label', 'İsteğe bağlı taslak saklama');
@@ -81,11 +83,13 @@
         else { home.after(action); picker.append(facts); }
         previousOpening = opening;
       }
-      // Hint/help follow the native action without moving the preview or hiding safety controls.
-      if (hint && action.nextElementSibling !== hint) action.after(hint);
-      const helpAnchor = opening ? preview : (hint || action);
-      if (helpAnchor.nextElementSibling !== noLogo) helpAnchor.after(noLogo);
+      // This is the sole owner of CTA/hint ordering. Do not separately force the hint
+      // after action: that would fight the second CTA on every observer delivery.
+      // The same guarded chain converges in opening, editor, reset and restored states.
+      if (action.nextElementSibling !== noLogo) action.after(noLogo);
+      if (hint && noLogo.nextElementSibling !== hint) noLogo.after(hint);
       hide(noLogo, !opening||!!value.text?.trim()||(typeof rearHasContent==='function'&&rearHasContent())||!!root.MultiLogo?.has('front')||!!root.MultiLogo?.has('rear'));
+      syncExpanded();
       syncDeclaration();
       const consented = !!get('draftConsent')?.checked, hasRestore = !!get('restoreDraft') && !get('restoreDraft').hidden;
       if (draftPromptEligible(value, { seen, consented, hasRestore, mode, designVisible: visible })) { seen = true; hide(prompt, false); }

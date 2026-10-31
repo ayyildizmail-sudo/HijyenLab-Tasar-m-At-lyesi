@@ -85,3 +85,28 @@
 .declarationChoice[aria-pressed="true"]{background:#eaf1f8;border-color:#234d78;font-weight:700}
 .declarationHelp{display:flex;justify-content:space-between;gap:18px;margin:12px 0}.declarationHelp button{min-height:44px;padding:6px 0;font-size:14px}
 .declarationPanel .hint{line-height:1.6}.declarationPanel button:focus-visible{outline:3px solid #0780d8;outline-offset:3px}
+
+/* Approved two-path opening. Only the empty printed view promotes these actions;
+   native editor placement, product assets and declaration logic remain unchanged. */
+.atelierLayout.welcomeEmpty .simplePrimary {
+  width: 100%; max-width: none; margin: 8px 0 12px;
+}
+.atelierLayout.welcomeEmpty #focusUpload {
+  min-height: 56px; box-sizing: border-box; font-size: 16px;
+}
+.atelierLayout.welcomeEmpty #personaNoLogo {
+  width: 100%; max-width: none; margin: 0 0 12px;
+}
+.atelierLayout.welcomeEmpty #personaNoLogo > summary {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 56px; box-sizing: border-box; padding: 14px 12px;
+  border: 1px solid #8bb4dc; border-radius: 10px;
+  background: #e7f1fc; color: #153b67;
+  font-size: 16px; font-weight: 700; line-height: 1.5; list-style: none;
+}
+.atelierLayout.welcomeEmpty #personaNoLogo > summary::-webkit-details-marker { display: none; }
+.atelierLayout.welcomeEmpty #personaNoLogo > summary:hover { background: #dcebf9; }
+.atelierLayout.welcomeEmpty #personaNoLogo > summary:focus-visible {
+  outline: 3px solid #477fae; outline-offset: 3px;
+}
+.atelierLayout.welcomeEmpty #welcomeUploadHint { margin: 0 auto 16px; }

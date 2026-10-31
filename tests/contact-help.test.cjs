@@ -113,40 +113,36 @@ assert.equal(browser.HijyenLabContactHelp.openSummaryDraft(),true);assert.match(
 browser.getHijyenLabSummaryHelpContext=()=>({printMode:'printed',product:'BM545',quantity:625,fragrance:'Limon'});let blockedMode=false;nodes.get('contactProceed').onclick({preventDefault(){blockedMode=true;}});assert.equal(blockedMode,true);
 console.log('PASS unprinted help: explicit mode, carton quantity context, no PII, and mode-switch freshness guard; no outbound activation.');
 
-// Optional special quote: self-declared group, fresh allowlisted local draft only.
+// Quiet institutional contact: neutral fixed request, no categories or form/context reads.
 dialog.close();
-const special = browser.HijyenLabContactHelp;
-assert.equal(special.specialQuoteMessage('verified_customer', contextInput), null);
-assert.equal(special.specialQuoteMessage('__proto__', contextInput), null);
-let current = { product: 'BM545', printMode: 'unprinted', quantity: 625, fragrance: 'Flambau', customerName:'PRIVATE', phone:'PRIVATE', image:'PRIVATE', price:987654, stage:'PRIVATE' };
-browser.getHijyenLabSpecialQuoteContext = () => current;
-const group = nodes.get('specialQuoteGroup'), ask = nodes.get('specialQuoteDraft');
-assert(group && ask); assert.equal(nodes.get('specialQuoteHelp').tagName, 'DETAILS');
-const original = JSON.stringify(current);
-group.value = ''; ask.onclick(); assert.equal(nodes.get('specialQuoteError').hidden, false); assert.equal(dialog.open, false);
-group.value = 'reseller'; doc.activeElement = ask; ask.onclick();
-assert.equal(dialog.open,true); assert.match(draft.value,/Talep grubu \(kendi beyanım\): Satıcı Müşteri/);
-assert.match(draft.value,/BM545/); assert.match(draft.value,/Baskısız; klişe uygulanmaz/); assert.match(draft.value,/625/);
-assert(!/PRIVATE|987654|farklı bir ürün/.test(draft.value)); assert.equal(JSON.stringify(current),original);
-draft.value = 'Düzenlediğim mesaj'; draft.listeners.input();
-assert.equal(special.openSpecialQuoteDraft('public_institution'),false,'repeated calls preserve active draft'); assert.equal(draft.value,'Düzenlediğim mesaj');
-nodes.get('contactCancel').onclick(); assert.equal(doc.activeElement,ask); assert.equal(group.value,'reseller'); assert.equal(JSON.stringify(current),original);
-group.value = 'public_institution'; ask.onclick(); assert.match(draft.value,/Kamu Kurumu/);
-current = {...current,product:'BM12',quantity:5200,printMode:'printed',fragrance:'Limon'};
-let stale=false; proceed.onclick({preventDefault(){stale=true;}}); assert(stale); assert.equal(proceed.href,undefined);
-nodes.get('contactCancel').onclick(); ask.onclick(); assert.match(draft.value,/BM12/); assert.match(draft.value,/5200/); assert(!/BM545|625|Flambau/.test(draft.value));
-current = null; stale=false; proceed.onclick({preventDefault(){stale=true;}}); assert(stale,'expired context blocked');
-dialog.close(); assert.equal(special.openSpecialQuoteDraft('reseller'),false);
-current = { product:'BM15',printMode:'printed',quantity:null,fragrance:'' };
-ask.onclick(); assert.match(draft.value,/BM15/); assert(!/adet:|koku:/.test(draft.value));
-const beforeCancel=JSON.stringify(current); nodes.get('contactCancel').onclick(); assert.equal(JSON.stringify(current),beforeCancel);
-console.log('PASS special quote: self-declaration only, no state mutation, allowlisted message, mode/SKU/quantity freshness, expired guard, editable/cancel/repeated draft, no outbound activation.');
-
+const institution = browser.HijyenLabContactHelp;
+const ask = nodes.get('institutionContactDraft');
+assert(ask); assert.equal(nodes.get('institutionContactHelp').tagName, 'P');
+assert.equal(ask.textContent, 'Kamu kurumları ve resmî kuruluşların talepleri için bizimle iletişime geçebilirsiniz.');
+assert.equal(ask.attrs['aria-haspopup'], 'dialog');
+assert(!nodes.has('specialQuoteGroup') && !nodes.has('specialQuoteHelp'));
+assert(!/SPECIAL_GROUPS|specialQuote|özel teklif|indirim|satıcı müşteri/i.test(source));
+assert(!fs.readFileSync('frontend/app.js','utf8').includes('getHijyenLabSpecialQuoteContext'));
+browser.getHijyenLabHelpContext = () => { throw new Error('Institution request must not read design/customer context'); };
+doc.activeElement = ask; ask.onclick();
+assert.equal(dialog.open,true);
+assert.equal(draft.value,'Merhaba, kamu kurumu veya resmî kuruluş adına talebimizi görüşmek istiyorum.');
+assert(!/PRIVATE|SECRET|BM545|625|fiyat|indirim|özel teklif/i.test(draft.value));
+assert.equal(new URL(proceed.href).searchParams.get('text'),draft.value);
+draft.value = 'Kurumumuzun düzenlediği mesaj'; draft.listeners.input();
+assert.equal(institution.openInstitutionDraft(),false,'repeated calls preserve active draft');
+assert.equal(draft.value,'Kurumumuzun düzenlediği mesaj');
+nodes.get('contactCancel').onclick(); assert.equal(doc.activeElement,ask);
+ask.onclick(); assert(!draft.value.includes('düzenlediği'));
+// No product/category snapshot is included, so later design changes cannot stale this neutral draft.
+let institutionPrevented=false; proceed.onclick({preventDefault(){institutionPrevented=true;}});
+assert.equal(institutionPrevented,false); assert.equal(dialog.open,false);
 // Another open dialog must be dismissed first; no modal stacking.
 doc.querySelector = selector => selector === 'dialog[open]' ? { open: true } : null;
-assert.equal(special.openSpecialQuoteDraft('reseller'),false); assert.equal(dialog.open,false);
+assert.equal(institution.openInstitutionDraft(),false); assert.equal(dialog.open,false);
 doc.querySelector = () => null;
-assert.equal(special.openSpecialQuoteDraft('reseller'),true); dialog.close();
+assert.equal(institution.openInstitutionDraft(),true); dialog.close();
+console.log('PASS institutional contact: exact quiet copy, no category/price claim/context autofill, editable/cancel/reopen/repeated draft and modal guards; no outbound activation.');
 
 // Icon-only contact controls retain accessible names and normal interactive semantics.
 for (const id of ['contactWhatsApp', 'contactTelephone']) {

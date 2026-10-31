@@ -1,6 +1,6 @@
 'use strict';
 // CommonJS VM harness follows the existing test runner.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+/* eslint-disable @typescript-eslint/no-require-imports */
 const assert = require('node:assert/strict'), fs = require('node:fs'), vm = require('node:vm');
 function load(path) { const context = { module: { exports: {} } }; vm.runInNewContext(fs.readFileSync(path, 'utf8'), context); return context.module.exports; }
 const source = fs.readFileSync('frontend/persona-ux.js', 'utf8');
@@ -55,7 +55,7 @@ const get=id=>doc.getElementById(id),at=n=>visual.children.indexOf(n);
 state.bg='#FFFFFF';sync();assert.match(get('personaMinimum').textContent,/Beyaz.*5.200/,'uppercase white renders the white minimum in the mounted UI');
 state.bg='#F5F6FA';sync();assert.match(get('personaMinimum').textContent,/Renkli.*10.000/,'explicit pale grey retains coloured tariff');
 state.bg='#ffffff';sync();assert.match(get('personaMinimum').textContent,/Beyaz.*5.200/);
-assert(at(action)<at(preview));assert(at(get('personaNoLogo'))>at(preview),'optional logo help follows package');assert(at(get('personaProductFacts'))>at(preview),'optional product facts follow package');assert.equal(upload.attrs.for,'unifiedUpload');assert.equal(next.parentElement,action);
+assert(at(action)<at(preview));assert.equal(action.nextElementSibling,get('personaNoLogo'),'second CTA follows upload');assert.equal(get('personaNoLogo').nextElementSibling,hint,'helper follows both CTAs');assert.equal(hint.nextElementSibling,preview,'both CTAs precede package');assert(at(get('personaProductFacts'))>at(preview),'optional product facts follow package');assert.equal(upload.attrs.for,'unifiedUpload');assert.equal(next.parentElement,action);
 assert.equal(get('personaNoLogo').hidden,false);assert.match(sharing.textContent,/1 · JPG’yi kaydet → 2 · WhatsApp’ı aç → 3 · Görseli ekle/);
 let moves=action.moves+hint.moves+get('personaNoLogo').moves;sync();sync();assert.equal(action.moves+hint.moves+get('personaNoLogo').moves,moves,'stable observer no node churn');
 browser.HijyenLabPersonaUX.mount(doc);assert.equal(observers,1,'idempotent mount');
@@ -77,4 +77,4 @@ const compactCSS=fs.readFileSync('frontend/persona-ux.css','utf8');
 assert.match(compactCSS,/\.atelierLayout\.welcomeEmpty #simpleDetails \{ display: none; \}/,'only empty opening hides placement controls');
 assert.match(compactCSS,/#focusUpload \{ min-height: 52px;/,'large native upload target');
 assert.match(compactCSS,/#productAdvisorButton \{ grid-column: 2; grid-row: 1; min-height: 44px;/,'optional adviser retains touch target');
-console.log('PASS compact opening: optional help/facts after preview, reset restores ordering, non-opening facts preserved, native action and 44px adviser retained.');
+console.log('PASS compact opening: paired CTAs before preview, facts after preview, reset restores ordering, non-opening facts preserved, native action and 44px adviser retained.');

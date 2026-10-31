@@ -1,0 +1,15 @@
+'use strict';
+const assert = require('node:assert/strict'), fs = require('node:fs');
+const app = fs.readFileSync('frontend/app.js','utf8');
+const contact = fs.readFileSync('frontend/contact-help.js','utf8');
+assert(!app.includes('getHijyenLabSpecialQuoteContext'));
+assert(!/SPECIAL_GROUPS|specialQuote|özel teklif|Özel fiyat|Satıcı Müşteri|indirim/.test(contact));
+const provider=contact.slice(contact.indexOf('  function openInstitutionDraft()'),contact.indexOf('  const CONTACT'));
+assert(provider.includes('Merhaba, kamu kurumu veya resmî kuruluş adına talebimizi görüşmek istiyorum.'));
+assert(!/getHijyenLab|activeDraftGuard|context|quantity|price|customer|phone/.test(provider));
+assert(!/getHijyenLabLeadRequestContext|leadValues|calculate\(|pricing\(|discount|\.checked\s*=/.test(contact));
+assert(contact.includes('Kamu kurumları ve resmî kuruluşların talepleri için bizimle iletişime geçebilirsiniz.'));
+assert(contact.includes('openDeclaredQuoteDraft'));
+assert(contact.includes("[1,2,3,'4+','unknown']"));
+assert(contact.includes('printInkUncertain'));
+console.log('PASS institutional contact isolation: neutral fixed request without category/design/customer/price dependency; general, declaration 4+/unknown and uncertain-print help retained.');

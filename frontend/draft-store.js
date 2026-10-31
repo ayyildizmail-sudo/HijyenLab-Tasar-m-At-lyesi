@@ -1,4 +1,4 @@
-/* Opt-in local draft persistence only. No network, customer lead fields, prices or approvals. */
+/* Opt-in local draft persistence only. No network, prices or approval tokens. Contact inputs require explicit opt-in. */
 (function(root){'use strict';
 const DB_NAME='hijyenlab-local-design-draft-v1',STORE='drafts',KEY='active';
 const TTL_MS=7*24*60*60*1000,MAX_FILE_BYTES=8*1024*1024,MAX_TOTAL_BYTES=16*1024*1024,MAX_METADATA_BYTES=65536;
@@ -16,8 +16,34 @@ function number(value,min,max){if(typeof value!=='number'||!Number.isFinite(valu
 function bool(value){if(typeof value!=='boolean')fail('INVALID','Taslak seçimi geçersiz.');return value;}
 // CSS hex case has no visual meaning; canonicalize it before strict tariff comparisons.
 function hex(value,empty=false){if(empty&&value==='')return value;if(typeof value!=='string'||!/^#[0-9a-f]{6}$/i.test(value))fail('INVALID','Taslak rengi geçersiz.');return value.toLowerCase();}
-function topKeys(input){return input?.schemaVersion===3?TOP.concat('printMode','frontExtras','rearExtras'):input?.schemaVersion===2?TOP.concat('printMode'):TOP;}
+function topKeys(input){return input?.schemaVersion===4?TOP.concat('printMode','frontExtras','rearExtras','resume'):input?.schemaVersion===3?TOP.concat('printMode','frontExtras','rearExtras'):input?.schemaVersion===2?TOP.concat('printMode'):TOP;}
+function validateResume(input){
+ exact(input,['lead','cliche','stage','quoteSource','declaration','fragranceConfirmed','quantityInput','cartonInput','rearTone']);
+ exact(input.lead,['customer','contact','phone','province','district']);const lead={};
+ for(const [key,max] of [['customer',120],['contact',100],['phone',25],['province',100],['district',100]])lead[key]=str(input.lead[key],max);
+ if(!['new','existing'].includes(input.cliche)||!['start','design','fragrance','pricing','summary'].includes(input.stage)||!['uploaded-artwork','customer-declared'].includes(input.quoteSource))fail('INVALID','Taslak devam alanları geçersiz.');
+ let declaration=null;if(input.declaration!==null){exact(input.declaration,['version','ground','count']);const d=input.declaration;if(d.version!=='declared-inks-v1'||!['white','colored'].includes(d.ground)||(d.count!==null&&(!Number.isInteger(d.count)||d.count<1||d.count>6)))fail('INVALID','Taslak renk beyanı geçersiz.');declaration={version:d.version,ground:d.ground,count:d.count};}
+ if((input.quoteSource==='customer-declared')!==(declaration!==null))fail('INVALID','Taslak renk beyanı akışı geçersiz.');
+ for(const key of ['quantityInput','cartonInput']){str(input[key],24);if(!/^[-+0-9.eE]*$/.test(input[key]))fail('INVALID','Taslak adet girişi geçersiz.');}
+ if(!['','#ffffff','#111111'].includes(input.rearTone))fail('INVALID','Taslak arka logo tonu geçersiz.');
+ return {quantityInput:input.quantityInput,cartonInput:input.cartonInput,rearTone:input.rearTone,lead,cliche:input.cliche,stage:input.stage,quoteSource:input.quoteSource,declaration,fragranceConfirmed:bool(input.fragranceConfirmed)};
+}
+function validateV4(input){
+ exact(input,topKeys(input));const resume=validateResume(input.resume);
+ const quantity=input.design?.requestedQuantity;if(quantity!==null&&(!Number.isInteger(quantity)||quantity<0||quantity>1000000))fail('INVALID','Taslak adedi geçersiz.');
+ const base={};for(const key of TOP)base[key]=input[key];base.printMode=input.printMode;
+ // Input drafts may be incomplete (below minimum or not a full carton). Current catalog validates at resume, not at storage time.
+ base.design={...input.design,requestedQuantity:null};base.schemaVersion=input.printMode==='unprinted'?2:3;
+ if(input.printMode==='unprinted'){
+  if(!Array.isArray(input.frontExtras)||input.frontExtras.length||!Array.isArray(input.rearExtras)||input.rearExtras.length||resume.quoteSource!=='uploaded-artwork')fail('INVALID','Baskısız taslak baskı içeriği taşıyamaz.');
+ }else{base.frontExtras=input.frontExtras;base.rearExtras=input.rearExtras;}
+ const clean=validate(base);clean.design.requestedQuantity=quantity;
+ if(resume.quoteSource==='customer-declared'&&(clean.frontFile||clean.rearFile||clean.frontExtras.length||clean.rearExtras.length||clean.design.text.trim()||['instagram','website','phone','address','extra','qrUrl'].some(k=>clean.rear[k].trim())||clean.rear.qrEnabled))fail('INVALID','Görselsiz beyan taslağı tasarım içeriği taşıyamaz.');
+ const result={...clean,schemaVersion:4,frontExtras:clean.frontExtras||[],rearExtras:clean.rearExtras||[],resume};
+ if(new TextEncoder().encode(metadata(result)).length>MAX_METADATA_BYTES)fail('INVALID','Taslak alanları çok büyük.');return result;
+}
 function validate(input){
+ if(input?.schemaVersion===4)return validateV4(input);
  exact(input,topKeys(input));if(![1,2,3].includes(input.schemaVersion)||!['BM12','BM11','BM13','BM15','BM545','BM21'].includes(input.productId))fail('INVALID','Taslak sürümü veya ürünü desteklenmiyor.');
  if(input.schemaVersion>=2&&!['printed','unprinted'].includes(input.printMode))fail('INVALID','Taslak baskı seçimi geçersiz.');
  if(input.schemaVersion===3&&input.printMode!=='printed')fail('INVALID','Çok logolu taslak yalnız baskılı tasarımı destekler.');
@@ -65,8 +91,8 @@ function validate(input){
 }
 function envelope(input){exact(input,topKeys(input).concat(['savedAt','expiresAt']));const payload={};for(const k of topKeys(input))payload[k]=input[k];const result=validate(payload);if(!Number.isSafeInteger(input.savedAt)||input.savedAt<0||!Number.isSafeInteger(input.expiresAt)||input.expiresAt!==input.savedAt+TTL_MS)fail('INVALID','Taslak saklama süresi geçersiz.');return {...result,savedAt:input.savedAt,expiresAt:input.expiresAt};}
 function fileMetadata(file){return file?{size:file.size,type:file.type}:null;}
-function metadata(record){const value={...record,frontFile:fileMetadata(record.frontFile),rearFile:fileMetadata(record.rearFile)};if(record.schemaVersion===3)for(const side of ['front','rear'])value[side+'Extras']=record[side+'Extras'].map(item=>({...item,file:fileMetadata(item.file)}));return JSON.stringify(value);}
-async function equalSourceBytes(a,b){if(!await equalBytes(a.frontFile,b.frontFile)||!await equalBytes(a.rearFile,b.rearFile))return false;if(a.schemaVersion===3)for(const side of ['front','rear']){const first=a[side+'Extras'],second=b[side+'Extras'];if(first.length!==second.length)return false;for(let i=0;i<first.length;i++)if(!await equalBytes(first[i].file,second[i].file))return false;}return true;}
+function metadata(record){const value={...record,frontFile:fileMetadata(record.frontFile),rearFile:fileMetadata(record.rearFile)};if(record.schemaVersion>=3)for(const side of ['front','rear'])value[side+'Extras']=record[side+'Extras'].map(item=>({...item,file:fileMetadata(item.file)}));return JSON.stringify(value);}
+async function equalSourceBytes(a,b){if(!await equalBytes(a.frontFile,b.frontFile)||!await equalBytes(a.rearFile,b.rearFile))return false;if(a.schemaVersion>=3)for(const side of ['front','rear']){const first=a[side+'Extras'],second=b[side+'Extras'];if(first.length!==second.length)return false;for(let i=0;i<first.length;i++)if(!await equalBytes(first[i].file,second[i].file))return false;}return true;}
 async function equalBytes(a,b){if(a===null||b===null)return a===b;const x=new Uint8Array(await a.arrayBuffer()),y=new Uint8Array(await b.arrayBuffer());if(x.length!==y.length)return false;for(let i=0;i<x.length;i++)if(x[i]!==y[i])return false;return true;}
 function createStore(options={}){
  let idb;try{idb=options.indexedDB===undefined?root.indexedDB:options.indexedDB;}catch{idb=null;}const now=options.now||Date.now;let connection=null;
@@ -88,7 +114,7 @@ function createStore(options={}){
    if(ticket!==coordination.epoch)fail('STALE','Bekleyen taslak kaydı iptal edildi.');return checked;
   });
  }
- function load(){return serial(async()=>{const record=await transaction('readwrite',(store,result)=>{const request=store.get(KEY);request.onsuccess=()=>{const data=request.result;if(data&&Number.isSafeInteger(data.expiresAt)&&data.expiresAt<=now()){store.delete(KEY);result(null);}else result(data);};});if(record===undefined||record===null)return null;const checked=envelope(record);if(checked.savedAt>now()+300000)fail('INVALID','Taslak cihaz zamanıyla uyuşmuyor.');return checked;});}
+ function load(){return serial(async()=>{const record=await transaction('readwrite',(store,result)=>{const request=store.get(KEY);request.onsuccess=()=>{const data=request.result;if(data===undefined||data===null){result(null);return;}try{const checked=envelope(data);if(checked.savedAt>now())fail('INVALID','Taslak cihaz zamanıyla uyuşmuyor.');if(checked.expiresAt<=now()){store.delete(KEY);result(null);}else result(checked);}catch(error){result({readError:error});}};});if(record===undefined||record===null)return null;if(record.readError)throw record.readError;const checked=envelope(record);if(checked.savedAt>now())fail('INVALID','Taslak cihaz zamanıyla uyuşmuyor.');return checked;});}
  function clear(){coordination.epoch++;return serial(async()=>{await transaction('readwrite',(store,result)=>{store.delete(KEY);const read=store.get(KEY);read.onsuccess=()=>result(read.result);}).then(value=>{if(value!==undefined)fail('VERIFY_FAILED','Taslağın silindiği doğrulanamadı.');});});}
  return Object.freeze({save,load,clear});
 }
