@@ -3,7 +3,11 @@ import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
 import { readFileSync,readdirSync } from 'node:fs';
-import * as api from '../server/lead-service.mjs';
+import * as productionApi from '../server/lead-service.mjs';
+// Explicit trusted SERVER fixture only: preserve DB/idempotency tests without enabling a provider.
+// Default production denial/bypass/outage/revision tests live in content-safety.test.mjs.
+const testModeration={adapter:{async assess({revision,policyVersion}){return {state:'approved',revision,policyVersion};}}};
+const api={...productionApi,handleLeadIngest:(request,env,db,now)=>productionApi.handleLeadIngest(request,env,db,now,testModeration)};
 import { renderAdminPage,renderOwnerSetupPage } from '../server/admin-page.mjs';
 const origin='https://example.chatgpt.site',now=1800000000000,owner={userId:'site-scoped-fixture-owner'},env={ADMIN_USER_IDS:JSON.stringify([owner.userId]),LEAD_COLLECTION_ENABLED:'true',ANALYTICS_ENABLED:'true',LEAD_RETENTION_DAYS:'30',ANALYTICS_RETENTION_DAYS:'14'};
 function database(){const sql=new DatabaseSync(':memory:');sql.exec('PRAGMA foreign_keys=ON');for(const f of readdirSync(new URL('../drizzle/',import.meta.url)).filter(f=>f.endsWith('.sql')).sort())sql.exec(readFileSync(new URL('../drizzle/'+f,import.meta.url),'utf8'));return{sql,prepare(query){return{query,args:[],bind(...args){this.args=args;return this;},async all(){return{success:true,results:sql.prepare(query).all(...this.args)};}};},async batch(statements){sql.exec('BEGIN');try{const result=statements.map(s=>{const statement=sql.prepare(s.query);if(/^SELECT/.test(s.query))return{success:true,results:statement.all(...s.args)};const out=statement.run(...s.args);return{success:true,results:[],meta:{changes:Number(out.changes)}};});sql.exec('COMMIT');return result;}catch(e){sql.exec('ROLLBACK');throw e;}}};}

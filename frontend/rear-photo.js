@@ -11,12 +11,11 @@ async function prepare(img,options={}){
  const make=options.createCanvas||((width,height)=>{const c=root.document.createElement('canvas');c.width=width;c.height=height;return c;}),scale=Math.min(1,SCAN_SIZE/Math.max(w,h)),small=make(Math.max(1,Math.round(w*scale)),Math.max(1,Math.round(h*scale)));
  try{
  const sc=small.getContext('2d',{willReadFrequently:true});sc.drawImage(img,0,0,small.width,small.height);const pixels=sc.getImageData(0,0,small.width,small.height).data;
- const whiteCandidates=W&&typeof W.propose==='function'?W.propose(pixels,small.width,small.height,w,h):[];
- if(whiteCandidates.length>1)throw Error('Fotoğrafta birden fazla ambalaj alanı var. Kullanacağınız ambalajı seçin.');
  // Use the same source-resolution group extraction as the front, before localized fallbacks.
  if(Shared&&typeof Shared.prepare==='function'){
   const shared=await Shared.prepare(img,{createCanvas:make});
   if(shared){
+   if(shared.whiteCarrier){const candidates=W&&typeof W.propose==='function'?W.propose(pixels,small.width,small.height,w,h):[];if(candidates.length>1)throw Error('Fotoğrafta birden fazla ambalaj alanı var. Kullanacağınız ambalajı seçin.');}
    let result={data:shared.canvas.getContext('2d').getImageData(0,0,shared.canvas.width,shared.canvas.height).data,width:shared.canvas.width,height:shared.canvas.height,metadata:shared.processing};
    if(shared.whiteCarrier)result=O.correctPhotoFrame(result);
    if(result.width*result.height>MAX_ROI_PIXELS)throw Error('Seçilen fotoğraf bölgesi çok büyük.');
@@ -24,6 +23,8 @@ async function prepare(img,options={}){
    return {canvas,method:'rear-shared-standard-photo',reviewRequired:true,processing:result.metadata,sourceBounds:shared.processing.box.slice(),limitations:shared.processing.limitations||[],contrastWarning:'Fotoğraf ayrıştırmasında ince veya soluk ayrıntılar etkilenebilir. Seçtiğiniz zeminde logonun tamamını kontrol edin.'};
   }
  }
+ const whiteCandidates=W&&typeof W.propose==='function'?W.propose(pixels,small.width,small.height,w,h):[];
+ if(whiteCandidates.length>1)throw Error('Fotoğrafta birden fazla ambalaj alanı var. Kullanacağınız ambalajı seçin.');
  const routes=[{name:'rear-white-carrier-photo',engine:W,correct:(r,c)=>W.deskew(r,c.carrierAngleRadians)},{name:'rear-light-surface-photo',engine:L,correct:r=>{if(!O||typeof O.correct!=='function')throw Error('Fotoğraf açı düzeltme aracı yüklenemedi.');return O.correct(r);}}];
  for(const route of routes){if(!route.engine||typeof route.engine.propose!=='function'||typeof route.engine.extractCrop!=='function')continue;
  const candidates=route.engine===W?whiteCandidates:route.engine.propose(pixels,small.width,small.height,w,h);
@@ -73,5 +74,5 @@ async function prepareSelected(img,options={}){
  const pixels=cx.createImageData(w,h);pixels.data.set(result.data);cx.putImageData(pixels,0,0);
  return {canvas,method:'rear-user-selected-whole-group-photo',sourceBounds:[0,0,w,h],reviewRequired:true,processing:{method:'user-selected-whole-group-matte',fineDetails,box:[0,0,w,h],preservedRegions:[{box:[0,0,w,h],reason:'Entire explicit selection; no automatic brand subset selection.'}],limitations:result.limitations||[]},limitations:result.limitations||[],contrastWarning:fineDetails.restoredPixels?'Küçük veya soluk yazılar bulundu; kaynak pikselleri korunarak öneriye eklendi. Özellikle alt yazıları büyüterek karşılaştırın; okunamayan harfler yeniden üretilmez.':'Seçtiğiniz alanın tamamı işlendi. Küçük yazılar ve ince çizgiler dahil tüm baskıyı kaynakla karşılaştırın.'};
 }
-const api={prepare,prepareSelected,MAX_ROI_PIXELS,SCAN_SIZE};if(node)module.exports=api;else root.RearPhoto=api;
+const api={prepare,prepareSelected,retainSelectedFineDetails,MAX_ROI_PIXELS,SCAN_SIZE};if(node)module.exports=api;else root.RearPhoto=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

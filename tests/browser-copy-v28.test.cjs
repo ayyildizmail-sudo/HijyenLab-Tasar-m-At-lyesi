@@ -9,5 +9,5 @@ c.state.bgSource='manual';c.backgroundFeedback();assert.equal(nodes.backgroundRe
 const size=41.98010673316585; c.state.size=size;vm.runInContext(app.match(/\$\('sizeValue'\)\.textContent=[^;]+;/)[0],c);assert.equal(nodes.sizeValue.textContent,'%42');assert.equal(c.state.size,size);
 assert(!/Çalışan uygulama: V\d+/.test(region));assert(!region.includes('runtimeBuild.textContent='));
 assert(!html.includes('5 MB'));assert(html.includes('En fazla 8 MB.'));assert.equal(require('../frontend/upload-format.js').MAX_BYTES,8*1024*1024);
-assert(region.includes("extractionNotice.textContent+=' Bu yalnız önizlemedir. Baskı grafiği sipariş öncesinde hazırlanıp onayınıza sunulur.'"));
+assert(region.includes("extractionNotice.textContent+=' Bu yalnız önizlemedir. Baskıya hazırlık çalışması sipariş onayınızdan sonra ayrıca yapılır.'"));
 console.log('PASS actual background display, rounded-only size, shared release, upload limit and handoff copy');

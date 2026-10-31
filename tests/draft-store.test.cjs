@@ -16,6 +16,13 @@ function fakeIDB(){
 function payload(){return {schemaVersion:1,productId:'BM12',design:{bg:'#ffffff',color:'#102f59',textColor:'#800d2e',text:'Logo yazısı',font:'sans-serif',textSize:60,tx:800,ty:520,x:800,y:425,size:100,rotation:0,recolorApplied:false,bgPantone:'',textPantone:'',requestedQuantity:null},rear:{instagram:'brand',website:'example.com',phone:'printed business phone',address:'Printed business address',extra:'',inkColor:'',qrEnabled:false,qrUrl:''},fragrance:'lemon',frontFile:new Blob(['source pixels'],{type:'image/png'}),frontName:'source.png',rearFile:null,rearName:''};}
 const tests=[];function test(name,run){tests.push({name,run});}
 const rejects=(promise,code)=>assert.rejects(promise,e=>e.code===code);
+test('optional background intent preserves manual choice and recoverable legacy proposal without changing legacy bytes',async()=>{
+ const store=D.createStore({indexedDB:fakeIDB(),now:()=>100000});
+ const legacy=payload();legacy.design.bg='#765432';const old=await store.save(legacy);assert.equal(old.design.bg,'#765432');assert(!Object.hasOwn(old.design,'backgroundIntent'));
+ const manual=payload();manual.design.bg='#800d2e';manual.design.backgroundIntent={kind:'manual',color:'#800d2e'};const saved=await store.save(manual);assert.deepEqual(saved.design.backgroundIntent,manual.design.backgroundIntent);
+ const pending=payload();pending.design.backgroundIntent={kind:'unknown',color:'#765432'};const preserved=await store.save(pending);assert.equal(preserved.design.bg,'#ffffff');assert.equal(preserved.design.backgroundIntent.color,'#765432');
+ const bad=payload();bad.design.backgroundIntent={kind:'reviewed-source-proof',color:'#000000'};await rejects(store.save(bad),'INVALID');
+});
 test('save resolves only verified committed readback; load preserves source bytes and seven-day expiry',async()=>{
  const idb=fakeIDB();let now=100000;const store=D.createStore({indexedDB:idb,now:()=>now}),saved=await store.save(payload());assert.equal(saved.savedAt,now);assert.equal(saved.expiresAt,now+D.TTL_MS);assert.equal(await saved.frontFile.text(),'source pixels');now+=1000;const loaded=await store.load();assert.equal(loaded.savedAt,100000);assert.equal(loaded.expiresAt,saved.expiresAt);assert.equal(loaded.rear.address,'Printed business address');
 });

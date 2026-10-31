@@ -1,3 +1,4 @@
+import { guardTransmission } from '../lib/content-safety-server.mjs';
 // Same-Site lead intake and opt-in aggregate analytics. Server authorization is mandatory.
 export const LEAD_CONSENT_VERSION='lead-v1',ANALYTICS_CONSENT_VERSION='analytics-v1';
 export const EVENTS=Object.freeze(['visit','design_started','design_ready','fragrance_selected','quote_viewed','whatsapp_clicked','phone_clicked']);
@@ -33,9 +34,12 @@ function canonical(value){if(Array.isArray(value))return value.map(canonical);if
 async function digest(value){const data=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(canonical(value))));return [...new Uint8Array(data)].map(v=>v.toString(16).padStart(2,'0')).join('');}
 function successful(results){if(!Array.isArray(results)||results.some(r=>r.success===false))throw Error('database');return results;}
 export function handleCapabilities(request,env){if(request.method!=='GET')return error('method_not_allowed',405);return reply(capabilities(env));}
-export async function handleLeadIngest(request,env,db,now=Date.now()){
+// moderationOptions is server-only dependency injection; routes never populate it from client/env.
+export async function handleLeadIngest(request,env,db,now=Date.now(),moderationOptions={}){
  if(request.method!=='POST')return error('method_not_allowed',405);if(!capabilities(env).leadEnabled)return error('collection_disabled',503);if(!mutationAllowed(request))return error('origin_not_allowed',403);if(new URL(request.url).search)return error('invalid_request',400);
  let value;try{value=await body(request);}catch{return error('invalid_request',400);}if(!validateLead(value))return error('invalid_request',400);
+ const moderation=await guardTransmission(value,moderationOptions);
+ if(!moderation.allowed)return error(moderation.state==='blocked'?'content_blocked':moderation.state==='review_needed'?'content_review_needed':'content_check_unavailable',moderation.state==='blocked'?422:moderation.state==='review_needed'?409:503);
  const id=value.requestId.toLowerCase(),phone=value.contact.phone.replace(/\D/g,''),expires=now+days(env.LEAD_RETENTION_DAYS,365)*DAY;
  try{const hash=await digest({...value,requestId:id}),results=successful(await db.batch([
   db.prepare(`INSERT INTO leads (id,kind,print_mode,created_at,expires_at,status,revision,product_id,quantity,fragrance,contact_json,design_json,phone_key,consent_version,payload_hash) SELECT ?,?,?,?,?,'new',0,?,?,?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM leads WHERE created_at>=?)<20 AND (SELECT COUNT(*) FROM leads WHERE phone_key=? AND created_at>=?)<3 ON CONFLICT(id) DO NOTHING`).bind(id,value.kind,value.printMode,now,expires,value.productId,value.quantity,value.fragrance,JSON.stringify(value.contact),value.design===null?null:JSON.stringify(value.design),phone,LEAD_CONSENT_VERSION,hash,now-60000,phone,now-DAY),

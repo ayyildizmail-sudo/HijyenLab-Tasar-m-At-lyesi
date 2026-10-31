@@ -2,6 +2,18 @@
 (function(root){'use strict';
 const E=typeof module!=='undefined'?require('./ink-extraction.js'):root.LocalInkExtraction;
 function fill(mask,w,h){const outside=new Uint8Array(w*h),q=[];function add(i){if(i>=0&&i<w*h&&!mask[i]&&!outside[i]){outside[i]=1;q.push(i);}}for(let x=0;x<w;x++){add(x);add((h-1)*w+x);}for(let y=0;y<h;y++){add(y*w);add(y*w+w-1);}for(let k=0;k<q.length;k++){const i=q[k],x=i%w;add(i-w);add(i+w);if(x)add(i-1);if(x<w-1)add(i+1);}return Uint8Array.from(outside,v=>1-v);}
+// Compare a proposed carrier with compatible source markings, not just its own ROI.
+// A lighting stripe must not turn one glyph from a longer word into a whole logo.
+function sourceGroupCompleteness(data,w,h,inner,comps){
+ const chroma=i=>Math.max(data[i*4],data[i*4+1],data[i*4+2])-Math.min(data[i*4],data[i*4+1],data[i*4+2]);
+ const vector=i=>{const j=i*4,lo=Math.min(data[j],data[j+1],data[j+2]),c=chroma(i);return [0,1,2].map(k=>(data[j+k]-lo)/c);};
+ const seeds=comps.flatMap(p=>p.pts).filter(i=>chroma(i)>40);if(seeds.length<20)return {applicable:false};
+ const palette=[];for(const i of seeds){const v=vector(i);if(!palette.some(p=>Math.hypot(...p.map((x,k)=>x-v[k]))<.25))palette.push(v);if(palette.length>12)return {applicable:false};}
+ const y0=Math.min(...comps.map(p=>p.box[1])),y1=Math.max(...comps.map(p=>p.box[3]));
+ const mask=Uint8Array.from({length:w*h},(_,i)=>{if(inner[i]||chroma(i)<=40)return 0;const j=i*4;if((data[j]+data[j+1]+data[j+2])/3>=210)return 0;const v=vector(i);return palette.some(p=>Math.hypot(...p.map((x,k)=>x-v[k]))<.25)?1:0;});
+ const outside=E.components(mask,w,h).filter(p=>p.pts.length>=Math.max(3,seeds.length*.015)&&Math.max(0,Math.min(y1,p.box[3])-Math.max(y0,p.box[1]))>=Math.min(y1-y0,p.box[3]-p.box[1])*.5);
+ const missing=outside.reduce((n,p)=>n+p.pts.length,0);return {applicable:true,insidePixels:seeds.length,outsidePixels:missing,outsideGroups:outside.length,complete:!(outside.length>=3&&missing>seeds.length*4)};
+}
 function propose(data,w,h,sourceWidth=w,sourceHeight=h){
  if(data.length!==w*h*4)throw Error('RGBA size mismatch');
  const light=Float32Array.from({length:w*h},(_,i)=>{const j=i*4,lo=Math.min(data[j],data[j+1],data[j+2]),hi=Math.max(data[j],data[j+1],data[j+2]);return lo>160&&hi-lo<40?1:0;});
@@ -11,6 +23,7 @@ function propose(data,w,h,sourceWidth=w,sourceHeight=h){
   const mask=new Uint8Array(w*h);for(const i of part.pts)mask[i]=1;const support=fill(mask,w,h),inner=E.filter(support,w,h,r,false);
   const color=Uint8Array.from(inner,(v,i)=>{const j=i*4,hi=Math.max(data[j],data[j+1],data[j+2]),lo=Math.min(data[j],data[j+1],data[j+2]);const l=(data[j]+data[j+1]+data[j+2])/3;return v&&((hi-lo>40&&l<210)||l<95)?1:0;});
   const comps=E.components(color,w,h).filter(p=>p.pts.length>=Math.max(3,w*h*.000015));if(!comps.length)continue;
+  const completeness=sourceGroupCompleteness(data,w,h,inner,comps);if(completeness.complete===false){const error=Error('Source marking groups extend beyond the proposed carrier; partial logo rejected');error.code='INCOMPLETE_SOURCE_GROUPS';error.evidence=completeness;throw error;}
   // Preserve every qualified component; never select a dominant hue or largest logo only.
   const total=comps.reduce((n,p)=>n+p.pts.length,0);if(total<30||total/part.pts.length>.35)continue;
   const x0=Math.min(...comps.map(p=>p.box[0])),y0=Math.min(...comps.map(p=>p.box[1])),x1=Math.max(...comps.map(p=>p.box[2])),y1=Math.max(...comps.map(p=>p.box[3])),pad=Math.max(4,Math.round(Math.max(x1-x0,y1-y0)*.08));
@@ -48,5 +61,5 @@ function deskew(result,angle){
  return{...result,data:out,width:ow,height:oh,raw:undefined,metadata:{...result.metadata,deskewRadians:-angle,orientationAmbiguous180:true,transformOrder:[...result.metadata.transformOrder,'reviewable carrier-axis rotation; 180-degree text orientation unresolved'],limitations:[...result.metadata.limitations,'Carrier axis is a deskew proposal, not proof of intended logo orientation']}};
 }
 
-const api={propose,extract,extractCrop,deskew};if(typeof module!=='undefined')module.exports=api;else root.WhiteCarrier=api;
+const api={propose,extract,extractCrop,deskew,sourceGroupCompleteness};if(typeof module!=='undefined')module.exports=api;else root.WhiteCarrier=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

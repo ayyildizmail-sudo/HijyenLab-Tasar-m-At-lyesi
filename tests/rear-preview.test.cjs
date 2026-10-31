@@ -27,4 +27,13 @@ const nextHandler=app.match(/\$\('next'\)\.onclick=([^;]+);/);assert(nextHandler
 assert(fs.readFileSync('frontend/processing-lifecycle.js','utf8').includes("if(typeof resetRearPreview==='function')resetRearPreview();loading++"));
 assert(fs.readFileSync('frontend/style.css','utf8').includes('@media(prefers-reduced-motion:reduce){.rearFlipCard{transition:none}}'));
 assert(!/pricing\(/.test(rear)); // rear editor does not invent a separate price calculation
+// Product switch/reset: an old source callback cannot overwrite the new product rear asset.
+issue=false;ctx.currentProduct=()=>require('../frontend/product-catalog.js').get(ctx.selectedProductId||'BM12');
+for(const id of ['BM21','BM15','BM545','BM12','BM21']){
+ const stale=sourceImages.at(-1)?.onload;ctx.hideRearPreview();ctx.selectedProductId=id;fingerprint='product-'+id+'-'+sourceImages.length;
+ ctx.showRearPreview();const active=sourceImages.at(-1);assert.equal(active.src,ctx.currentProduct().backAsset);
+ $('rearBlankImage').src='pending-'+id;if(stale)stale();assert.equal($('rearBlankImage').src,'pending-'+id,'cancelled product cannot write rear source');
+ active.onload();$('rearBlankImage').onload();while(raf.length)raf.shift()();assert.equal($('rearToPrice').disabled,false);
+}
+ctx.resetRearPreview();assert.equal(ctx.selectedProductId,'BM21');ctx.showRearPreview();assert.equal(sourceImages.at(-1).src,ctx.currentProduct().backAsset);
 console.log('PASS front approval routing, animated rear, front-state preservation, stale callback/reset, asset failure, quote continuation and reduced motion');

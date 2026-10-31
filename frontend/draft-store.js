@@ -57,8 +57,9 @@ function validate(input){
   if(!['','flambau','green_tea','bodrum_mandarin','lemon'].includes(input.fragrance))fail('INVALID','Taslak kokusu geçersiz.');
   return {schemaVersion:2,printMode:'unprinted',productId:input.productId,design:{requestedQuantity:quantity},rear:null,fragrance:input.fragrance,frontFile:null,rearFile:null,frontName:'',rearName:''};
  }
- exact(input.design,DESIGN);exact(input.rear,REAR);const design={},rear={};
+ exact(input.design,Object.hasOwn(input.design||{},'backgroundIntent')?[...DESIGN,'backgroundIntent']:DESIGN);exact(input.rear,REAR);const design={},rear={};
  for(const k of ['bg','color','textColor'])design[k]=hex(input.design[k]);
+ if(Object.hasOwn(input.design,'backgroundIntent')){const intent=input.design.backgroundIntent;exact(intent,['kind','color']);if(!['manual','unknown'].includes(intent.kind))fail('INVALID','Taslak zemin niyeti geçersiz.');design.backgroundIntent={kind:intent.kind,color:hex(intent.color)};}
  design.text=str(input.design.text,500);if(!['sans-serif','serif','monospace','cursive'].includes(input.design.font))fail('INVALID','Taslak yazı tipi geçersiz.');design.font=input.design.font;
  for(const k of ['tx','ty','x','y'])design[k]=number(input.design[k],0,1600);
  design.textSize=number(input.design.textSize,1,200);design.size=number(input.design.size,1,300);design.rotation=number(input.design.rotation,-360,360);design.recolorApplied=bool(input.design.recolorApplied);

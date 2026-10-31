@@ -2,14 +2,14 @@
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 const source=fs.readFileSync('frontend/app.js','utf8'),html=fs.readFileSync('frontend/index.html','utf8'),cases=[];
 function check(name,fn){try{fn();cases.push({name,status:'PASS'});}catch(e){cases.push({name,status:'FAIL',error:e.message});}}
-const model={};model.isDeclaredQuote=()=>false;vm.createContext(model);vm.runInContext(source.slice(source.indexOf('function pricing('),source.indexOf('\nconst money=')),model);
+const model={};model.isDeclaredQuote=()=>false;vm.createContext(model);require('./helpers/content-safety-vm.cjs')(model);vm.runInContext(source.slice(source.indexOf('function pricing('),source.indexOf('\nconst money=')),model);
 const white=model.pricing(5200,'#ffffff','İstanbul','Kadıköy','new',1),colored=model.pricing(10000,'#102f59','İstanbul','Kadıköy','new',1),bodrum=model.pricing(5200,'#ffffff','Muğla','Bodrum','new',1);
 function setup(price,inks='1'){
  const elements={},values={qty:String(price===colored?10000:5200),inks,province:'İstanbul',district:'Kadıköy',cliche:'new',customerName:'Deneme İşletmesi',contactName:'Test Yetkilisi',contactPhone:'05000000001'};
  const el=id=>elements[id]||(elements[id]={value:values[id]||'',children:[],replaceChildren(){this.children=[];},append(...nodes){this.children.push(...nodes);},removeAttribute(){}});
  const drawn=[],cx=new Proxy({getImageData(x,y,w,h){return{data:new Uint8ClampedArray(w*h*4).fill(255)};},fillText(text,...position){drawn.push({text,position});}},{get(t,k){return k in t?t[k]:()=>{};}});
  const context={QuoteLayout:require('../frontend/quote-layout.js'),makeQuoteSnapshot:()=>({price:context.latest,rules:model.productRules()}),processingSession:{quoteToken:()=>({}),isQuoteCurrent:()=>true},state:{bgPantone:'',textPantone:''},latest:price,$:el,document:{createElement(type){if(type==='canvas')return{getContext:()=>cx,toDataURL:()=> 'data:image/jpeg;test'};return{children:[],append(...nodes){this.children.push(...nodes);}}; } },designIssue:()=>false,showDesignIssue(){},validateLead:()=>true,leadFingerprint:()=> 'same',loadImage:async()=>({width:1600,height:850}),imageData:()=> 'image',money:v=>new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY'}).format(v/100),status(){},invalidateQuote(){context.invalidated=true;},syncQuantity:()=>inks==='2'?10000:5200,effectiveBackground:()=>price===colored?'#102f59':'#ffffff',pricing:model.pricing,productRules:model.productRules};
- context.isUnprinted=()=>false;context.isDeclaredQuote=()=>false;vm.createContext(context);vm.runInContext(source.slice(source.indexOf('const VAT_EXCLUSION_NOTE'),source.indexOf('const $=')),context);
+ context.isUnprinted=()=>false;context.isDeclaredQuote=()=>false;vm.createContext(context);require('./helpers/content-safety-vm.cjs')(context);vm.runInContext(source.slice(source.indexOf('const VAT_EXCLUSION_NOTE'),source.indexOf('const $=')),context);
  vm.runInContext(source.slice(source.indexOf('async function renderQuote(){'),source.indexOf('function preparePhotoCutout(')),context);
  vm.runInContext(source.slice(source.indexOf('function calculateRaw(){'),source.indexOf("\n$('province')")),context);
  return{context,el,drawn};

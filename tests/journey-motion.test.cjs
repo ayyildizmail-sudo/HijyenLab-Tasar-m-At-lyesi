@@ -88,7 +88,7 @@ test('CSS integration overrides legacy hidden front only in composition and keep
   assert.match(source, /disclosure.open = false/); assert.match(source, /querySelectorAll\('\.priceRow'\)/);
   assert.doesNotMatch(css, /#summary #finalDetails\s*\{display:block/);
   const refresh = app.slice(app.indexOf('function refresh(){'), app.indexOf('for(const [id,key,items]'));
-  assert.match(refresh, /^function refresh\(\)\{containLogoPlacement\(\);syncQuantity\(\);/);
+  assert.match(refresh, /^function refresh\(\)\{reconcileSourceGroundScope\(\);containLogoPlacement\(\);syncQuantity\(\);/);
   assert.ok(refresh.indexOf('hideColorPreview()') > 0 && refresh.indexOf('hideColorPreview()') < refresh.indexOf('syncSimpleUI()'), 'stale auxiliary preview is hidden before UI synchronization and redraw');
   assert.ok(refresh.indexOf('hideColorPreview()') < refresh.indexOf('draw()'));
 });

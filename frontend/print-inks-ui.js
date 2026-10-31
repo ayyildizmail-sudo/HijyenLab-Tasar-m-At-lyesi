@@ -4,14 +4,57 @@ function printInkFingerprint(){return JSON.stringify([state.logo,state.photoLayo
 let frontInkNoteText='';
 function cleanNeutralArtwork(data,w,h){if(!data)return false;let n=0,dark=0,colored=0;for(let i=0;i<data.length;i+=4){if(data[i+3]<220)continue;const r=data[i],g=data[i+1],b=data[i+2];if(Math.min(r,g,b)>238)continue;n++;if(Math.max(r,g,b)-Math.min(r,g,b)>18)colored++;if(Math.max(r,g,b)<120)dark++;}return n>=20&&dark>=10&&colored===0;}
 function neutralArtworkInk(data){const bins=new Map();for(let i=0;i<data.length;i+=4){const rgb=[data[i],data[i+1],data[i+2]];if(data[i+3]<220||Math.max(...rgb)>=120||Math.max(...rgb)-Math.min(...rgb)>18)continue;const color='#'+rgb.map(v=>v.toString(16).padStart(2,'0')).join('');bins.set(color,(bins.get(color)||0)+1);}return [...bins.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0]||null;}
-function paleForegroundUnresolved(data,w,h,confirmedWhiteCarrier=false){
+// Near-white overshoot is not substrate: only tiny components beside verified
+// light-gray solid cores may be JPEG ringing. Lines/patches remain unresolved.
+function paleCoreEdgeRemnants(data,w,h,estimate){
+ if(estimate?.uncertain||estimate?.method!=='accepted-artwork-core-palette')return false;
+ const anchors=(estimate.colors||[]).map(c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16))).filter(c=>Math.min(...c)>210&&Math.max(...c)<238&&Math.max(...c)-Math.min(...c)<18);
+ if(!anchors.length)return false;
+ const pale=p=>data[p*4+3]>=220&&Math.min(data[p*4],data[p*4+1],data[p*4+2])>=238&&Math.max(data[p*4],data[p*4+1],data[p*4+2])<255;
+ const seen=new Uint8Array(w*h);
+ for(let p=0;p<w*h;p++){
+  if(seen[p]||!pale(p))continue;
+  const component=[p];seen[p]=1;
+  for(let n=0;n<component.length;n++){const q=component[n],x=q%w,y=Math.floor(q/w);
+   for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]]){const xx=x+dx,yy=y+dy,j=yy*w+xx;if(xx<0||yy<0||xx>=w||yy>=h||seen[j]||!pale(j))continue;seen[j]=1;component.push(j);}
+   if(component.length>3)return false;
+  }
+  for(const q of component){const x=q%w,y=Math.floor(q/w);let near=false;
+   for(let dy=-6;dy<=6&&!near;dy++)for(let dx=-6;dx<=6&&!near;dx++){const xx=x+dx,yy=y+dy;if(xx<1||yy<1||xx>=w-1||yy>=h-1)continue;const j=(yy*w+xx)*4,c=[data[j],data[j+1],data[j+2]];
+    if(data[j+3]<220||!anchors.some(a=>Math.hypot(...a.map((v,k)=>v-c[k]))<=12))continue;
+    near=true;
+   }
+   if(!near)return false;
+  }
+ }
+ return true;
+}
+function stablePaleRun(data,w,h,confirmedWhiteCarrier=false){
+ const pale=p=>data[p*4+3]>=220&&Math.min(data[p*4],data[p*4+1],data[p*4+2])>=238&&Math.max(data[p*4],data[p*4+1],data[p*4+2])<255;
+ for(let p=0;p<w*h;p++){if(!pale(p))continue;const px=p%w,py=Math.floor(p/w);
+  for(const [dx,dy] of [[1,0],[0,1],[1,1],[-1,1]]){
+   const points=[0,1,2,3].map(n=>[px+dx*n,py+dy*n]);
+   if(!points.every(([xx,yy])=>xx>=0&&xx<w&&yy<h&&pale(yy*w+xx)&&[0,1,2].every(k=>Math.abs(data[(yy*w+xx)*4+k]-data[p*4+k])<=1)))continue;
+   // A confirmed white-matte edge has both transparent carrier and actual
+   // darker ink immediately beside it. Embedded or detached pale lines do not.
+   const matteEdge=confirmedWhiteCarrier&&points.every(([x,y])=>{let transparent=false,ink=false;
+    for(let sy=-2;sy<=2;sy++)for(let sx=-2;sx<=2;sx++){const xx=x+sx,yy=y+sy;if(xx<0||yy<0||xx>=w||yy>=h)continue;const j=(yy*w+xx)*4;if(data[j+3]===0||(data[j]===255&&data[j+1]===255&&data[j+2]===255))transparent=true;if(data[j+3]>=220&&Math.min(data[j],data[j+1],data[j+2])<238)ink=true;}
+    return transparent&&ink;
+   });
+   if(!matteEdge)return true;
+  }
+ }return false;
+}
+function paleForegroundUnresolved(data,w,h,confirmedWhiteCarrier=false,nativeEstimate=null){
  if(!data)return false;let transparent=false,pale=0;
  for(let i=0;i<data.length;i+=4){if(data[i+3]===0)transparent=true;if(data[i+3]>=220&&Math.min(data[i],data[i+1],data[i+2])>=238&&Math.max(data[i],data[i+1],data[i+2])<255)pale++;}
- if(!transparent||pale<=8)return false;
- // Native-alpha pale artwork remains unresolved. Only a confirmed white carrier
- // can contain white-matte remnants around chromatic or neutral artwork.
+ if(!transparent)return false;
+ if(stablePaleRun(data,w,h,confirmedWhiteCarrier))return true;
+ if(pale<=8)return false;
+ // Native-alpha pale artwork remains unresolved unless verified gray cores
+ // spatially explain tiny ringing. Confirmed white carrier permits matte remnants.
  // A stable pale patch is still potential ink, not free white substrate.
- if(!confirmedWhiteCarrier||!w||!h)return true;
+ if(!confirmedWhiteCarrier||!w||!h)return !paleCoreEdgeRemnants(data,w,h,nativeEstimate);
  for(let y=2;y<h-2;y++)for(let x=2;x<w-2;x++){
   const i=(y*w+x)*4;if(data[i+3]<220||Math.min(data[i],data[i+1],data[i+2])<238||Math.max(data[i],data[i+1],data[i+2])>=255)continue;
   let stable=true;for(let dy=-2;dy<=2&&stable;dy++)for(let dx=-2;dx<=2&&stable;dx++){const j=((y+dy)*w+x+dx)*4;if(data[j+3]<220)stable=false;for(let k=0;k<3;k++)if(data[j+k]===255||Math.abs(data[j+k]-data[i+k])>1)stable=false;}
@@ -28,7 +71,7 @@ function acceptedRearInkPalette(prepared){
   // explain pale JPEG edge remnants. Native alpha and stable pale ink remain
   // unresolved; a method name alone is not white-carrier evidence.
   const confirmedWhiteCarrier=prepared.method==='ready-flat-graphic-source-pixels'&&Array.isArray(prepared.background)&&prepared.background.length===3&&prepared.background.every(v=>Number.isFinite(v)&&v>=245&&v<=255)&&Math.max(...prepared.background)-Math.min(...prepared.background)<=12;
-  if(paleForegroundUnresolved(prepared.data,prepared.width,prepared.height,confirmedWhiteCarrier))estimate.uncertain=true;
+  if(paleForegroundUnresolved(prepared.data,prepared.width,prepared.height,confirmedWhiteCarrier,estimate))estimate.uncertain=true;
   rearAnalyzedInkCache.set(prepared,estimate);
  }
  return rearAnalyzedInkCache.get(prepared);
@@ -52,6 +95,15 @@ function textColorAllowed(color,side='rear'){
  const palette=allowedTextPalette(side);
  return PrintPolicy.permitsTextColor(palette.colors,color);
 }
+function currentFlexoProductionPolicy(){
+ if(typeof FlexoPolicy==='undefined'||!state.logo||state.removed||state.photoLayout||state.designProcessing||state.designBlocked||state.extractionSourceLimited)return null;
+ // Lighting on a photographic extraction is not evidence of an artwork gradient.
+ const nativeArtwork=!state.extractionApproximate;
+ const content=nativeArtwork?frontArtworkInkEstimate?.contentEvidence?.content||'unknown':'unknown';
+ const policy=FlexoPolicy.evaluate({substrate:'white-opp',sourceRole:'original-artwork',inkEvidence:'rgb-estimate',artwork:{content}});
+ const adaptationRequired=content==='continuous-gradient';
+ return {...policy,content,adaptationRequired,visualPreviewOnly:adaptationRequired,notice:adaptationRequired?'Bu görselin baskı önizlemesi için renk uyarlaması gerekiyor. Sürekli degrade bu üretimde desteklenmiyor; tram yalnız üreticinin bu işe özel doğruladığı sınırlı uygulamalarda değerlendirilebilir.':''};
+}
 function currentPrintPolicy(){
  if(typeof isDeclaredQuote==='function'&&isDeclaredQuote())return {blocked:false}; // The independent declaration gate is not an artwork policy bypass.
  if(typeof PrintPolicy==='undefined'||(typeof isUnprinted==='function'&&isUnprinted()))return {blocked:false};
@@ -60,11 +112,37 @@ function currentPrintPolicy(){
  const estimate=CombinedInks.estimate(input);
  const hasArtwork=!!((state.logo&&!state.removed)||state.photoLayout);
  const result=PrintPolicy.evaluate({...estimate,hasArtwork,detectedCount:frontArtworkInkEstimate?.count??null,count:estimate.count??(estimate.colors?.length>PrintPolicy.MAX_PRINT_INKS?estimate.colors.length:null)});
+ const production=currentFlexoProductionPolicy();
+ if(production?.adaptationRequired&&!(Number.isInteger(result.count)&&result.count>PrintPolicy.MAX_PRINT_INKS))return {...result,blocked:true,count:null,status:'contact-required',reason:production.notice,production};
  const selected=$('inks').value===''?null:Number($('inks').value);
  const selectedResult=PrintPolicy.evaluate({count:selected,status:selected===null?'unknown':'estimated'});
  return result.blocked?result:selectedResult.blocked?selectedResult:result;
 }
 function printPolicyError(){const policy=currentPrintPolicy();return policy.blocked?policy.reason:'';}
+// A current, accepted idea preview is not approval of separations or pricing.
+// Use the processing authority, never a source-kind label alone, to reject stale
+// outputs left on screen during replacement, failure, cancellation or selection.
+function currentVisualArtworkReady(){
+ if(!state.logo||state.removed||state.photoLayout||typeof logoImg==='undefined'||!logoImg||!(logoImg.width>0&&logoImg.height>0))return false;
+ if(state.designProcessing||state.designBlocked||state.extractionSourceLimited||state.extractionApprovalRequired||state.screenSelectionRequired||state.bgDecisionPending||state.productAssetPending||state.productAssetFailure||state.productReviewRequired||(state.textPending&&state.text?.trim()))return false;
+ if(['unsupported','candidate','photo-region','photo','screen'].includes(state.sourceKind))return false;
+ if(typeof designIssue!=='function'||designIssue()||typeof designFingerprint!=='function'||typeof processingSession==='undefined')return false;
+ const live=processingSession.getState(),record=state.processingResult,result=live.result,fingerprint=designFingerprint();
+ if(live.status!=='ready'||live.error||!record||!result||live.fingerprint!==fingerprint||result.designRevision!==live.designRevision)return false;
+ if(result.operation?.operationId!==live.operationId||record.operation?.operationId!==live.operationId||record.extractionRevision!==result.extractionRevision)return false;
+ if(!/^[a-f0-9]{64}$/i.test(result.source?.sha256||'')||record.source?.sha256!==result.source.sha256||live.source?.sha256!==result.source.sha256)return false;
+ if(result.status==='needs-selection'||!result.method||!result.frame?.width||!result.frame?.height)return false;
+ return !state.extractionApproximate||processingSession.isApproved(fingerprint);
+}
+function visualPreviewPolicyError(){
+ const policy=currentPrintPolicy();if(!policy.blocked)return '';
+ const front=typeof frontArtworkInkEstimate==='undefined'?null:frontArtworkInkEstimate,combined=typeof printInkEstimate==='undefined'?null:printInkEstimate;
+ // A provisional photo/shadow cluster count is not confirmed extra ink. Keep
+ // its financial block, but do not turn it into a visual-completeness verdict.
+ const knownOverLimit=(Number.isInteger(policy.count)&&policy.count>3)||(front?.uncertain===false&&Number.isInteger(front.count)&&front.count>3)||(combined?.uncertain===false&&((Number.isInteger(combined.count)&&combined.count>3)||(combined.colors?.length||0)>3));
+ if(!knownOverLimit&&frontInkStatus==='unknown'&&policy.count===null&&currentVisualArtworkReady())return '';
+ return policy.reason;
+}
 function syncPrintPolicyNotice(){
  if(typeof document==='undefined'||typeof document.querySelector!=='function'||typeof PrintPolicy==='undefined')return;
  const policy=currentPrintPolicy();let panel=document.querySelector('#printPolicyNotice');
@@ -121,9 +199,11 @@ function syncPrintInks(){
  let pixels=null,w=0,h=0;
  const image=!state.removed&&logoImg?(globalThis.MultiLogo?MultiLogo.primaryFront():prepareLogo()):state.photoLayout?photoImg:null;
  if(image){const canvas=document.createElement('canvas'),scale=Math.min(1,1200/Math.max(image.width,image.height));canvas.width=w=Math.max(1,Math.round(image.width*scale));canvas.height=h=Math.max(1,Math.round(image.height*scale));const c=canvas.getContext('2d',{willReadFrequently:true});c.drawImage(image,0,0,w,h);pixels=c.getImageData(0,0,w,h).data;}
- frontMonochrome=!!image&&!state.photoLayout&&(!state.extractionApproximate||state.technicalFrameProposed||state.screenCropApplied)&&cleanNeutralArtwork(pixels,w,h)&&!(state.recolor&&state.recolorApplied);
- frontArtworkInkEstimate=PrintInks.estimate(pixels,w,h,{acceptedArtwork:!!image&&!state.photoLayout,recolor:state.recolor&&state.recolorApplied?state.color:frontMonochrome?neutralArtworkInk(pixels):null});
- if(!(state.recolor&&state.recolorApplied)&&paleForegroundUnresolved(pixels,w,h,state.removeWhite&&state.bgDetection?.kind==='white'))frontArtworkInkEstimate.uncertain=true;
+ const nativeEstimate=PrintInks.estimate(pixels,w,h,{acceptedArtwork:!!image&&!state.photoLayout});
+ const nativeMonochromeSafe=!nativeEstimate.uncertain&&nativeEstimate.count<=1;
+ frontMonochrome=nativeMonochromeSafe&&!!image&&!state.photoLayout&&(!state.extractionApproximate||state.technicalFrameProposed||state.screenCropApplied)&&cleanNeutralArtwork(pixels,w,h)&&!(state.recolor&&state.recolorApplied);
+ frontArtworkInkEstimate=!(state.recolor&&state.recolorApplied)&&!frontMonochrome?nativeEstimate:PrintInks.estimate(pixels,w,h,{acceptedArtwork:!!image&&!state.photoLayout,recolor:state.recolor&&state.recolorApplied?state.color:frontMonochrome?neutralArtworkInk(pixels):null});
+ if(!(state.recolor&&state.recolorApplied)&&paleForegroundUnresolved(pixels,w,h,state.removeWhite&&state.bgDetection?.kind==='white',!state.extractionApproximate&&!state.photoLayout?nativeEstimate:null))frontArtworkInkEstimate.uncertain=true;
  printInkEstimate={...frontArtworkInkEstimate};
  const neutralFrameTones=!frontMonochrome&&state.technicalFrameProposed&&printInkEstimate.colors.length>1&&printInkEstimate.colors.every(c=>{const rgb=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));return Math.max(...rgb)-Math.min(...rgb)<20;});
  const neutralToneCount=printInkEstimate.colors.filter(c=>{const rgb=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));return Math.max(...rgb)-Math.min(...rgb)<24;}).length;
@@ -135,6 +215,8 @@ function syncPrintInks(){
  state.inkSelection={status:$('inks').value===''?'unknown':'estimated',estimatedCount:printInkEstimate.count??frontArtworkInkEstimate.count,selectedCount:$('inks').value===''?null:Number($('inks').value),reason:$('inks').value===''?'Photo tones or separation uncertainty; not missing color names.':'Distinct nonwhite palette estimate; not physical press separation.',designKey:key};
  const uncertain=printInkEstimate.uncertain||state.extractionApproximate||!!state.photoLayout||!!state.bgPantone||!!state.textPantone;
  $('inkEstimateNote').textContent=($('inks').value===''?(sourceInkUnverified?'Fotoğraf veya ayrıştırılmış önizlemedeki tonların gerçek baskı rengi sayısı henüz doğrulanmadı; klişe bedeli teknik incelemede kesinleşir. ':(state.screenCropApplied||neutralFrameTones)?'Gri tonların ayrı baskı rengi olup olmadığı net değil; klişe bedeli teknik incelemede kesinleşir. ':'Bu görselin klişe sayısı teknik inceleme gerektiriyor. '):`Otomatik tahmin: ${printInkEstimate.count} klişe. `)+(uncertain?'Fotoğraf ve ton geçişleri baskı rengi sayısını belirsiz bırakabilir; teknik incelemede doğrulanır. ':'Görselden yaklaşık hesaplandı; gerekirse düzeltebilirsiniz. ')+'Renkli zemin dahil, aynı renk bir kez; beyaz hariç. Kesin baskı ayrımı teknik onay gerektirir.';
+ state.productionCompatibility=currentFlexoProductionPolicy();
+ if(state.productionCompatibility?.adaptationRequired)$('inkEstimateNote').textContent=state.productionCompatibility.notice+' '+$('inkEstimateNote').textContent;
  syncRearInkNote();
 }
 const calculateBeforePrintInks=calculateRaw;calculateRaw=function(){syncPrintInks();invalidateQuote();return calculateBeforePrintInks();};

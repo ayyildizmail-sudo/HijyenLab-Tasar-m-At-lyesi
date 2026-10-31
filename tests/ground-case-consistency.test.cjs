@@ -8,7 +8,7 @@ const state={bg:'#ffffff',bgPantone:'',photoLayout:null,removed:true,text:'',tex
 let unprinted=false;
 const canvas=createCanvas(1600,850),material=createCanvas(2000,1000);material.getContext('2d').fillStyle='#cccccc';material.getContext('2d').fillRect(0,0,2000,1000);
 const context={state,ctx:canvas.getContext('2d'),packageImage:material,photoImg:null,logoImg:null,tintedMaterialCache:null,isUnprinted:()=>unprinted,productRules:()=>product.priceRules,document:{createElement:()=>createCanvas(1,1)},PrintRenderer:require('../frontend/print-renderer.js'),ImageData};
-context.isDeclaredQuote=()=>false;vm.createContext(context);vm.runInContext([line('effectiveBackground'),line('pricing'),line('materialColor'),source.slice(source.indexOf('function draw('),source.indexOf('\nfunction refresh('))].join('\n'),context);
+context.isDeclaredQuote=()=>false;vm.createContext(context);require('./helpers/content-safety-vm.cjs')(context);vm.runInContext([line('effectiveBackground'),line('pricing'),line('materialColor'),source.slice(source.indexOf('function draw('),source.indexOf('\nfunction refresh('))].join('\n'),context);
 function header(){return persona.minimumCopy(product,'printed',context.effectiveBackground()==='#ffffff'?'white':'colored');}
 function price(bg,q=5200){return context.pricing(q,bg,'Muğla','Bodrum','new',1,product.priceRules);}
 state.bg='#ffffff';const whitePrice=JSON.stringify(price(context.effectiveBackground()));context.draw(false);const whitePixels=Buffer.from(context.ctx.getImageData(0,0,1600,850).data);

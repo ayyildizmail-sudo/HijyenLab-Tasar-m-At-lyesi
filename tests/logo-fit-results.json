@@ -28,14 +28,6 @@
     "status": "PASS"
   },
   {
-    "name": "New logo resets only initial transform",
-    "status": "PASS"
-  },
-  {
-    "name": "Foreground alpha bounds remain used",
-    "status": "PASS"
-  },
-  {
     "name": "PDF logo fitting explicit, full artwork not automatically cropped",
     "status": "PASS"
   },
@@ -137,6 +129,14 @@
   },
   {
     "name": "Manual 70 percent retains shared fit scaling regardless of density",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual preparation retains a detached alpha=1 dot and visible bounds include it",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual new-upload callback resets transform to current product safe-area midpoint",
     "status": "PASS"
   }
 ]

@@ -17,7 +17,7 @@ function harness({saved=null,optin=false,legacy=false,saveHook=null}={}){
  designIssue:()=>c.state.productAssetFailure?'asset':c.isDeclaredQuote()?Declared.error(c.state.declaration):c.mode==='unprinted'?'':c.state.extractionApprovalRequired?'art approval':'',rearQuoteReady:()=>true,validateLead:()=>!Locations.error(el('province').value,el('district').value)&&!!el('customerName').value&&!!el('contactName').value&&!!el('contactPhone').value,
  go:n=>{calls.push('go:'+n);c.step=n;if(n===2){el('qty').value=String(c.state.requestedQuantity||Catalog.rules(c.selectedProductId).minimum.white);c.latest={ruleRevision:Catalog.rules(c.selectedProductId).revision};el('breakdown').textContent='Calculated for '+el('qty').value;}},fetch:()=>{throw Error('Unexpected network');}};
  for(const [id,value]of Object.entries({qty:'10000',cartonQty:'1',cliche:'new',customerName:'SENTETİK A',contactName:'Test Kişisi',contactPhone:'05001234567',province:'Muğla',district:'Bodrum'}))el(id).value=value;
- vm.createContext(c);vm.runInContext(fs.readFileSync('frontend/draft-ui.js','utf8'),c);
+ c.SourceGroundScope=require('../frontend/source-ground-scope.js');c.isDeclaredQuote||=()=>false;c.isUnprinted||=()=>false;vm.createContext(c);const groundApp=fs.readFileSync('frontend/app.js','utf8');vm.runInContext(groundApp.slice(groundApp.indexOf('function applySourceGroundScope('),groundApp.indexOf('function prepareLogo(')),c);vm.runInContext(fs.readFileSync('frontend/draft-ui.js','utf8'),c);
  return {c,nodes,el,events,calls,writes,memory,timers};
 }
 async function ready(h){await tick();return h;}
