@@ -13,11 +13,14 @@ const fixtures = [
   'tests/fixtures/technical-frame/source.jpeg',
 ];
 const suites = [
+  'tests/white-carrier-ui.test.cjs',
+  'tests/customer-no-manual-region.test.cjs',
   'tests/flexo-policy.test.cjs',
   'tests/flexo-preview-adapter.test.cjs',
   'tests/flexo-preview-browser.test.cjs',
   'tests/flexo-runtime.test.cjs',
   'tests/native-flat-preview.test.cjs',
+  'tests/photo-derived-ink-evidence.test.cjs',
   'tests/source-ground-scope.test.cjs',
   'tests/source-ground-integration.test.cjs',
   'tests/product-choice-carryover.test.cjs',
@@ -68,6 +71,7 @@ const suites = [
   'tests/screenshot-artwork.test.cjs',
   'tests/screenshot-product.test.cjs',
   'tests/carrier-source-completeness.test.cjs',
+  'tests/white-carrier-domain.test.cjs',
   'tests/native-flat-palette-evidence.test.cjs',
   'tests/flat-ground-app.test.cjs',
   'tests/flat-ground-routing.test.cjs',

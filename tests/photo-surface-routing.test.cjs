@@ -35,8 +35,8 @@ function flat(color,texture=false){const c=make(320,240),ctx=c.getContext('2d');
  await context.routeImageCandidate(explicitFile,'logo');assert.equal(route,'logo','texture-only hint must retain explicit artwork override');
  assert(!B.inspectSurface(new Uint8ClampedArray(4),1,1,{kind:'white',rgb:[255,255,255]}).photoLike);
  // Routing to a physical-photo proposal is not permission to commit a white ground.
- assert(app.includes('if(extracted?.whiteCarrier){showWhiteCarrierProposal(extracted,data);return;}'));
- assert(app.indexOf('if(extracted?.needsRegionSelection)')<app.indexOf('if(extracted?.whiteCarrier){showWhiteCarrierProposal'),'completeness rejection precedes proposal panel');
+ assert(app.includes('if(extracted?.whiteCarrier){if(await applyAutomaticWhiteCarrier(extracted,data))return;if(ticket!==loading)return;extracted=null;}'),'only independently evidenced automatic artwork can commit; ambiguous proposals fall through honestly');
+ assert(app.indexOf('if(extracted?.needsRegionSelection)')<app.indexOf('if(extracted?.whiteCarrier){if(await applyAutomaticWhiteCarrier'),'completeness rejection precedes automatic proposal acceptance');
  // A complete marked area on a textured colour is not rejected solely for its colour.
  const whole=B.sourceRetention(pixels,320,240,detection,[0,0,320,240],320,240);assert(whole.applicable&&whole.ok&&whole.retainedFraction===1);
  // New screenshot-product path applies one approximate preview directly, never a chooser.

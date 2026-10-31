@@ -1,6 +1,6 @@
 // Estimate printing separations from artwork pixels, never the shaded mockup.
 let printInkKey=null,printInkEstimate=null,printInkManual=false,frontInkStatus="unknown",frontMonochrome=false,frontArtworkInkEstimate=null;
-function printInkFingerprint(){return JSON.stringify([state.logo,state.photoLayout,state.screenCropApplied,state.technicalFrameProposed,state.extractionApproximate,state.removed,state.removeWhite,state.bg,state.bgPantone,state.recolorApplied,state.color,state.textPending?'':state.text,state.textColor,state.textPantone,typeof rearQuoteSnapshot==='function'?rearQuoteSnapshot():null,globalThis.MultiLogo?.fingerprint('front')||null]);}
+function printInkFingerprint(){return JSON.stringify([state.logo,state.photoLayout,state.screenCropApplied,state.technicalFrameProposed,state.extractionApproximate,state.processingResult?.method,state.removed,state.removeWhite,state.bg,state.bgPantone,state.recolorApplied,state.color,state.textPending?'':state.text,state.textColor,state.textPantone,typeof rearQuoteSnapshot==='function'?rearQuoteSnapshot():null,globalThis.MultiLogo?.fingerprint('front')||null]);}
 let frontInkNoteText='';
 function cleanNeutralArtwork(data,w,h){if(!data)return false;let n=0,dark=0,colored=0;for(let i=0;i<data.length;i+=4){if(data[i+3]<220)continue;const r=data[i],g=data[i+1],b=data[i+2];if(Math.min(r,g,b)>238)continue;n++;if(Math.max(r,g,b)-Math.min(r,g,b)>18)colored++;if(Math.max(r,g,b)<120)dark++;}return n>=20&&dark>=10&&colored===0;}
 function neutralArtworkInk(data){const bins=new Map();for(let i=0;i<data.length;i+=4){const rgb=[data[i],data[i+1],data[i+2]];if(data[i+3]<220||Math.max(...rgb)>=120||Math.max(...rgb)-Math.min(...rgb)>18)continue;const color='#'+rgb.map(v=>v.toString(16).padStart(2,'0')).join('');bins.set(color,(bins.get(color)||0)+1);}return [...bins.entries()].sort((a,b)=>b[1]-a[1])[0]?.[0]||null;}
@@ -186,6 +186,17 @@ function syncRearInkNote(){
  syncPrintPolicyNotice();
  if($('rearPriceNote'))$('rearPriceNote').textContent=$('inks').value===''?'Arka yüz dahil renk ayrımı belirsiz. Gösterilen ara toplam klişe bedelini içermez.':`Ön ve arka yüz için ${$('inks').value} tahmini klişe fiyat hesabına dahil edilir. Aynı renk bir kez, beyaz hariç.`;
 }
+function photographicInkSource(){
+ if(state.photoLayout)return true;
+ if(!state.extractionApproximate)return false;
+ // Screenshot artwork is not necessarily a photo. Only actual photographic
+ // extraction routes get this uncertainty; native/screen four-ink cores stay four.
+ return ['white-carrier-proposal','screen-product-preview'].includes(state.sourceKind)||[
+  'white-carrier-chromatic-and-dark-components','photo-ink-extraction',
+  'screen-product-shell-whole-group-matte','screen-product-white-carrier',
+  'bounded-colored-carrier-source-pixels'
+ ].includes(state.processingResult?.method);
+}
 function syncPrintInks(){
  if(typeof isDeclaredQuote==='function'&&isDeclaredQuote()){
   const d=state.declaration;$('inks').value=DeclaredQuote.valid(d)?String(d.count):'';$('inks').disabled=true;
@@ -199,10 +210,11 @@ function syncPrintInks(){
  let pixels=null,w=0,h=0;
  const image=!state.removed&&logoImg?(globalThis.MultiLogo?MultiLogo.primaryFront():prepareLogo()):state.photoLayout?photoImg:null;
  if(image){const canvas=document.createElement('canvas'),scale=Math.min(1,1200/Math.max(image.width,image.height));canvas.width=w=Math.max(1,Math.round(image.width*scale));canvas.height=h=Math.max(1,Math.round(image.height*scale));const c=canvas.getContext('2d',{willReadFrequently:true});c.drawImage(image,0,0,w,h);pixels=c.getImageData(0,0,w,h).data;}
- const nativeEstimate=PrintInks.estimate(pixels,w,h,{acceptedArtwork:!!image&&!state.photoLayout});
+ const photoDerived=photographicInkSource();
+ const nativeEstimate=PrintInks.estimate(pixels,w,h,{acceptedArtwork:!!image&&!state.photoLayout,photoDerived});
  const nativeMonochromeSafe=!nativeEstimate.uncertain&&nativeEstimate.count<=1;
  frontMonochrome=nativeMonochromeSafe&&!!image&&!state.photoLayout&&(!state.extractionApproximate||state.technicalFrameProposed||state.screenCropApplied)&&cleanNeutralArtwork(pixels,w,h)&&!(state.recolor&&state.recolorApplied);
- frontArtworkInkEstimate=!(state.recolor&&state.recolorApplied)&&!frontMonochrome?nativeEstimate:PrintInks.estimate(pixels,w,h,{acceptedArtwork:!!image&&!state.photoLayout,recolor:state.recolor&&state.recolorApplied?state.color:frontMonochrome?neutralArtworkInk(pixels):null});
+ frontArtworkInkEstimate=!(state.recolor&&state.recolorApplied)&&!frontMonochrome?nativeEstimate:PrintInks.estimate(pixels,w,h,{acceptedArtwork:!!image&&!state.photoLayout,photoDerived,recolor:state.recolor&&state.recolorApplied?state.color:frontMonochrome?neutralArtworkInk(pixels):null});
  if(!(state.recolor&&state.recolorApplied)&&paleForegroundUnresolved(pixels,w,h,state.removeWhite&&state.bgDetection?.kind==='white',!state.extractionApproximate&&!state.photoLayout?nativeEstimate:null))frontArtworkInkEstimate.uncertain=true;
  printInkEstimate={...frontArtworkInkEstimate};
  const neutralFrameTones=!frontMonochrome&&state.technicalFrameProposed&&printInkEstimate.colors.length>1&&printInkEstimate.colors.every(c=>{const rgb=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));return Math.max(...rgb)-Math.min(...rgb)<20;});

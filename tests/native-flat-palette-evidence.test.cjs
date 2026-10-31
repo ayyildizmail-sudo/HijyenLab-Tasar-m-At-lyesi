@@ -1,7 +1,7 @@
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const {createCanvas,loadImage}=require('@napi-rs/canvas'),PrintInks=require('../frontend/print-inks'),CombinedInks=require('../frontend/combined-inks'),PrintPolicy=require('../frontend/print-policy');
-const data=c=>c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+const data=image=>{const c=image.getContext?image:createCanvas(image.width,image.height);if(c!==image)c.getContext('2d').drawImage(image,0,0);return c.getContext('2d').getImageData(0,0,c.width,c.height).data;};
 function blocks(colors){const c=createCanvas(240,100),g=c.getContext('2d');colors.forEach((v,i)=>{g.fillStyle=v;g.fillRect(8+i*230/colors.length,10,210/colors.length,80);});return c;}
 function harness(c,extra={}){const nodes={},ctx={state:{logo:'native',bg:'#ffffff',text:'',...extra},logoImg:c,prepareLogo:()=>c,PrintInks,CombinedInks,PrintPolicy,$:id=>nodes[id]||(nodes[id]={value:'',textContent:''}),document:{createElement:()=>createCanvas(1,1)},invalidateQuote(){},calculateRaw(){},refresh(){},calculate(){}};vm.createContext(ctx);vm.runInContext(fs.readFileSync('frontend/print-inks-ui.js','utf8'),ctx);return {ctx,nodes,palette:()=>vm.runInContext('frontArtworkInkEstimate',ctx)};}
 function overshoot(){const c=blocks(['#dfdfdf','#121212']),g=c.getContext('2d');g.fillStyle='#f2f2f2';for(let n=0;n<12;n++)g.fillRect(15+n*7,15,1,1);return c;}

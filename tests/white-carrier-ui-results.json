@@ -32,7 +32,7 @@
     "status": "PASS"
   },
   {
-    "name": "Family proposal is fallback only and unconfirmed result opens selection panel",
+    "name": "Family proposal is fallback only and only bounded automatic result proceeds",
     "status": "PASS"
   },
   {
@@ -45,6 +45,26 @@
   },
   {
     "name": "Delayed old preview callback cannot enable newer proposal",
+    "status": "PASS"
+  },
+  {
+    "name": "Bounded automatic apply uses actual upload decode and shared commit, retains SHA and requires ordinary approval",
+    "status": "PASS"
+  },
+  {
+    "name": "Every independent automatic evidence gate is mandatory",
+    "status": "PASS"
+  },
+  {
+    "name": "New upload/reset during real delayed decode cannot bind old provenance or approve",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual decode failure remains blocked with original source, no ready metadata",
+    "status": "PASS"
+  },
+  {
+    "name": "Manual colored intent and missing source identity cannot be silently overwritten",
     "status": "PASS"
   }
 ]

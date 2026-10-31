@@ -93,7 +93,7 @@ function hasContinuousRamp(data,width,height,alphaOnly=false){
  return false;
 }
 
-function estimate(data,width,height,options={}){
+function estimateRgb(data,width,height,options={}){
  const palette=[],explicitColors=[],add=(c,explicit=false)=>{if(!c||(explicit?c.every(v=>v===255):white(c)))return;const exact=explicitColors.some(p=>dist(p,c)===0),differentExplicit=explicitColors.some(p=>dist(p,c)>0&&dist(p,c)<48);if(!exact&&((explicit&&differentExplicit)||!palette.some(p=>dist(p,c)<48)))palette.push(c);if(explicit&&!exact)explicitColors.push(c);};
  const background=rgb(options.background),text=rgb(options.textColor),recolor=rgb(options.recolor);
  add(background,true);let stable=0,visible=0,visibleNonWhite=0,bins=new Map(),unresolvedColors=[];
@@ -139,6 +139,16 @@ function estimate(data,width,height,options={}){
   }
  }
  return{contentEvidence:{content:ramp?'continuous-gradient':data&&options.acceptedArtwork===true&&!uncertain?'flat-colors':'unknown',basis:opacityRamp?'continuous-artwork-opacity-ramp':ramp?'continuous-artwork-rgb-ramp':'rgb-palette-estimate',physicalInksConfirmed:false},count:palette.length,visibleNonWhite,colors:palette.map(hex),uncertain,reason:uncertain?'Renk ayrımı bu görselde güvenilir değil; teknik kontrol gerekli.':'Yaklaşık baskı rengi sayısı; teknik kontrolde kesinleşir.'};
+}
+// Acceptance proves which artwork to preview, not photographic ink separations.
+// Keep every measured RGB cluster for diagnostics; never clamp or merge it into
+// an invented physical palette merely because illumination may explain shades.
+function estimate(data,width,height,options={}){
+ const result=estimateRgb(data,width,height,options);
+ if(options.photoDerived!==true||options.recolor)return result;
+ return {...result,uncertain:true,physicalInkCount:null,rgbClusterCount:result.count,
+  contentEvidence:{content:'unknown',basis:'photographic-artwork-rgb-clusters',physicalInksConfirmed:false},
+  reason:'Fotoğraftaki ışık ve gölge tonları ayrı baskı rengi olarak doğrulanamaz; gerçek renk ayrımı teknik inceleme gerektirir.'};
 }
 const api={estimate};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.PrintInks=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
