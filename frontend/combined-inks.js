@@ -12,9 +12,23 @@ function selectQrInk(colors){
  if(contrast<4.5)return {ok:false,color:null,contrast,reason:'Mevcut baskı renkleri QR için beyaz zeminde yeterince koyu değil. Yeni renk otomatik eklenmedi; teknik kontrol gerekli.'};
  return {ok:true,color:hex(darkest),contrast,reason:'QR mevcut en koyu baskı rengini kullanır; ekran kontrastı fiziksel baskı okunabilirliği garantisi değildir.'};
 }
+// Automatic rear text reuses a readable existing ink, never a new fallback plate.
+// Explicit user colors are resolved by the caller, outside this selector.
+function selectTextInk(colors,background){
+ const valid=raw=>{const color=parse(raw);return color&&Array.from(color).every(Number.isFinite)?color:null;};
+ const failure=(reason,contrast=null)=>({ok:false,color:null,contrast,reason}),ground=valid(background);
+ if(!ground||!Array.isArray(colors)||Array.from(colors).some(c=>!valid(c)))return failure('Arka yazı için mevcut baskı renkleri veya ambalaj zemini doğrulanamadı.');
+ const palette=colors.map(parse).filter(c=>!white(c));
+ if(!palette.length)return failure('Arka yazı için mevcut bir baskı rengi bulunmuyor. Yeni renk otomatik eklenmedi.');
+ const luminance=c=>c.map(n=>n/255).map(n=>n<=.04045?n/12.92:((n+.055)/1.055)**2.4).reduce((a,n,i)=>a+n*[.2126,.7152,.0722][i],0),bg=luminance(ground);
+ let selected=null,bestContrast=0;
+ for(const color of palette){const light=luminance(color),contrast=(Math.max(light,bg)+.05)/(Math.min(light,bg)+.05);bestContrast=Math.max(bestContrast,contrast);if(contrast>=4.5&&(!selected||light<selected.light))selected={color,light,contrast};}
+ if(!selected)return failure('Mevcut baskı renkleri seçili zeminde arka yazı için yeterince okunaklı değil. Yeni renk otomatik eklenmedi; yazı rengini seçin veya zemini kontrol edin.',bestContrast);
+ return {ok:true,color:hex(selected.color),contrast:selected.contrast,reason:'Arka yazı, seçili zeminde yeterli ekran kontrastı sağlayan mevcut renklerin en koyusunu kullanır; fiziksel baskı okunabilirliği ayrıca kontrol edilir.'};
+}
 function estimate(input={}){
  const colors=[],actualInkColors=[],reasons=[],explicit=[],front=input.front,rear=input.rear||{};
- function add(raw,chosen=false){let c=parse(raw);if(!c){reasons.push('Geçersiz veya bilinmeyen baskı rengi.');return;}if(chosen?white(c):sampleWhite(c))return;if(!actualInkColors.some(p=>distance(p,c)===0))actualInkColors.push(c.slice());
+ function add(raw,chosen=false){let c=parse(raw);if(!c){reasons.push('Geçersiz veya bilinmeyen baskı rengi.');return;}if(chosen?white(c):sampleWhite(c))return;if(actualInkColors.some(p=>distance(p,c)===0)){if(chosen&&!explicit.some(p=>distance(p,c)===0))explicit.push(c.slice());return;}actualInkColors.push(c.slice());
  // Count-only estimate: sampled dark JPEG neutrals may share black; explicitly chosen gray above 40 stays distinct. Actual QR colors were retained above.
  if(neutral(c)&&Math.max(...c)<=(chosen?40:64))c=[0,0,0];
  const match=colors.find(p=>distance(p,c)<=24),differentChosen=chosen&&!explicit.some(p=>distance(p,c)===0)&&explicit.some(p=>distance(p,c)>0&&distance(p,c)<=24);
@@ -26,7 +40,7 @@ function estimate(input={}){
  else if(front.monochrome===true){const cs=front.colors.map(parse).filter(c=>!sampleWhite(c));if(cs.length){if(cs.every(neutral))add(cs.reduce((a,b)=>a.reduce((s,n)=>s+n,0)<b.reduce((s,n)=>s+n,0)?a:b));else if(cs.every(c=>distance(c,cs[0])<=32))add(cs[0]);else reasons.push('Tek renk iddiası ön yüz renkleriyle uyuşmuyor.');}}
  else front.colors.forEach(c=>add(c));
  if(input.background==null)reasons.push('Ambalaj zemin rengi bilinmiyor.');else add(input.background,true);
- if(rear.textColor!=null)add(rear.textColor,true);
+ if(rear.textColor!=null)add(rear.textColor,rear.textColorFromExisting!==true);
  if(rear.qr!=null&&rear.qr!==false&&rear.qr!==true)reasons.push('QR baskı durumu geçersiz.');
  const s=rear.sponsor;
  if(s&&s.status!=='none'){
@@ -49,5 +63,5 @@ function estimate(input={}){
  let qrColor=null;if(rear.qr===true&&!reasons.length){const selection=selectQrInk(actualInkColors);if(selection.ok)qrColor=selection.color;else reasons.push(selection.reason);}
  return {qrColor,actualInkColors:actualInkColors.map(hex),status:reasons.length?'unknown':'estimated',count:reasons.length?null:colors.length,colors:colors.map(hex),reason:reasons.length?[...new Set(reasons)].join(' '):'Ön ve arka yüz birlikte yaklaşık hesaplandı; ortak renk bir kez, beyaz hariç. Fiziksel klişe ayrımı teknik onay gerektirir.',estimateOnly:true};
 }
-const api=Object.freeze({estimate,selectQrInk});if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CombinedInks=api;
+const api=Object.freeze({estimate,selectQrInk,selectTextInk});if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CombinedInks=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

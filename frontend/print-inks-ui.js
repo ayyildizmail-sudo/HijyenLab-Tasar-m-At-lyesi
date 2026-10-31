@@ -19,13 +19,29 @@ function paleForegroundUnresolved(data,w,h,whiteCarrierNeutral=false){
  }
  return false;
 }
-function combinedRearInkEstimate(){
- if(typeof CombinedInks==='undefined')return {status:'unknown',count:null};
- const rear=typeof rearHasContent==='function'&&rearHasContent(),prepared=typeof rearSponsorPrepared!=='undefined'?rearSponsorPrepared:null;
+function rearInkBaseInput(){
+ const prepared=typeof rearSponsorPrepared!=='undefined'?rearSponsorPrepared:null;
  const sponsor=prepared?{status:'estimated',inkSamples:prepared.inkSamples||[],method:prepared.method,recolor:rearSponsorRecolor||null}:{status:'none'};
  if(typeof rearSponsorFailure!=='undefined'&&(rearSponsorFailure||rearSponsorReview||rearSponsorPending))sponsor.status='unknown';
+ return {front:{status:frontInkStatus,colors:printInkEstimate?.colors||[],monochrome:false},background:state.bg,additional:globalThis.MultiLogo?.palettes()||[],rear:{textColor:null,qr:false,sponsor}};
+}
+function baseRearInkEstimate(){return typeof CombinedInks==='undefined'?{status:'unknown',count:null}:CombinedInks.estimate(rearInkBaseInput());}
+function rearTextInkDecision(){
+ const chosen=typeof rearContent!=='undefined'?rearContent.inkColor:'';
+ if(/^#[0-9a-f]{6}$/i.test(chosen||''))return {ok:true,color:chosen,source:'explicit-rear'};
+ if(state.recolor&&state.recolorApplied&&/^#[0-9a-f]{6}$/i.test(state.color||''))return {ok:true,color:state.color,source:'explicit-front'};
+ const base=baseRearInkEstimate();
+ if(base.status!=='estimated')return {ok:false,color:null,reason:'Mevcut baskı renkleri henüz net değil. Arka yazı için bir renk seçin; yeni renk klişe tahminini değiştirebilir.'};
+ return {...CombinedInks.selectTextInk(base.actualInkColors||base.colors,state.bg),source:'existing-palette'};
+}
+function combinedRearInkEstimate(){
+ if(typeof CombinedInks==='undefined')return {status:'unknown',count:null};
+ const rear=typeof rearHasContent==='function'&&rearHasContent(),input=rearInkBaseInput();
  const hasText=rear&&['instagram','website','phone','address','extra'].some(k=>rearContent[k].trim());
- return CombinedInks.estimate({front:{status:frontInkStatus,colors:printInkEstimate?.colors||[],monochrome:false},background:state.bg,additional:globalThis.MultiLogo?.palettes()||[],rear:{textColor:hasText?(effectiveRearInkColor()||RearLayout.textColor(state.bg)):null,qr:rear&&rearContent.qrEnabled,sponsor}});
+ const decision=hasText?rearTextInkDecision():null;
+ input.rear.textColor=decision?.ok?decision.color:null;input.rear.textColorFromExisting=['existing-palette','explicit-front'].includes(decision?.source);input.rear.qr=!!(rear&&rearContent.qrEnabled);
+ const estimate=CombinedInks.estimate(input);
+ return decision&&!decision.ok?{...estimate,status:'unknown',count:null,qrColor:null,reason:decision.reason}:estimate;
 }
 function syncRearInkNote(){
  const note=$('inkEstimateNote'),rear=typeof rearHasContent==='function'&&rearHasContent();

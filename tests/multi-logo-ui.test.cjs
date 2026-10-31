@@ -135,3 +135,12 @@ test('cancelPending preserves ready and unfinished source files but defeats in-f
 test('same-named replacement retains new original bytes and invalidates source fingerprint',async()=>{
  const h=setup(),first=file('same.png','#cc2200'),second=file('same.png','#2288cc');await h.ctx.MultiLogo.add('front',first);const id=h.ctx.MultiLogo.list('front')[0].id,old=h.ctx.designFingerprint();await h.ctx.MultiLogo.add('front',second,{id});const saved=h.ctx.MultiLogo.snapshot('front')[0];assert.equal(saved.file,second);assert.notEqual(h.ctx.designFingerprint(),old);assert.notDeepEqual(Buffer.from(await saved.file.arrayBuffer()),Buffer.from(await first.arrayBuffer()));
 });
+test('unprinted mode hides both complete extra-logo panels and printed mode restores retained originals',async()=>{
+ const h=setup(),originals={front:[],rear:[]};
+ for(const side of ['front','rear'])for(let i=0;i<3;i++){const source=file(`${side}-${i}.png`);originals[side].push(source);assert.equal(await h.ctx.MultiLogo.add(side,source),true);}
+ const before={front:JSON.stringify(h.ctx.MultiLogo.fingerprint('front')),rear:JSON.stringify(h.ctx.MultiLogo.fingerprint('rear'))};
+ h.ctx.isUnprinted=()=>true;h.ctx.refresh();h.ctx.syncRearFields();
+ for(const side of ['front','rear']){assert.equal(h.$(side+'MultiLogos').hidden,true);assert.equal(h.$(side+'MultiLogos').children[0].disabled,true);assert.equal(h.ctx.MultiLogo.list(side).length,3);h.ctx.MultiLogo.snapshot(side).forEach((entry,i)=>assert.equal(entry.file,originals[side][i]));assert.equal(JSON.stringify(h.ctx.MultiLogo.fingerprint(side)),before[side]);}
+ h.ctx.isUnprinted=()=>false;h.ctx.refresh();h.ctx.syncRearFields();
+ for(const side of ['front','rear']){assert.equal(h.$(side+'MultiLogos').hidden,false);assert.equal(h.$(side+'MultiLogos').children[4].children.length,3);h.ctx.MultiLogo.snapshot(side).forEach((entry,i)=>assert.equal(entry.file,originals[side][i]));assert.equal(JSON.stringify(h.ctx.MultiLogo.fingerprint(side)),before[side]);}
+});
