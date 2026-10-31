@@ -8,6 +8,7 @@ function make(id,label,type,towelDimensions,oppDimensions,frontAsset,backAsset,w
 const items=freeze([
  make('BM12','25 × 30 cm Rulo Islak Havlu','rulo',[25,30],null,'assets/bm12-blank.png','assets/bm12-back-blank.png',290,330,5200,400),
  make('BM15','25 × 25 cm Rulo Islak Havlu','rulo',[25,25],[14,17],'assets/bm15-front.png','assets/bm15-back.png',250,300,5000,500),
+ make('BM21','7 × 12 cm Islak Mendil','mendil',null,[7,12],'assets/bm21-approved-blank.png','assets/bm21-approved-blank.png',140,140,10000,1000),
  make('BM545','20 × 25 cm Katlı Islak Havlu','katlı',[20,25],[14,19],'assets/bm545-front.png','assets/bm545-back.png',240,290,5000,625)
 ]);
 function get(id){const item=items.find(item=>item.id===id);if(!item)throw Error('Bu ürün için doğrulanmış ürün ve fiyat kuralı yok.');return item;}

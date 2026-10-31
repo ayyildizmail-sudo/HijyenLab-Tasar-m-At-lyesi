@@ -9,7 +9,7 @@
     primary: Object.freeze({ productId: 'BM12', reason: 'Rulo biçiminde sunulur; açılmış havlu ölçüsü 25 × 30 cm, koli içeriği 400 adettir.' }),
     alternatives: Object.freeze([
       Object.freeze({ productId: 'BM545', condition: 'Katlı havlu isterseniz', reason: 'Rulo yerine katlı biçimde sunulur; koli içeriği 625 adettir.' }),
-      Object.freeze({ catalogPending: true, label: '7 × 12 cm Islak Mendil', condition: 'Islak mendil isterseniz', reason: 'Islak mendil tercihinde 7 × 12 cm seçeneği.' })
+      Object.freeze({ productId: 'BM21', condition: 'Islak mendil isterseniz', reason: 'Islak mendil tercihinde 7 × 12 cm seçeneği.' })
     ])
   });
   const mapped = new Set(['restaurant-cafe-patisserie', 'hotel-accommodation', 'school-education', 'hospital-dental-health', 'shop-jeweler-retail']);
@@ -34,7 +34,7 @@
       Object.freeze({ catalogPending: true, label: '30 × 30 cm Rulo Islak Havlu', condition: 'Seçenek', reason: '30 × 30 cm rulo seçeneği.' }),
       Object.freeze({ catalogPending: true, label: '30 × 35 cm Rulo Islak Havlu', condition: 'Seçenek', reason: '30 × 35 cm rulo seçeneği.' }),
       Object.freeze({ productId: 'BM545', reason: 'Rulo yerine katlı biçimde sunulur; koli içeriği 625 adettir.' }),
-      Object.freeze({ catalogPending: true, label: '7 × 12 cm Islak Mendil', condition: 'Seçenek', reason: '7 × 12 cm ıslak mendil seçeneği.' })
+      Object.freeze({ productId: 'BM21', condition: 'Seçenek', reason: '7 × 12 cm ıslak mendil seçeneği.' })
     ])
   });
   const categories = [

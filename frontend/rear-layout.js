@@ -9,8 +9,8 @@ function qrPlan(matrix,maxSize=180){if(!Array.isArray(matrix)||matrix.length<21|
 function validateProfile(profile){
  if(!profile)return {source:SOURCE,safe:SAFE};const source=profile.source,safe=profile.safe;
  if(!source||![source.width,source.height].every(v=>Number.isFinite(v)&&v>0)||!safe)throw Error('Arka yüz ambalaj profili geçerli değil.');
- for(const key of ['upper','seam']){const r=safe[key];if(!r||![r.x,r.y,r.width,r.height].every(Number.isFinite)||r.x<0||r.y<0||r.width<=0||r.height<=0||r.x+r.width>source.width||r.y+r.height>source.height)throw Error('Arka yüz güvenli alanı geçerli değil.');}
- if(safe.upper.y+safe.upper.height>safe.seam.y)throw Error('Arka yüz baskı alanı birleşim yerini aşıyor.');return {source,safe};
+ for(const key of (profile.seamless?['upper']:['upper','seam'])){const r=safe[key];if(!r||![r.x,r.y,r.width,r.height].every(Number.isFinite)||r.x<0||r.y<0||r.width<=0||r.height<=0||r.x+r.width>source.width||r.y+r.height>source.height)throw Error('Arka yüz güvenli alanı geçerli değil.');}
+ if(!profile.seamless&&safe.upper.y+safe.upper.height>safe.seam.y)throw Error('Arka yüz baskı alanı birleşim yerini aşıyor.');return {source,safe};
 }
 function render(ctx,width,height,fields={},options={}){
  if(!ctx||typeof ctx.measureText!=='function'||![width,height].every(v=>Number.isFinite(v)&&v>0))throw Error('Arka yüz çizim alanı geçerli değil.');

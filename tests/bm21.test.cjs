@@ -1,0 +1,20 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),crypto=require('node:crypto'),{createCanvas,loadImage}=require('@napi-rs/canvas');
+const C=require('../frontend/product-catalog.js'),G=require('../frontend/product-geometry.js'),R=require('../frontend/rear-layout.js'),U=require('../frontend/unprinted-flow.js');
+function fn(s,n){const start=s.indexOf('function '+n+'(');assert(start>=0);let i=s.indexOf('{',start),depth=1;for(++i;depth;i++){if(s[i]==='{')depth++;else if(s[i]==='}')depth--;}return s.slice(start,i);}
+(async()=>{
+const p=C.get('BM21'),r=p.priceRules,f=G.frame('BM21'),a=G.area('BM21');
+assert.equal(p.type,'mendil');assert.equal(p.towelDimensions,null);assert.deepEqual(p.oppDimensions,[7,12]);assert.equal(p.frontAsset,p.backAsset);
+assert.equal(r.whiteUnitKurus,140);assert.equal(r.coloredUnitKurus,140);assert.equal(r.coloredSurchargeKurus,0);assert.deepEqual(r.minimum,{white:10000,colored:10000});assert.equal(r.unitsPerBox,1000);
+assert.equal(r.platePerInkKurus,100000);assert.equal(r.freightPerBoxKurus,20000);assert.equal(r.vatPercent,20);assert(Math.abs(f.width/f.height-12/7)<1e-12);assert(a.left>f.x&&a.right<f.x+f.width&&a.top>f.y&&a.bottom<f.y+f.height);
+assert.equal(U.pricing(1000,'İstanbul','Beşiktaş',r).subtotal,160000);assert.equal(U.pricing(1000,'Muğla','Bodrum',r).subtotal,140000);assert.throws(()=>U.pricing(1500,'İstanbul','Beşiktaş',r));
+const file='frontend/'+p.frontAsset,bytes=fs.readFileSync(file),hash=crypto.createHash('sha256').update(bytes).digest('hex'),img=await loadImage(file),profile=G.get('BM21');assert.equal(img.width,1254);assert.equal(img.height,1254);assert(profile.rear.seamless);assert(!profile.rear.safe.seam);R.resolveProfile(profile.rear);
+const canvas=createCanvas(1600,850),scope={globalThis:null,ProductGeometry:G};scope.globalThis=scope;scope.selectedProductId='BM21';vm.createContext(scope);vm.runInContext(fn(fs.readFileSync('frontend/product-ui.js','utf8'),'renderAlternateProductMaterial'),scope);scope.renderAlternateProductMaterial(canvas.getContext('2d'),img);
+const cx=canvas.getContext('2d');assert.equal(cx.getImageData(0,0,1,1).data[3],0);assert(cx.getImageData(800,425,1,1).data[3]>250);assert.equal(cx.getImageData(800,20,1,1).data[3],0);
+cx.fillStyle='#083e2f';cx.font='bold 94px sans-serif';cx.textAlign='center';cx.fillText('ÖRNEK LOGO',800,450,a.right-a.left);
+fs.mkdirSync('tests/evidence/bm21',{recursive:true});fs.writeFileSync('tests/evidence/bm21/front-native-canvas.png',canvas.toBuffer('image/png'));
+const rear=createCanvas(1140,665),rc=rear.getContext('2d'),s=profile.sourceRect;rc.drawImage(img,s.x,s.y,s.width,s.height,0,0,1140,665);const plan=R.render(rc,1140,665,{extra:'ÖRNEK LOGO',website:'ornek.test'},{profile:profile.rear,background:'#ffffff',inkColor:'#083e2f'});for(const box of plan.boxes){assert(box.x>=90&&box.x+box.width<=1050);assert(box.y>=85&&box.y+box.height<=575);}fs.writeFileSync('tests/evidence/bm21/rear-native-canvas.png',rear.toBuffer('image/png'));assert.equal(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex'),hash);
+// Exercise actual rear compositor, ensuring no gray square or fabricated center seam.
+const doc={createElement:()=>createCanvas(1,1)},rearScope={globalThis:null,ProductGeometry:G,document:doc,rearTextInkError:()=>'',rearHasContent:()=>false};rearScope.globalThis=rearScope;rearScope.selectedProductId='BM21';vm.createContext(rearScope);vm.runInContext(fn(fs.readFileSync('frontend/rear-preview.js','utf8'),'rearPackageClip')+'\n'+fn(fs.readFileSync('frontend/rear-preview.js','utf8'),'rearMaterialDataURL'),rearScope);const rearImage=await loadImage(rearScope.rearMaterialDataURL(img,'#ffffff'));assert.equal(rearImage.width,1140);assert.equal(rearImage.height,665);
+console.log('PASS BM21: approved unchanged bitmap, 12:7 flat crop, safe front/rear bounds, no invented rear seam, confirmed pricing/carton rules, unprinted full cartons. Canvas evidence is not browser QA.');
+})().catch(e=>{console.error(e);process.exitCode=1});

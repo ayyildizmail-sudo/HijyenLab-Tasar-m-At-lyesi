@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-require-imports -- Node CommonJS regression harness. */
 const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
 const ProcessingSession=require('../frontend/processing-session.js');
-function snapshot(product='BM12',quantity='400'){return {printMode:'unprinted',product,quantity,design:null,rear:null,inkCount:'0',inkSelection:null,cliche:'none',fragrance:{id:'flambau',fixed:true},lead:{company:'test'}};}
-for(const [id,units] of Object.entries({BM12:400,BM15:500,BM545:625})){
+function snapshot(product='BM12',quantity='400'){return {printMode:'unprinted',product,quantity,design:null,rear:null,inkCount:'0',inkSelection:null,cliche:'none',fragrance:{id:product==='BM21'?'green_tea':'flambau',fixed:true},lead:{company:'test'}};}
+for(const [id,units] of Object.entries({BM12:400,BM15:500,BM545:625,BM21:1000})){
  const s=ProcessingSession.create();s.touchDesign('blank');
  for(const n of [1,2]){const p=snapshot(id,String(units*n)),t=s.quoteToken(p);assert(t);assert(s.isQuoteCurrent(t,p));assert.equal(s.isApproved('blank'),false);assert.equal(s.getState().result,null);assert(!s.isQuoteCurrent(t,{...p,printMode:'printed'}));assert(!s.isQuoteCurrent(t,{...p,quantity:String(units*3)}));s.invalidateQuotes();assert(!s.isQuoteCurrent(t,p));}
  for(const q of ['',0,-units,units+1,units*.5,1000001])assert.equal(s.quoteToken(snapshot(id,q)),null);

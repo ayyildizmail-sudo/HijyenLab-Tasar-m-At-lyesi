@@ -19,6 +19,7 @@ for (const [id, min, carton] of [['BM12','5.200','400'], ['BM15','5.000','500'],
   assert.match(blank, /Beyaz, baskısız ambalaj · Flambau koku sabit/);
   assert(!/TL|₺|sertifika|raf ömrü|teslim süresi/.test(printed + blank));
 }
+const wipe=catalog.get('BM21');assert.match(api.productFacts(wipe,'printed').join(' '),/Ambalaj: 7 × 12 cm/);assert.match(api.productFacts(wipe,'unprinted').join(' '),/Yeşil çay koku sabit/);assert(!api.productFacts(wipe,'printed').join(' ').includes('Açılmış havlu'));
 const context = { seen: false, consented: false, hasRestore: false, mode: 'printed', designVisible: true };
 assert.equal(api.draftPromptEligible({}, context), false);
 assert.equal(api.draftPromptEligible({ text: 'name', sourcePhoto: 'pending' }, context), false);

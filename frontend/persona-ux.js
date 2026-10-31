@@ -10,9 +10,9 @@
   }
   function productFacts(product, mode) {
     return [
-      'Açılmış havlu: ' + product.towelDimensions.join(' × ') + ' cm. Bu ölçü ambalaj ölçüsü değildir.',
-      (product.type === 'rulo' ? 'Rulo havlu' : 'Katlı havlu') + ' · ' + number(product.priceRules.unitsPerBox) + ' adet / koli.',
-      mode === 'unprinted' ? 'Beyaz, baskısız ambalaj · Flambau koku sabit · Baskı kalıbı (klişe) uygulanmaz.' : 'Kokuyu tasarım kontrolünden sonra seçersiniz. Ambalaj önizlemesi baskıya hazır dosya değildir.'
+      product.type === 'mendil' ? 'Ambalaj: 7 × 12 cm. Onaylı boş görselle yaklaşık önizleme; baskı payları teknik onay gerektirir.' : 'Açılmış havlu: ' + product.towelDimensions.join(' × ') + ' cm. Bu ölçü ambalaj ölçüsü değildir.',
+      (product.type === 'mendil' ? 'Islak mendil' : product.type === 'rulo' ? 'Rulo havlu' : 'Katlı havlu') + ' · ' + number(product.priceRules.unitsPerBox) + ' adet / koli.',
+      mode === 'unprinted' ? 'Beyaz, baskısız ambalaj · '+(product.id === 'BM21' ? 'Yeşil çay' : 'Flambau')+' koku sabit · Baskı kalıbı (klişe) uygulanmaz.' : 'Kokuyu tasarım kontrolünden sonra seçersiniz. Ambalaj önizlemesi baskıya hazır dosya değildir.'
     ];
   }
   function meaningfulArtwork(value) {

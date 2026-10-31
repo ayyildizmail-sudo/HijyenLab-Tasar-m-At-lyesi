@@ -78,3 +78,10 @@ test('print mode migration preserves existing printed lead, audit and fragrance 
  sql.prepare("INSERT INTO lead_status_audit (lead_id,actor_id,changed_at,from_status,to_status,from_revision) VALUES (?,'fixture-owner',3,'contacted','closed',1)").run(id);
  assert.equal(sql.prepare('SELECT COUNT(*) AS n FROM lead_status_audit').get().n,2);
 });
+
+test('BM21 validation uses wet-wipe carton, printed minimum and fixed unprinted green tea',()=>{
+ for(const quantity of [1000,2000,10000])assert.equal(api.validateLead(lead({productId:'BM21',printMode:'unprinted',quantity,fragrance:'green_tea',design:null})),true);
+ for(const quantity of [999,1001,1500])assert.equal(api.validateLead(lead({productId:'BM21',printMode:'unprinted',quantity,fragrance:'green_tea',design:null})),false);
+ assert.equal(api.validateLead(lead({productId:'BM21',printMode:'unprinted',quantity:1000,fragrance:'flambau',design:null})),false);
+ assert.equal(api.validateLead(lead({productId:'BM21',quantity:9999})),false);assert.equal(api.validateLead(lead({productId:'BM21',quantity:10000})),true);
+});
