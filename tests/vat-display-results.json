@@ -56,6 +56,18 @@
     "status": "PASS"
   },
   {
+    "name": "Unknown cliché DOM uses partial subtotal and excluded-cost warning",
+    "status": "PASS"
+  },
+  {
+    "name": "Existing cliché keeps provisional plate caveat and included arithmetic",
+    "status": "PASS"
+  },
+  {
+    "name": "General headings no longer call arithmetic estimated, technical confirmation remains",
+    "status": "PASS"
+  },
+  {
     "name": "Price panel and notes carry exact exclusion sentence",
     "status": "PASS"
   },

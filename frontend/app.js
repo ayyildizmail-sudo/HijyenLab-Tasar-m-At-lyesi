@@ -16,7 +16,7 @@ function whiteCarrierGroundIssue(){return !!state.whiteCarrierWhiteOnly&&(state.
 
 const VAT_EXCLUSION_NOTE=(rules=productRules())=>`Fiyatlara %${rules.vatPercent} KDV dahil değildir.`;
 function cartonContentLabel(rules=productRules()){return 'Koli içi: '+rules.unitsPerBox.toLocaleString('tr-TR')+' adet';}
-function quoteTotalLabel(value){return value.plateUnknown?'KDV ve klişe hariç tahmini toplam':'KDV hariç tahmini toplam';}
+function quoteTotalLabel(value){return value.plateUnknown?'Ara toplam (KDV ve klişe hariç)':'Toplam (KDV hariç)';}
 function deliveryLocation(province,district){return province+(province==='Muğla'&&district?' / '+district:'');}
 function deliveryMessage(province,district){return province==='Muğla'&&district==='Bodrum'?'Fabrikamız Bodrum’da olduğu için teslimat tarafımızdan ücretsiz yapılacaktır.':deliveryLocation(province,district)+' için kargo bedeli teklif toplamına dahil edilmiştir.';}
 const $=id=>document.getElementById(id), canvas=$('package'), ctx=canvas.getContext('2d');
