@@ -84,5 +84,40 @@ function correctPhotoFrame(result){
  const applied={...geometry,applied:true,status:'corrected',alphaPreserved:true,analysisBasis:'temporary white composite of extracted photo matte'};
  return {...result,data:out,width:ow,height:h,geometry:applied,metadata:{...result.metadata,geometry:applied,transformOrder:[...(result.metadata?.transformOrder||result.metadata?.transforms||[]),'whole-source premultiplied-alpha affine shear rectification'],limitations:[...(result.metadata?.limitations||[]),...geometry.limitations]}};
 }
-const api={estimate,correct,frameGeometry,correctFrame,correctPhotoFrame};if(typeof module!=='undefined')module.exports=api;else root.MarkOrientation=api;
+// Residual print-plane approximation only after an evidenced carrier transform.
+// Independent cap and baseline supports must converge; parallel intentional tilt
+// and stem/italic slant are not evidence. No horizontal coordinates are changed.
+function correctPrintedPlanes(result,carrier){
+ const {data,width:w,height:h}=result;
+ if(carrier?.method!=='white-carrier-boundary-planar'||!Array.isArray(carrier.inkRegions)||carrier.inkRegions.length<2)return result;
+ const mask=Uint8Array.from({length:w*h},(_,i)=>data[i*4+3]>100?1:0),columns=new Uint32Array(w);for(let i=0;i<mask.length;i++)if(mask[i])columns[i%w]++;
+ const spans=[];let start=-1,last=-1;for(let x=0;x<w;x++)if(columns[x]){if(start<0)start=x;else if(x-last>Math.max(20,h*.25)){spans.push([Math.max(0,start-3),Math.min(w,last+4)]);start=x;}last=x;}if(start>=0)spans.push([Math.max(0,start-3),Math.min(w,last+4)]);if(spans.length<2||spans.length>3)return result;
+ const fit=points=>{const mx=points.reduce((s,p)=>s+p[0],0)/points.length,my=points.reduce((s,p)=>s+p[1],0)/points.length,den=points.reduce((s,p)=>s+(p[0]-mx)**2,0);if(!den)return null;const a=points.reduce((s,p)=>s+(p[0]-mx)*(p[1]-my),0)/den,b=my-a*mx,res=Math.sqrt(points.reduce((s,p)=>s+(p[1]-a*p[0]-b)**2,0)/points.length);return {a,b,res};};
+ const plans=[];
+ for(const span of spans){
+  const estimates=[];
+  for(const threshold of [100,150,200]){
+   const parts=E.components(Uint8Array.from({length:w*h},(_,i)=>i%w>=span[0]&&i%w<span[1]&&data[i*4+3]>threshold?1:0),w,h).filter(p=>p.pts.length>=12);
+   if(!parts.length)break;const gy0=Math.min(...parts.map(p=>p.box[1])),gy1=Math.max(...parts.map(p=>p.box[3])),gh=gy1-gy0;
+   const letters=parts.filter(p=>{const bw=p.box[2]-p.box[0],bh=p.box[3]-p.box[1];return bh>gh*.55&&bh<gh*.95&&bw>bh*.12&&bw<bh*1.3&&p.pts.length/(bw*bh)>.12;});
+   if(letters.length<5||letters.length>20)break;
+   const heights=letters.map(p=>p.box[3]-p.box[1]),height=medianValue(heights);if(Math.max(...heights)/Math.min(...heights)>1.3||span[1]-span[0]<height*3)break;
+   const tops=[],bottoms=[];for(const p of letters){const ys=p.pts.map(i=>Math.floor(i/w)).sort((a,b)=>a-b),lo=ys[Math.floor(ys.length*.03)],hi=ys[Math.floor(ys.length*.97)],upper=p.pts.filter(i=>Math.floor(i/w)<=lo),lower=p.pts.filter(i=>Math.floor(i/w)>=hi);tops.push([upper.reduce((s,i)=>s+i%w,0)/upper.length,upper.reduce((s,i)=>s+Math.floor(i/w),0)/upper.length]);bottoms.push([lower.reduce((s,i)=>s+i%w,0)/lower.length,lower.reduce((s,i)=>s+Math.floor(i/w),0)/lower.length]);}
+   const top=fit(tops),bottom=fit(bottoms);if(!top||!bottom||Math.max(top.res,bottom.res)>height*.025||Math.max(Math.abs(top.a),Math.abs(bottom.a))>.105||Math.abs(bottom.a-top.a)<.008||Math.abs(bottom.a)<.0175)break;
+   estimates.push({top,bottom,n:letters.length,height,gy0,gy1});
+  }
+  if(estimates.length!==3||['top','bottom'].some(k=>Math.max(...estimates.map(e=>e[k].a))-Math.min(...estimates.map(e=>e[k].a))>.005))continue;
+  const p=estimates[1],center=(span[0]+span[1])/2,topY=p.top.a*center+p.top.b,bottomY=p.bottom.a*center+p.bottom.b,targetH=bottomY-topY;
+  const projected=[];for(const x of span)for(const y of [p.gy0-2,p.gy1+2])projected.push(topY+(y-(p.top.a*x+p.top.b))*targetH/((p.bottom.a-p.top.a)*x+p.bottom.b-p.top.b));
+  if(Math.min(...projected)<1||Math.max(...projected)>h-2)continue;
+  plans.push({...p,span,topY,targetH,thresholdAgreement:true});
+ }
+ if(!plans.length)return result;
+ const out=data.slice();for(const p of plans)for(let x=p.span[0];x<p.span[1];x++)for(let y=0;y<h;y++){
+  const sy=p.top.a*x+p.top.b+(y-p.topY)*((p.bottom.a-p.top.a)*x+p.bottom.b-p.top.b)/p.targetH,y0=Math.floor(sy),f=sy-y0,j=(y*w+x)*4;let a=0,r=0,g=0,b=0;for(let k=0;k<2;k++){const yy=y0+k;if(yy<0||yy>=h)continue;const q=(yy*w+x)*4,aw=data[q+3]/255*(k?f:1-f);a+=aw;r+=data[q]*aw;g+=data[q+1]*aw;b+=data[q+2]*aw;}out.fill(0,j,j+4);if(a){out[j]=r/a;out[j+1]=g/a;out[j+2]=b/a;out[j+3]=a*255;}}
+ return {...result,data:out,printedPlanes:{method:'independent-cap-baseline-photo-rectification',applied:true,groups:plans,limitations:['Residual print-plane approximation from independent cap and baseline supports; not an original master.','Horizontal positions and italic stem slant retained; no OCR, redraw, or curved-surface recovery.']}};
+}
+function medianValue(values){return values.slice().sort((a,b)=>a-b)[Math.floor(values.length/2)];}
+
+const api={correctPrintedPlanes,estimate,correct,frameGeometry,correctFrame,correctPhotoFrame};if(typeof module!=='undefined')module.exports=api;else root.MarkOrientation=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

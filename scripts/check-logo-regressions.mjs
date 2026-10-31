@@ -25,6 +25,8 @@ const suites = [
   'tests/accepted-rear-ink-palette.test.cjs',
   'tests/flat-jpeg-ink-palette.test.cjs',
   'tests/private-raw-ink-palette.test.cjs',
+  'tests/photo-matte-edge-color.test.cjs',
+  'tests/carrier-printed-planes.test.cjs',
   'tests/print-policy.test.cjs',
   'tests/reference-recovery.test.cjs',
   'tests/print-policy-ui.test.cjs',
