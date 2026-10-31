@@ -29,6 +29,42 @@ function inspectSurface(data,w,h,detection){
  const medianResidual=median(residuals),texturedTileFraction=eligible.filter(a=>median(a)>=1.25).length/eligible.length;
  return {photoLike:medianResidual>=1.25&&texturedTileFraction>=.55,reason:'edge-connected-surface-texture',medianResidual,texturedTileFraction,sampledPixels:residuals.length,tiles:eligible.length};
 }
+// Evidence for a ready flat graphic, independent of how much blank margin it has.
+// Sample stable interiors, not JPEG/antialiased edge colours. This is a routing
+// hint, never an extraction mask; screenshots/context are checked first.
+function inspectFlatGraphic(data,w,h){
+ const no={flatGraphic:false};
+ if(w<64||h<64||w*h>160000||data.length!==w*h*4)return no;
+ const bins=new Map();let total=0,stable=0;
+ for(let y=2;y<h-2;y++)for(let x=2;x<w-2;x++){
+  const i=y*w+x;if(data[i*4+3]<240)continue;total++;
+  const ids=[i,i-2,i+2,i-2*w,i+2*w];
+  if(![0,1,2].every(k=>{const v=ids.map(j=>data[j*4+k]);return Math.max(...v)-Math.min(...v)<=8;}))continue;
+  stable++;const rgb=[0,1,2].map(k=>data[i*4+k]),key=rgb.map(v=>Math.round(v/16)).join(',');
+  if(!bins.has(key))bins.set(key,{n:0,sum:[0,0,0]});const b=bins.get(key);b.n++;rgb.forEach((v,k)=>b.sum[k]+=v);
+ }
+ if(!total||stable/total<.35)return {...no,stableFraction:stable/Math.max(1,total)};
+ const groups=[...bins.values()].sort((a,b)=>b.n-a.n),palette=[];let represented=0;
+ for(const b of groups){const rgb=b.sum.map(v=>v/b.n);if(palette.some(c=>distance(c,rgb)<=20)){represented+=b.n;continue;}if(palette.length<6){palette.push(rgb);represented+=b.n;}}
+ const concentration=represented/stable;
+ let covered=0,transitions=0,opaque=0;
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  const i=y*w+x;if(data[i*4+3]<240)continue;opaque++;const rgb=[0,1,2].map(k=>data[i*4+k]);
+  if(palette.some(c=>distance(c,rgb)<=24)){covered++;continue;}
+  // Antialias/JPEG colours must lie between nearby palette colours at a real
+  // spatial edge. A smooth gradient cannot explain its whole surface this way.
+  const neighbors=[Math.max(0,x-2)+y*w,Math.min(w-1,x+2)+y*w,x+Math.max(0,y-2)*w,x+Math.min(h-1,y+2)*w].map(j=>[0,1,2].map(k=>data[j*4+k]));
+  if(!neighbors.some(c=>distance(c,rgb)>28))continue;
+  let explained=false;for(let a=0;a<palette.length&&!explained;a++)for(let b=a+1;b<palette.length;b++){
+   const p=palette[a],v=palette[b].map((c,k)=>c-p[k]),den=v.reduce((n,c)=>n+c*c,0);if(!den)continue;
+   const t=Math.max(0,Math.min(1,v.reduce((n,c,k)=>n+c*(rgb[k]-p[k]),0)/den));
+   if(distance(rgb,p.map((c,k)=>c+t*v[k]))<=36){explained=true;break;}
+  }
+  if(explained)transitions++;
+ }
+ const paletteCoverage=covered/Math.max(1,opaque),explainedCoverage=(covered+transitions)/Math.max(1,opaque);
+ return {flatGraphic:concentration>=.975&&paletteCoverage>=.72&&explainedCoverage>=.96,stableFraction:stable/total,concentration,paletteCoverage,explainedCoverage,paletteSize:palette.length};
+}
 // On a tightly cropped, textured single surface, a tiny subtitle is not the
 // whole visible marking. Compare against SOURCE coordinates, before transforms.
 function sourceRetention(data,w,h,detection,box,sourceW,sourceH){
@@ -46,5 +82,5 @@ function sourceRetention(data,w,h,detection,box,sourceW,sourceH){
  const retainedFraction=total?inside/total:0;
  return {applicable:true,ok:total>=24&&retainedFraction>=.9,retainedFraction,total,inside,reason:'source-marking-coverage',surface};
 }
-const api={analyze,edgeMask,hex,inspectSurface,sourceRetention};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.BackgroundAnalysis=api;
+const api={analyze,edgeMask,hex,inspectSurface,inspectFlatGraphic,sourceRetention};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.BackgroundAnalysis=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -3,13 +3,28 @@
 const B=typeof module!=='undefined'?require('./background.js'):root.BackgroundAnalysis;
 const MAX_PIXELS=4000000,dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]);
 const fail=reason=>({ok:false,reason,reviewRequired:true});
+// Ready dense graphics bypass the physical-carrier matte. Preserve enclosed
+// white letters/rings; only the edge-connected blank outside is transparent.
+function readyGraphic(raw,w,h,b){
+ if(b.kind!=='white'||!(b.connected<.4)||w<160||h<160)return null;
+ const scale=Math.min(1,240/Math.max(w,h)),sw=Math.round(w*scale),sh=Math.round(h*scale),small=new Uint8ClampedArray(sw*sh*4);
+ for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){const j=(Math.min(h-1,Math.floor((y+.5)/scale))*w+Math.min(w-1,Math.floor((x+.5)/scale)))*4;small.set(raw.subarray(j,j+4),(y*sw+x)*4);}
+ if(!B.inspectFlatGraphic(small,sw,sh).flatGraphic)return null;
+ // A closed outside border may touch the image at a few tangent points. Broad
+ // edge-crossing ink is still clipped/ambiguous, not permission to invent it.
+ const mask=B.edgeMask(raw,w,h,b.rgb,32).mask;let boundary=0;
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++)if((!x||!y||x===w-1||y===h-1)&&!mask[y*w+x])boundary++;
+ if(boundary/(2*w+2*h-4)>.12)return null;
+ const data=new Uint8ClampedArray(raw),colors=new Map();for(let i=0;i<w*h;i++){const j=i*4;if(mask[i])data[j+3]=0;else if(data[j+3]>240){const key=Array.from(data.subarray(j,j+3)).map(v=>Math.min(255,Math.round(v/16)*16)).join(',');colors.set(key,(colors.get(key)||0)+1);}}
+ return {ok:true,data,width:w,height:h,sourceBounds:[0,0,w,h],sourceWidth:w,sourceHeight:h,method:'ready-flat-graphic-source-pixels',background:b.rgb,reviewRequired:true,limitations:['Hazır grafik oranı ve iç beyaz ayrıntıları korunur; yalnız dışa bağlı beyaz alan kaldırılır.'],inkSamples:[...colors].sort((a,b)=>b[1]-a[1]).slice(0,16).map(([key,count])=>({rgb:key.split(',').map(Number),count}))};
+}
 function extractRGBA(raw,w,h){
  if(!Number.isSafeInteger(w)||!Number.isSafeInteger(h)||w<2||h<2||w*h>MAX_PIXELS||!raw||raw.length!==w*h*4)return fail('Görsel boyutu veya piksel sınırı uygun değil.');
  const n=w*h;let transparent=0,edge=0,edgeTransparent=0;
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const a=raw[(y*w+x)*4+3];if(a<16)transparent++;if(x===0||y===0||x===w-1||y===h-1){edge++;if(a<16)edgeTransparent++;}}
  const native=transparent/n>.01,out=new Uint8ClampedArray(raw);let method='native-alpha-trim',background=null,limitations=[];
  if(!native){
-  const b=B.analyze(raw,w,h);if(!['white','color'].includes(b.kind)||b.confidence<.98||b.connected<.4||Math.min(...b.rgb)<210||Math.max(...b.rgb)-Math.min(...b.rgb)>35)return fail('Bu görselden sponsor logosu güvenle ayrılamadı. Şeffaf logo veya düz açık zeminli görsel kullanın.');
+  const b=B.analyze(raw,w,h),ready=readyGraphic(raw,w,h,b);if(ready)return ready;if(!['white','color'].includes(b.kind)||b.confidence<.98||b.connected<.4||Math.min(...b.rgb)<210||Math.max(...b.rgb)-Math.min(...b.rgb)>35)return fail('Bu görselden sponsor logosu güvenle ayrılamadı. Şeffaf logo veya düz açık zeminli görsel kullanın.');
   background=b.rgb;method='uniform-light-carrier-source-pixels';
   // Strong ink palette is evidence of flat art, not a semantic brand classifier.
   const bins=new Map();let strong=0;

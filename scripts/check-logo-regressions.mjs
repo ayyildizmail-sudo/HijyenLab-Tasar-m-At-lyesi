@@ -18,10 +18,12 @@ const suites = [
   'tests/frame-geometry.test.cjs',
   'tests/photo-frame-geometry.test.cjs',
   'tests/compressed-photo-geometry.test.cjs',
-  'tests/photo-surface-routing.test.cjs',
+  'tests/photo-surface-routing.test.cjs', // Dense ready-graphics, JPEG, screenshot and physical-source counterexamples.
+  'tests/rear-logo.test.cjs',
   'tests/ground-case-consistency.test.cjs',
   'tests/accepted-artwork-palette.test.cjs',
   'tests/accepted-rear-ink-palette.test.cjs',
+  'tests/flat-jpeg-ink-palette.test.cjs',
   'tests/private-raw-ink-palette.test.cjs',
   'tests/print-policy.test.cjs',
   'tests/print-policy-ui.test.cjs',

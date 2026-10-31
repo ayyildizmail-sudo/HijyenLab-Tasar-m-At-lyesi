@@ -10,24 +10,36 @@ const hex=c=>'#'+c.map(x=>Math.round(x).toString(16).padStart(2,'0')).join('');
 // A preview-only second pass for already isolated artwork. Unsupported shades
 // may be edge/matte/light variations, but two genuine flat inks retain their
 // own local cores even when they have the same hue. This never edits artwork.
-function artworkCorePalette(data,width,height,clusters){
+function artworkCorePalette(data,width,height,clusters,radius=1,spatialPairs=false){
  const support=clusters.map(()=>0),segmentDistance=(p,a,b)=>{const v=b.map((n,k)=>n-a[k]),den=v.reduce((n,x)=>n+x*x,0);if(!den)return dist(p,a);const t=Math.max(0,Math.min(1,v.reduce((n,x,k)=>n+x*(p[k]-a[k]),0)/den));return dist(p,a.map((n,k)=>n+t*v[k]));};
- for(let y=1;y<height-1;y++)for(let x=1;x<width-1;x++){
+ for(let y=radius;y<height-radius;y++)for(let x=radius;x<width-radius;x++){
   const i=(y*width+x)*4,c=[data[i],data[i+1],data[i+2]];if(data[i+3]<220||white(c))continue;
-  let core=true;for(let dy=-1;dy<=1&&core;dy++)for(let dx=-1;dx<=1&&core;dx++){const j=((y+dy)*width+x+dx)*4;if(data[j+3]<220||dist(c,[data[j],data[j+1],data[j+2]])>12)core=false;}
+  let core=true;for(let dy=-radius;dy<=radius&&core;dy++)for(let dx=-radius;dx<=radius&&core;dx++){const j=((y+dy)*width+x+dx)*4;if(data[j+3]<220||dist(c,[data[j],data[j+1],data[j+2]])>12)core=false;}
   if(!core)continue;let best=-1,delta=48;clusters.forEach((k,n)=>{const d=dist(c,k.color);if(d<delta){best=n;delta=d;}});if(best>=0)support[best]++;
  }
  const kept=clusters.filter((_,i)=>support[i]>=4),removed=clusters.filter((_,i)=>support[i]<4);
  if(!kept.length||kept.length>6||!removed.length)return null;
  // A stable ink-sized patch is retained above. Only unsupported, explained
  // shades are omitted; a new unrelated colour remains unresolved, not free.
- let total=0,explained=0;
+ function localPair(c,index){
+  if(!spatialPairs)return false;const edgeColors=kept.map(k=>k.color).concat([[255,255,255]]);const x=index/4%width,y=Math.floor(index/4/width);
+  for(let a=0;a<edgeColors.length;a++)for(let b=a+1;b<edgeColors.length;b++){
+   if(segmentDistance(c,edgeColors[a],edgeColors[b])>48)continue;
+   let nearA=false,nearB=false;
+   for(let dy=-6;dy<=6&&!(nearA&&nearB);dy++)for(let dx=-6;dx<=6&&!(nearA&&nearB);dx++){
+    const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=width||yy>=height)continue;const j=(yy*width+xx)*4;if(data[j+3]<220)continue;
+    const p=[data[j],data[j+1],data[j+2]];if(dist(p,edgeColors[a])<48)nearA=true;if(dist(p,edgeColors[b])<48)nearB=true;
+   }
+   if(nearA&&nearB)return true;
+  }return false;
+ }
+ let total=0,explained=0,pairExplained=0;
  for(let i=0;i<data.length;i+=4){const c=[data[i],data[i+1],data[i+2]];if(data[i+3]<220||white(c))continue;total++;
-  if(kept.some(k=>Math.min(segmentDistance(c,k.color,[255,255,255]),segmentDistance(c,k.color,[0,0,0]))<=32))explained++;
+  if(kept.some(k=>Math.min(segmentDistance(c,k.color,[255,255,255]),segmentDistance(c,k.color,[0,0,0]))<=32))explained++;else if(localPair(c,i)){explained++;pairExplained++;}
  }
  const coverage=total?explained/total:0;
- if(coverage<.97||removed.some(k=>Math.min(...kept.map(a=>Math.min(segmentDistance(k.color,a.color,[255,255,255]),segmentDistance(k.color,a.color,[0,0,0]))))>32))return null;
- return {colors:kept.map(k=>k.color),evidence:{coreSupport:support,explainedFraction:coverage,discardedUnsupportedShades:removed.length}};
+ if(coverage<.97||removed.some(k=>Math.min(...kept.map(a=>Math.min(segmentDistance(k.color,a.color,[255,255,255]),segmentDistance(k.color,a.color,[0,0,0]))))>32&&!(spatialPairs&&kept.some(a=>kept.some(b=>segmentDistance(k.color,a.color,b.color)<=32)))))return null;
+ return {colors:kept.map(k=>k.color),evidence:{coreSupport:support,explainedFraction:coverage,discardedUnsupportedShades:removed.length,coreRadius:radius,spatialPairPixels:pairExplained}};
 }
 // A continuous spatial colour ramp is not a set of flat spot inks, even when
 // quantisation happens to create fewer than six bins. JPEG texture interrupts
@@ -77,8 +89,8 @@ function estimate(data,width,height,options={}){
  const unresolved=unresolvedColors.filter(c=>!palette.some(p=>dist(p,c)<60)&&!blend(c)).length;
  const ramp=!recolor&&hasContinuousRamp(data,width,height);
  const uncertain=ramp||palette.length>6||(!recolor&&unresolved>Math.max(8,visible*.002))||palette.some(c=>Math.min(...c)>210&&Math.max(...c)-Math.min(...c)<18)||(!recolor&&dominantCoverage<.88)||(!recolor&&stable>0&&unexplained/stable>.06)||(!recolor&&visibleNonWhite>20&&stable===0);
- if(uncertain&&!ramp&&options.acceptedArtwork===true&&!recolor&&data&&data.length===width*height*4){
-  const resolved=artworkCorePalette(data,width,height,clusters);
+ if(!ramp&&options.acceptedArtwork===true&&!recolor&&data&&data.length===width*height*4){
+  const resolved=(uncertain?artworkCorePalette(data,width,height,clusters):null)||artworkCorePalette(data,width,height,clusters,2,true);
   if(resolved){const result=estimate(null,0,0,{background:options.background,textColor:options.textColor});
    const inks=resolved.colors.slice();for(const color of result.colors){const c=rgb(color);if(!inks.some(p=>dist(p,c)<48))inks.push(c);}
    // Explicit colours stay distinct from one another, including very close RGB.

@@ -24,7 +24,11 @@ function acceptedRearInkPalette(prepared){
  if(!prepared?.data||!prepared.width||!prepared.height)return undefined;
  if(!rearAnalyzedInkCache.has(prepared)){
   const estimate=PrintInks.estimate(prepared.data,prepared.width,prepared.height,{acceptedArtwork:true});
-  if(paleForegroundUnresolved(prepared.data,prepared.width,prepared.height,false))estimate.uncertain=true;
+  // Only source-verified white background from the ready-graphic path may
+  // explain pale JPEG edge remnants. Native alpha and stable pale ink remain
+  // unresolved; a method name alone is not white-carrier evidence.
+  const confirmedWhiteCarrier=prepared.method==='ready-flat-graphic-source-pixels'&&Array.isArray(prepared.background)&&prepared.background.length===3&&prepared.background.every(v=>Number.isFinite(v)&&v>=245&&v<=255)&&Math.max(...prepared.background)-Math.min(...prepared.background)<=12;
+  if(paleForegroundUnresolved(prepared.data,prepared.width,prepared.height,confirmedWhiteCarrier))estimate.uncertain=true;
   rearAnalyzedInkCache.set(prepared,estimate);
  }
  return rearAnalyzedInkCache.get(prepared);
