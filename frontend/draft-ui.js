@@ -38,7 +38,7 @@ async function save(){
  finally{saving=false;if(dirty&&enabled&&!restoring&&!offer)save();}
 }
 async function remove(){if(restoring)cancelRestore();generation++;clearTimeout(timer);dirty=false;firstDirtyAt=0;loadFailed=false;offer=null;resumeIntent=null;rearToneIntent='';consent(false);$('restoreDraft').hidden=true;$('replaceDraft').hidden=true;try{await store.clear();lastKey='';$('deleteDraft').hidden=true;say('Cihazdaki taslak silindi. Açık tasarımınız değişmedi.');}catch{say('Cihazdaki taslağın silindiği doğrulanamadı. Yeniden silmeyi deneyin.');$('deleteDraft').hidden=false;}}
-function cancelRestore(){if(!restoring)return;generation++;restoring=false;cancelCurrentProcessing('draft-interrupted');rearSponsorOperation++;rearSponsorPending=false;if(root.MultiLogo)MultiLogo.cancelPending();state.extractionApprovalRequired=!!(state.logo||state.photoLayout);approvedDesignFingerprint=null;invalidateQuote();$('restoreDraft').disabled=false;say('Geri yükleme durduruldu. Mevcut tasarımı kontrol edin.');}
+function cancelRestore(){if(!restoring)return;generation++;restoring=false;root.HijyenLabJourneyMotion?.suspend(false);cancelCurrentProcessing('draft-interrupted');rearSponsorOperation++;rearSponsorPending=false;if(root.MultiLogo)MultiLogo.cancelPending();state.extractionApprovalRequired=!!(state.logo||state.photoLayout);approvedDesignFingerprint=null;invalidateQuote();$('restoreDraft').disabled=false;say('Geri yükleme durduruldu. Mevcut tasarımı kontrol edin.');}
 function setSavedSelect(id,value){const select=$(id);select.value=value;if(select.value!==value){const option=document.createElement('option');option.value=value;option.textContent=value+' (yeniden kontrol edin)';option.disabled=true;select.append(option);select.value=value;}}
 function showLocalFragrance(){
  if(designIssue())return;
@@ -47,7 +47,7 @@ function showLocalFragrance(){
  if(typeof hideRearPreview==='function')hideRearPreview();$('fragrancePanel').hidden=false;step=5;syncFragrance();
 }
 function restoreLeadInputs(resume){if(!resume)return;const lead=resume.lead;for(const [id,key] of [['customerName','customer'],['contactName','contact'],['contactPhone','phone']])$(id).value=lead[key];setSavedSelect('province',lead.province);setDistrict();setSavedSelect('district',lead.district);$('cliche').value=resume.cliche;$('qty').value=resume.quantityInput;if($('cartonQty'))$('cartonQty').value=resume.cartonInput;}
-async function restore(){if(!offer||restoring)return;const payload=offer,ticket=++generation;restoring=true;$('restoreDraft').disabled=true;say('Kaynak görseller yeniden kontrol ediliyor…');try{
+async function restore(){if(!offer||restoring)return;const payload=offer,ticket=++generation;restoring=true;root.HijyenLabJourneyMotion?.suspend(true);$('restoreDraft').disabled=true;say('Kaynak görseller yeniden kontrol ediliyor…');try{
  restoreLeadInputs(payload.resume);
  const mode=payload.printMode||'printed';if(mode==='unprinted'&&!root.HijyenLabPrintMode)throw Error('Baskısız ürün akışı kullanılamıyor.');if(root.HijyenLabPrintMode)await root.HijyenLabPrintMode.set(mode);if(ticket!==generation)return;
  resetDesign();lastUploadedFile=null;await selectProduct(payload.productId);if(ticket!==generation)return;
@@ -86,7 +86,7 @@ async function restore(){if(!offer||restoring)return;const payload=offer,ticket=
  say('Taslağınıza kaldığınız yerden devam edebilirsiniz. '+(mode==='unprinted'?'Baskısız ürün ve teklif bilgileriniz geri yüklendi.':payload.frontFile||payload.rearFile?'Bilgileriniz korundu; kaynak görselleri ve yerleşimi yeniden kontrol edin.':'Seçimleriniz ve teklif bilgileriniz geri yüklendi.')+' Teklif güncel kurallarla yeniden hesaplanır.'+(!enabled?' İletişim bilgileri dahil yeni değişiklikleri saklamak için yukarıdaki seçimi açın.':''));
 
  }catch{if(ticket===generation)say('Taslağın tamamı geri yüklenemedi. Kaynakları yeniden seçebilir veya tekrar deneyebilirsiniz. Eski teklif/onay kullanılmadı.');}
- finally{if(ticket===generation){restoring=false;$('restoreDraft').disabled=false;}}
+ finally{if(ticket===generation){root.HijyenLabJourneyMotion?.suspend(false);restoring=false;$('restoreDraft').disabled=false;}}
 }
 if($('acceptRearSponsor')){const accept=$('acceptRearSponsor').onclick;$('acceptRearSponsor').onclick=function(...args){const result=accept?.apply(this,args);if(rearToneIntent&&rearSponsorPrepared&&RearContrast.singleInk(rearSponsorPrepared.inkSamples)){rearSponsorImage=coloredRearLogo(rearToneIntent);rearSponsorRecolor=rearToneIntent;rearToneIntent='';syncRearFields();rearChanged();}return result;};}
 $('draftConsent').onchange=()=>{if($('draftConsent').checked){consent(true);schedule();}else remove();};$('deleteDraft').onclick=remove;$('restoreDraft').onclick=restore;$('replaceDraft').onclick=()=>{if(restoring)return;loadFailed=false;offer=null;$('restoreDraft').hidden=true;$('replaceDraft').hidden=true;lastKey='';consent(true);save();};

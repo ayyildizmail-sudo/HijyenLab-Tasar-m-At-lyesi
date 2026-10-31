@@ -1,3 +1,12 @@
+# V64 — sessiz, kesintiye açık etkileşimler
+
+- Ürün, logo, zemin rengi, ön/arka geçiş, arka içerik, koku, alan tamamlanması ve geçerli teklif için kısa sunum tepkileri eklendi. Hiçbir hesap veya onay animasyon bitişini beklemez.
+- Hareket azaltma tercihi başlangıçta ve değiştiğinde uygulanır. Yazı girişi, sürükleme, sayfadan ayrılma, gezinme ve yeni işlem mevcut hareketi iptal eder.
+- Renk panelindeki küçük önizleme mevcut ambalaj canvas'ından kopyalanır; yeniden logo işleme veya piksel okuma yapmaz. Eski görüntü sıfırlanır; geçiş katmanı tıklamaları yakalamaz ve kalıcı değildir.
+- Teklif özeti güncel, doğrulanmış ön/arka görselleri ve gerçek hesap satırlarını gösterir; toplam ve KDV notu bir kez görünür. Özgün JPG isteğe bağlı açılır ve dışa aktarma içeriği değiştirilmez.
+- Müşteri alanı işaretleri yalnız alan geçerli tamamlanıp odak ayrıldığında gösterilir. Yazarken hareket veya ek görsel hesaplama yoktur. Bu kontroller teklif doğrulamasının yerine geçmez.
+- Testler: journey-motion.test.cjs, journey-motion-independent.test.cjs, journey-motion-observers-independent.test.cjs ve mevcut regresyon kapısı. Gerçek iPhone kilitlenmesinin giderildiği masaüstü testlerinden çıkarılamaz.
+
 # V61 — sade giriş ve aynı cihazda devam
 
 - Yeni açık izin: ürün/baskı, ön/arka kaynak ve tasarım tercihleri, koku, görselsiz renk beyanı, işletme/yetkili/telefon/il/ilçe, adet/koli ve klişe girdileri yalnız aynı tarayıcıdaki IndexedDB’ye kaydedilir. Eski izin iletişim alanlarını kapsamıyordu: eski taslak açılır ama genişletilmiş saklama için yeni kutu açıkça seçilmelidir.
