@@ -14,7 +14,8 @@ function exact(value,keys){if(!value||typeof value!=='object'||Array.isArray(val
 function str(value,max){if(typeof value!=='string'||value.length>max)fail('INVALID','Taslak metni sınırı aşıldı.');return value;}
 function number(value,min,max){if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max)fail('INVALID','Taslak sayısal alanı geçersiz.');return value;}
 function bool(value){if(typeof value!=='boolean')fail('INVALID','Taslak seçimi geçersiz.');return value;}
-function hex(value,empty=false){if(empty&&value==='')return value;if(typeof value!=='string'||!/^#[0-9a-f]{6}$/i.test(value))fail('INVALID','Taslak rengi geçersiz.');return value;}
+// CSS hex case has no visual meaning; canonicalize it before strict tariff comparisons.
+function hex(value,empty=false){if(empty&&value==='')return value;if(typeof value!=='string'||!/^#[0-9a-f]{6}$/i.test(value))fail('INVALID','Taslak rengi geçersiz.');return value.toLowerCase();}
 function topKeys(input){return input?.schemaVersion===3?TOP.concat('printMode','frontExtras','rearExtras'):input?.schemaVersion===2?TOP.concat('printMode'):TOP;}
 function validate(input){
  exact(input,topKeys(input));if(![1,2,3].includes(input.schemaVersion)||!['BM12','BM15','BM545'].includes(input.productId))fail('INVALID','Taslak sürümü veya ürünü desteklenmiyor.');

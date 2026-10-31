@@ -23,25 +23,43 @@ function correct(result){
 }
 // A screenshot can contain an already extracted, but oblique, mark. An oval
 // is not evidence of a circle: retain both axes and correct only measured shear.
-function frameGeometry(data,w,h){
+function frameGeometry(data,w,h,options={}){
  if(![w,h].every(n=>Number.isSafeInteger(n)&&n>0)||w*h>4e6||data.length!==w*h*4)return {ok:false,reason:'Invalid or oversized image'};
  let border=0,white=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;if(data[i+3]!==255)return {ok:false,reason:'Affine screenshot correction requires opaque white substrate'};if(x<2||y<2||x>=w-2||y>=h-2){border++;if(Math.min(data[i],data[i+1],data[i+2])>=245)white++;}}if(white/Math.max(1,border)<.98)return {ok:false,reason:'Affine screenshot correction requires quiet white border'};
- const mask=Uint8Array.from({length:w*h},(_,i)=>data[i*4+3]>150&&Math.min(data[i*4],data[i*4+1],data[i*4+2])<180?1:0);
+ const mask=Uint8Array.from({length:w*h},(_,i)=>data[i*4+3]>150&&Math.min(data[i*4],data[i*4+1],data[i*4+2])<(options.threshold||180)?1:0);
  const parts=E.components(mask,w,h).filter(p=>p.pts.length>=12);if(parts.length<4||parts.length>160)return {ok:false,reason:'Insufficient isolated frame evidence'};
  const x0=Math.min(...parts.map(p=>p.box[0])),x1=Math.max(...parts.map(p=>p.box[2])),y0=Math.min(...parts.map(p=>p.box[1])),y1=Math.max(...parts.map(p=>p.box[3])),bw=x1-x0,bh=y1-y0;
- const arcs=parts.filter(p=>{const a=p.box[2]-p.box[0],b=p.box[3]-p.box[1];return a>bw*.45&&b>bh*.13&&b<bh*.48&&p.pts.length/(a*b)<.11;});
+ const arcs=parts.filter(p=>{const a=p.box[2]-p.box[0],b=p.box[3]-p.box[1];return a>bw*(options.fragments ? .15 : .45)&&b>bh*.13&&b<bh*.48&&p.pts.length/(a*b)<(options.fragments ? .16 : .11);});
  if(!arcs.some(p=>p.box[3]<y0+bh*.48)||!arcs.some(p=>p.box[1]>y0+bh*.52))return {ok:false,reason:'No independent upper and lower frame arcs'};
  // Two separate horizontal rules provide an independent front-on axis. A
  // decorative tilted ellipse without that evidence must remain untouched.
- const rules=parts.filter(p=>{const a=p.box[2]-p.box[0],b=p.box[3]-p.box[1];return a>bw*.15&&a>8*b&&b<bh*.05;});
+ let ruleParts=parts;
+ if(options.fragments){
+  // Join only short, near-collinear rule fragments separated by small gaps.
+  // This is evidence grouping; no source pixel is joined or reconstructed.
+  const segments=parts.filter(p=>{const a=p.box[2]-p.box[0],b=p.box[3]-p.box[1];return a>3*b&&b<bh*.035;}).map(p=>({box:p.box.slice()})).sort((a,b)=>a.box[0]-b.box[0]),joined=[];
+  for(const p of segments){const b=p.box,q=joined.find(q=>{const a=q.box;return b[0]-a[2]>=0&&b[0]-a[2]<bw*.04&&Math.abs((a[1]+a[3]-b[1]-b[3])/2)<=Math.max(2,bh*.012);});if(q)q.box=[q.box[0],Math.min(q.box[1],b[1]),b[2],Math.max(q.box[3],b[3])];else joined.push(p);}
+  ruleParts=joined;
+ }
+ const rules=ruleParts.filter(p=>{const a=p.box[2]-p.box[0],b=p.box[3]-p.box[1];return a>bw*.15&&a>8*b&&b<bh*.05;});
  let baseline=null;for(let i=0;i<rules.length;i++)for(let j=i+1;j<rules.length;j++){const a=rules[i].box,b=rules[j].box,dx=(b[0]+b[2]-a[0]-a[2])/2,dy=(b[1]+b[3]-a[1]-a[3])/2;if(Math.abs(dx)>bw*.35&&Math.abs(dy/dx)<.025)baseline={slope:dy/dx,boxes:[a,b]};}
  if(!baseline)return {ok:false,reason:'No independent near-level rule pair'};
  const scan=Array.from({length:h},()=>[]);for(const arc of arcs)for(const i of arc.pts)scan[Math.floor(i/w)].push(i%w);
  const points=[];for(let y=0;y<h;y++){const row=scan[y];if(!row.length)continue;const lo=Math.min(...row),hi=Math.max(...row),span=hi-lo;if(span>bw*.25&&span<bw*.78)points.push({x:(lo+hi)/2,y});}
  if(points.length<Math.max(24,bh*.25)||!points.some(p=>p.y<y0+bh*.25)||!points.some(p=>p.y>y0+bh*.75))return {ok:false,reason:'Insufficient bilateral arc coverage'};
- const n=points.length,mx=points.reduce((s,p)=>s+p.x,0)/n,my=points.reduce((s,p)=>s+p.y,0)/n,shear=points.reduce((s,p)=>s+(p.y-my)*(p.x-mx),0)/points.reduce((s,p)=>s+(p.y-my)**2,0),residual=Math.sqrt(points.reduce((s,p)=>s+(p.x-mx-shear*(p.y-my))**2,0)/n);
+ const fit=ps=>{const n=ps.length,mx=ps.reduce((s,p)=>s+p.x,0)/n,my=ps.reduce((s,p)=>s+p.y,0)/n,shear=ps.reduce((s,p)=>s+(p.y-my)*(p.x-mx),0)/ps.reduce((s,p)=>s+(p.y-my)**2,0),residual=Math.sqrt(ps.reduce((s,p)=>s+(p.x-mx-shear*(p.y-my))**2,0)/n);return {mx,my,shear,residual};};
+ let fitted=fit(points),retained=points;
+ if(options.fragments){
+  // Broken outer/inner strokes can disagree on a minority of scanlines.
+  // Trim at most 20%, then require both distant arc bands and the original
+  // strict residual bound; agreement across intensity thresholds is separate.
+  retained=points.slice().sort((a,b)=>Math.abs(a.x-fitted.mx-fitted.shear*(a.y-fitted.my))-Math.abs(b.x-fitted.mx-fitted.shear*(b.y-fitted.my))).slice(0,Math.ceil(points.length*.8));
+  if(!retained.some(p=>p.y<y0+bh*.25)||!retained.some(p=>p.y>y0+bh*.75))return {ok:false,reason:'Fragment inliers do not cover both arcs'};
+  fitted=fit(retained);
+ }
+ const {my,shear,residual}=fitted,n=points.length;
  if(residual>Math.max(.9,bw*.004)||Math.abs(shear)>.3)return {ok:false,reason:'Frame is asymmetric or outside bounded affine scope',residual};
- return {ok:true,shear,centerY:my,residual,sampleRows:n,baseline,method:'bilateral-frame-affine-rectification',methodVersion:'1',limitations:['Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.','Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction.']};
+ return {ok:true,shear,centerY:my,residual,sampleRows:n,retainedRows:retained.length,baseline,method:'bilateral-frame-affine-rectification',methodVersion:'1',limitations:['Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.','Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction.']};
 }
 function correctFrame(result){
  if(result.geometry?.applied||result.metadata?.geometry?.applied)return result;
@@ -59,11 +77,11 @@ function correctPhotoFrame(result){
  if(result.geometry?.applied||result.metadata?.geometry?.applied)return result;
  const {data,width:w,height:h}=result;if(![w,h].every(n=>Number.isSafeInteger(n)&&n>0)||w*h>4e6||data?.length!==w*h*4)return {...result,geometry:{ok:false,applied:false,reason:'Invalid or oversized photo matte'}};
  const analysis=new Uint8ClampedArray(data.length);for(let i=0;i<data.length;i+=4){const a=data[i+3]/255;for(let c=0;c<3;c++)analysis[i+c]=data[i+c]*a+255*(1-a);analysis[i+3]=255;}
- const geometry=frameGeometry(analysis,w,h);if(!geometry.ok||Math.abs(geometry.shear)<.025)return {...result,geometry:{...geometry,applied:false}};
+ let geometry=frameGeometry(analysis,w,h);if(!geometry.ok){const candidates=[160,180,200].map(threshold=>frameGeometry(analysis,w,h,{threshold,fragments:true})).filter(g=>g.ok);if(candidates.length>=2&&Math.max(...candidates.map(g=>g.shear))-Math.min(...candidates.map(g=>g.shear))<.015){const chosen=candidates.sort((a,b)=>a.residual-b.residual)[0];geometry={...chosen,methodVersion:'2',evidence:'paired arc fragments and collinear rule fragments; threshold consensus',thresholdEstimates:candidates.map(g=>g.shear)};}}if(!geometry.ok||Math.abs(geometry.shear)<.025)return {...result,geometry:{...geometry,applied:false,status:geometry.ok?'already-aligned':'insufficient-evidence'}};
  const k=geometry.shear,pad=Math.ceil(Math.abs(k)*h/2)+2,ow=w+2*pad;if(ow*h>4e6)return {...result,geometry:{ok:false,applied:false,reason:'Affine canvas exceeds budget'}};
  const out=new Uint8ClampedArray(ow*h*4);
  for(let y=0;y<h;y++)for(let x=0;x<ow;x++){const sx=x-pad+k*(y-h/2),lo=Math.floor(sx),f=sx-lo,j=(y*ow+x)*4;let alpha=0,r=0,g=0,b=0;for(let n=0;n<2;n++){const px=lo+n;if(px<0||px>=w)continue;const q=(y*w+px)*4,aw=data[q+3]/255*(n?f:1-f);alpha+=aw;r+=data[q]*aw;g+=data[q+1]*aw;b+=data[q+2]*aw;}if(alpha){out[j]=r/alpha;out[j+1]=g/alpha;out[j+2]=b/alpha;out[j+3]=alpha*255;}}
- const applied={...geometry,applied:true,alphaPreserved:true,analysisBasis:'temporary white composite of extracted photo matte'};
+ const applied={...geometry,applied:true,status:'corrected',alphaPreserved:true,analysisBasis:'temporary white composite of extracted photo matte'};
  return {...result,data:out,width:ow,height:h,geometry:applied,metadata:{...result.metadata,geometry:applied,transformOrder:[...(result.metadata?.transformOrder||result.metadata?.transforms||[]),'whole-source premultiplied-alpha affine shear rectification'],limitations:[...(result.metadata?.limitations||[]),...geometry.limitations]}};
 }
 const api={estimate,correct,frameGeometry,correctFrame,correctPhotoFrame};if(typeof module!=='undefined')module.exports=api;else root.MarkOrientation=api;

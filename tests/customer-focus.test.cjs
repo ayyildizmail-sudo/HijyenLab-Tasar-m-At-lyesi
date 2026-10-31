@@ -54,10 +54,13 @@ const detail=add('simpleDetails','details',nodes.design);add('simpleSummary','su
 const doc={readyState:'complete',createElement:t=>new Node(t),getElementById:id=>[main,...main.querySelectorAll('*')].find(n=>n.id===id)||find(main,id),querySelector:s=>s==='main'?main:s==='.simplePrimary label'?upload:null,addEventListener:(type,fn,capture)=>{assert.equal(capture,true);(events[type]??=[]).push(fn);}};
 function find(n,id){if(n.id===id)return n;for(const c of n.children){const found=find(c,id);if(found)return found;}return null;}
 let rules={product:'BM12',minimum:{white:5200,colored:10000},whiteUnitKurus:290,coloredUnitKurus:330};let ground='#ffffff',blocked=false;
-const state={logo:null,photoLayout:null,photoQuoteBg:'white'};
+const state={logo:null,photoLayout:null,photoQuoteBg:'white',bgPantone:''};
+Object.defineProperty(state,'bg',{get:()=>ground,set:value=>{ground=value;}});
 let printMode='printed';const modeEvents={};
 const browser={document:doc,HijyenLabPrintMode:{get:()=>printMode},addEventListener:(name,fn)=>{modeEvents[name]=fn;},queueMicrotask:fn=>microtasks.push(fn),setTimeout:fn=>tasks.push(fn),MutationObserver:class{constructor(fn){sync=fn;}observe(){}}};
-vm.runInNewContext(source,{window:browser,state,productRules:()=>rules,effectiveBackground:()=>ground,designIssue:()=>blocked});
+const actualGroundFunction=fs.readFileSync('frontend/app.js','utf8').split('\n').find(line=>line.startsWith('function effectiveBackground()'));
+assert(actualGroundFunction,'real application ground resolver available');
+vm.runInNewContext(actualGroundFunction+'\n'+source,{window:browser,state,productRules:()=>rules,isUnprinted:()=>printMode==='unprinted',designIssue:()=>blocked});
 const get=id=>doc.getElementById(id), primary=id=>assert(get(id).classList.contains('focusPrimary'),id+' should be primary');
 assert.equal(get('commercialChange').textContent,'');assert.equal(get('commercialChange').attrs['aria-live'],'polite');
 let chooserOpens=0,prevented=0;const fileInput=add('unifiedUpload','input');fileInput.click=()=>chooserOpens++;assert.equal(upload.attrs.role,'button');assert.equal(upload.tabIndex,0);for(const key of ['Enter',' '])upload.listeners.keydown({key,preventDefault:()=>prevented++});assert.equal(chooserOpens,2);assert.equal(prevented,2);
@@ -91,6 +94,24 @@ event('input',()=>{ground='#102f59';},true,false);assert.equal(tasks.length,1);a
 event('change',()=>{},true,false);assert.equal(tasks.length,1,'input/change share one macrotask');flushTasks();
 assert.match(note.textContent,/Renkli.*10.000.*3,00 TL/,'coalesced change retains initial white basis');assert.equal(noteWrites,writesBeforeCoalescing+1);
 event('change');assert.equal(noteWrites,writesBeforeCoalescing+1);
+// Async source acceptance changes ground after the click timer has already run.
+// This reproduced on live V52: coloured notice survived a white carrier acceptance.
+for (const transition of ['white-carrier-accept', 'white-flat-logo-upload', 'reset', 'draft-restore']) {
+  ground='#ffffff'; sync();
+  event('change',()=>{ground='#102f59';});
+  assert.match(note.textContent,/Renkli.*10.000/);
+  event('click'); // asynchronous decode/accept has not completed at this checkpoint
+  ground='#ffffff';
+  sync(); // real refresh/visibility observer after decode
+  assert.equal(note.textContent,'',transition+' must discard the obsolete coloured-price notice');
+}
+// Quote invalidation also synchronizes the notice without waiting for DOM mutations.
+ground='#ffffff';sync();event('change',()=>{ground='#102f59';});
+ground='#ffffff';modeEvents['hijyenlab:quote-state']();assert.equal(note.textContent,'');
+// Silent asynchronous data changes must not create a new announcement or infer colour.
+ground='#faf7e8';sync();assert.equal(note.textContent,'');
+event('change',()=>{ground='#ffffff';});assert.match(note.textContent,/Beyaz/);
+ground='#faf7e8';sync();assert.equal(note.textContent,'','explicit pale colour is not relabelled white');
 console.log('PASS customer focus DOM mount: idempotency; upload/ready/reapproval/retry/rear/back; preserved advanced values and restored discovery; trusted capture/macrotask changes and input/change coalescing; no initial/repeat announcements; unknown clears notice.');
 
 assert.equal(primaryId({stage:'design',unprinted:true,hasDesign:false}), 'next');

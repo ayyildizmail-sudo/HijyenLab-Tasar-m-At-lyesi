@@ -5,5 +5,46 @@ const distance=(a,b)=>Math.sqrt((a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2);
 const hex=rgb=>'#'+rgb.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
 function edgeMask(data,w,h,rgb,tolerance=32){const seen=new Uint8Array(w*h),mask=new Uint8Array(w*h),queue=new Int32Array(w*h);let head=0,tail=0;function add(i){if(i<0||i>=w*h||seen[i])return;seen[i]=1;const j=i*4;if(data[j+3]<20||distance([data[j],data[j+1],data[j+2]],rgb)<=tolerance){mask[i]=1;queue[tail++]=i;}}for(let x=0;x<w;x++){add(x);add((h-1)*w+x);}for(let y=0;y<h;y++){add(y*w);add(y*w+w-1);}while(head<tail){const i=queue[head++];if(i%w)add(i-1);if(i%w<w-1)add(i+1);add(i-w);add(i+w);}return {mask,count:tail};}
 function analyze(data,w,h){if(w<2||h<2||data.length!==w*h*4)return {kind:'ambiguous',reason:'invalid'};const sides=[[],[],[],[]],border=Math.max(1,Math.floor(Math.min(w,h)*.025));let allTransparent=0;for(let i=3;i<data.length;i+=4)if(data[i]<32)allTransparent++;for(let y=0;y<h;y++)for(let x=0;x<w;x++){const j=(y*w+x)*4,p=[data[j],data[j+1],data[j+2],data[j+3]];if(y<border)sides[0].push(p);if(x>=w-border)sides[1].push(p);if(y>=h-border)sides[2].push(p);if(x<border)sides[3].push(p);}const edges=sides.flat(),transparent=edges.filter(p=>p[3]<32).length/edges.length;if(allTransparent/(w*h)>=.025||(transparent>=.25&&allTransparent/(w*h)>=.005))return {kind:'transparent',color:'#ffffff',rgb:[255,255,255],confidence:transparent};const opaque=edges.filter(p=>p[3]>240);if(opaque.length/edges.length<.8)return {kind:'ambiguous',reason:'mixed-alpha'};const bins=new Map();for(const p of opaque){const key=p.slice(0,3).map(v=>Math.floor(v/16)).join(',');if(!bins.has(key))bins.set(key,[]);bins.get(key).push(p);}const candidates=[...bins.values()].sort((a,b)=>b.length-a.length).slice(0,12);let best=[];for(const group of candidates){const center=[0,1,2].map(k=>group.reduce((s,p)=>s+p[k],0)/group.length);const cluster=opaque.filter(p=>distance(p,center)<=28);if(cluster.length>best.length)best=cluster;}if(!best.length)return {kind:'ambiguous',reason:'no-color'};const rgb=[0,1,2].map(k=>{const values=best.map(p=>p[k]).sort((a,b)=>a-b);return values[Math.floor(values.length/2)];});const coverage=opaque.filter(p=>distance(p,rgb)<=30).length/edges.length;const perSide=sides.map(side=>side.filter(p=>p[3]>240&&distance(p,rgb)<=30).length/side.length);const region=edgeMask(data,w,h,rgb,32),connected=region.count/(w*h);const lumBins=new Uint32Array(16);let foreground=0;for(let i=0;i<w*h;i++){if(!region.mask[i]&&data[i*4+3]>240){const j=i*4,lum=Math.round((data[j]+data[j+1]+data[j+2])/3);lumBins[Math.min(15,Math.floor(lum/16))]++;foreground++;}}let entropy=0;for(const n of lumBins){if(n){const p=n/foreground;entropy-=p*Math.log2(p);}}if(foreground/(w*h)>.25&&entropy>2.7)return {kind:'ambiguous',reason:'photo-or-proof',suggestedColor:hex(rgb),confidence:coverage};if(coverage<.8||Math.min(...perSide)<.65||connected<.12)return {kind:'ambiguous',reason:'nonuniform',suggestedColor:hex(rgb),confidence:coverage};const white=Math.min(...rgb)>=245&&Math.max(...rgb)-Math.min(...rgb)<=12;return {kind:white?'white':'color',color:white?'#ffffff':hex(rgb),rgb,confidence:coverage,connected,tolerance:32};}
-const api={analyze,edgeMask,hex};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.BackgroundAnalysis=api;
+// A flat edge colour is not proof of a flat digital logo. Paper fibres and
+// photographic noise can share its average RGB. This routes to photo review;
+// it does NOT infer white paper, change pixels, or claim semantic recognition.
+function inspectSurface(data,w,h,detection){
+ const empty={photoLike:false,reason:'insufficient-background-evidence'};
+ if(!detection||!['white','color'].includes(detection.kind)||!detection.rgb||w<96||h<96||w*h>160000||data.length!==w*h*4)return empty;
+ const mask=edgeMask(data,w,h,detection.rgb,35).mask,tiles=new Map(),residuals=[];
+ const lum=i=>(data[i*4]+data[i*4+1]+data[i*4+2])/3;
+ for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){
+  const i=y*w+x,ids=[i,i-1,i+1,i-w,i+w];
+  if(!ids.every(j=>mask[j]&&data[j*4+3]>240))continue;
+  const values=ids.map(lum),range=Math.max(...values)-Math.min(...values);
+  // Exclude print edges, not shadows by their brightness or hue.
+  if(range>=18)continue;
+  const residual=Math.abs(values[0]-(values[1]+values[2]+values[3]+values[4])/4);
+  const key=Math.floor(y/20)*Math.ceil(w/20)+Math.floor(x/20);
+  if(!tiles.has(key))tiles.set(key,[]);tiles.get(key).push(residual);residuals.push(residual);
+ }
+ const median=a=>{a.sort((x,y)=>x-y);return a[Math.floor(a.length/2)];};
+ const eligible=[...tiles.values()].filter(a=>a.length>=120);
+ if(eligible.length<8||residuals.length<w*h*.25)return empty;
+ const medianResidual=median(residuals),texturedTileFraction=eligible.filter(a=>median(a)>=1.25).length/eligible.length;
+ return {photoLike:medianResidual>=1.25&&texturedTileFraction>=.55,reason:'edge-connected-surface-texture',medianResidual,texturedTileFraction,sampledPixels:residuals.length,tiles:eligible.length};
+}
+// On a tightly cropped, textured single surface, a tiny subtitle is not the
+// whole visible marking. Compare against SOURCE coordinates, before transforms.
+function sourceRetention(data,w,h,detection,box,sourceW,sourceH){
+ const surface=inspectSurface(data,w,h,detection);
+ if(!surface.photoLike)return {applicable:false};
+ if(!Array.isArray(box)||box.length!==4||!box.every(Number.isFinite)||!(sourceW>0&&sourceH>0))return {applicable:true,ok:false,reason:'missing-source-region'};
+ const bg=detection.rgb,bgLum=(bg[0]+bg[1]+bg[2])/3;let total=0,inside=0;
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+  const j=(y*w+x)*4;if(data[j+3]<240)continue;
+  const rgb=[data[j],data[j+1],data[j+2]],lum=(rgb[0]+rgb[1]+rgb[2])/3;
+  if(!(bgLum-lum>35||(distance(rgb,bg)>55&&Math.max(...rgb)-Math.min(...rgb)>35)))continue;
+  total++;const sx=(x+.5)*sourceW/w,sy=(y+.5)*sourceH/h;
+  if(sx>=box[0]&&sx<box[2]&&sy>=box[1]&&sy<box[3])inside++;
+ }
+ const retainedFraction=total?inside/total:0;
+ return {applicable:true,ok:total>=24&&retainedFraction>=.9,retainedFraction,total,inside,reason:'source-marking-coverage',surface};
+}
+const api={analyze,edgeMask,hex,inspectSurface,sourceRetention};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.BackgroundAnalysis=api;
 })(typeof window!=='undefined'?window:globalThis);

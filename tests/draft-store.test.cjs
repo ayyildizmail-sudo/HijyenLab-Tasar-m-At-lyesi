@@ -59,5 +59,18 @@ test('v2 printed drafts retain artwork while legacy v1 remains readable',async()
 function blankDraft(productId,quantity){return{schemaVersion:2,printMode:'unprinted',productId,design:{requestedQuantity:quantity},rear:null,fragrance:'lemon',frontFile:null,frontName:'',rearFile:null,rearName:''};}
 test('v2 unprinted drafts roundtrip only product, whole-carton quantity and fragrance',async()=>{const store=D.createStore({indexedDB:fakeIDB(),now:()=>100});for(const [id,units] of [['BM12',400],['BM15',500],['BM545',625]])for(const count of [1,2]){const value=blankDraft(id,units*count);await store.save(value);const result=await store.load();assert.equal(result.printMode,'unprinted');assert.deepEqual(result.design,{requestedQuantity:units*count});assert.equal(result.rear,null);assert.equal(result.frontFile,null);assert.equal(result.rearFile,null);}});
 test('unprinted drafts reject inherited artwork, invalid mode and fractional/zero/non-carton quantities',async()=>{const store=D.createStore({indexedDB:fakeIDB(),now:()=>100}),blank=blankDraft('BM12',400);for(const value of [0,-400,1,399,401,400.5,Infinity,1000400])await rejects(store.save({...blank,design:{requestedQuantity:value}}),'INVALID');for(const patch of [{printMode:'unknown'},{frontFile:payload().frontFile,frontName:'logo.png'},{rear:payload().rear},{design:{...blank.design,text:'ghost'}},{rearName:'old.png'}])await rejects(store.save({...blank,...patch}),'INVALID');});
+test('draft colour spelling is canonical without changing white, grey or pastel intent',async()=>{
+ const vm=require('node:vm'),groundFunction=fs.readFileSync('frontend/app.js','utf8').split('\n').find(line=>line.startsWith('function effectiveBackground()'));
+ for(const [input,expected,isWhite] of [['#FFFFFF','#ffffff',true],['#F5F6FA','#f5f6fa',false],['#FAF7E8','#faf7e8',false],['#808080','#808080',false]]){
+  const p=payload();p.design.bg=input;p.design.color='#AABBCC';p.rear.inkColor='#ABCDEF';
+  const normalized=D.validate(p);assert.equal(normalized.design.bg,expected);assert.equal(normalized.design.color,'#aabbcc');assert.equal(normalized.rear.inkColor,'#abcdef');
+  const scope={state:{...normalized.design,photoLayout:null},isUnprinted:()=>false};vm.createContext(scope);vm.runInContext(groundFunction,scope);
+  assert.equal(scope.effectiveBackground()==='#ffffff',isWhite,'rendered RGB and commercial white identity must agree');
+  const idb=fakeIDB(),store=D.createStore({indexedDB:idb,now:()=>100});await store.save(p);
+  // Simulate an otherwise valid older envelope with upper-case CSS colour strings.
+  idb.records.get('active').design.bg=input;
+  assert.equal((await store.load()).design.bg,expected,'legacy stored case is normalized at read boundary');
+ }
+});
 test('implementation performs no network and never stores persistent object URLs',()=>{const code=fs.readFileSync('frontend/draft-store.js','utf8');assert(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|createObjectURL|localStorage/.test(code));});
 (async()=>{for(const t of tests){await t.run();console.log('PASS',t.name);}console.log('PASS draft store',tests.length,'tests (deterministic IndexedDB transaction adapter; real-browser QA remains required)');})().catch(e=>{console.error(e);process.exitCode=1;});

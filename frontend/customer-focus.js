@@ -29,6 +29,7 @@
     const note = doc.createElement('p'); note.id = 'commercialChange'; note.className = 'commercialChange'; note.setAttribute('role', 'status'); note.setAttribute('aria-live', 'polite'); note.setAttribute('aria-atomic', 'true');
     // One persistent live region, never inserted repeatedly during input.
     get('journeyProgress')?.after(note);
+    let noteBasis = null;
     function wrap(id, title, nodes) {
       nodes = nodes.filter(Boolean); if (!nodes.length) return;
       const details = doc.createElement('details'); details.id = id; details.className = 'focusAdvanced';
@@ -49,6 +50,11 @@
     }
     let previousRecovery = '';
     function sync() {
+      // Notices describe a specific commercial snapshot, not the last click forever.
+      // Async upload/accept/reset/restore may finish after the input event's timer.
+      if (note.textContent && noteBasis !== JSON.stringify(commercialSnapshot())) {
+        note.textContent = ''; noteBasis = null;
+      }
       // Open on newly restored/added content or a newly surfaced recovery state, not on every render.
       for (const [id, used] of [['bgPantoneOptions', !!get('bgPantone')?.value], ['textPantoneOptions', !!get('textPantone')?.value], ['rearAdvancedOptions', !!get('rearQrEnabled')?.checked || !!get('rearSponsorName')?.textContent || !get('rearSponsorReview')?.hidden || !get('rearSponsorWarning')?.hidden]]) {
         const details = get(id); if (!details) continue;
@@ -81,7 +87,7 @@
     function commercialSnapshot() {
       if (typeof state === 'undefined' || typeof productRules !== 'function' || (state.photoLayout && state.photoQuoteBg === 'unknown')) return null;
       const rules = productRules(), white = effectiveBackground() === '#ffffff';
-      return { product: rules.product, ground: white ? 'white' : 'colored', minimum: white ? rules.minimum.white : rules.minimum.colored, unit: white ? rules.whiteUnitKurus : rules.coloredUnitKurus };
+      return { mode: root.HijyenLabPrintMode?.get() || 'printed', product: rules.product, ground: white ? 'white' : 'colored', minimum: white ? rules.minimum.white : rules.minimum.colored, unit: white ? rules.whiteUnitKurus : rules.coloredUnitKurus };
     }
     // Capture before the existing handler, compare afterwards. No initial-load announcements or network work.
     let changePending = false, changeTicket = 0;
@@ -95,14 +101,18 @@
         if (ticket !== changeTicket) return;
         changePending = false;
         const after = commercialSnapshot(), message = priceChange(before, after);
-        if (!after) { if (note.textContent) note.textContent = ''; }
-        else if (message && note.textContent !== message) note.textContent = message;
+        if (!after) { if (note.textContent) note.textContent = ''; noteBasis = null; }
+        else if (message) {
+          noteBasis = JSON.stringify(after);
+          if (note.textContent !== message) note.textContent = message;
+        }
         sync();
       }, 0);
     }
     for (const type of ['click', 'input', 'change']) doc.addEventListener(type, userChange, true);
     new root.MutationObserver(sync).observe(main, { subtree: true, attributes: true, attributeFilter: ['hidden', 'disabled', 'open'], childList: false });
     root.addEventListener?.('hijyenlab:print-mode-change', sync);
+    root.addEventListener?.('hijyenlab:quote-state', sync);
     sync();
   }
   const api = { priceChange, primaryId, mount };

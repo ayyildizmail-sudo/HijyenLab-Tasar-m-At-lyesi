@@ -45,9 +45,13 @@ const picker=add('picker'),design=add('design'),visual=add('visual','div',design
 const draft=add('welcomeDraftOptions','details'),consent=add('draftConsent','input',draft),restore=add('restoreDraft','button',draft);consent.checked=false;restore.hidden=true;
 const sharing=add('sharing'),contact=add('contactWhatsApp','button');let helpCalls=0;contact.onclick=()=>helpCalls++;
 const doc={readyState:'complete',createElement:tag=>new Node(tag),getElementById:id=>find(main,id),querySelector:s=>({'main':main,'.productPicker':picker,'.simplePrimary':action,'.preview':preview,'#summaryDiscussion .hint':sharing}[s]||null),addEventListener:(name,fn)=>{(events[name]??=[]).push(fn);}};
-const state={}, browser={document:doc,ProductCatalog:catalog,selectedProductId:'BM12',HijyenLabPrintMode:{get:()=>mode},HijyenLabWelcome:{isOpening:(v,visible,blank)=>visible&&!blank&&!v.logo&&!v.photoLayout&&!v.designProcessing&&!v.designBlocked&&!v.sourcePhoto&&!v.screenSelectionRequired},addEventListener:(name,fn)=>{events[name]=[fn];},MutationObserver:class{constructor(fn){sync=fn;observers++;}observe(){}}};
-vm.runInNewContext(source,{window:browser,state,effectiveBackground:()=>state.bg||'#ffffff'});
+const state={bg:'#ffffff',bgPantone:''}, browser={document:doc,ProductCatalog:catalog,selectedProductId:'BM12',HijyenLabPrintMode:{get:()=>mode},HijyenLabWelcome:{isOpening:(v,visible,blank)=>visible&&!blank&&!v.logo&&!v.photoLayout&&!v.designProcessing&&!v.designBlocked&&!v.sourcePhoto&&!v.screenSelectionRequired},addEventListener:(name,fn)=>{events[name]=[fn];},MutationObserver:class{constructor(fn){sync=fn;observers++;}observe(){}}};
+const actualGroundFunction=fs.readFileSync('frontend/app.js','utf8').split('\n').find(line=>line.startsWith('function effectiveBackground()'));
+vm.runInNewContext(actualGroundFunction+'\n'+source,{window:browser,state,isUnprinted:()=>mode==='unprinted'});
 const get=id=>doc.getElementById(id),at=n=>visual.children.indexOf(n);
+state.bg='#FFFFFF';sync();assert.match(get('personaMinimum').textContent,/Beyaz.*5.200/,'uppercase white renders the white minimum in the mounted UI');
+state.bg='#F5F6FA';sync();assert.match(get('personaMinimum').textContent,/Renkli.*10.000/,'explicit pale grey retains coloured tariff');
+state.bg='#ffffff';sync();assert.match(get('personaMinimum').textContent,/Beyaz.*5.200/);
 assert(at(action)<at(preview));assert(at(get('personaNoLogo'))>at(preview),'optional logo help follows package');assert(at(get('personaProductFacts'))>at(preview),'optional product facts follow package');assert.equal(upload.attrs.for,'unifiedUpload');assert.equal(next.parentElement,action);
 assert.equal(get('personaNoLogo').hidden,false);assert.match(sharing.textContent,/1 · JPG’yi kaydet → 2 · WhatsApp’ı aç → 3 · Görseli ekle/);
 let moves=action.moves+hint.moves+get('personaNoLogo').moves;sync();sync();assert.equal(action.moves+hint.moves+get('personaNoLogo').moves,moves,'stable observer no node churn');
