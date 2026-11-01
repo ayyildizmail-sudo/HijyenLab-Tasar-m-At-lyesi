@@ -9,10 +9,10 @@ function printMode(){return root.HijyenLabPrintMode?.get()||'printed';}
 function field(id){return typeof document==='undefined'?'':document.getElementById(id)?.value||'';}
 function stageSnapshot(){if(typeof resumeIntent!=='undefined'&&resumeIntent)return resumeIntent;if(typeof document!=='undefined'&&document.getElementById('uploadStart')?.hidden===false)return 'start';return ({1:'design',2:'pricing',3:'summary',5:'fragrance'})[typeof step==='number'?step:1]||'design';}
 function snapshot(){
- const blank=printMode()==='unprinted',declared=typeof isDeclaredQuote==='function'&&isDeclaredQuote();
- const front=!blank&&!declared&&(!state.removed||state.photoLayout||state.designProcessing||(state.designBlocked&&state.sourcePhoto)||(typeof isReferencePreview==='function'&&isReferencePreview()))?(state.designProcessing&&incomingFrontFile?incomingFrontFile:lastUploadedFile):null,rear=!blank&&!declared?rearSponsorSource?.file||null:null;
+ const blank=printMode()==='unprinted',declared=typeof isDeclaredQuote==='function'&&isDeclaredQuote(),textDesign=!blank&&!declared&&state.textDesign?{...state.textDesign}:null;
+ const front=!blank&&!declared&&!textDesign&&(!state.removed||state.photoLayout||state.designProcessing||(state.designBlocked&&state.sourcePhoto)||(typeof isReferencePreview==='function'&&isReferencePreview()))?(state.designProcessing&&incomingFrontFile?incomingFrontFile:lastUploadedFile):null,rear=!blank&&!declared?rearSponsorSource?.file||null:null;
  const quantity=Number.isSafeInteger(state.requestedQuantity)&&state.requestedQuantity>=0&&state.requestedQuantity<=1000000?state.requestedQuantity:null;
- return {schemaVersion:4,printMode:blank?'unprinted':'printed',productId:root.selectedProductId||'BM12',design:blank?{requestedQuantity:quantity}:{...pick(state,DESIGN_KEYS),backgroundIntent:{kind:state.bgSource==='manual'?'manual':'unknown',color:state.bgSource==='manual'?state.bg:state.restoredGroundCandidate?.color||state.bg},requestedQuantity:quantity},rear:blank?null:pick(rearContent,REAR_KEYS),fragrance:fragranceSnapshot()?.id||'',frontFile:front||null,frontName:front?.name||'',rearFile:rear,rearName:rear?.name||'',frontExtras:!blank&&!declared&&root.MultiLogo?MultiLogo.snapshot('front'):[],rearExtras:!blank&&!declared&&root.MultiLogo?MultiLogo.snapshot('rear'):[],resume:{lead:{customer:field('customerName'),contact:field('contactName'),phone:field('contactPhone'),province:field('province'),district:field('district')},cliche:field('cliche')||'new',stage:stageSnapshot(),quoteSource:declared?'customer-declared':'uploaded-artwork',declaration:declared?{...state.declaration}:null,fragranceConfirmed:typeof fragranceConfirmed==='string'&&!!fragranceConfirmed&&fragranceConfirmed===fragranceSnapshot()?.id,quantityInput:field('qty'),cartonInput:field('cartonQty'),rearTone:!blank&&typeof rearSponsorRecolor==='string'?rearSponsorRecolor||rearToneIntent:''}};
+ return {schemaVersion:5,textDesign,printMode:blank?'unprinted':'printed',productId:root.selectedProductId||'BM12',design:blank?{requestedQuantity:quantity}:{...pick(state,DESIGN_KEYS),backgroundIntent:{kind:state.bgSource==='manual'?'manual':'unknown',color:state.bgSource==='manual'?state.bg:state.restoredGroundCandidate?.color||state.bg},requestedQuantity:quantity},rear:blank?null:pick(rearContent,REAR_KEYS),fragrance:fragranceSnapshot()?.id||'',frontFile:front||null,frontName:front?.name||'',rearFile:rear,rearName:rear?.name||'',frontExtras:!blank&&!declared&&root.MultiLogo?MultiLogo.snapshot('front'):[],rearExtras:!blank&&!declared&&root.MultiLogo?MultiLogo.snapshot('rear'):[],resume:{lead:{customer:field('customerName'),contact:field('contactName'),phone:field('contactPhone'),province:field('province'),district:field('district')},cliche:field('cliche')||'new',stage:stageSnapshot(),quoteSource:declared?'customer-declared':textDesign?'text-created-artwork':'uploaded-artwork',declaration:declared?{...state.declaration}:null,fragranceConfirmed:typeof fragranceConfirmed==='string'&&!!fragranceConfirmed&&fragranceConfirmed===fragranceSnapshot()?.id,quantityInput:field('qty'),cartonInput:field('cartonQty'),rearTone:!blank&&typeof rearSponsorRecolor==='string'?rearSponsorRecolor||rearToneIntent:''}};
 }
 const fileIds=new WeakMap();let fileSequence=0;function fileKey(file,name){if(!file)return null;if(!fileIds.has(file))fileIds.set(file,++fileSequence);return[name,file.size,file.lastModified||0,fileIds.get(file)];}
 function keyOf(p){return JSON.stringify({...p,frontFile:fileKey(p.frontFile,p.frontName),rearFile:fileKey(p.rearFile,p.rearName),...(p.schemaVersion>=3?{frontExtras:p.frontExtras.map(a=>({...a,file:fileKey(a.file,a.name)})),rearExtras:p.rearExtras.map(a=>({...a,file:fileKey(a.file,a.name)}))}:{})});}
@@ -50,16 +50,23 @@ function restoreLeadInputs(resume){if(!resume)return;const lead=resume.lead;for(
 async function restore(){if(!offer||restoring)return;const payload=offer,ticket=++generation;restoring=true;root.HijyenLabJourneyMotion?.suspend(true);$('restoreDraft').disabled=true;say('Kaynak görseller yeniden kontrol ediliyor…');try{
  restoreLeadInputs(payload.resume);
  const mode=payload.printMode||'printed';if(mode==='unprinted'&&!root.HijyenLabPrintMode)throw Error('Baskısız ürün akışı kullanılamıyor.');if(root.HijyenLabPrintMode)await root.HijyenLabPrintMode.set(mode);if(ticket!==generation)return;
- resetDesign();lastUploadedFile=null;await selectProduct(payload.productId);if(ticket!==generation)return;
+ resetDesign();lastUploadedFile=null;approvedDesignFingerprint=null;latest=null;invalidateQuote();await selectProduct(payload.productId);if(ticket!==generation)return;
  if(payload.resume?.quoteSource==='customer-declared'){state.quoteSource='customer-declared';state.declaration={...payload.resume.declaration};}
  if(payload.resume){
   restoreLeadInputs(payload.resume);
   // Contact values are restored as plain input values, never markup or implicit submission.
   resumeIntent=payload.resume.stage;rearToneIntent=payload.resume.rearTone;
  }
- if(mode==='printed'&&payload.frontFile)await routeUploadedFile(new File([payload.frontFile],payload.frontName,{type:payload.frontFile.type}));if(ticket!==generation)return;
+ if(mode==='printed'&&!payload.textDesign&&payload.frontFile)await routeUploadedFile(new File([payload.frontFile],payload.frontName,{type:payload.frontFile.type}));if(ticket!==generation)return;
  // Only validated original inputs above establish the artwork. Saved settings confer no approval.
- Object.assign(state,payload.design);restoreSourceGroundIntent(payload.design);state.textPending=!!state.text;state.textPlaced=false;state.productReviewRequired=!!(state.logo||state.photoLayout);state.extractionApprovalRequired=!!(state.logo||state.photoLayout);approvedDesignFingerprint=null;
+ Object.assign(state,payload.design);restoreSourceGroundIntent(payload.design);
+ if(mode==='printed'&&payload.textDesign){
+  if(!root.HijyenLabTextDesignUI||typeof root.HijyenLabTextDesignUI.restore!=='function')throw Error('Yazı tasarımı geri yüklenemiyor.');
+  // Rebuild with the current fonts/product rules, including unfinished editor input.
+  // The generated image must not enter the user-upload pipeline or inherit approval.
+  const restored=await root.HijyenLabTextDesignUI.restore(payload.textDesign);if(ticket!==generation)return;if(restored===false)throw Error('Yazı tasarımı yeniden hazırlanamadı.');
+ }
+ state.textPending=!!state.text;state.textPlaced=false;state.productReviewRequired=!!(state.logo||state.photoLayout);state.extractionApprovalRequired=!!(state.logo||state.photoLayout);approvedDesignFingerprint=null;
  if(mode==='printed'){Object.assign(rearContent,payload.rear);syncRearFields();rearChanged();}
  if(mode==='printed'&&payload.rearFile)await processRearSponsor(new File([payload.rearFile],payload.rearName,{type:payload.rearFile.type}));if(ticket!==generation)return;
  if(payload.schemaVersion>=3&&(payload.frontExtras.length||payload.rearExtras.length)){if(!root.MultiLogo)throw Error('Çoklu logo taslağı açılamıyor.');for(const side of ['front','rear'])for(const asset of payload[side+'Extras']){if(ticket!==generation)return;const restored=await MultiLogo.add(side,new File([asset.file],asset.name,{type:asset.file.type}),{id:asset.id,opticalScale:asset.opticalScale,restore:true});if(ticket!==generation)return;if(!restored)throw Error('Ek logo geri yüklenemedi.');}}
@@ -76,14 +83,14 @@ async function restore(){if(!offer||restoring)return;const payload=offer,ticket=
     if(mode==='unprinted'||fragranceReady()){go(2);}
     else showLocalFragrance();
    }
-  }else if(target==='start'&&!payload.frontFile&&typeof showUploadStart==='function')showUploadStart();
+  }else if(target==='start'&&!payload.frontFile&&!payload.textDesign&&typeof showUploadStart==='function')showUploadStart();
   // Keep interrupted raw quantity entry rather than pretending it was a valid quote.
   if(payload.resume.quantityInput!==$('qty').value){$('qty').value=payload.resume.quantityInput;latest=null;invalidateQuote();$('breakdown').textContent='Kaydettiğiniz adet tamamlanmamış veya güncel ürün koşullarıyla farklı. Adedi kontrol ederek yeniden hesaplayın.';$('boxes').textContent='';if($('deliveryNote'))$('deliveryNote').textContent='';}
   if($('cartonQty'))$('cartonQty').value=payload.resume.cartonInput;
   if(target==='summary'&&safe&&typeof step==='number'&&step===2&&latest&&validateLead(false))go(3);
  }
  offer=null;$('restoreDraft').hidden=true;$('replaceDraft').hidden=true;lastKey=keyOf(snapshot());
- say('Taslağınıza kaldığınız yerden devam edebilirsiniz. '+(mode==='unprinted'?'Baskısız ürün ve teklif bilgileriniz geri yüklendi.':payload.frontFile||payload.rearFile?'Bilgileriniz korundu; kaynak görselleri ve yerleşimi yeniden kontrol edin.':'Seçimleriniz ve teklif bilgileriniz geri yüklendi.')+' Teklif güncel kurallarla yeniden hesaplanır.'+(!enabled?' İletişim bilgileri dahil yeni değişiklikleri saklamak için yukarıdaki seçimi açın.':''));
+ say('Taslağınıza kaldığınız yerden devam edebilirsiniz. '+(mode==='unprinted'?'Baskısız ürün ve teklif bilgileriniz geri yüklendi.':payload.textDesign||payload.frontFile||payload.rearFile?'Bilgileriniz korundu; kaynak görselleri ve yerleşimi yeniden kontrol edin.':'Seçimleriniz ve teklif bilgileriniz geri yüklendi.')+' Teklif güncel kurallarla yeniden hesaplanır.'+(!enabled?' İletişim bilgileri dahil yeni değişiklikleri saklamak için yukarıdaki seçimi açın.':''));
 
  }catch{if(ticket===generation)say('Taslağın tamamı geri yüklenemedi. Kaynakları yeniden seçebilir veya tekrar deneyebilirsiniz. Eski teklif/onay kullanılmadı.');}
  finally{if(ticket===generation){root.HijyenLabJourneyMotion?.suspend(false);restoring=false;$('restoreDraft').disabled=false;}}

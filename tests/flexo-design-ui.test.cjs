@@ -21,10 +21,25 @@ test('recolored or tampered rendered palette cannot use approved proposal estima
 const privateFixture='../qa_source_recovery_20261101/originals/09abf115-64bf-4a17-be84-bb5d78bcefa9.jpeg';
 test('available original badge reaches real module and PNG adapter without a brand-specific route',{skip:!fs.existsSync(privateFixture)},async()=>{const c=setup(),im=await loadImage(privateFixture);c.logoImg=im;c.prepareLogo=()=>im;c.frameOfContext=()=>({width:im.width,height:im.height});c.state.bgDetection={kind:'ambiguous',reason:'photo-or-proof'};c.FlexoDesignProposal=require('../frontend/flexo-design-proposal');assert.equal(await c.prepare(()=>true),true);assert.equal(c.staged[3].extra.flatPrintProposal.proposedInkCount,3);assert.equal(c.state.flexoOriginalLogo,'original-source');});
 
-test('valid proposal hides technical interpretation quiz but retains original comparison',()=>{
- const nodes={visibleInterpretation:{hidden:false},inputOverride:{hidden:false},flexoProposalOriginal:{},flexoProposalDescription:{}},c={state:{logo:'proposal',flexoOriginalLogo:'original',processingResult:{flatPrintProposal:{method:'source-flat-flexo-proposal-v1',proposedInkCount:3}}},panel:{hidden:true},$:id=>nodes[id],canReviewExtractedArtwork:()=>true,approvalQuestion:{}};
- vm.createContext(c);vm.runInContext("const METHOD='source-flat-flexo-proposal-v1';"+source.slice(source.indexOf('function sync(){'),source.indexOf('const beforeSync=')),c);c.sync();assert.equal(c.panel.hidden,false);assert(nodes.visibleInterpretation.hidden);assert(nodes.inputOverride.hidden);assert.equal(nodes.flexoProposalOriginal.src,'original');assert.equal(c.approvalQuestion.textContent,'Bu görünüm uygun mu?');assert.equal(nodes.flexoProposalDescription.textContent,'3 renkli öneriniz hazır. Görünümü onaylayarak devam edin.');assert.match(source,/<details><summary>Özgün görseli karşılaştır<\/summary><p>[^<]+baskı onayı değildir\.<\/p>/);
- c.state.designProcessing=true;c.sync();assert.equal(c.panel.hidden,true);
+function copyContext(){
+ const nodes={visibleInterpretation:{hidden:false},inputOverride:{hidden:false},flexoProposalOriginal:{}},c={state:{logo:'proposal',flexoOriginalLogo:'original',processingResult:{flatPrintProposal:{method:'source-flat-flexo-proposal-v1',proposedInkCount:3}}},panel:{hidden:true,open:false},$:id=>nodes[id],canReviewExtractedArtwork:()=>true,approvalQuestion:{textContent:'Görseli kontrol edin.'}};
+ vm.createContext(c);vm.runInContext("const METHOD='source-flat-flexo-proposal-v1';"+source.slice(source.indexOf('function sync(){'),source.indexOf('const beforeSync=')),c);return{c,nodes};
+}
+test('valid proposal shows one plain appearance question, not a color-count lecture',()=>{
+ const{c,nodes}=copyContext(),before=JSON.stringify(c.state.processingResult);c.sync();assert.equal(c.panel.hidden,false);assert(nodes.visibleInterpretation.hidden);assert(nodes.inputOverride.hidden);assert.equal(nodes.flexoProposalOriginal.src,'original');assert.equal(c.approvalQuestion.textContent,'Bu görünüm uygun mu?');assert.equal(JSON.stringify(c.state.processingResult),before,'canonical palette/count metadata remains intact');
+ assert(!source.includes('renkli öneriniz hazır'));assert(!source.includes('Renk öneriniz'));assert(!source.includes('flexoProposalDescription'));
+});
+test('original comparison and adaptation truth are collapsed details, not a second notice card',()=>{
+ const approval={after(node){this.following=node;}},c={document:{createElement:tag=>({tag,open:false})},extractionApproval:approval};vm.createContext(c);vm.runInContext(source.slice(source.indexOf('const panel='),source.indexOf('// Local-only failure')),c);const panel=approval.following;
+ assert.equal(panel.tag,'details');assert.equal(panel.id,'flexoProposalNote');assert.equal(panel.className,'simpleDetails');assert.equal(panel.open,false);assert.equal(panel.hidden,true);assert.match(panel.innerHTML,/^<summary>Özgün görselle karşılaştır<\/summary>/);assert.match(panel.innerHTML,/renkleri ambalaj önizlemesi için sadeleştirildi/);assert.match(panel.innerHTML,/Özgün dosyanız değiştirilmedi/);assert.match(panel.innerHTML,/baskıya hazır dosya veya baskı onayı değildir/);assert.match(panel.innerHTML,/id="flexoProposalOriginal"/);assert(!panel.innerHTML.includes('<strong>'));
+});
+test('comparison stays open during review but resets closed on interrupted, replaced or removed artwork',()=>{
+ const{c}=copyContext();c.sync();c.panel.open=true;c.sync();assert.equal(c.panel.open,true,'routine refresh does not interrupt comparison');
+ for(const patch of [{designProcessing:true},{designBlocked:true},{removed:true},{logo:null},{processingResult:null}]){const previous={...c.state};Object.assign(c.state,patch);c.sync();assert.equal(c.panel.hidden,true);assert.equal(c.panel.open,false);c.state=previous;c.sync();assert.equal(c.panel.hidden,false);assert.equal(c.panel.open,false);c.panel.open=true;}
+});
+test('blocked or non-proposal flow retains actionable review text and recovery controls',()=>{
+ for(const patch of [{designProcessing:true},{designBlocked:true},{processingResult:null},{processingResult:{flatPrintProposal:{method:'source-reference'}}}]){const{c,nodes}=copyContext();Object.assign(c.state,patch);c.sync();assert.equal(c.approvalQuestion.textContent,'Görseli kontrol edin.');assert.equal(nodes.visibleInterpretation.hidden,false);assert.equal(nodes.inputOverride.hidden,false);assert.equal(c.panel.hidden,true);}
+ const{c}=copyContext();c.canReviewExtractedArtwork=()=>false;c.sync();assert.equal(c.approvalQuestion.textContent,'Görseli kontrol edin.','does not replace an unavailable review or approval guard');
 });
 
 test('failure diagnostics are operation-bound, local-only metadata, absent on normal flow',()=>{

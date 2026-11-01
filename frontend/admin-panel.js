@@ -66,7 +66,7 @@
         if (lead.printMode === 'unprinted') article.append(node('p', 'Baskısız; klişe uygulanmaz', 'adminNotice'));
         if (lead.printMode !== 'unprinted' && lead.design) {
           const designDetails = node('details'), designTitle = node('summary', 'Gönderilen tasarım bilgileri'), designList = node('dl');
-          for (const [label, value] of [['Zemin', lead.design.background], ['Ön yüz yazısı', lead.design.frontText], ['Ön yüz yazı tipi', lead.design.frontFont], ['Ön baskı renkleri', Array.isArray(lead.design.frontInkColors) ? lead.design.frontInkColors.join(', ') : null], ['Arka yüz yazısı', lead.design.rearText], ['Arka baskı rengi', lead.design.rearInkColor], ['QR bağlantısı', lead.design.qrEnabled === true ? lead.design.qrUrl : null]]) designList.append(node('dt', label), node('dd', text(value)));
+          for (const [label, value] of [['Zemin', lead.design.background], ['Ön yüz yazısı', lead.design.frontText], ['Ön yüz yazı tipi', {simple:'Sade',classic:'Klasik',bold:'Güçlü'}[lead.design.frontTextStyle] || lead.design.frontFont], ['Ön baskı renkleri', Array.isArray(lead.design.frontInkColors) ? lead.design.frontInkColors.join(', ') : null], ['Arka yüz yazısı', lead.design.rearText], ['Arka baskı rengi', lead.design.rearInkColor], ['QR bağlantısı', lead.design.qrEnabled === true ? lead.design.qrUrl : null]]) designList.append(node('dt', label), node('dd', text(value)));
           designDetails.append(designTitle, designList); article.append(designDetails);
         }
         const actions = node('div', undefined, 'adminLeadActions'), field = node('div'), label = node('label', 'Talep durumu'), select = node('select');

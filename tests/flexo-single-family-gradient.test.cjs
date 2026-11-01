@@ -1,0 +1,21 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- Native-canvas/PNG/JPEG regression, not browser or customer-source evidence. */
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict'),{createHash}=require('node:crypto');
+const {createCanvas,loadImage,ImageData}=require('@napi-rs/canvas'),{propose}=require('../frontend/flexo-design-proposal'),{gradientArtwork,flatArtwork}=require('./helpers/single-family-gradient.cjs');
+const pixels=c=>c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+const digest=d=>createHash('sha256').update(d).digest('hex');
+async function roundtrip(c,quality='png'){
+ const bytes=c.toBuffer(quality==='png'?'image/png':'image/jpeg',quality==='png'?undefined:quality),decoded=await loadImage(bytes),source=createCanvas(c.width,c.height);source.getContext('2d').drawImage(decoded,0,0);
+ const before=pixels(source),copy=before.slice(),r=await propose(before,c.width,c.height,{sourceSHA256:digest(bytes)});assert(r.applied,r.reason);assert.deepEqual(before,copy);assert.deepEqual(r.originalData,copy);
+ const out=createCanvas(c.width,c.height);out.getContext('2d').putImageData(new ImageData(r.data,c.width,c.height),0,0);const png=await loadImage(out.toBuffer('image/png'));out.getContext('2d').clearRect(0,0,c.width,c.height);out.getContext('2d').drawImage(png,0,0);const actual=pixels(out);assert.deepEqual(actual,r.data);
+ const palette=new Set(),sourceColors=new Set();let foreground=0;for(let p=0;p<c.width*c.height;p++){const i=p*4;assert.equal(actual[i+3],copy[i+3]);const old=[...copy.slice(i,i+3)].join(','),next=[...actual.slice(i,i+3)].join(',');sourceColors.add(old);if(old==='255,255,255')assert.equal(next,old,'white holes/carrier remain white');if(next!=='255,255,255'&&actual[i+3]){palette.add('#'+[...actual.slice(i,i+3)].map(v=>v.toString(16).padStart(2,'0')).join(''));foreground++;}}
+ assert.deepEqual([...palette],r.metadata.actualProposedPalette);assert.equal(palette.size,r.metadata.proposedInkCount);assert.equal(foreground,r.metadata.shapeEvidence.foregroundPixels,'no classified letter, disconnected detail or hole is redrawn/deleted');assert.equal(r.metadata.sourcePixelSHA256,digest(copy));assert.equal(r.metadata.outputPixelSHA256,digest(actual));assert.equal(r.metadata.sourceSHA256,digest(bytes));assert(r.metadata.customerApprovalRequired);assert.equal(r.metadata.physicalInkCountConfirmed,false);return {r,sourceColors,out};
+}
+for(const family of ['gold','green','blue','gray'])for(const quality of ['png',65,85,95])test(`${family} continuous family / ${quality}: actual decoded foreground is one dominant source ink`,async()=>{
+ const {r,sourceColors}=await roundtrip(gradientArtwork(family),quality);assert.equal(r.metadata.proposedInkCount,1);assert(r.metadata.paletteReduction.gradientEvidence.flattenedFamilies>=1);
+ const target=r.metadata.actualProposedPalette[0].slice(1).match(/../g).map(v=>parseInt(v,16)).join(',');assert(sourceColors.has(target),'chosen ink is an actual source core color, not a preset or averaged palette');
+ assert.equal([...r.data.slice((200*480+20)*4,(200*480+20)*4+3)].join(','),target,'tiny disconnected mark retained in same flat ink');assert.equal([...r.data.slice((80*480+405)*4,(80*480+405)*4+3)].join(','),'255,255,255','white hole retained');
+});
+for(const quality of ['png',65,85,95])test(`intentional flat navy + blue stay two without gradient evidence / ${quality}`,async()=>{const {r}=await roundtrip(flatArtwork(),quality);assert.equal(r.metadata.proposedInkCount,2);assert.equal(r.metadata.paletteReduction.gradientEvidence.flattenedFamilies,0);});
+for(const colors of [['#b52637','#245fab'],['#b52637','#245fab','#d5a845']])test(`intentional ${colors.length}-hue flat artwork keeps ${colors.length} real inks`,async()=>{const {r}=await roundtrip(flatArtwork(colors));assert.equal(r.metadata.proposedInkCount,colors.length);assert.equal(r.metadata.paletteReduction.gradientEvidence.flattenedFamilies,0);});
+for(const extras of [1,2])test(`single-family gradient plus ${extras} independent flat hue(s) is ${extras+1} inks, not three tonal steps`,async()=>{const c=gradientArtwork(),x=c.getContext('2d');x.fillStyle='#b52637';x.fillRect(260,245,70,20);if(extras===2){x.fillStyle='#245fab';x.fillRect(350,245,70,20);}const {r}=await roundtrip(c);assert.equal(r.metadata.proposedInkCount,extras+1);});

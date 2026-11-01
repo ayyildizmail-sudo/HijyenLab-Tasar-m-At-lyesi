@@ -139,6 +139,7 @@ function knownExtraInkLimit(estimate){
 function currentPrintPolicy(){
  if(typeof isDeclaredQuote==='function'&&isDeclaredQuote())return {blocked:false}; // The independent declaration gate is not an artwork policy bypass.
  if(typeof PrintPolicy==='undefined'||(typeof isUnprinted==='function'&&isUnprinted()))return {blocked:false};
+ const textContrast=globalThis.HijyenLabTextDesignUI?.contrastIssue();if(textContrast)return {blocked:true,count:null,status:'unreadable-text',reason:textContrast};
  const originalKnown=state.processingResult?.referenceKnownActualInkCount??state.processingResult?.flatPrintProposal?.originalKnownActualInkCount;
  if(Number.isInteger(originalKnown)&&originalKnown>PrintPolicy.MAX_PRINT_INKS&&!(state.processingResult?.flatPrintProposal?.method==='source-flat-flexo-proposal-v1'&&approvedFlatPhotoPalette(null,0,0,true)))return PrintPolicy.evaluate({count:originalKnown,status:'estimated'});
  const input=rearInkBaseInput();
@@ -301,7 +302,7 @@ function syncPrintInks(){
  frontMonochrome=nativeMonochromeSafe&&!!image&&!state.photoLayout&&(!state.extractionApproximate||state.technicalFrameProposed||state.screenCropApplied)&&cleanNeutralArtwork(pixels,w,h)&&!(state.recolor&&state.recolorApplied);
  frontArtworkInkEstimate=!(state.recolor&&state.recolorApplied)&&!frontMonochrome?nativeEstimate:PrintInks.estimate(pixels,w,h,{acceptedArtwork:!!image&&!state.photoLayout,photoDerived,recolor:state.recolor&&state.recolorApplied?state.color:frontMonochrome?neutralArtworkInk(pixels):null});
  if(!(state.recolor&&state.recolorApplied)&&paleForegroundUnresolved(pixels,w,h,state.removeWhite&&state.bgDetection?.kind==='white',!state.extractionApproximate&&!state.photoLayout?nativeEstimate:null))frontArtworkInkEstimate.uncertain=true;
- const approvedProposal=approvedFlatPhotoPalette(pixels,w,h);if(approvedProposal)frontArtworkInkEstimate=approvedProposal;
+ const approvedProposal=globalThis.HijyenLabTextDesignUI?.paletteEstimate()||approvedFlatPhotoPalette(pixels,w,h);if(approvedProposal)frontArtworkInkEstimate=approvedProposal;
  printInkEstimate={...frontArtworkInkEstimate};
  const neutralFrameTones=!approvedProposal&&!frontMonochrome&&state.technicalFrameProposed&&printInkEstimate.colors.length>1&&printInkEstimate.colors.every(c=>{const rgb=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));return Math.max(...rgb)-Math.min(...rgb)<20;});
  const neutralToneCount=printInkEstimate.colors.filter(c=>{const rgb=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));return Math.max(...rgb)-Math.min(...rgb)<24;}).length;

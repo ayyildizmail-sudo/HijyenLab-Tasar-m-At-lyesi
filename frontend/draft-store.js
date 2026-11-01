@@ -16,7 +16,7 @@ function number(value,min,max){if(typeof value!=='number'||!Number.isFinite(valu
 function bool(value){if(typeof value!=='boolean')fail('INVALID','Taslak seçimi geçersiz.');return value;}
 // CSS hex case has no visual meaning; canonicalize it before strict tariff comparisons.
 function hex(value,empty=false){if(empty&&value==='')return value;if(typeof value!=='string'||!/^#[0-9a-f]{6}$/i.test(value))fail('INVALID','Taslak rengi geçersiz.');return value.toLowerCase();}
-function topKeys(input){return input?.schemaVersion===4?TOP.concat('printMode','frontExtras','rearExtras','resume'):input?.schemaVersion===3?TOP.concat('printMode','frontExtras','rearExtras'):input?.schemaVersion===2?TOP.concat('printMode'):TOP;}
+function topKeys(input){return input?.schemaVersion===5?TOP.concat('printMode','frontExtras','rearExtras','resume','textDesign'):input?.schemaVersion===4?TOP.concat('printMode','frontExtras','rearExtras','resume'):input?.schemaVersion===3?TOP.concat('printMode','frontExtras','rearExtras'):input?.schemaVersion===2?TOP.concat('printMode'):TOP;}
 function validateResume(input){
  exact(input,['lead','cliche','stage','quoteSource','declaration','fragranceConfirmed','quantityInput','cartonInput','rearTone']);
  exact(input.lead,['customer','contact','phone','province','district']);const lead={};
@@ -42,7 +42,25 @@ function validateV4(input){
  const result={...clean,schemaVersion:4,frontExtras:clean.frontExtras||[],rearExtras:clean.rearExtras||[],resume};
  if(new TextEncoder().encode(metadata(result)).length>MAX_METADATA_BYTES)fail('INVALID','Taslak alanları çok büyük.');return result;
 }
+function validateV5(input){
+ exact(input,topKeys(input));
+ const base={};for(const key of topKeys({schemaVersion:4}))base[key]=input[key];base.schemaVersion=4;
+ const textSource=input.resume?.quoteSource==='text-created-artwork';
+ if(textSource)base.resume={...input.resume,quoteSource:'uploaded-artwork'};
+ const clean=validateV4(base);let textDesign=null;
+ if(textSource!==(input.textDesign!==null))fail('INVALID','Taslak yazı kaynağı geçersiz.');
+ if(input.textDesign!==null){
+  // A generated text source is represented by its descriptor, never by raster bytes.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const text=typeof module!=='undefined'&&module.exports?require('./text-design.js'):root.TextDesign;
+  try{if(!text||typeof text.validate!=='function')throw Error('Text design unavailable');textDesign=text.validate(input.textDesign);}catch{fail('INVALID','Taslak yazı tasarımı geçersiz.');}
+  if(clean.printMode!=='printed'||clean.resume.quoteSource!=='uploaded-artwork'||textDesign.productId!==clean.productId||clean.frontFile!==null||clean.frontName!==''||clean.design.text!=='')fail('INVALID','Yazı taslağı kaynak veya ürün seçimiyle uyuşmuyor.');
+ }
+ const result={...clean,schemaVersion:5,textDesign,resume:{...clean.resume,quoteSource:textSource?'text-created-artwork':clean.resume.quoteSource}};
+ if(new TextEncoder().encode(metadata(result)).length>MAX_METADATA_BYTES)fail('INVALID','Taslak alanları çok büyük.');return result;
+}
 function validate(input){
+ if(input?.schemaVersion===5)return validateV5(input);
  if(input?.schemaVersion===4)return validateV4(input);
  exact(input,topKeys(input));if(![1,2,3].includes(input.schemaVersion)||!['BM12','BM11','BM13','BM15','BM545','BM21'].includes(input.productId))fail('INVALID','Taslak sürümü veya ürünü desteklenmiyor.');
  if(input.schemaVersion>=2&&!['printed','unprinted'].includes(input.printMode))fail('INVALID','Taslak baskı seçimi geçersiz.');

@@ -2,7 +2,7 @@
 // Local hints only: no OCR/network and no claim of final content approval.
 function contentSafetyAssessment(scope='all'){
  const fields={};
- if(scope!=='rear')fields.frontText=state.text||'';
+ if(scope!=='rear'){fields.frontText=state.text||'';fields.createdFrontText=state.textDesign?.text||'';}
  if(scope!=='front'){
   let rear={};try{rear=rearContent;}catch{/* Rear editor has not loaded yet. */}
   for(const key of ['extra','instagram','website','phone','address'])fields['rear.'+key]=rear[key]||'';
@@ -25,7 +25,7 @@ function declarationIssue(){return !DeclaredQuote.valid(state.declaration)||!!(s
 function clearDeclaration(){state.quoteSource='uploaded-artwork';state.declaration=null;latest=null;invalidateQuote();}
 function startDeclaredQuote(){
  // Entry is deliberately limited to the empty welcome screen; never discard artwork silently.
- if(isUnprinted()||state.logo||state.photoLayout||state.sourcePhoto||state.designProcessing||state.designBlocked||state.text?.trim()||(typeof rearHasContent==='function'&&rearHasContent())||globalThis.MultiLogo?.has('front')||globalThis.MultiLogo?.has('rear'))return false;
+ if(isUnprinted()||state.logo||state.photoLayout||state.sourcePhoto||state.designProcessing||state.designBlocked||state.text?.trim()||state.textDesign||(typeof rearHasContent==='function'&&rearHasContent())||globalThis.MultiLogo?.has('front')||globalThis.MultiLogo?.has('rear'))return false;
  resetDesign();history=[];lastUploadedFile=null;state.quoteSource='customer-declared';state.declaration=DeclaredQuote.create();$('cliche').value='new';latest=null;invalidateQuote();refresh();return true;
 }
 function setDeclaration(ground,count){if(!isDeclaredQuote()&&!startDeclaredQuote())return false;state.declaration=DeclaredQuote.create(ground,count);state.requestedQuantity=null;latest=null;invalidateQuote();refresh();return true;}
@@ -41,7 +41,7 @@ function deliveryLocation(province,district){return province+(province==='Muğla
 function deliveryMessage(province,district){return province==='Muğla'&&district==='Bodrum'?'Fabrikamız Bodrum’da olduğu için teslimat tarafımızdan ücretsiz yapılacaktır.':deliveryLocation(province,district)+' için kargo bedeli teklif toplamına dahil edilmiştir.';}
 const $=id=>document.getElementById(id), canvas=$('package'), ctx=canvas.getContext('2d');
 const palette=[['#ffffff','Beyaz'],['#b9dff5','Açık mavi'],['#fbefd9','Krem'],['#102f59','Lacivert'],['#800d2e','Bordo'],['#292929','Siyah']];
-const initial={quoteSource:'uploaded-artwork',declaration:null,whiteCarrierWhiteOnly:false,requestedQuantity:null,regionBgSuggestedWhite:false,screenCropApplied:false,screenSelectionRequired:false,technicalFrameProposed:false,designProcessing:false,designBlocked:false,extractionApprovalRequired:false,extractionApproximate:false,extractionSourceLimited:false,bg:'#ffffff',color:'#102f59',textColor:'#800d2e',text:'',textPlaced:false,textPending:false,font:'sans-serif',textSize:60,tx:800,ty:520,x:800,y:425,size:100,rotation:0,logo:null,logoName:'Örnek logo',recolor:true,recolorApplied:false,removeWhite:false,bgDetection:null,groundScope:null,restoredGroundCandidate:null,inkColors:[],bgSource:'initial',bgDecisionPending:false,bgPantone:'',textPantone:'',removed:true,photoLayout:null,sourcePhoto:null,sourceKind:null,sourceQuad:null,sourceMask:null,photoBands:null,photoWhiteInk:false,photoFlip:false,photoQuoteBg:'unknown'};let state={...initial}, history=[], logoImg=null, photoImg=null, step=1, loading=0;
+const initial={textDesign:null,textDesignEditing:false,quoteSource:'uploaded-artwork',declaration:null,whiteCarrierWhiteOnly:false,requestedQuantity:null,regionBgSuggestedWhite:false,screenCropApplied:false,screenSelectionRequired:false,technicalFrameProposed:false,designProcessing:false,designBlocked:false,extractionApprovalRequired:false,extractionApproximate:false,extractionSourceLimited:false,bg:'#ffffff',color:'#102f59',textColor:'#800d2e',text:'',textPlaced:false,textPending:false,font:'sans-serif',textSize:60,tx:800,ty:520,x:800,y:425,size:100,rotation:0,logo:null,logoName:'Örnek logo',recolor:true,recolorApplied:false,removeWhite:false,bgDetection:null,groundScope:null,restoredGroundCandidate:null,inkColors:[],bgSource:'initial',bgDecisionPending:false,bgPantone:'',textPantone:'',removed:true,photoLayout:null,sourcePhoto:null,sourceKind:null,sourceQuad:null,sourceMask:null,photoBands:null,photoWhiteInk:false,photoFlip:false,photoQuoteBg:'unknown'};let state={...initial}, history=[], logoImg=null, photoImg=null, step=1, loading=0;
 const leadTouched=new Set();let leadSubmitted=false;
 function remember(){history.push({...state});if(history.length>35)history.shift();$('undo').disabled=false;}
 function status(s){$('status').textContent=globalThis.HijyenLabExperience?.onStatus(s)??s;}
@@ -484,8 +484,9 @@ globalThis.getHijyenLabLeadRequestContext=function(kind){
  const hasDesign=!isUnprinted()&&!!(state.logo||state.photoLayout)&&!state.designBlocked&&!state.designProcessing;
  const rearText=isUnprinted()?'':[['Ek yazı',rearContent.extra],['Instagram',rearContent.instagram],['Web',rearContent.website],['Telefon',rearContent.phone],['Adres',rearContent.address]].filter(([,v])=>v?.trim()).map(([k,v])=>k+': '+v.trim()).join('\n');
  // Do not silently truncate a customer's artwork text or invent extracted ink precision.
- if(!isUnprinted()&&(rearText.length>1000||state.text.length>500))return null;
- const design=hasDesign?{background:state.bg,frontInkColors:state.recolorApplied?[state.color]:[],frontText:state.text,frontFont:state.font,rearText,rearInkColor:rearContent.inkColor||'',qrEnabled:rearContent.qrEnabled,qrUrl:rearContent.qrEnabled?rearContent.qrUrl:''}:null;
+ const frontText=state.textDesign?.text||state.text,frontFont=state.textDesign?TextDesign.STYLES.find(s=>s.id===state.textDesign.style)?.font:state.font;
+ if(!isUnprinted()&&(rearText.length>1000||frontText.length>500))return null;
+ const design=hasDesign?{background:state.bg,frontInkColors:state.textDesign?[TextDesign.INK]:state.recolorApplied?[state.color]:[],frontText,frontFont,...(state.textDesign?{frontTextStyle:state.textDesign.style}:{}),rearText,rearInkColor:rearContent.inkColor||'',qrEnabled:rearContent.qrEnabled,qrUrl:rearContent.qrEnabled?rearContent.qrUrl:''}:null;
  if(complete&&!isUnprinted()&&!design)return null;
  return{kind,printMode:isUnprinted()?'unprinted':'printed',productId:currentProduct().id,quantity:(isUnprinted()?UnprintedFlow.validQuantity(q,productRules()):Number.isSafeInteger(q)&&q>0&&q<=1000000)?q:null,fragrance:choice?.id||null,contact:{companyName:lead.customer.trim(),contactName:lead.contact.trim(),phone:lead.phone.trim(),email:'',province:lead.province,district:lead.district},design};
 };

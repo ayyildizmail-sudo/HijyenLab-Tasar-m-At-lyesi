@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-require-imports -- Native-canvas regression harness. */
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),{test}=require('node:test'),{createHash}=require('node:crypto');
-const {createCanvas}=require('@napi-rs/canvas'),CombinedInks=require('../frontend/combined-inks'),PrintInks=require('../frontend/print-inks'),PrintPolicy=require('../frontend/print-policy'),ProcessingSession=require('../frontend/processing-session'),ProductCatalog=require('../frontend/product-catalog');
+const {createCanvas,loadImage,ImageData}=require('@napi-rs/canvas'),CombinedInks=require('../frontend/combined-inks'),PrintInks=require('../frontend/print-inks'),PrintPolicy=require('../frontend/print-policy'),ProcessingSession=require('../frontend/processing-session'),ProductCatalog=require('../frontend/product-catalog');
 const IDENTITY='verified-rendered-flat-palette',NAVY=['#133c80','#173e82','#c02020'],GRAY=['#111111','#171717','#c02020'];
 const exact=colors=>({status:'estimated',colors,inkIdentity:IDENTITY});
 const pixels=c=>c.getContext('2d').getImageData(0,0,c.width,c.height).data;
 const digest=d=>createHash('sha256').update(d).digest('hex');
 function artwork(colors){const c=createCanvas(180,80),g=c.getContext('2d');colors.forEach((v,i)=>{g.fillStyle=v;g.fillRect(8+i*170/colors.length,10,150/colors.length,60);});return c;}
-function harness(colors=NAVY,{approved=true,photo=false}={}){
- const image=artwork(colors),session=ProcessingSession.create(),sha='a'.repeat(64),token=session.begin({sha256:sha}),nodes={};session.decoded(token,{width:image.width,height:image.height,coordinateFrame:'browser-decoded'});
- const metadata={method:'source-flat-flexo-proposal-v1',width:image.width,height:image.height,sourceSHA256:sha,sourcePixelSHA256:digest(pixels(image)),outputPixelSHA256:digest(pixels(image)),actualProposedPalette:colors.slice(),proposedInkCount:colors.length,alphaUnchanged:true,whiteIsSubstrate:true,renderedPixelsVerified:true,originalKnownActualInkCount:4};
+function harness(colors=NAVY,{approved=true,photo=false,actualProposal=null}={}){
+ const image=actualProposal?.image||artwork(colors),session=ProcessingSession.create(),sha=actualProposal?.metadata.sourceSHA256||'a'.repeat(64),token=session.begin({sha256:sha}),nodes={};session.decoded(token,{width:image.width,height:image.height,coordinateFrame:'browser-decoded'});
+ const metadata={method:'source-flat-flexo-proposal-v1',width:image.width,height:image.height,sourceSHA256:sha,sourcePixelSHA256:digest(pixels(image)),outputPixelSHA256:digest(pixels(image)),actualProposedPalette:colors.slice(),proposedInkCount:colors.length,alphaUnchanged:true,whiteIsSubstrate:true,renderedPixelsVerified:true,originalKnownActualInkCount:4,...actualProposal?.metadata};
  const state={logo:'verified-rendered-proposal',bg:'#ffffff',text:'',textColor:'#ffffff',extractionApproximate:photo,processingResult:session.commit(token,{method:metadata.method,methodVersion:'v1',flatPrintProposal:metadata,box:[0,0,image.width,image.height],sourceCoordinates:'browser-decoded',candidates:[],preservedRegions:[{box:[0,0,image.width,image.height],reason:'unchanged proposal geometry'}],excludedRegions:[],maskBasis:'source geometry retained',transformOrder:['decode','proposal','verified-PNG-roundtrip'],limitations:['not print master']})};
  let rear=false,revision=0,additional=[];
  const ctx={state,logoImg:image,prepareLogo:()=>image,PrintInks,CombinedInks,PrintPolicy,processingSession:session,ProductCatalog,designIssue:()=>false,$:id=>nodes[id]||(nodes[id]={value:'',textContent:''}),document:{createElement:()=>createCanvas(1,1)},invalidateQuote(){},calculateRaw(){},refresh(){},calculate(){ctx.syncPrintInks();},rearContent:{instagram:'',website:'',phone:'',address:'',extra:'',inkColor:'',qrEnabled:false},rearHasContent:()=>rear,rearQuoteSnapshot:()=>({revision}),MultiLogo:{primaryFront:()=>image,palettes:()=>additional,has:()=>additional.length>0,fingerprint:()=>JSON.stringify(additional)}};
@@ -64,4 +64,17 @@ test('accepted rear canonical union stays count-locked after approved front chan
  // The same retained rear data must not hijack the explicit reference-only mode.
  h.ctx.isReferencePreview=()=>true;assert.equal(h.ctx.currentCanonicalInkEstimate(),null);h.ctx.isReferencePreview=()=>false;
  h.session.cancel();h.ctx.syncPrintInks();assert.equal(h.ctx.currentVisualArtworkReady(),false);assert.equal(h.session.isApproved(h.ctx.designFingerprint()),false);
+});
+
+
+test('actual single-family gradient PNG approval drives one canonical plate, never a count clamp',async()=>{
+ const source=require('./helpers/single-family-gradient.cjs').gradientArtwork(),before=pixels(source),sourceSHA256=digest(source.toBuffer('image/png'));
+ const proposal=await require('../frontend/flexo-design-proposal').propose(before,source.width,source.height,{sourceSHA256});assert(proposal.applied,proposal.reason);assert.equal(proposal.metadata.proposedInkCount,1);
+ const output=createCanvas(source.width,source.height);output.getContext('2d').putImageData(new ImageData(proposal.data,source.width,source.height),0,0);const decoded=await loadImage(output.toBuffer('image/png'));output.getContext('2d').clearRect(0,0,output.width,output.height);output.getContext('2d').drawImage(decoded,0,0);assert.deepEqual(pixels(output),proposal.data);
+ const metadata={...proposal.metadata,outputPixelSHA256:digest(pixels(output)),renderedPixelsVerified:true},h=harness(metadata.actualProposedPalette,{approved:false,actualProposal:{image:output,metadata}});
+ assert.equal(h.ctx.approvedFlatPhotoPalette(null,0,0),null,'source output is not price-authoritative before its actual appearance is approved');assert.equal(h.session.isApproved(h.ctx.designFingerprint()),false);
+ h.session.approve(h.ctx.designFingerprint());h.ctx.state.processingResult=h.session.getState().result;h.ctx.syncPrintInks();assert.equal(h.ctx.approvedFlatPhotoPalette(null,0,0).count,1);assert.equal(h.nodes.inks.value,'1');assert.equal(h.nodes.inks.disabled,true);assert.equal(h.quote().plate,100000);assert.equal(h.quote().subtotal,1868000);assert.equal(h.quote().totalStatus,'estimated-complete');
+ for(const value of ['2','3','']){h.nodes.inks.value=value;h.nodes.inks.oninput();assert.equal(h.nodes.inks.value,'1');assert.equal(h.quote().plate,100000);}
+ assert.equal(h.ctx.state.processingResult.flatPrintProposal.outputPixelSHA256,digest(pixels(output)));assert.equal(h.ctx.state.processingResult.flatPrintProposal.sourcePixelSHA256,digest(before));
+ h.ctx.state.logo='replacement-source';h.session.touchDesign(h.ctx.designFingerprint());h.ctx.syncPrintInks();assert.equal(h.ctx.approvedFlatPhotoPalette(null,0,0),null,'source/appearance change still revokes canonical proposal authority');
 });
