@@ -1,0 +1,8 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- Private release fixture resolver. */
+const fs=require('node:fs'),path=require('node:path'),{createHash}=require('node:crypto');
+const manifest=Object.freeze({
+ settar:{filename:'0041493a-01fc-4582-8995-abd7a0979e4d.jpeg',libraryFileId:'libfile_5530d59b0db08191ad3ecbef0e9b7c22',sha256:'a2c1ec3eb154727b4748ff8f9584103951289b823103c5b04686e86ebc45d073',local:'../../original_settar_trace/0041493a-01fc-4582-8995-abd7a0979e4d.jpeg'},
+ giritli:{filename:'21cb00f1-cd37-4faf-8d6f-970400493484.jpeg',libraryFileId:'libfile_542f9dfb4bd88191a53a07f9171c92fc',sha256:'02db71e0f4f7c861a34595c27a2fc76e36609ce99b513bf38d5108ae6a60664b',local:'../../qa_source_recovery_20261101/originals/21cb00f1-cd37-4faf-8d6f-970400493484.jpeg'}
+});
+function fixture(name){const spec=manifest[name];if(!spec)throw Error('Unknown private photo fixture: '+name);const explicit=process.env['HIJYENLAB_PRIVATE_'+name.toUpperCase()],root=process.env.HIJYENLAB_PRIVATE_PHOTO_ROOT,candidates=explicit?[explicit]:root?[path.join(root,spec.filename),path.join(root,name+'.jpeg')]:[path.resolve(__dirname,spec.local)],file=candidates.find(p=>fs.existsSync(p));if(!file)throw Error(`Required private photo fixture '${name}' missing. Materialize ${spec.libraryFileId} (${spec.filename}) outside public assets, then set HIJYENLAB_PRIVATE_PHOTO_ROOT or HIJYENLAB_PRIVATE_${name.toUpperCase()}. This mandatory gate must not skip.`);const bytes=fs.readFileSync(file),sha256=createHash('sha256').update(bytes).digest('hex');if(sha256!==spec.sha256)throw Error(`Private photo fixture '${name}' SHA256 mismatch: expected ${spec.sha256}, got ${sha256}`);return {...spec,path:path.resolve(file),bytes,sha256};}
+module.exports={fixture,manifest};

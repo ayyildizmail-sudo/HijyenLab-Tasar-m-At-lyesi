@@ -40,6 +40,8 @@ const suites = [
   'tests/proposal-palette-pricing.test.cjs',
   'tests/flexo-jpeg-boundary.test.cjs',
   'tests/flexo-jpeg-boundary-handler.test.cjs',
+  'tests/adapted-photo-proposal.test.cjs',
+  'tests/experiments/packet-grouping.test.cjs',
   'tests/front-approval-boundary.test.cjs',
   'tests/flexo-design-ui.test.cjs',
   'tests/interpretation-proposal-parity.test.cjs',

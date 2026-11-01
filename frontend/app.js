@@ -61,6 +61,7 @@ function applySourceGroundScope(artifactKind='native-artwork'){
  return decision;
 }
 function restoreSourceGroundIntent(design){
+ if(globalThis.AdaptedPhotoUI?.restoreGroundIntent(design))return;
  const intent=SourceGroundScope.restoreIntent(design);
  state.restoredGroundCandidate=intent.unconfirmedColor&&intent.unconfirmedColor!=='#ffffff'?{color:intent.unconfirmedColor,pantone:design.bgPantone||''}:null;
  state.bgSource=intent.customerChoice?'manual':'scope-white-default';if(intent.customerChoice)state.bg=intent.customerChoice.color;else state.bgPantone='';

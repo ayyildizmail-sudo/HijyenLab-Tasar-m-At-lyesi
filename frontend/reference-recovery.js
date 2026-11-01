@@ -25,7 +25,12 @@ function current(){
  const live=processingSession.getState(),record=state.processingResult;
  return live.status==='ready'&&!live.error&&live.result?.method==='source-reference'&&record?.method==='source-reference'&&live.source?.sha256===referenceIdentity&&record.source?.sha256===referenceIdentity&&live.result.source?.sha256===referenceIdentity&&record.operation?.operationId===live.operationId&&live.result.operation?.operationId===live.operationId&&record.extractionRevision===live.result.extractionRevision;
 }
+function syncSummaryTitle(){
+ const designTitle=document.querySelector('#design>h1');if(designTitle)designTitle.textContent=isReferencePreview()||eligible(state)?'Yüklediğiniz görsel':'Size özel ambalaj';
+ const title=document.querySelector('#summary>h1');if(title)title.textContent=isReferencePreview()?'Referansa dayalı ön fiyat · Tasarım oluşturulmadı':'Tasarım ve teklif önizlemesi';
+}
 function sync(){
+ syncSummaryTitle();
  if(isReferencePreview()){
   hide();const label=$('inks').closest?.('label');if(label?.firstChild)label.firstChild.textContent='Baskı renk sayısı (beyaz hariç) · İsteğe bağlı';for(const option of $('inks').options||[])option.hidden=option.value!==''&&(!Number.isInteger(Number(option.value))||Number(option.value)<1||Number(option.value)>3);$('previewCaption').textContent=referencePreviewLabel();$('photoQuoteBgLabel').hidden=false;$('photoPriceNote').hidden=false;$('photoPriceNote').textContent=referenceGroundLabel()+' · Baskı renkleri ve klişe teknik incelemede.';
   $('simpleTools').hidden=true;$('simpleDetails').hidden=true;document.querySelector('.previewTip').textContent='Özgün kaynak gösterilir; logo veya zemin değiştirilmedi.';$('next').textContent='Koku seçimine geç →';

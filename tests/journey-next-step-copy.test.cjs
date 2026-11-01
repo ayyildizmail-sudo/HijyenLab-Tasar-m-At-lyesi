@@ -10,7 +10,7 @@ function modeHarness(){
  vm.createContext(c);vm.runInContext(unprinted.slice(unprinted.indexOf('function syncUnprintedUI(){'),unprinted.indexOf('async function setPrintMode')),c);
  // The reference controller also writes the main label after navigation.
  Object.assign(c,{referencePreviewLabel:()=>'',referenceGroundLabel:()=>'',box:element()});
- vm.runInContext(reference.slice(reference.indexOf('function sync(){'),reference.indexOf('async function accept(){')),c);
+ vm.runInContext(reference.slice(reference.indexOf('function syncSummaryTitle(){'),reference.indexOf('async function accept(){')),c);
  return {c,$,mode:value=>{mode=value;}};
 }
 test('main button survives refresh/navigation and names the next step in every mode',()=>{

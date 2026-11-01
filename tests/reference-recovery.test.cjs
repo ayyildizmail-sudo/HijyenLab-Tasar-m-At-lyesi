@@ -25,3 +25,14 @@ test('new ingress clears old design error before asynchronous decode',()=>{
  const code=fs.readFileSync(require.resolve('../frontend/processing-lifecycle.js'),'utf8');const ingress=code.slice(code.indexOf('async function routeUploadedFile'),code.indexOf('const token=processingSession.begin'));
  assert.match(ingress,/\$\('designError'\)\.hidden=true;\$\('designError'\)\.textContent=''/);
 });
+
+test('reference summary never labels the unprocessed source as a prepared design',()=>{
+ const code=fs.readFileSync(require.resolve('../frontend/reference-recovery.js'),'utf8'),title={textContent:''},designTitle={textContent:''};let reference=true;
+ const c={state:{},eligible:R.eligible,document:{querySelector:selector=>{assert(['#summary>h1','#design>h1'].includes(selector));return selector==='#summary>h1'?title:designTitle;}},isReferencePreview:()=>reference};
+ vm.createContext(c);vm.runInContext(code.slice(code.indexOf('function syncSummaryTitle(){'),code.indexOf('function sync(){')),c);
+ c.syncSummaryTitle();assert.equal(title.textContent,'Referansa dayalı ön fiyat · Tasarım oluşturulmadı');
+ assert.equal(designTitle.textContent,'Yüklediğiniz görsel');
+ reference=false;c.syncSummaryTitle();assert.equal(title.textContent,'Tasarım ve teklif önizlemesi');assert.equal(designTitle.textContent,'Size özel ambalaj');
+ c.state={sourcePhoto:'original',sourceKind:'unsupported',designBlocked:true};c.syncSummaryTitle();assert.equal(designTitle.textContent,'Yüklediğiniz görsel');
+ c.state={logo:'recovered',designBlocked:false};c.syncSummaryTitle();assert.equal(designTitle.textContent,'Size özel ambalaj');
+});

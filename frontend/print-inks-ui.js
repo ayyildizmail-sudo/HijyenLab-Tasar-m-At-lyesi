@@ -139,7 +139,7 @@ function knownExtraInkLimit(estimate){
 function currentPrintPolicy(){
  if(typeof isDeclaredQuote==='function'&&isDeclaredQuote())return {blocked:false}; // The independent declaration gate is not an artwork policy bypass.
  if(typeof PrintPolicy==='undefined'||(typeof isUnprinted==='function'&&isUnprinted()))return {blocked:false};
- const textContrast=globalThis.HijyenLabLogoDesignUI?.contrastIssue()||globalThis.HijyenLabTextDesignUI?.contrastIssue();if(textContrast)return {blocked:true,count:null,status:'unreadable-text',reason:textContrast};
+ const textContrast=globalThis.AdaptedPhotoUI?.contrastIssue()||globalThis.HijyenLabLogoDesignUI?.contrastIssue()||globalThis.HijyenLabTextDesignUI?.contrastIssue();if(textContrast)return {blocked:true,count:null,status:'unreadable-text',reason:textContrast};
  const originalKnown=state.processingResult?.referenceKnownActualInkCount??state.processingResult?.flatPrintProposal?.originalKnownActualInkCount;
  if(Number.isInteger(originalKnown)&&originalKnown>PrintPolicy.MAX_PRINT_INKS&&!(state.processingResult?.flatPrintProposal?.method==='source-flat-flexo-proposal-v1'&&approvedFlatPhotoPalette(null,0,0,true)))return PrintPolicy.evaluate({count:originalKnown,status:'estimated'});
  const input=rearInkBaseInput();
@@ -188,7 +188,8 @@ function visualPreviewPolicyError(){
 function pendingFlatPhotoNotice(){
  if(state.extractionApprovalRequired!==true)return '';
  const palette=approvedFlatPhotoPalette(null,0,0,true);
- return palette?`Logo önizlemesi ${palette.count} baskı rengiyle hazır; tasarımınızı onaylayarak devam edin.`:'';
+ const count=palette&&state.processingResult?.flatPrintProposal?.whiteKnockout?CombinedInks.estimate({front:{status:'estimated',colors:palette.colors,inkIdentity:palette.inkIdentity},background:state.bg}).count:palette?.count;
+ return Number.isInteger(count)?`Logo önizlemesi ${count} baskı rengiyle hazır; tasarımınızı onaylayarak devam edin.`:'';
 }
 function deferUncertainPrintNotice(policy){return policy?.blocked===true&&policy.count===null&&state.extractionApprovalRequired===true&&!!state.logo&&!state.removed&&!state.designBlocked&&!state.designProcessing&&!state.extractionSourceLimited;}
 function syncPrintPolicyNotice(){
@@ -244,6 +245,7 @@ function syncRearInkNote(){
  if($('rearPriceNote'))$('rearPriceNote').textContent=$('inks').value===''?'Arka yüz dahil renk ayrımı belirsiz. Gösterilen ara toplam klişe bedelini içermez.':`Ön ve arka yüz için ${$('inks').value} tahmini klişe fiyat hesabına dahil edilir. Aynı renk bir kez, beyaz hariç.`;
 }
 function approvedFlatPhotoPalette(data,w,h,previewOnly=false){
+ if(state.processingResult?.flatPrintProposal?.whiteKnockout)return globalThis.AdaptedPhotoUI?.paletteEstimate(previewOnly)||null;
  const proposal=state.processingResult?.flatPrintProposal;
  if(!proposal||!['audited-photo-glyph-flat-proposal-v1','source-flat-flexo-proposal-v1'].includes(proposal.method)||proposal.renderedPixelsVerified!==true||(proposal.originalKnownActualInkCount>3&&proposal.method!=='source-flat-flexo-proposal-v1')||!proposal.alphaUnchanged||!proposal.whiteIsSubstrate||state.recolorApplied||(!previewOnly&&state.extractionApprovalRequired)||!currentVisualArtworkReady(previewOnly)||(!previewOnly&&!processingSession.isApproved(designFingerprint())))return null;
  if(proposal.sourceSHA256!==state.processingResult?.source?.sha256||!['sourcePixelSHA256','outputPixelSHA256'].every(k=>/^[a-f0-9]{64}$/i.test(proposal[k]||'')))return null;
