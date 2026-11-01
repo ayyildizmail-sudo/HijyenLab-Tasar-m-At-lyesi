@@ -63,6 +63,8 @@ const suites = [
   'tests/bm21-material.test.cjs',
   'tests/rear-display-shape.test.cjs',
   'tests/rear-preview.test.cjs',
+  'tests/rear-editor.test.cjs',
+  'tests/rear-input-responsiveness.test.cjs',
   'tests/shared-rulo.test.cjs',
   'tests/contact-icon-style.test.mjs',
   'tests/contact-help.test.cjs',
