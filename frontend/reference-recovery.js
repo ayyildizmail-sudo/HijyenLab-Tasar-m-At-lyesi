@@ -12,30 +12,49 @@ function partialPrice(input,deps){
 }
 const api={eligible,partialPrice};if(typeof module!=='undefined'&&module.exports){module.exports=api;return;}
 root.ReferenceRecovery=api;
-const style=document.createElement('style');style.textContent='body.referenceRecoveryActive #uploadRecovery,body.referenceRecoveryActive #designError{display:none}#referenceRecovery .fields{margin:12px 0}#referenceRecovery input,#referenceRecovery select{min-height:44px;max-width:100%}';document.head.append(style);
+// A reference is a source display, never an extracted logo or a print approval.
+const style=document.createElement('style');style.textContent='body.referenceRecoveryActive #uploadRecovery,body.referenceRecoveryActive #designError,body.referenceRecoveryActive .workspace{display:none}#referenceRecovery img{display:block;max-width:100%;max-height:440px;object-fit:contain;margin:12px auto}';document.head.append(style);
 const box=document.createElement('section');box.id='referenceRecovery';box.className='notice light';box.hidden=true;
-box.innerHTML='<h2>Tasarım henüz hazırlanmadı</h2><p>Marka önizlemesi tamamlanamadı. Özgün görseliniz korundu; ambalaja uygulanmadı. Fiyatı tasarımdan ayrı görebilirsiniz.</p><img id="recoverySource" alt="Ayrıştırılamayan özgün kaynak; tasarım değildir" style="display:block;max-width:100%;max-height:220px;object-fit:contain;margin:12px auto"><button id="recoveryStart" type="button" class="primary full">Yalnız fiyatı gör</button><div id="recoveryForm" hidden><h3>Yalnız ürün + kargo ara toplamı</h3><p>Baskı renkleri henüz bilinmiyor. Klişe ve KDV hariçtir; kesin teklif veya peşinat hesaplanmaz.</p><div class="fields two"><label>Ürün<select id="recoveryProduct"></select></label><label>Koku<select id="recoveryFragrance"><option value="">Koku seçin</option></select></label><label>Zemin fiyat varsayımı<select id="recoveryGround"><option value="">Zemin seçin</option><option value="white">Beyaz zemin varsayımı</option><option value="color">Renkli zemin varsayımı</option></select></label><label>Adet<input id="recoveryQuantity" type="number" step="1"></label></div><p id="recoveryMinimum" class="hint"></p><div class="fields two"><label>Müşteri / işletme adı<input id="recoveryCustomer" maxlength="150" autocomplete="organization"></label><label>Yetkili kişi<input id="recoveryContact" maxlength="100" autocomplete="name"></label><label>Telefon<input id="recoveryPhone" type="tel" maxlength="30" autocomplete="tel"></label><label>Teslimat ili<select id="recoveryProvince"><option value="">İl seçin</option></select></label><label id="recoveryDistrictLabel" hidden>Muğla ilçesi<select id="recoveryDistrict"><option value="">İlçe seçin</option></select></label></div><p class="hint">Bilgiler bu sayfada kalır; gönderilmez. Bu hesap ve seçimler taslakta saklanmaz.</p><button id="recoveryCalculate" type="button" class="primary full">Ürün ve kargo bedelini gör</button><div id="recoveryResult" role="status" aria-live="polite"></div><p>3 rengi aşan baskılar için iletişime geçin. Tasarım tamamlanmadan teklif görseli hazırlanmaz.</p><button id="recoveryClose" type="button" class="outline full">← Görsele dön</button></div>';
+box.innerHTML='<h2>Özgün görseliniz korundu</h2><p>Logo güvenle ayrılamadı. Bu görünüm yalnız kaynak referansı olarak kalır; seçtiğiniz ürüne yeniden uygulanmış tasarım değildir. Kartvizit, menü veya teknik belgedeki kişisel bilgiler logo sayılmaz.</p><img id="recoverySource" alt="Özgün kaynak referansı; seçilen ürüne uygulanmadı"><button id="recoveryStart" type="button" class="primary full">Bu görünümle devam et →</button><p class="hint">Arka yüz, koku, adet ve teslimat seçimleriyle devam edebilirsiniz. Baskı renkleri bilinmiyorsa yalnız klişe hariç ara toplam gösterilir.</p>';
 document.querySelector('.workspace').before(box);
-let source=null,active=false;
-function option(select,value,label){const el=document.createElement('option');el.value=value;el.textContent=label;select.append(el);}
-for(const item of ProductCatalog.items)option($('recoveryProduct'),item.id,item.label);
-for(const item of Fragrance.OPTIONS)option($('recoveryFragrance'),item.id,item.label);
-for(const value of ShippingLocation.provinces)option($('recoveryProvince'),value,value);
-for(const value of ShippingLocation.muglaDistricts)option($('recoveryDistrict'),value,value);
-function policy(){return typeof currentPrintPolicy==='function'?currentPrintPolicy():{blocked:false};}
-function clearResult(){ $('recoveryResult').replaceChildren(); }
-function clear(){document.body.classList.remove('referenceRecoveryActive');source=null;active=false;box.hidden=true;$('recoveryForm').hidden=true;$('recoveryStart').hidden=false;$('recoverySource').removeAttribute('src');clearResult();}
-function minimum(){const rules=ProductCatalog.rules($('recoveryProduct').value),colored=$('recoveryGround').value==='color',min=colored?rules.minimum.colored:rules.minimum.white,input=$('recoveryQuantity');input.min=min;input.max=rules.maxQuantity;const adjusted=!input.value||Number(input.value)<min;if(adjusted)input.value=min;$('recoveryMinimum').textContent=(colored?'Renkli':'Beyaz')+' zemin için en az '+min.toLocaleString('tr-TR')+' adet · '+rules.unitsPerBox+' adet/koli'+(adjusted?' · Adet ürün minimumuna ayarlandı.':'')+(!$('recoveryGround').value?' · Hesap için zemin varsayımını ayrıca seçin.':'');}
-function sync(){
- if(!eligible(state)||isUnprinted()){clear();return;}
- if(source!==state.sourcePhoto){clear();source=state.sourcePhoto;$('recoverySource').src=source;$('recoveryProduct').value=root.selectedProductId||'BM12';$('recoveryGround').value='';$('recoveryQuantity').value='';minimum();}
- if($('recoveryProduct').value!==(root.selectedProductId||'BM12')){$('recoveryProduct').value=root.selectedProductId||'BM12';minimum();clearResult();}
- box.hidden=false;document.body.classList.add('referenceRecoveryActive');$('previewCaption').textContent='Tasarım hazırlanmadı · Ambalaj görünümü tasarım onayı değildir';
- const blocked=policy();$('recoveryStart').disabled=!!blocked.blocked;$('recoveryCalculate').disabled=!!blocked.blocked||!!state.productAssetPending||!!state.productAssetFailure;if(blocked.blocked){clearResult();$('recoveryResult').textContent=blocked.reason;}
+let source=null,referenceSource=null,referenceIdentity=null,accepting=false;
+function hide(){box.hidden=true;document.body.classList.remove('referenceRecoveryActive');}
+function clear(){hide();source=null;referenceSource=null;referenceIdentity=null;accepting=false;$('recoverySource').removeAttribute('src');}
+function current(){
+ if(!isReferencePreview()||!referenceSource||state.sourcePhoto!==referenceSource||!photoImg||state.designProcessing||state.designBlocked)return false;
+ const live=processingSession.getState(),record=state.processingResult;
+ return live.status==='ready'&&!live.error&&live.result?.method==='source-reference'&&record?.method==='source-reference'&&live.source?.sha256===referenceIdentity&&record.source?.sha256===referenceIdentity&&live.result.source?.sha256===referenceIdentity&&record.operation?.operationId===live.operationId&&live.result.operation?.operationId===live.operationId&&record.extractionRevision===live.result.extractionRevision;
 }
-$('recoveryStart').onclick=()=>{sync();if(!eligible(state)||policy().blocked)return;active=true;latest=null;invalidateQuote();if(!state.productAssetPending&&!state.productAssetFailure)status('Tasarım henüz hazırlanmadı. Ürün ve kargo ara toplamını ayrıca görebilirsiniz.');$('recoveryStart').hidden=true;$('recoveryForm').hidden=false;const lead=leadValues();for(const [id,key]of [['Customer','customer'],['Contact','contact'],['Phone','phone'],['Province','province'],['District','district']])$('recovery'+id).value=lead[key];$('recoveryDistrictLabel').hidden=lead.province!=='Muğla';$('recoveryFragrance').value=fragranceSnapshot()?.id||'';$('recoveryProduct').focus();};
-$('recoveryClose').onclick=()=>{active=false;clearResult();$('recoveryForm').hidden=true;$('recoveryStart').hidden=false;$('recoveryStart')?.focus();};
-box.addEventListener('input',clearResult);box.addEventListener('change',async e=>{clearResult();if(['recoveryProduct','recoveryGround'].includes(e.target.id))minimum();if(e.target.id==='recoveryProduct'){await selectProduct(e.target.value);sync();}if(e.target.id==='recoveryProvince'){$('recoveryDistrict').value='';$('recoveryDistrictLabel').hidden=e.target.value!=='Muğla';}});
-$('recoveryCalculate').onclick=()=>{clearResult();if(!active||!eligible(state)||source!==state.sourcePhoto||state.productAssetPending||state.productAssetFailure||$('recoveryProduct').value!==(root.selectedProductId||'BM12')){sync();return;}try{const rules=ProductCatalog.rules($('recoveryProduct').value),value=partialPrice({policy:policy(),quantity:Number($('recoveryQuantity').value),ground:$('recoveryGround').value,fragrance:$('recoveryFragrance').value,rules,lead:{customer:$('recoveryCustomer').value,contact:$('recoveryContact').value,phone:$('recoveryPhone').value,province:$('recoveryProvince').value,district:$('recoveryDistrict').value}},{pricing,leadError,validFragrance:Fragrance.validId});for(const [label,amount]of [['Ürün bedeli',value.product],['Kargo',value.shipping],['Klişe — teknik incelemede',null],['KDV ve klişe HARİÇ ara toplam',value.subtotal]]){const p=document.createElement('p');p.textContent=label+': '+(amount===null?'Belirlenecek':money(amount));$('recoveryResult').append(p);}const note=document.createElement('p');note.textContent=value.boxes+' koli · %'+rules.vatPercent+' KDV ve bilinmeyen klişe sonradan eklenecek. Bu tutar kesin toplam veya peşinat değildir.';$('recoveryResult').append(note);}catch(error){$('recoveryResult').textContent=error.message;}};
-api.sync=sync;api.clear=clear;sync();
+function sync(){
+ if(isReferencePreview()){
+  hide();const label=$('inks').closest?.('label');if(label?.firstChild)label.firstChild.textContent='Baskı renk sayısı (beyaz hariç) · İsteğe bağlı';for(const option of $('inks').options||[])option.hidden=option.value!==''&&(!Number.isInteger(Number(option.value))||Number(option.value)<1||Number(option.value)>3);$('previewCaption').textContent=referencePreviewLabel();$('photoQuoteBgLabel').hidden=false;$('photoPriceNote').hidden=false;$('photoPriceNote').textContent=referenceGroundLabel()+' · Baskı renkleri ve klişe teknik incelemede.';
+  $('simpleTools').hidden=true;$('simpleDetails').hidden=true;document.querySelector('.previewTip').textContent='Özgün kaynak gösterilir; logo veya zemin değiştirilmedi.';$('next').textContent='Bu görünümle devam et →';
+  for(const id of ['mini','finalImage'])$(id).alt=referencePreviewLabel();return;
+ }
+ $('next').textContent='Ön yüzü onayla';const label=$('inks').closest?.('label');if(label?.firstChild)label.firstChild.textContent='Tahmini baskı rengi sayısı (isterseniz düzeltin)';for(const option of $('inks').options||[])option.hidden=false;
+ if(!eligible(state)||isUnprinted()){hide();return;}
+ if(source!==state.sourcePhoto){source=state.sourcePhoto;$('recoverySource').src=source;}
+ box.hidden=false;document.body.classList.add('referenceRecoveryActive');$('recoveryStart').disabled=accepting||!!state.productAssetPending||!!state.productAssetFailure;
+}
+async function accept(){
+ if(accepting||!eligible(state)||isUnprinted()||state.productAssetPending||state.productAssetFailure)return false;
+ const data=state.sourcePhoto,old=processingSession.getState(),ticket=loading;
+ if(!/^[a-f0-9]{64}$/i.test(old.source?.sha256||''))return false;
+ accepting=true;sync();
+ try{
+  const img=await loadImage(data);
+  if(ticket!==loading||data!==state.sourcePhoto||processingSession.getState().operationId!==old.operationId||!eligible(state))return false;
+  const previous=state.processingResult?.source?.sha256===old.source.sha256?state.processingResult:old.result,knownOriginal=previous?.referenceKnownActualInkCount??previous?.flatPrintProposal?.originalKnownActualInkCount;
+  const token=processingSession.begin(old.source),frame={width:img.width,height:img.height,coordinateFrame:old.frame?.coordinateFrame||'browser-decoded'},bounds=[0,0,img.width,img.height];
+  processingSession.decoded(token,frame);
+  const record=processingSession.commit(token,{method:'source-reference',methodVersion:'v68',referenceKnownActualInkCount:Number.isInteger(knownOriginal)?knownOriginal:null,box:bounds,sourceCoordinates:frame.coordinateFrame,coordinateStatus:'recorded',candidates:[],preservedRegions:[{box:bounds,reason:'Entire source shown as reference; not applied artwork.'}],excludedRegions:[],maskBasis:'No masking or logo extraction.',transformOrder:['browser-decode','aspect-safe-reference-display'],limitations:['Reference only; selected product may differ.','No semantic logo extraction or confirmed printing inks.']});
+  if(!record)return false;
+  referenceSource=data;referenceIdentity=old.source.sha256;photoImg=img;state.quoteSource='source-reference';state.referenceInkDeclaration=null;state.processingResult=record;state.designBlocked=false;state.screenSelectionRequired=false;state.extractionSourceLimited=false;state.extractionApproximate=false;state.extractionApprovalRequired=false;state.bgDecisionPending=false;state.photoQuoteBg='unknown';state.bgPantone='';state.text='';state.textPending=false;state.inkSelection={status:'unknown',selectedCount:null,estimatedCount:null};
+  $('inks').value='';printInkKey=null;latest=null;invalidateQuote();syncProcessingDesign();if(!approveCurrentDesign())return false;
+  refresh();go(2);return true;
+ }catch(error){status(error.message||'Referans açılamadı. Görseli yeniden seçin.');return false;}finally{accepting=false;sync();}
+}
+$('recoveryStart').onclick=accept;
+const beforeGo=go;go=function(){const result=beforeGo.apply(this,arguments);sync();return result;};
+api.sync=sync;api.clear=clear;api.current=current;api.accept=accept;sync();
 })(typeof globalThis!=='undefined'?globalThis:this);

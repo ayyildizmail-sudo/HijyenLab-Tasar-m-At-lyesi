@@ -71,7 +71,8 @@ const oldRefresh=refresh;refresh=function(){const result=oldRefresh();sync();ret
 const oldSyncRearFields=syncRearFields;syncRearFields=function(){const result=oldSyncRearFields();sync();return result;};
 const oldFingerprint=designFingerprint;designFingerprint=function(){const base=oldFingerprint();return has('front')?JSON.stringify([base,fingerprint('front')]):base;};
 const oldRearSnapshot=rearQuoteSnapshot;rearQuoteSnapshot=function(){const base=oldRearSnapshot();return base&&has('rear')?{...base,extraLogos:fingerprint('rear')}:base;};
-const oldIssue=designIssue;designIssue=function(){return oldIssue()||(!isUnprinted()&&!!issue('front'));};
+// Preserve the core preview-only approval contract; extra-logo failures still block.
+const oldIssue=designIssue;designIssue=function(...args){return oldIssue.apply(this,args)||(!isUnprinted()&&!!issue('front'));};
 const oldShowIssue=showDesignIssue;showDesignIssue=function(){if(issue('front')){status(issue('front'));panels.front.panel.scrollIntoView({block:'nearest'});return;}return oldShowIssue();};
 const oldRearValidation=rearValidationError;rearValidationError=function(){return oldRearValidation()||issue('rear');};
 const oldRearReady=rearQuoteReady;rearQuoteReady=function(){return !issue('rear')&&oldRearReady();};

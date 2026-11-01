@@ -16,17 +16,17 @@ function blocks(colors){const c=createCanvas(240,100),g=c.getContext('2d');color
 test('photographic RGB clusters stay unchanged and unknown, not clamped to three',()=>{
  const c=blocks(['#d06707','#222123','#4f5052','#e6853b','#82573e']),d=pixels(c),before=Buffer.from(d),raw=PrintInks.estimate(d,c.width,c.height,{acceptedArtwork:true}),photo=PrintInks.estimate(d,c.width,c.height,{acceptedArtwork:true,photoDerived:true});
  assert.equal(raw.count,5);assert.equal(photo.count,5);assert.deepEqual(photo.colors,raw.colors);assert.equal(photo.uncertain,true);assert.equal(photo.physicalInkCount,null);assert.deepEqual(Buffer.from(d),before);
- const h=harness(c);assert.equal(h.nodes.inks.value,'');assert.equal(h.ctx.currentPrintPolicy().count,null);assert.equal(h.ctx.visualPreviewPolicyError(),'');assert(h.ctx.printPolicyError());h.nodes.inks.value='3';assert(h.ctx.printPolicyError(),'manual three cannot certify photography');h.ctx.state.designProcessing=true;assert(h.ctx.visualPreviewPolicyError(),'pending source cannot continue');
+ const h=harness(c);assert.equal(h.nodes.inks.value,'');assert.equal(h.ctx.currentPrintPolicy().count,null);assert.equal(h.ctx.visualPreviewPolicyError(),'');assert.equal(h.ctx.printPolicyError(),'');assert.equal(h.ctx.currentPrintPolicy().status,'partial-excludes-plate');h.nodes.inks.value='3';assert(h.ctx.printPolicyError(),'manual three cannot certify photography');h.ctx.state.designProcessing=true;assert(h.ctx.visualPreviewPolicyError(),'pending source cannot continue');
 });
 test('native three and four, screen four and pale gray remain honest',()=>{
  for(const colors of [['#d06707','#222123','#4f5052'],['#d06707','#222123','#4f5052','#008040']]){const h=harness(blocks(colors),{photo:false,method:'native-logo'});assert.equal(h.estimate().count,colors.length);assert.equal(h.estimate().uncertain,false);assert.equal(h.ctx.currentPrintPolicy().blocked,colors.length>3);}
  const screen=harness(blocks(['#dfdfdf','#a0a0a0','#606060','#101010']),{photo:true,method:'screen-chrome-region'});assert.equal(screen.estimate().count,4);assert.equal(screen.estimate().uncertain,false);assert(screen.ctx.visualPreviewPolicyError());
- const pale=harness(blocks(['#101010','#f5f5f5']),{photo:false,method:'native-logo'});assert.equal(pale.nodes.inks.value,'');assert(pale.ctx.printPolicyError());
+ const pale=harness(blocks(['#101010','#f5f5f5']),{photo:false,method:'native-logo'});assert.equal(pale.nodes.inks.value,'');assert.equal(pale.ctx.printPolicyError(),'');assert.equal(pale.ctx.currentPrintPolicy().status,'partial-excludes-plate');
 });
 const source=process.env.HIJYENLAB_PRIVATE_PHOTO_INK_SOURCE;
-test('actual extracted photograph ordinary ink UI allows only current idea preview, not price',{skip:!source},async()=>{
+test('actual extracted photograph ordinary ink UI permits a current idea preview with partial price, never a guessed ink count',{skip:!source},async()=>{
  const im=await loadImage(source),c=createCanvas(im.width,im.height);c.getContext('2d').drawImage(im,0,0);const before=Buffer.from(pixels(c)),raw=PrintInks.estimate(pixels(c),c.width,c.height,{acceptedArtwork:true}),h=harness(c);
- assert(raw.colors.length>3,'fixture exposes photographed RGB overcount');assert.equal(h.estimate().uncertain,true);assert.equal(h.estimate().physicalInkCount,null);assert(h.estimate().count>3,'diagnostic clusters preserved, not clamped');assert.equal(h.nodes.inks.value,'');assert.equal(h.ctx.currentPrintPolicy().count,null);assert.equal(h.ctx.visualPreviewPolicyError(),'');assert(h.ctx.printPolicyError());assert.deepEqual(Buffer.from(pixels(c)),before);
+ assert(raw.colors.length>3,'fixture exposes photographed RGB overcount');assert.equal(h.estimate().uncertain,true);assert.equal(h.estimate().physicalInkCount,null);assert(h.estimate().count>3,'diagnostic clusters preserved, not clamped');assert.equal(h.nodes.inks.value,'');assert.equal(h.ctx.currentPrintPolicy().count,null);assert.equal(h.ctx.visualPreviewPolicyError(),'');assert.equal(h.ctx.printPolicyError(),'');assert.equal(h.ctx.currentPrintPolicy().status,'partial-excludes-plate');assert.deepEqual(Buffer.from(pixels(c)),before);
  h.session.begin({sha256:'b'.repeat(64)});assert(h.ctx.visualPreviewPolicyError(),'old pixels cannot approve a replacement');
 });
 
@@ -46,7 +46,7 @@ test('only currently approved actually rendered flat proposal contributes its pa
  const c=blocks(['#cc681d','#292929']),r=await propose(c),out=createCanvas(c.width,c.height),g=out.getContext('2d'),image=g.createImageData(c.width,c.height);image.data.set(r.data);g.putImageData(image,0,0);const metadata={...r.metadata,renderedPixelsVerified:true};
  const approved=harness(out,{proposal:metadata});assert.equal(approved.nodes.inks.value,'2');assert.equal(approved.ctx.currentPrintPolicy().blocked,false);
  const pending=harness(out,{proposal:metadata,approved:false});assert.equal(pending.nodes.inks.value,'');assert(pending.ctx.printPolicyError());
- for(const patch of [{sourceSHA256:'b'.repeat(64)},{renderedPixelsVerified:false},{originalKnownActualInkCount:4},{actualProposedPalette:['#ff0000','#000000']}]){const h=harness(out,{proposal:{...metadata,...patch}});assert.equal(h.nodes.inks.value,'');assert(h.ctx.printPolicyError());if(patch.originalKnownActualInkCount)assert(h.ctx.visualPreviewPolicyError(),'known original four still requires contact');}
+ for(const patch of [{sourceSHA256:'b'.repeat(64)},{renderedPixelsVerified:false},{originalKnownActualInkCount:4},{actualProposedPalette:['#ff0000','#000000']}]){const h=harness(out,{proposal:{...metadata,...patch}});assert.equal(h.nodes.inks.value,'');if(patch.originalKnownActualInkCount){assert(h.ctx.printPolicyError());assert(h.ctx.visualPreviewPolicyError(),'known original four still requires contact');}else {assert.equal(h.ctx.printPolicyError(),'');assert.equal(h.ctx.currentPrintPolicy().status,'partial-excludes-plate');}}
  approved.ctx.state.logo='replacement';approved.ctx.syncPrintInks();assert.equal(approved.nodes.inks.value,'');
 });
 test('actual audited extracted photograph becomes explicit two-ink rendered proposal only after normal approval',{skip:!source},async()=>{

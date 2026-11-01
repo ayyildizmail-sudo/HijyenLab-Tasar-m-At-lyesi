@@ -150,6 +150,7 @@
       "centerY": 248.41379310344828,
       "residual": 0.49896447634537616,
       "sampleRows": 203,
+      "retainedRows": 203,
       "baseline": {
         "slope": 0.0044742729306487695,
         "boxes": [
@@ -174,6 +175,7 @@
         "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
       ],
       "applied": true,
+      "status": "corrected",
       "alphaPreserved": true,
       "analysisBasis": "temporary white composite of extracted photo matte"
     }
@@ -329,6 +331,7 @@
       "centerY": 248.41379310344828,
       "residual": 0.49896447634537616,
       "sampleRows": 203,
+      "retainedRows": 203,
       "baseline": {
         "slope": 0.0044742729306487695,
         "boxes": [
@@ -353,6 +356,7 @@
         "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
       ],
       "applied": true,
+      "status": "corrected",
       "alphaPreserved": true,
       "analysisBasis": "temporary white composite of extracted photo matte"
     }
@@ -366,6 +370,7 @@
         "centerY": 187.31578947368422,
         "residual": 0.4806672008414971,
         "sampleRows": 152,
+        "retainedRows": 152,
         "baseline": {
           "slope": 0.002976190476190476,
           "boxes": [
@@ -390,6 +395,7 @@
           "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
         ],
         "applied": true,
+        "status": "corrected",
         "alphaPreserved": true,
         "analysisBasis": "temporary white composite of extracted photo matte"
       }
@@ -402,6 +408,7 @@
         "centerY": 229.6881188118812,
         "residual": 0.4756116008525674,
         "sampleRows": 202,
+        "retainedRows": 202,
         "baseline": {
           "slope": 0.004464285714285714,
           "boxes": [
@@ -426,6 +433,7 @@
           "Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."
         ],
         "applied": true,
+        "status": "corrected",
         "alphaPreserved": true,
         "analysisBasis": "temporary white composite of extracted photo matte"
       }

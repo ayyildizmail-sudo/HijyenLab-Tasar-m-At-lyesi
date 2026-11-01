@@ -1,0 +1,688 @@
+{
+  "runtime": "V68",
+  "gate_command": "node scripts/check-logo-regressions.mjs",
+  "exit_code": 0,
+  "suite_files": 74,
+  "passed_suite_files": 74,
+  "failed_suite_files": 0,
+  "node_test_runner_suite_files": 36,
+  "node_test_runner_totals": {
+    "tests": 298,
+    "pass": 284,
+    "fail": 0,
+    "skipped": 14
+  },
+  "custom_assertion_suite_files": 38,
+  "individual_count_limit": "Custom assertion scripts do not emit a uniform individual-test counter. Node totals exclude these custom scripts; all suite processes exited 0. Skips are private-fixture cases, not assertions marked passed.",
+  "server": {
+    "command": "npm run test:server",
+    "tests": 26,
+    "pass": 26,
+    "fail": 0,
+    "skipped": 0
+  },
+  "typecheck": {
+    "command": "npx tsc --noEmit",
+    "exit_code": 0
+  },
+  "suites": [
+    {
+      "suite": "tests/design-issue-script-chain.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 3,
+        "pass": 3,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/partial-reference-inks.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 5,
+        "pass": 5,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/reference-preview-flow.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 5,
+        "pass": 5,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/native-content-review.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 2,
+        "pass": 2,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/pending-proposal-design-issue.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/photo-flat-hook.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 7,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 1
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/white-carrier-ui.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 17
+    },
+    {
+      "suite": "tests/customer-no-manual-region.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/flexo-policy.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 7,
+        "pass": 7,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/flexo-preview-adapter.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/flexo-preview-browser.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 4,
+        "pass": 4,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/flexo-runtime.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 7,
+        "pass": 7,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/native-flat-preview.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 8,
+        "pass": 7,
+        "fail": 0,
+        "skipped": 1
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/photo-derived-ink-evidence.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 9,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 3
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/source-ground-scope.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/source-ground-integration.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/product-choice-carryover.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/navigation-scroll-stability.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 5,
+        "pass": 5,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/content-safety.test.mjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 11,
+        "pass": 11,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/content-safety-hooks.test.mjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/content-safety-vm.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 1,
+        "pass": 1,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/visible-artwork.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 12
+    },
+    {
+      "suite": "tests/flat-placement-evidence.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 6
+    },
+    {
+      "suite": "tests/visible-artwork-app.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/sponsor-source.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/rear-photo.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/frame-geometry.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/photo-frame-geometry.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/compressed-photo-geometry.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/photo-surface-routing.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/rear-logo.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/ground-case-consistency.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/accepted-artwork-palette.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 8,
+        "pass": 5,
+        "fail": 0,
+        "skipped": 3
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/accepted-rear-ink-palette.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 15,
+        "pass": 14,
+        "fail": 0,
+        "skipped": 1
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/flat-jpeg-ink-palette.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 4,
+        "pass": 3,
+        "fail": 0,
+        "skipped": 1
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/private-raw-ink-palette.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 1,
+        "pass": 0,
+        "fail": 0,
+        "skipped": 1
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/photo-matte-edge-color.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/carrier-printed-planes.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 15,
+        "pass": 14,
+        "fail": 0,
+        "skipped": 1
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/print-policy.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/bm21.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/bm21-material.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/rear-display-shape.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/rear-preview.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/shared-rulo.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/contact-icon-style.test.mjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/contact-help.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/lead-gate.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 16
+    },
+    {
+      "suite": "tests/lead-input-observers.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/journey-motion.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 9,
+        "pass": 9,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/journey-motion-independent.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/journey-motion-observers-independent.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/institution-contact.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/paired-cta-order.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/draft-v4.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/draft-resume-independent.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 9,
+        "pass": 9,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/draft-resume-ui-independent.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 12,
+        "pass": 12,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/declared-quote.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 43,
+        "pass": 43,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/declared-quote-lifecycle.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 9,
+        "pass": 9,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/reference-recovery.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 9,
+        "pass": 9,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/print-policy-ui.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 10,
+        "pass": 10,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/pending-text-readiness.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 2,
+        "pass": 2,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/screenshot-artwork.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 15
+    },
+    {
+      "suite": "tests/screenshot-product.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 19
+    },
+    {
+      "suite": "tests/carrier-source-completeness.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 13
+    },
+    {
+      "suite": "tests/white-carrier-domain.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 9,
+        "pass": 8,
+        "fail": 0,
+        "skipped": 1
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/native-flat-palette-evidence.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 11,
+        "pass": 10,
+        "fail": 0,
+        "skipped": 1
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/flat-ground-app.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/flat-ground-routing.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 0
+    },
+    {
+      "suite": "tests/viewer-chrome-family.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 17
+    },
+    {
+      "suite": "tests/reset-source-lifecycle.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 4
+    },
+    {
+      "suite": "tests/approximate-preview-policy.test.cjs",
+      "status": "PASS",
+      "node_test_summary": {
+        "tests": 10,
+        "pass": 10,
+        "fail": 0,
+        "skipped": 0
+      },
+      "custom_named_cases": null
+    },
+    {
+      "suite": "tests/composite-screenshot.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 19
+    },
+    {
+      "suite": "tests/screenshot-background.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 5
+    },
+    {
+      "suite": "tests/screenshot-integration.test.cjs",
+      "status": "PASS",
+      "node_test_summary": null,
+      "custom_named_cases": 7
+    }
+  ],
+  "aggregate_scope": "Historical local 09:39 candidate counters above are retained, not presented as final individual counts. Final current-source official build is recorded separately below.",
+  "one_click_refreeze": {
+    "focused_tests": 16,
+    "pass": 16,
+    "fail": 0,
+    "skipped": 0,
+    "typecheck_exit_code": 0,
+    "final_aggregate_owner": "release parent official build"
+  },
+  "optional_reference_refreeze": {
+    "tests": 34,
+    "pass": 31,
+    "fail": 0,
+    "skipped": 3,
+    "typecheck_exit_code": 0,
+    "final_aggregate_owner": "release parent official build"
+  },
+  "official_final_build": {
+    "runtime_freeze": "2026-11-01T09:48:22Z",
+    "terminal_verified_at": "2026-11-01T09:55:24Z",
+    "session_id": 31265,
+    "exit_code": 0,
+    "commands": [
+      "node scripts/prepare-legacy-frontend.mjs",
+      "sites-env.sh -- vinext build"
+    ],
+    "gate": "74/74 configured suite processes passed; All screenshot regressions passed.",
+    "build": "Build complete.",
+    "evidence": [
+      "tests/evidence/v68/official-build-continuation.log",
+      "tests/evidence/v68/official-build-terminal.log"
+    ],
+    "count_note": "Saved official output chunks omit the first few suite headers; do not claim an independently tallied final individual-test count from these chunks. All-suite terminal success was verified by release owner."
+  }
+}

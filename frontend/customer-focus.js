@@ -88,7 +88,7 @@
       }
     }
     function commercialSnapshot() {
-      if (typeof state === 'undefined' || typeof productRules !== 'function' || (state.photoLayout && state.photoQuoteBg === 'unknown')) return null;
+      if (typeof state === 'undefined' || typeof productRules !== 'function' || ((state.photoLayout || state.quoteSource==='source-reference') && state.photoQuoteBg === 'unknown')) return null;
       const rules = productRules(), white = effectiveBackground() === '#ffffff';
       return { mode: root.HijyenLabPrintMode?.get() || 'printed', product: rules.product, ground: white ? 'white' : 'colored', minimum: white ? rules.minimum.white : rules.minimum.colored, unit: white ? rules.whiteUnitKurus : rules.coloredUnitKurus };
     }

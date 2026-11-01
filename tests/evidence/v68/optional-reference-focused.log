@@ -1,0 +1,42 @@
+✔ opaque whole-raster source needs ordinary visual review, not semantic autoapproval (1.135758ms)
+✔ review travels with source record and restore never recovers approval (1.087325ms)
+✔ one visible visual approval advances directly through the source-bound handler (1.980177ms)
+✔ reference has unknown inks, not zero, and an approved source gets only partial status (7.760629ms)
+✔ unknown source cannot bypass known fourth rear or supplemental ink or injected manual fourth (1.80898ms)
+✔ replacement, canceled operation, stale fingerprint, unapproved revision and failed source remain blocked (8.573672ms)
+✔ real gray remains a third native ink and a fourth native ink is not excused as photography (193.251639ms)
+✔ photo RGB uncertainty can progress only as partial and manual three cannot certify it (72.407041ms)
+✔ optional customer-declared two inks gives a labeled scenario, never a measured count (2.897968ms)
+✔ source product rear and ground changes revoke declaration, quantity alone does not (4.794589ms)
+✔ customer declaration cannot bypass known four original or additional inks (1.014065ms)
+✔ photographic RGB clusters stay unchanged and unknown, not clamped to three (312.796132ms)
+✔ native three and four, screen four and pale gray remain honest (423.115758ms)
+﹣ actual extracted photograph ordinary ink UI permits a current idea preview with partial price, never a guessed ink count (0.09957ms) # SKIP
+✔ flat photo proposal preserves geometry, original and two/three families; rejects distinct four and separate gray (213.487278ms)
+✔ only currently approved actually rendered flat proposal contributes its palette (734.580088ms)
+﹣ actual audited extracted photograph becomes explicit two-ink rendered proposal only after normal approval (0.242805ms) # SKIP
+✔ only tiny translucent alpha-connected neutral fringe can borrow a nearby real dark core (95.125003ms)
+﹣ exact downloaded browser RGBA explains only three tiny AA islands and yields approved two-ink proposal (0.413733ms) # SKIP
+✔ verified awaiting-approval flat logo gets neutral preview wording, never commercial permission (412.620461ms)
+✔ reference acceptance preserves source, quantity and real provenance, enters ordinary flow without fabricated artwork (4.173665ms)
+✔ replacement and cancel while image decode pending cannot accept stale reference (1.838504ms)
+✔ repeated acceptance is single-flight, reset revokes source authority (0.892832ms)
+✔ tampered source, pending assets and wrong processing record cannot pass (0.741085ms)
+✔ reference labels and ground provenance remain in ordinary summary and JPG (1.238192ms)
+✔ only failed source with no prepared artwork is eligible (1.368067ms)
+✔ product + shipping matches existing tariff while plate stays unknown and no exact/deposit total exists (2.332457ms)
+✔ Bodrum free delivery and colored minimum use existing rules (17.719616ms)
+✔ all catalogue products retain their tariffs and carton rounding (0.480192ms)
+✔ company contact phone delivery fragrance and explicit ground are mandatory (0.456597ms)
+✔ known four inks and uncertain-contact policy cannot be bypassed (0.301694ms)
+✔ regression wiring preserves normal guard and clears recovery before new async ingress (0.962958ms)
+✔ reference UI uses ordinary choices, not a second duplicate form or blank mockup (0.37896ms)
+✔ new ingress clears old design error before asynchronous decode (1.257131ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 3
+ℹ todo 0
+ℹ duration_ms 2586.422739

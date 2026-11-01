@@ -22,8 +22,16 @@ vm.runInContext("rearContent.extra='';rearSponsorPending=true;",ctx);ctx.syncRea
 ctx.resetRearPreview();ctx.showRearPreview();const cancelledFirst=sourceImages.at(-1).onload;ctx.renderRearPreview(false);cancelledFirst();sourceImages.at(-1).onload();$('rearBlankImage').onload();while(raf.length)raf.shift()();assert($('rearFlipCard').classList.values.has('is-flipped'));assert.equal($('rearToPrice').disabled,false);
 approved=false;assert.equal(ctx.showRearPreview(),false);approved=true;issue=true;assert.equal(ctx.showRearPreview(),false);
 // Central route receives both native next/navigation and approved extracted logos.
-const goCode=app.slice(app.indexOf('function go(n){'),app.indexOf("$('useMinimum').onclick"));let shown=0;const c={state:{logo:'x'},step:1,$,approveNativeDesignIfEligible(){},designIssue:()=>false,showRearPreview:()=>shown++,showDesignIssue(){},validateLead:()=>true};c.isUnprinted=()=>false;c.isDeclaredQuote=()=>false;vm.createContext(c);vm.runInContext(goCode,c);c.go(2);assert.equal(shown,1);
+const goCode=app.slice(app.indexOf('function go(n){'),app.indexOf("$('useMinimum').onclick"));let shown=0;const c={state:{logo:'x'},step:1,$,approveNativeDesignIfEligible(){},designIssue:()=>false,showRearPreview:()=>shown++,showDesignIssue(){},validateLead:()=>true};c.isUnprinted=()=>false;c.isDeclaredQuote=()=>false;c.canReviewExtractedArtwork=()=>false;vm.createContext(c);vm.runInContext(goCode,c);c.go(2);assert.equal(shown,1);
 const nextHandler=app.match(/\$\('next'\)\.onclick=([^;]+);/);assert(nextHandler,'Native next handler must exist');vm.runInContext("$('next').onclick="+nextHandler[1]+';',c);$('next').onclick();assert.equal(shown,2,'Artwork next still routes through go(2) to approved rear preview');assert(fs.readFileSync('frontend/brand-region-ui.js','utf8').includes('refresh();go(2);'));
+// Pending ordinary approval must use the real source-bound handler and advance
+// once; a failed/stale source approval must not call the rear route.
+c.approveInk={};c.canReviewExtractedArtwork=()=>true;c.refresh=()=>{};let approvalOK=true;c.approveCurrentDesign=()=>approvalOK;
+const approvalLine=fs.readFileSync('frontend/brand-region-ui.js','utf8').split('\n').find(line=>line.startsWith('approveInk.onclick='));assert(approvalLine);vm.runInContext(approvalLine,c);
+c.state.extractionApprovalRequired=true;$('next').onclick();assert.equal(shown,3);assert.equal(c.state.extractionApprovalRequired,false);
+approvalOK=false;c.state.extractionApprovalRequired=true;$('next').onclick();assert.equal(shown,3);assert.equal(c.state.extractionApprovalRequired,true);
+c.state.designProcessing=true;approvalOK=true;$('next').onclick();assert.equal(shown,3);c.state.designProcessing=false;
+
 assert(fs.readFileSync('frontend/processing-lifecycle.js','utf8').includes("if(typeof resetRearPreview==='function')resetRearPreview();loading++"));
 assert(fs.readFileSync('frontend/style.css','utf8').includes('@media(prefers-reduced-motion:reduce){.rearFlipCard{transition:none}}'));
 assert(!/pricing\(/.test(rear)); // rear editor does not invent a separate price calculation

@@ -1,0 +1,569 @@
+PASS real application design issue: pending visual notice alone may ignore approval; all substantive guards and default approval remain
+PASS defer only preapproval unknown notice; no count/approval/financial gate is changed
+[logo release gate] tests/photo-flat-hook.test.cjs
+✔ real module and actual PNG encode/decode produce bound proposal, retain original separately (13.949457ms)
+✔ roundtrip rejects changed alpha, opaque color, white hole and excessive edge change (0.844801ms)
+✔ new upload/reset during async module work returns no candidate, never stages stale pixels (1.440816ms)
+✔ declined four-ink evidence preserves original, missing module leaves ordinary carrier unchanged (1.351382ms)
+✔ V68 index loads proposal before carrier hook (0.397668ms)
+﹣ available private U31 route candidate roundtrips to actual two-color proposal (0.084467ms) # SKIP
+✔ diagnostic DOM readout is localhost-only and never touches production DOM (2.548993ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 25.550431
+[logo release gate] tests/white-carrier-ui.test.cjs
+[
+  {
+    "name": "Candidate review clears previous mockup but never adopts unconfirmed candidate",
+    "status": "PASS"
+  },
+  {
+    "name": "Explicit current confirmation adopts candidate with source provenance and white gate",
+    "status": "PASS"
+  },
+  {
+    "name": "New upload token prevents accepting stale proposal",
+    "status": "PASS"
+  },
+  {
+    "name": "New upload during asynchronous adoption prevents stale source binding",
+    "status": "PASS"
+  },
+  {
+    "name": "Reject proposal clears selection without committing design",
+    "status": "PASS"
+  },
+  {
+    "name": "White candidate valid destination is white with no Pantone request",
+    "status": "PASS"
+  },
+  {
+    "name": "Ordinary native colored artwork remains allowed",
+    "status": "PASS"
+  },
+  {
+    "name": "Palette and Pantone apply paths enforce family white-only scope",
+    "status": "PASS"
+  },
+  {
+    "name": "Family proposal is fallback only and only bounded automatic result proceeds",
+    "status": "PASS"
+  },
+  {
+    "name": "Unseen candidate cannot be accepted before both images decode",
+    "status": "PASS"
+  },
+  {
+    "name": "Preview decode error disables acceptance",
+    "status": "PASS"
+  },
+  {
+    "name": "Delayed old preview callback cannot enable newer proposal",
+    "status": "PASS"
+  },
+  {
+    "name": "Bounded automatic apply uses actual upload decode and shared commit, retains SHA and requires ordinary approval",
+    "status": "PASS"
+  },
+  {
+    "name": "Every independent automatic evidence gate is mandatory",
+    "status": "PASS"
+  },
+  {
+    "name": "New upload/reset during real delayed decode cannot bind old provenance or approve",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual decode failure remains blocked with original source, no ready metadata",
+    "status": "PASS"
+  },
+  {
+    "name": "Manual colored intent and missing source identity cannot be silently overwritten",
+    "status": "PASS"
+  }
+]
+[logo release gate] tests/customer-no-manual-region.test.cjs
+✔ production technical editor cannot be enabled through global values (2.841122ms)
+✔ customer programmatic click cannot enter corner editor or mutate loading/approval/source (0.762106ms)
+✔ normal customer sync hides both entry and panel without altering failed source (0.677599ms)
+✔ ordinary visual approval is preserved and customer recovery does not ask manual artwork work (0.39208ms)
+✔ photo manual adjustment and edit callbacks are inert for customers (1.25699ms)
+✔ no-candidate artwork goes to honest blocked source, never to manual editor (1.740547ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14.271961
+[logo release gate] tests/flexo-policy.test.cjs
+✔ three actual inks maximum includes colored ground, exact white OPP is unprinted (1.064531ms)
+✔ white is never a paid plate, real gray is not silently white (0.188644ms)
+✔ RGB shades and mockup lighting never establish physical ink count (0.134973ms)
+✔ continuous gradient unsupported even if a producer tram profile exists (0.120461ms)
+✔ same-ink tram tints use one physical ink but require job-bound producer profile and review (0.42591ms)
+✔ an adapted visual alternative never clears original known-four contact requirement (0.12683ms)
+✔ conflicting shorter palette or source-role label cannot erase authoritative known-four history (0.142845ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8.018017
+[logo release gate] tests/flexo-preview-adapter.test.cjs
+✔ bounded flat proposal is deterministic, preserves source alpha/geometry and white holes (4.079485ms)
+✔ colored ground consumes a slot, same ground deduplicates, white costs zero (1.818905ms)
+✔ never adapts whole photos, incomplete sources, pending or stale approvals (1.572715ms)
+✔ source pixel/mask modifications invalidate acceptance and cannot drop hidden fourth artwork (0.494904ms)
+✔ known four-color original can get an explicitly proposed alternative, never commercial permission (1.127236ms)
+✔ different proposed colors or source revision require distinct approval identity (1.872877ms)
+✔ interior alpha gradients are not silently flattened or called ready tram (0.999813ms)
+✔ a claimed white knockout cannot hide a retained fourth or gray ink from proposed palette (0.418559ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18.18827
+[logo release gate] tests/flexo-preview-browser.test.cjs
+✔ browser global pure-local adapter matches offline deterministic output and approval binding (9.66552ms)
+✔ browser adapter has no network provider and rejects stale acceptance before any proposal (1.790613ms)
+✔ asynchronous browser hashing binds immutable input snapshots, not later changed pixels (3.364849ms)
+✔ browser proposal rejects nonwhite color disguised by a protected white mask (1.433275ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22.06045
+[logo release gate] tests/flexo-runtime.test.cjs
+✔ real native gradient evidence activates adaptation notice without rewriting artwork or pricing (51.016967ms)
+✔ real extracted lighting ramp is uncertain but not asserted to be an artwork gradient (56.007591ms)
+✔ ordinary flat estimate keeps existing certainty and known-four contact stays intact (254.187852ms)
+✔ real calculate/quote/download handlers honor new production block even manual count (37.39923ms)
+✔ new modules are loaded before live print UI with no new adaptation screen (0.339591ms)
+✔ vertical RGB and interior alpha gradients activate native production block without flattening alpha (49.304202ms)
+✔ thin transparent antialias boundary is not an interior opacity-gradient claim (0.546191ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 460.501067
+[logo release gate] tests/native-flat-preview.test.cjs
+✔ small interior compression noise is normalized without losing any of three source ink families (121.20934ms)
+✔ coherent thin marks and exact flat details are not treated as noise (121.58892ms)
+✔ uncertain, gradient, four-plus or unsupported palettes are never reduced (77.569145ms)
+✔ actual render hook uses display canvas but finance, source and lifecycle approval remain original (106.145216ms)
+✔ pending, stale, photo, explicit recolor and extra-logo states return original image (777.090208ms)
+✔ product switch invalidates display and cached rear but never changes price count (144.451156ms)
+✔ reset/new-file cancellation clears display evidence and cannot reuse old cleanup (79.741542ms)
+﹣ actual private source is declined above cap; bounded source sample preserves both ink families (0.138268ms) # SKIP
+ℹ tests 8
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 1439.665467
+[logo release gate] tests/photo-derived-ink-evidence.test.cjs
+✔ photographic RGB clusters stay unchanged and unknown, not clamped to three (354.785696ms)
+✔ native three and four, screen four and pale gray remain honest (457.283959ms)
+﹣ actual extracted photograph ordinary ink UI permits a current idea preview with partial price, never a guessed ink count (0.096585ms) # SKIP
+✔ flat photo proposal preserves geometry, original and two/three families; rejects distinct four and separate gray (238.007215ms)
+✔ only currently approved actually rendered flat proposal contributes its palette (869.753217ms)
+﹣ actual audited extracted photograph becomes explicit two-ink rendered proposal only after normal approval (0.178509ms) # SKIP
+✔ only tiny translucent alpha-connected neutral fringe can borrow a nearby real dark core (88.644555ms)
+﹣ exact downloaded browser RGBA explains only three tiny AA islands and yields approved two-ink proposal (0.187713ms) # SKIP
+✔ verified awaiting-approval flat logo gets neutral preview wording, never commercial permission (411.980454ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 3
+ℹ todo 0
+ℹ duration_ms 2427.347752
+[logo release gate] tests/source-ground-scope.test.cjs
+PASS source ground scope: local panels/scene vs source-bound product; explicit choice; no alpha deletion;3 original inks + white OPP zero
+[logo release gate] tests/source-ground-integration.test.cjs
+PASS source-ground integration: actual upload/prepareLogo helpers, manual choice, sourcechange, undo/product refresh, legacy draft recovery, photo/table and selected-panel route guards
+[logo release gate] tests/product-choice-carryover.test.cjs
+✔ Compatible towel switch preserves explicit quantity and confirmed fragrance without a new submission (16.779413ms)
+✔ Selected but unconfirmed compatible scent is retained without silently granting confirmation (2.089126ms)
+✔ Printed quantity need not be a whole carton, but new minimum is respected (1.745384ms)
+✔ Colored minimum and maximum bounds use catalog rules rather than copied numeric policy (7.923104ms)
+✔ Unprinted carryover requires complete new-product cartons and does not override fixed fragrance (2.495853ms)
+✔ Asset retry keeps valid choices and stale prior asset cannot restore another product (1.507387ms)
+✔ No explicit quantity and no scent remain unchosen, not fabricated (2.365738ms)
+✔ Unresolved photographic ground never invents a confirmed colored minimum (1.272644ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 43.117112
+[logo release gate] tests/navigation-scroll-stability.test.cjs
+✔ Repeated same-step upload completion renders without initiating a competing smooth scroll (3.286302ms)
+✔ Actual 1 to 2 and 2 to 1 transitions retain smooth top navigation (0.814605ms)
+✔ Same-step refresh after a real reset does not add motion or restore old content (0.846854ms)
+✔ Blocked forward navigation keeps existing guards and neither changes step nor scrolls (0.640153ms)
+✔ Real navigation still scrolls when a pre-navigation helper changes the step internally (0.672882ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13.371238
+[logo release gate] tests/content-safety.test.mjs
+✔ benign multilingual names, substrings, political/religious/news context stay quiet (1.584152ms)
+✔ high-specificity full-field profanity and separator/Unicode evasion block (0.174652ms)
+✔ quotation/context is review, not a criminal accusation or substring block (0.743277ms)
+✔ image/QR/poor OCR are unassessed, never unsafe and never block ordinary preview (0.289215ms)
+✔ unconfigured final service fails closed including blank/unprinted and forged client approvals (4.757674ms)
+✔ all string fields are locally screened without forwarding, including null-design requests (0.929698ms)
+✔ trusted adapter verdict binds exact bytes/content revision and policy; no forged or stale approval (1.927608ms)
+✔ adapter errors and inconclusive responses fail closed without exposing data (1.072924ms)
+✔ canonical lead handler blocks before database write, disabled flags unchanged (11.191349ms)
+✔ gate is wired in canonical handler, not only the client or thin route (0.468073ms)
+✔ hung adapter times out rather than leaving submission pending forever (5.688083ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34.596936
+[logo release gate] tests/content-safety-hooks.test.mjs
+✔ actual front placement/export/quote hooks reject explicit profanity and preserve selections (487.470463ms)
+✔ actual rear and contact hooks cover each field; poor images and normal foreign names are not blocked (220.867571ms)
+✔ restored/imported state is rechecked without clearing it; corrections remove only safety notice (241.177968ms)
+✔ long quotation/review remains quiet in live preview (410.553026ms)
+✔ actual request validation covers nested notes and unprinted contacts (2.252397ms)
+✔ integration load order and all output boundary calls are wired, with no draft-state deletion (0.428054ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1381.229078
+[logo release gate] tests/content-safety-vm.test.cjs
+✔ real VM loader rejects abusive state/contact and preserves benign tests, not a constant-pass stub (2.981083ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7.99347
+[logo release gate] tests/visible-artwork.test.cjs
+[
+  {
+    "name": "Asymmetric transparent padding centers artwork rather than file",
+    "status": "PASS"
+  },
+  {
+    "name": "All dots, low-opacity pixels and descenders survive bounds",
+    "status": "PASS"
+  },
+  {
+    "name": "Disconnected multi-logo lockup retains relative spacing",
+    "status": "PASS"
+  },
+  {
+    "name": "True outer frame controls bounds; white internal badge remains source content",
+    "status": "PASS"
+  },
+  {
+    "name": "vertical uses same proportional safe-area fit",
+    "status": "PASS"
+  },
+  {
+    "name": "wide uses same proportional safe-area fit",
+    "status": "PASS"
+  },
+  {
+    "name": "square-circle-envelope uses same proportional safe-area fit",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual circular alpha artwork preserves circumference and centers its envelope",
+    "status": "PASS"
+  },
+  {
+    "name": "Opaque flat reversed graphic requires trusted foreground mask, not polarity guessing",
+    "status": "PASS"
+  },
+  {
+    "name": "Unresolved photographs are not centered on guessed shadows even with transparent edges",
+    "status": "PASS"
+  },
+  {
+    "name": "Independent core anchor never clips faint pixels outside that anchor",
+    "status": "PASS"
+  },
+  {
+    "name": "Unsafe masks, oversize placement and empty sources fail closed",
+    "status": "PASS"
+  }
+]
+[logo release gate] tests/flat-placement-evidence.test.cjs
+[
+  {
+    "name": "Geometry-only light-on-dark retains separated dots",
+    "status": "PASS"
+  },
+  {
+    "name": "Geometry-only dark-on-light retains separated dots",
+    "status": "PASS"
+  },
+  {
+    "name": "Independent faint solid gray ink rejects stronger-only anchor",
+    "status": "PASS"
+  },
+  {
+    "name": "True source-edge frame is not mistaken for disposable blank margin",
+    "status": "PASS"
+  },
+  {
+    "name": "Photo gradient is not a flat-ground anchor",
+    "status": "PASS"
+  },
+  {
+    "name": "Transparent and large sources use their independent conservative paths",
+    "status": "PASS"
+  }
+]
+[logo release gate] tests/visible-artwork-app.test.cjs
+{"case":"existing alpha preparation","prepared":[176,56],"anchor":{"left":35,"top":6,"right":129,"bottom":52},"sourceRect":{"x":0,"y":0,"width":176,"height":56},"scale":5.531914893617023,"sourceUnchanged":true}
+{"case":"opaque maskAllowed=false","prepared":[176,56],"anchor":{"left":35,"top":6,"right":129,"bottom":52},"sourceRect":{"x":0,"y":0,"width":176,"height":56},"scale":5.531914893617023,"sourceUnchanged":true}
+PASS actual prepareLogo + visibleLogoPlan, both opaque/alpha routes; source immutable
+[logo release gate] tests/sponsor-source.test.cjs
+PASS real packet whole group + pixel-exact front refactor + rear parity; screenshot/button and grayscale blocked; user-selected full group completes; distinct carriers refuse ambiguity
+[logo release gate] tests/rear-photo.test.cjs
+PASS rear photo: real white carrier + light surface, preserved input, review gate, ambiguity/blank/ROI bounds, 600px scan and no front state
+[logo release gate] tests/frame-geometry.test.cjs
+PASS bounded frame shear, actual screenshot, upright oval unchanged, no-rule abstention, whole-source row ink retention and idempotence {"before":{"ok":true,"shear":0.12669336398601516,"centerY":172.6904761904762,"residual":0.3696477749825929,"sampleRows":168,"retainedRows":168,"baseline":{"slope":0.0026954177897574125,"boxes":[[226,219,310,224],[412,220,495,224]]},"method":"bilateral-frame-affine-rectification","methodVersion":"1","limitations":["Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.","Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."],"applied":true},"after":{"ok":true,"shear":-0.00003322150226753759,"centerY":173.055900621118,"residual":0.3658605116593224,"sampleRows":161,"retainedRows":161,"baseline":{"slope":0.002688172043010753,"boxes":[[245,219,329,224],[431,220,515,224]]},"method":"bilateral-frame-affine-rectification","methodVersion":"1","limitations":["Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.","Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."]}}
+[logo release gate] tests/photo-frame-geometry.test.cjs
+PASS actual original photo through full front proposal route and rear route; alpha + premultiplied RGB retained; no second correction {"ok":true,"shear":0.12546431160398316,"centerY":248.41379310344828,"residual":0.49896447634537616,"sampleRows":203,"retainedRows":203,"baseline":{"slope":0.0044742729306487695,"boxes":[[137,303,239,309],[361,304,462,310]]},"method":"bilateral-frame-affine-rectification","methodVersion":"1","limitations":["Review-only affine rectification from frame symmetry and independent level rules; not recovery of an original master.","Oval proportions retained; no circle assumption, OCR, redrawing or nonlinear letter reconstruction."],"applied":true,"status":"corrected","alphaPreserved":true,"analysisBasis":"temporary white composite of extracted photo matte"}
+[logo release gate] tests/compressed-photo-geometry.test.cjs
+PASS compressed photo 1031 859 60 {"before":0.12934012729368932,"after":-0.000031960096337574886,"thresholds":[0.12934012729368932,0.12777259975258334],"retained":132,"total":164}
+PASS compressed photo 687 573 90 {"before":0.12536322211493187,"after":0.001088178002809778,"thresholds":[0.12536322211493187,0.12684537809369692],"retained":94,"total":117}
+PASS clean upright, decorative tilt, italic text and asymmetric abstentions; no source-pixel modification
+[logo release gate] tests/photo-surface-routing.test.cjs
+PASS dense-circle/full-frame multicolor JPEG, private variants when supplied, source-preserving rear, screenshot, gradient, explicit routing, and photo-surface routing: four real cropped variants; seven uniform coloured/white/italic logos; textured coloured carrier; immutable pixels; explicit white-carrier review retained.
+[logo release gate] tests/rear-logo.test.cjs
+PASS Cream removed, all words/swash extent and inner counter kept
+PASS Opaque source ink unchanged
+PASS Multicolor second mark retained
+PASS Native alpha retains white stroke and semitransparent pixels
+PASS Tight native alpha accepts edge-touching ink without trimming content
+PASS Native faint alpha is not silently cropped
+PASS Antialiased cream edge unmatted instead of left as opaque cream fringe
+PASS Blank rejects
+PASS Clipped logo rejects
+PASS Unsupported textured scene rejects instead of raw paste
+PASS Dark carrier not assumed removable
+PASS Malformed or oversized source bounded
+PASS Low contrast warns without recoloring
+PASS JPEG tinted pale edge is covered, not retained as opaque speckles
+PASS Minor pale gray ink interior not erased as carrier contamination
+PASS One-pixel matching-ink thin line preserved
+PASS Unmodelled isolated faint line rejects rather than silently deleting it
+17 PASS
+[logo release gate] tests/ground-case-consistency.test.cjs
+PASS ground hex casing: real resolver, pricing, minimum copy and front canvas; grey/pastel and explicit Pantone intent preserved.
+[logo release gate] tests/accepted-artwork-palette.test.cjs
+﹣ real accepted artwork: unsupported matte and dark edge do not create extra plates (0.714965ms) # NOT_RUN: private accepted artwork fixture not supplied via HIJYENLAB_PRIVATE_INK_FIXTURE
+﹣ real palette union counts explicit rear black, but auto existing ink adds no plate (0.090616ms) # NOT_RUN: private accepted artwork fixture not supplied via HIJYENLAB_PRIVATE_INK_FIXTURE
+✔ two real blue/navy solid inks retained rather than hue merged (66.542657ms)
+✔ genuine pale blue, neutral gray, black and white holes retain intended inks (85.066073ms)
+✔ explicit near-white nonwhite ground remains paid ink (89.085718ms)
+✔ gradient is not turned into a certain count by accepted-artwork flag (73.624547ms)
+✔ more than six true flat inks remain outside automatic count support (65.353078ms)
+﹣ source pixels remain byte identical during inference (0.15254ms) # NOT_RUN: private accepted artwork fixture not supplied via HIJYENLAB_PRIVATE_INK_FIXTURE
+ℹ tests 8
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 3
+ℹ todo 0
+ℹ duration_ms 387.066263
+[logo release gate] tests/accepted-rear-ink-palette.test.cjs
+✔ accepted multicolor rear uses actual source pixels not raw sample buckets or method allowlist (308.388738ms)
+✔ same ground and shared front/rear inks count once, new ground adds one (163.532161ms)
+✔ pending and uncertain rear palette cannot be hidden by legacy clean sample buckets (184.388319ms)
+✔ white-only analyzed rear adds no plate and no material shade (0.294022ms)
+﹣ real three-ink white-carrier artwork through UI keeps three, explicit rear black adds fourth (0.141192ms) # SKIP
+✔ pale alpha artwork cannot disappear as free white in primary rear analysis (189.927404ms)
+✔ three-ink policy preserves true fourth ink internally but blocks all automatic commercial output (150.250597ms)
+✔ two-color design with opposite-side third text limits remaining text choices to existing inks (121.081087ms)
+✔ four-color guard clears calculation and prevents quote rendering before asset work (122.765681ms)
+✔ white-carrier chromatic logo through actual prepareLogo and new front text stays usable on rear (808.262281ms)
+✔ known white carrier with real stable pale patch stays unresolved even alongside chromatic ink (98.546696ms)
+✔ canonical artwork-only palette preserves distinct near-burgundy ground on front-only design (1934.616175ms)
+✔ accepted seven-solid-ink and ambiguous-gradient sources cannot obtain a plate-excluded automatic quote (562.782489ms)
+✔ initial empty canvas is not a contact wall, whereas accepted ambiguous artwork is (94.018111ms)
+✔ ready white-carrier rear permits only edge remnants, not native pale artwork or stable pale patches (1979.879366ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 6731.197753
+[logo release gate] tests/flat-jpeg-ink-palette.test.cjs
+✔ generic two-ink compressed artwork excludes JPEG transition clusters without forcing a brand count (557.900947ms)
+✔ genuine third patch survives, but certain raw four cannot be financially reduced by cleanup (489.330705ms)
+✔ true pale gray and blue/navy patches keep independent inks (141.13489ms)
+﹣ private accepted clean JPEG has two usable ink families and source bytes untouched (0.125038ms) # SKIP
+ℹ tests 4
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 1193.960044
+[logo release gate] tests/private-raw-ink-palette.test.cjs
+﹣ private raw photo through current extraction, prepareLogo, and front/rear quote palette (0.590448ms) # NOT_RUN: private raw photograph not supplied via HIJYENLAB_PRIVATE_RAW_INK_FIXTURE
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 6.384371
+[logo release gate] tests/photo-matte-edge-color.test.cjs
+✔ coherent 1px genuine colored outline retains original ink RGB (96.38201ms)
+✔ coherent 2px genuine colored outline retains original ink RGB (80.943474ms)
+✔ coherent 3px genuine colored outline retains original ink RGB (108.453519ms)
+✔ coherent 4px genuine colored outline retains original ink RGB (64.533386ms)
+✔ independent dark gray thin line retains its own source RGB (57.234264ms)
+✔ small genuine fourth color patch remains present in matte (56.036008ms)
+✔ nearby blue and navy solid marks retain original distinct RGB (120.68677ms)
+✔ unqualified callers retain legacy chromatic pixels; edge recovery requires carrier provenance (113.085104ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 703.654478
+[logo release gate] tests/carrier-printed-planes.test.cjs
+✔ photo-only residual planes preserve X, italic stems, dots, independent neighbor and source pixels (95.331581ms)
+✔ parallel ambiguous/decorative row is unchanged (25.664895ms)
+✔ sparse ambiguous/decorative row is unchanged (22.262398ms)
+✔ curved ambiguous/decorative row is unchanged (36.323038ms)
+✔ clean/noncarrier and a single detected mark never get printed-plane correction (6.787818ms)
+✔ genuine detached gray square top is not a crease (154.918298ms)
+✔ genuine detached gray square bottom is not a crease (113.457238ms)
+✔ genuine detached gray line top is not a crease (121.822723ms)
+✔ genuine detached gray line bottom is not a crease (97.070125ms)
+✔ genuine detached gray tiny-text top is not a crease (101.893619ms)
+✔ genuine detached gray tiny-text bottom is not a crease (98.939386ms)
+﹣ private exact packet uses its own pixels, removes source-connected carrier residue, rectifies supported row (0.117176ms) # Private source not supplied; no customer asset bundled
+✔ sharp real gray square survives a shaded path connected to exterior substrate (137.811327ms)
+✔ sharp real gray line survives a shaded path connected to exterior substrate (197.614028ms)
+✔ sharp real gray tiny-text survives a shaded path connected to exterior substrate (144.545947ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 1363.361082
+[logo release gate] tests/print-policy.test.cjs
+✔ known zero to three allowed, four and higher require contact without clamp (1.716621ms)
+✔ unknown and invalid are distinct from zero (0.154181ms)
+✔ three inks allow only existing colours or substrate white (0.337518ms)
+✔ one or two inks permit another distinct colour; white never a new ink (0.113781ms)
+✔ invalid palette or colour rejected and exact near colours remain distinct (0.211879ms)
+✔ accepted unknown or over-limit uncertain estimate routes contact without pretending exact count (0.373863ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8.40581
+[logo release gate] tests/bm21.test.cjs
+PASS BM21: user-approved versioned soft-satin bitmap and preserved rollback, 12:7 flat crop, safe front/rear bounds, no invented rear seam, confirmed pricing/carton rules, unprinted full cartons. Canvas evidence is not browser QA.
+[logo release gate] tests/bm21-material.test.cjs
+PASS BM21 soft-satin shared white/colored front/rear tint, alpha, and unchanged other products
+[logo release gate] tests/rear-display-shape.test.cjs
+PASS product-owned rear silhouettes and both-axis contain fit for all six products at desktop/mobile sizes
+[logo release gate] tests/rear-preview.test.cjs
+PASS front approval routing, animated rear, front-state preservation, stale callback/reset, asset failure, quote continuation and reduced motion
+[logo release gate] tests/shared-rulo.test.cjs
+PASS shared rulo: BM12/BM11/BM13 identical asset paths, profile identity, frame, safe areas and pixel-exact actual front/artwork/rear white+colored rendering; distinct cloth sizes and confirmed tariffs.
+[logo release gate] tests/contact-icon-style.test.mjs
+PASS contact icon CSS: 48px iOS squares, solid green/blue and white art, invariant 32px gap, focus/touch/safe-area/static guards, 320/390/430px geometry budgets. Browser rendering checked separately.
+[logo release gate] tests/contact-help.test.cjs
+PASS contact help: exact normalized number, encoded generic-only message, immutable configuration, no automatic send/data read, new-tab protection, touch/safe-area/keyboard CSS guards. Browser layout remains separate QA.
+PASS contact help DOM: mount once, correct accessible links, no outbound activation, keyboard-focus unfix/reset.
+PASS editable draft: context allowlist, valid quantity, encoding, local preview, edit/cancel/reopen, snapshot refresh, empty-message guard, focus restoration and generic fallback. No outbound link activated.
+PASS different-product draft: explicit bounded string only, no stale selected SKU/quantity/fragrance, empty generic request, editable local preview and cancel; no outbound activation.
+PASS summary draft: fresh validated quote only, product/quantity/fragrance allowlist, stale snapshot prevented on proceed, no upload/PII, other help remains available.
+PASS unprinted help: explicit mode, carton quantity context, no PII, and mode-switch freshness guard; no outbound activation.
+PASS institutional contact: exact quiet copy, no category/price claim/context autofill, editable/cancel/reopen/repeated draft and modal guards; no outbound activation.
+PASS compact contact icons: local decorative SVG, accessible labels/title, fixed iOS rounded-square 48px controls, visible keyboard focus and no stretched mobile boxes.
+PASS colour-limit help includes actual bounded count, excludes PII, waits for customer action and invalidates stale policy context
+[logo release gate] tests/lead-gate.test.cjs
+[
+  { name: 'Valid formatted Turkish contact', status: 'PASS' },
+  { name: 'Whitespace company rejected', status: 'PASS' },
+  { name: 'Whitespace contact rejected', status: 'PASS' },
+  { name: 'Numeric-only contact rejected', status: 'PASS' },
+  { name: 'Short phone rejected', status: 'PASS' },
+  { name: 'Letters in phone rejected', status: 'PASS' },
+  { name: 'Repeated fake phone rejected', status: 'PASS' },
+  { name: 'Missing province rejected', status: 'PASS' },
+  { name: 'Muğla missing district rejected', status: 'PASS' },
+  { name: 'Non-Muğla blank district accepted', status: 'PASS' },
+  { name: 'Unknown province rejected', status: 'PASS' },
+  { name: 'Quote navigation gate present', status: 'PASS' },
+  {
+    name: 'Quote rendering revalidates after async work',
+    status: 'PASS'
+  },
+  { name: 'Download revalidates', status: 'PASS' },
+  { name: 'Quote cleared on contact edit', status: 'PASS' },
+  {
+    name: 'Price breakdown hidden without required data',
+    status: 'PASS'
+  }
+]
+PASS validation notice: hidden on install/untouched/valid, touched/submitted errors visible, role alert retained, repeated checks cause zero mutations, empty/hidden CSS removes layout.
+PASS lead gate input avoids duplicate invalidation; blur preserves invalidation; hidden writes are transition-only.
+[logo release gate] tests/lead-input-observers.test.cjs
+

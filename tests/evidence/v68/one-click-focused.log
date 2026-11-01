@@ -1,0 +1,24 @@
+✔ pending visual approval survives the actual index guard chain, default completion still blocked (6.558914ms)
+✔ preview argument never bypasses substantive unsafe or incomplete artwork (27.174093ms)
+✔ pending, failed, orphaned and wrong-ground extra logos still block preview approval (9.697803ms)
+✔ opaque whole-raster source needs ordinary visual review, not semantic autoapproval (0.739482ms)
+✔ review travels with source record and restore never recovers approval (0.742707ms)
+✔ one visible visual approval advances directly through the source-bound handler (2.090133ms)
+✔ reference has unknown inks, not zero, and an approved source gets only partial status (9.074515ms)
+✔ unknown source cannot bypass known fourth rear or supplemental ink or injected manual fourth (3.249407ms)
+✔ replacement, canceled operation, stale fingerprint, unapproved revision and failed source remain blocked (11.602127ms)
+✔ real gray remains a third native ink and a fourth native ink is not excused as photography (307.967608ms)
+✔ photo RGB uncertainty can progress only as partial and manual three cannot certify it (145.195529ms)
+✔ reference acceptance preserves source, quantity and real provenance, enters ordinary flow without fabricated artwork (4.113976ms)
+✔ replacement and cancel while image decode pending cannot accept stale reference (1.412514ms)
+✔ repeated acceptance is single-flight, reset revokes source authority (0.862006ms)
+✔ tampered source, pending assets and wrong processing record cannot pass (0.743679ms)
+✔ reference labels and ground provenance remain in ordinary summary and JPG (0.902997ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 929.877092

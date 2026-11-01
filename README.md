@@ -335,3 +335,10 @@ BM11 customer tariff is 3.50 TL white / 3.90 TL colored; BM13 is 3.80 / 4.30 TL.
 Current common app rules supersede older ancillary tariffs: VAT 20% excluded, cliché 1,000 TL per distinct nonwhite ink (maximum three), freight 200 TL/carton except Bodrum. Unprinted uses the same white unit tariff, white ground, fixed Flambau, no cliché, minimum one carton and exact carton multiples. Printed towel fragrance choices and towel statistics stay unchanged. Only approved advisor mappings now enable the previously pending sizes. Draft, request display/whitelist, session and disabled-by-default server validation recognize both products; no backend activation or customer-record writes occur.
 
 `tests/shared-rulo.test.cjs` asserts profile identity, asset/frame/safe-area equality and pixel-exact actual front, artwork and rear white/colored rendering for all three. It is part of the build regression gate. These are code/native-canvas tests, not browser or physical-print certification.
+
+
+## 1 November tariff reconciliation — BM11 only
+
+The V59 BM11 colored tariff of 3.90 TL above was based on September evidence and is superseded: the current BM11 tariff is **3.50 TL white / 4.00 TL colored**, revision `BM11-2026-11-01-r2`. The owner's [23 October +0.50 TL colored-ground instruction](https://chatgpt.com/c/6adb3b68-3a60-83ed-83de-d82cd7e595bd?messageId=bd585395-51e7-4910-b3b6-af8d0500261e) and [explicit current-price approval](https://chatgpt.com/c/6adb3b68-3a60-83ed-83de-d82cd7e595bd?messageId=63e4723b-c55c-49e4-b749-12f5782e7d2e) supersede the older table; the dated 23 October tariff image `libfile_62ec28aed55c819185ed9a933ddb6bc8` corroborates 3.50/4.00. A newer retrieval or implementation date does not make an older tariff authoritative.
+
+Only BM11's colored numeral changes. The later 29 October BM12-specific 3.30 TL override remains; BM13 4.30, BM15 3.00, BM545 2.90 and BM21 1.40 TL colored tariffs remain unchanged. Minimums, cartons, assets, geometry, fragrance, KDV, cliché and freight rules are unchanged. No protected HijyenLab records are edited; this correction is confined to the separate design application.

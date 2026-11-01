@@ -1,0 +1,31 @@
+✔ accepted current idea-preview routes render in-app without certifying ink count or export (17.298662ms)
+✔ known four-plus ink evidence never gets visual unknown exception (4.529572ms)
+✔ no current image, partial source, pending input or failed design can bypass the gate (21.899402ms)
+✔ lifecycle pending, failed, cancelled and stale replacement cannot reuse visible old artwork (7.981302ms)
+✔ approximate extraction needs current user acceptance; native does not manufacture approval (2.686219ms)
+✔ pending text still blocks visual snapshot (1.153464ms)
+✔ only front to rear navigation uses visual gate; pricing and quote still financial (0.315194ms)
+✔ rear material renders visual-only while financial policy remains unresolved (1.421869ms)
+✔ actual calculation, quote rendering and download handlers still reject visually allowed unknown inks (3.133011ms)
+✔ uncertain five shadow clusters may be shown as an idea, never certified or priced (1.354487ms)
+✔ opaque whole-raster source needs ordinary visual review, not semantic autoapproval (1.154356ms)
+✔ review travels with source record and restore never recovers approval (1.936351ms)
+✔ one visible visual approval advances directly through the source-bound handler (3.672924ms)
+✔ reference has unknown inks, not zero, and an approved source gets only partial status (12.829552ms)
+✔ unknown source cannot bypass known fourth rear or supplemental ink or injected manual fourth (2.487921ms)
+✔ replacement, canceled operation, stale fingerprint, unapproved revision and failed source remain blocked (14.746445ms)
+✔ real gray remains a third native ink and a fourth native ink is not excused as photography (197.016799ms)
+✔ photo RGB uncertainty can progress only as partial and manual three cannot certify it (129.633496ms)
+✔ optional customer-declared two inks gives a labeled scenario, never a measured count (3.491941ms)
+✔ source product rear and ground changes revoke declaration, quantity alone does not (4.362621ms)
+✔ customer declaration cannot bypass known four original or additional inks (1.112603ms)
+PASS front approval routing, animated rear, front-state preservation, stale callback/reset, asset failure, quote continuation and reduced motion
+✔ tests/rear-preview.test.cjs (85.585189ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 841.607476

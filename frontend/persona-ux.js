@@ -73,7 +73,7 @@
       const value = typeof state === 'undefined' ? {} : state;
       const mode = root.HijyenLabPrintMode?.get() || 'printed';
       const product = root.ProductCatalog.get(root.selectedProductId || root.ProductCatalog.defaultId);
-      const ground = value.photoLayout && value.photoQuoteBg === 'unknown' ? 'unknown' : typeof effectiveBackground === 'function' && effectiveBackground() !== '#ffffff' ? 'colored' : 'white';
+      const ground = (value.photoLayout || value.quoteSource === 'source-reference') && value.photoQuoteBg === 'unknown' ? 'unknown' : typeof effectiveBackground === 'function' && effectiveBackground() !== '#ffffff' ? 'colored' : 'white';
       put(minimum, minimumCopy(product, mode, ground));
       productFacts(product, mode).forEach((line, index) => put(factLines[index], line));
       const visible = !get('design')?.hidden;

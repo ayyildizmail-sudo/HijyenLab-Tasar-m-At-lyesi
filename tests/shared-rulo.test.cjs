@@ -7,7 +7,7 @@ function fn(s,n){const start=s.indexOf('function '+n+'(');assert(start>=0);let i
  const front=await loadImage('frontend/'+C.get('BM12').frontAsset),back=await loadImage('frontend/'+C.get('BM12').backAsset);
  const art=createCanvas(180,70);art.getContext('2d').fillRect(10,10,160,50);
  const outputs={};
- for(const [id,white,colored,towel] of [['BM12',290,330,[25,30]],['BM11',350,390,[30,30]],['BM13',380,430,[30,35]]]){
+ for(const [id,white,colored,towel] of [['BM12',290,330,[25,30]],['BM11',350,400,[30,30]],['BM13',380,430,[30,35]]]){
   const p=C.get(id),r=p.priceRules;
   assert.equal(p.frontAsset,C.get('BM12').frontAsset);assert.equal(p.backAsset,C.get('BM12').backAsset);
   assert.equal(G.get(id),G.get('BM12'));assert.equal(G.isStandardRulo(id),true);assert.deepEqual(G.frame(id),G.frame('BM12'));assert.deepEqual(G.area(id),G.area('BM12'));

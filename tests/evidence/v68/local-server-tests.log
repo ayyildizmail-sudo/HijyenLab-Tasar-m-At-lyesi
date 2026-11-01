@@ -1,0 +1,39 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> hijyenlab-tasarim-atolyesi@0.1.0 test:server
+> node --test tests/fragrance-server.test.mjs tests/lead-server.test.mjs
+
+✔ immutable seed is towels-only 63/19/11/7 without exposing counts or IDs (13.080764ms)
+✔ new, retry, refresh and changed choice count one UUID once (7.946807ms)
+✔ parallel independent IDs and duplicate retries retain all votes (81.411607ms)
+✔ new handler/redeployment does not recreate seed or reset votes (3.71885ms)
+✔ invalid family, fields, enum, UUID and injection do not write (2.677855ms)
+✔ same-origin, content-type and bounded raw bodies are enforced (3.447262ms)
+✔ database failures never claim seed is live shared data or expose internals (0.799913ms)
+✔ failed atomic batch rolls back and percentages sum100 (5.932989ms)
+✔ late and duplicated older revisions cannot overwrite the newer preference (3.491088ms)
+✔ migration DML guard rejects real writes but allows foreign-key actions (0.564759ms)
+✔ capabilities fail closed without explicit owner, flags and retention (1.128416ms)
+✔ all private reads and writes deny anonymous/non-owner before database access (5.060658ms)
+✔ explicit complete/partial consent, nullable unknowns, product quantity rules and exact schemas (2.316858ms)
+✔ lead retries are idempotent, changed payload conflicts, owner lists only metadata (17.207918ms)
+✔ disabled intake, origin, oversized/malformed and extra field rejection never write (3.048954ms)
+✔ status CAS revision and audit are atomic; rejected edits do not create audit rows (3.491228ms)
+✔ analytics exact consent-only schema, stage dedup and unique session counts (3.941595ms)
+✔ expired private data is excluded and purge removes leads, audit and analytics without touching fragrance (3.886292ms)
+✔ rate limits are bounded and failures never expose request or database data (8.267468ms)
+✔ admin shells never embed records and safely escape caller identity (0.429186ms)
+✔ flags never confer admin access and public methods cannot list leads (1.973577ms)
+✔ invalid admin pagination, status origins and atomic database failures remain safe (7.532453ms)
+✔ explicit unprinted mode accepts only blank carton-multiple requests with normal consent/contact/fragrance (4.571211ms)
+✔ print mode migration preserves existing printed lead, audit and fragrance inside transaction (1.898103ms)
+✔ BM21 validation uses wet-wipe carton, printed minimum and fixed unprinted green tea (0.177266ms)
+✔ BM11 and BM13 accept confirmed printed minimum and unprinted full cartons only (0.228563ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 218.066257

@@ -1,0 +1,712 @@
+PASS integrated observers: four real mounts converge on boot, input/clear/retype, repeated invalidation, back and mode transitions; pricing performs zero artwork checks.
+[logo release gate] tests/journey-motion.test.cjs
+✔ eight semantic responses are finite; repeated action replaces instead of queues (2.69986ms)
+✔ lead typing clears without animation; independent completion only (0.422655ms)
+✔ invalid quote never animates; same ready token once; invalidation cancels (0.229495ms)
+✔ reduced motion including live preference change, hidden targets and restoration (0.191568ms)
+✔ all explicit hook paths exist; no observer, frame loop, pixel readback or network in motion (1.296059ms)
+✔ actual surface sweep copies once and rapid replacement/cancel/reduced motion remove overlays (0.532401ms)
+✔ ready-only real quote composition uses current sources and rows without duplicate IDs or totals (1.521498ms)
+✔ color controls get a current aspect-fit preview and visible local sweep, without artwork recomputation (1.132463ms)
+✔ CSS integration overrides legacy hidden front only in composition and keeps one optional JPEG (0.559952ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15.599158
+[logo release gate] tests/journey-motion-independent.test.cjs
+PASS independent journey controller: finite/cancelled motion, reduced-motion, draft suspension, reserved checks, quote token idempotency, no-typing and hidden-document safety.
+[logo release gate] tests/journey-motion-observers-independent.test.cjs
+PASS integrated observers: five real mounts including journey motion converge on boot, input/clear/retype, repeated invalidation, back and mode transitions; pricing performs zero artwork checks.
+[logo release gate] tests/institution-contact.test.cjs
+PASS institutional contact isolation: neutral fixed request without category/design/customer/price dependency; general, declaration 4+/unknown and uncertain-print help retained.
+[logo release gate] tests/paired-cta-order.test.cjs
+PASS paired CTA integrated observer convergence: cold/open/close, declared restore, six products, uploaded artwork, reset, unprinted, text and repeated sync; native summary + guarded expanded state.
+[logo release gate] tests/draft-v4.test.cjs
+✔ v4 all six products preserve incomplete lead and quantity, printed/unprinted (25.328849ms)
+✔ v4 declared flow supports partial or blocked declaration without saving artwork/price/token (1.770673ms)
+✔ v4 rejects unknown fields, bad ranges, invalid declaration and unsafe source representations (0.557869ms)
+✔ v4 cloning and verified byte readback cover resume and extras (1.612064ms)
+✔ v4 expiry deletes valid only; corrupt old draft and future timestamp stay untouched (0.988827ms)
+✔ v4 pending writes use order; revoke clear cannot resurrect, failures are not commits (1.813878ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 37.063676
+[logo release gate] tests/draft-resume-independent.test.cjs
+✔ IDB adapter does not acknowledge an interrupted commit and keeps prior durable state (6.699114ms)
+✔ two rapid writes cannot commit out of order while first IDB transaction is suspended (1.389379ms)
+✔ clear during suspended byte verification rejects old write and removes it (1.113345ms)
+✔ unavailable/throwing/private storage and quota are failures, never silent success (0.823779ms)
+✔ seven day boundary, malformed and future envelopes fail closed (4.277362ms)
+✔ v4 all six products and all three workflows roundtrip synthetic contact without prices/tokens (12.888101ms)
+✔ v4 contact snapshot mutation does not mutate queued durable write (0.521894ms)
+✔ restored user choices are repriced by actual pricing functions using changed current catalog rules (5.87201ms)
+✔ throwing global indexedDB accessor is mapped to unavailable rather than crashing UI setup (1.668659ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 40.633944
+[logo release gate] tests/draft-resume-ui-independent.test.cjs
+✔ input, pagehide, visibility and interval never persist before explicit expanded consent (6.658063ms)
+✔ consent enables input persistence including incomplete fields, departure flush and opt-out stops writes (3.194704ms)
+✔ declared and unprinted resume with contact/current catalog; saved summary is not old quote replay (27.442217ms)
+✔ legacy consent never authorizes expanded contact persistence (2.135622ms)
+✔ trusted input during pending initial read is not overwritten by automatic restore (2.125626ms)
+✔ newer input during pending save is queued and never falsely labeled saved (2.152557ms)
+✔ uploaded artwork replays sources and returns to design with approval invalid, retaining lead inputs (2.904948ms)
+✔ missing product asset blocks resumption beyond design without losing contact (2.007659ms)
+✔ clear while save promise is pending cannot report success or restart saves after opt-out (1.975761ms)
+✔ storage-event revocation stops event-driven auto-save in another tab (1.151992ms)
+✔ obsolete province/district stay visible as untrusted input and cannot resume summary (3.958563ms)
+✔ invalid saved raw quantity falls back to pricing rather than regenerated summary (2.417055ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 65.08324
+[logo release gate] tests/declared-quote.test.cjs
+✔ BM12 white 1: same catalog arithmetic and independent token (20.669853ms)
+✔ BM12 white 2: same catalog arithmetic and independent token (0.890449ms)
+✔ BM12 white 3: same catalog arithmetic and independent token (0.639552ms)
+✔ BM12 colored 1: same catalog arithmetic and independent token (0.531489ms)
+✔ BM12 colored 2: same catalog arithmetic and independent token (0.605231ms)
+✔ BM12 colored 3: same catalog arithmetic and independent token (0.422956ms)
+✔ BM11 white 1: same catalog arithmetic and independent token (1.411803ms)
+✔ BM11 white 2: same catalog arithmetic and independent token (0.431168ms)
+✔ BM11 white 3: same catalog arithmetic and independent token (0.421553ms)
+✔ BM11 colored 1: same catalog arithmetic and independent token (0.460672ms)
+✔ BM11 colored 2: same catalog arithmetic and independent token (0.358098ms)
+✔ BM11 colored 3: same catalog arithmetic and independent token (0.275765ms)
+✔ BM13 white 1: same catalog arithmetic and independent token (0.326561ms)
+✔ BM13 white 2: same catalog arithmetic and independent token (0.246972ms)
+✔ BM13 white 3: same catalog arithmetic and independent token (0.242344ms)
+✔ BM13 colored 1: same catalog arithmetic and independent token (0.310057ms)
+✔ BM13 colored 2: same catalog arithmetic and independent token (0.328554ms)
+✔ BM13 colored 3: same catalog arithmetic and independent token (0.306521ms)
+✔ BM15 white 1: same catalog arithmetic and independent token (0.344078ms)
+✔ BM15 white 2: same catalog arithmetic and independent token (0.395835ms)
+✔ BM15 white 3: same catalog arithmetic and independent token (0.309045ms)
+✔ BM15 colored 1: same catalog arithmetic and independent token (0.394664ms)
+✔ BM15 colored 2: same catalog arithmetic and independent token (0.303246ms)
+✔ BM15 colored 3: same catalog arithmetic and independent token (0.287613ms)
+✔ BM21 white 1: same catalog arithmetic and independent token (0.422486ms)
+✔ BM21 white 2: same catalog arithmetic and independent token (0.384949ms)
+✔ BM21 white 3: same catalog arithmetic and independent token (0.614825ms)
+✔ BM21 colored 1: same catalog arithmetic and independent token (0.263416ms)
+✔ BM21 colored 2: same catalog arithmetic and independent token (0.244779ms)
+✔ BM21 colored 3: same catalog arithmetic and independent token (0.326711ms)
+✔ BM545 white 1: same catalog arithmetic and independent token (0.291819ms)
+✔ BM545 white 2: same catalog arithmetic and independent token (0.31924ms)
+✔ BM545 white 3: same catalog arithmetic and independent token (0.316356ms)
+✔ BM545 colored 1: same catalog arithmetic and independent token (0.242355ms)
+✔ BM545 colored 2: same catalog arithmetic and independent token (0.228944ms)
+✔ BM545 colored 3: same catalog arithmetic and independent token (0.275123ms)
+✔ strict statement: unknown never becomes zero, four never becomes three (0.195524ms)
+✔ snapshot rejects forgery, cross-product rules, missing contact/fragrance and stale prices (0.574924ms)
+✔ normal uploaded path still needs artwork approval and three-ink limit (0.283086ms)
+✔ new uploads exit before all await points; declarations persist locally only with consent; existing contact gates retained (0.242856ms)
+✔ rapid product switches preserve declaration and valid quantity, reconcile fragrance and reject older assets (2.867607ms)
+✔ declared token uses canonical shipping validation including required Muğla district (0.487823ms)
+✔ declaration observer settles: disabled mutation cannot loop through customer-focus childList writes (0.794915ms)
+ℹ tests 43
+ℹ suites 0
+ℹ pass 43
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 49.358929
+[logo release gate] tests/declared-quote-lifecycle.test.cjs
+✔ declared render publishes customer declaration label and no artwork approval (39.083052ms)
+✔ declared pending render rejects changed qty (2.43357ms)
+✔ declared pending render rejects changed inks (1.102548ms)
+✔ declared pending render rejects changed customerName (1.076399ms)
+✔ declared pending render rejects changed cliche (1.160965ms)
+✔ declared pending render rejects changed province (1.053864ms)
+✔ declared pending render rejects changed district (1.041977ms)
+✔ new upload invalidates declared pending render (1.189309ms)
+✔ older failed request cannot clear repeated newer declared render (16.234413ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 70.558835
+[logo release gate] tests/reference-recovery.test.cjs
+✔ only failed source with no prepared artwork is eligible (0.859022ms)
+✔ product + shipping matches existing tariff while plate stays unknown and no exact/deposit total exists (1.526946ms)
+✔ Bodrum free delivery and colored minimum use existing rules (11.874667ms)
+✔ all catalogue products retain their tariffs and carton rounding (0.378559ms)
+✔ company contact phone delivery fragrance and explicit ground are mandatory (0.301143ms)
+✔ known four inks and uncertain-contact policy cannot be bypassed (0.248714ms)
+✔ regression wiring preserves normal guard and clears recovery before new async ingress (0.657248ms)
+✔ reference UI uses ordinary choices, not a second duplicate form or blank mockup (0.294543ms)
+✔ new ingress clears old design error before asynchronous decode (0.236075ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23.013418
+[logo release gate] tests/print-policy-ui.test.cjs
+✔ three inks expose exact existing palette and white; disable new custom/Pantone and rear entries (4.057101ms)
+✔ new front text defaults to existing darkest legible ink without changing artwork or plate count (1.525534ms)
+✔ explicit fourth ink is preserved and only a chosen repair changes it (2.308502ms)
+✔ explicit valid color survives new text and repeated refresh; white remains usable (1.125593ms)
+✔ palette reduction restores custom controls and avoids duplicate swatches/options (2.755444ms)
+✔ four-color original is not recolored and contact copy appears (0.982557ms)
+✔ default never invents an ink when existing colors lack legible contrast (0.932993ms)
+✔ touch targets and accessible named choices are included (0.913614ms)
+✔ late Pantone wrapper and original swatches hide at cap and restore without losing handlers (1.778494ms)
+✔ customer labels are simple while exact color values remain available (0.992793ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23.682132
+[logo release gate] tests/pending-text-readiness.test.cjs
+✔ nonempty unplaced text cannot approve or export a silently incomplete design (6.269048ms)
+✔ clearing pending text or successfully placing it restores readiness without discarding text (2.105526ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14.285142
+[logo release gate] tests/screenshot-artwork.test.cjs
+[
+  {
+    name: 'Generic screenshot status/control layout 400x850, brand shift 0',
+    status: 'PASS'
+  },
+  {
+    name: 'Generic screenshot status/control layout 360x780, brand shift 0.035',
+    status: 'PASS'
+  },
+  {
+    name: 'Generic screenshot status/control layout 460x1000, brand shift -0.025',
+    status: 'PASS'
+  },
+  {
+    name: 'Generic screenshot status/control layout 390x844, brand shift 0.07',
+    status: 'PASS'
+  },
+  {
+    name: 'Generic screenshot status/control layout 480x1040, brand shift -0.055',
+    status: 'PASS'
+  },
+  {
+    name: 'Sparse genuine top and bottom brand content without phone chrome not auto removed',
+    status: 'PASS'
+  },
+  {
+    name: 'No camera/status pill gives no automatic screen interpretation',
+    status: 'PASS'
+  },
+  {
+    name: 'No bottom navigation evidence gives no automatic crop',
+    status: 'PASS'
+  },
+  {
+    name: 'Two legitimate central brands require selection, never silently discard one',
+    status: 'PASS'
+  },
+  {
+    name: 'Extra caption below viewer controls requires selection',
+    status: 'PASS'
+  },
+  {
+    name: 'Central dense photograph-like panel not treated as clean isolated logo',
+    status: 'PASS'
+  },
+  {
+    name: 'Landscape artwork and invalid bytes unchanged',
+    status: 'PASS'
+  },
+  {
+    name: 'Actual original screenshot isolates full visible circle/truck/name/tagline',
+    status: 'PASS'
+  },
+  {
+    name: 'Actual screenshot with added co-brand remains uncertain rather than deleting it',
+    status: 'PASS'
+  },
+  {
+    name: 'Runtime contains no customer name, lookup or remote service',
+    status: 'PASS'
+  }
+]
+[logo release gate] tests/screenshot-product.test.cjs
+[
+  {
+    "name": "two groups + small subtitle, shift -35",
+    "pass": true
+  },
+  {
+    "name": "two groups + small subtitle, shift 0",
+    "pass": true
+  },
+  {
+    "name": "two groups + small subtitle, shift 70",
+    "pass": true
+  },
+  {
+    "name": "flat bordered UI card not packet",
+    "pass": true
+  },
+  {
+    "name": "weak gray third group cannot silently disappear",
+    "pass": true
+  },
+  {
+    "name": "single faint neutral emblem not silently dropped",
+    "pass": true
+  },
+  {
+    "name": "two packets ambiguous",
+    "pass": true
+  },
+  {
+    "name": "plain flat logo unchanged",
+    "pass": true
+  },
+  {
+    "name": "packet without page UI unchanged",
+    "pass": true
+  },
+  {
+    "name": "foil/UI without brand not artwork",
+    "pass": true
+  },
+  {
+    "name": "four ink policy blocks",
+    "pass": true
+  },
+  {
+    "name": "uncertain ink blocks",
+    "pass": true
+  },
+  {
+    "name": "complete dashed screen guide removed without dark mark loss",
+    "pass": true
+  },
+  {
+    "name": "solid light brand frame untouched",
+    "pass": true
+  },
+  {
+    "name": "incomplete dotted typography untouched",
+    "pass": true
+  },
+  {
+    "name": "detector input pixels immutable",
+    "pass": true
+  },
+  {
+    "name": "single automatic approximate output, no alternative choice",
+    "pass": true
+  },
+  {
+    "name": "faint emblem source pixels retained in final PNG",
+    "pass": true
+  },
+  {
+    "name": "tiny subtitle source pixels retained in final PNG",
+    "pass": true
+  }
+]
+[logo release gate] tests/carrier-source-completeness.test.cjs
+[
+  {
+    "name": "All disconnected groups and thin neutral gray subtitle retain original pixels",
+    "status": "PASS"
+  },
+  {
+    "name": "All disconnected groups and thin pale gray subtitle retain original pixels",
+    "status": "PASS"
+  },
+  {
+    "name": "All disconnected groups and thin secondary blue subtitle retain original pixels",
+    "status": "PASS"
+  },
+  {
+    "name": "All disconnected groups and thin same-hue dark red subtitle retain original pixels",
+    "status": "PASS"
+  },
+  {
+    "name": "All disconnected groups and thin same-hue pale red subtitle retain original pixels",
+    "status": "PASS"
+  },
+  {
+    "name": "Fully enclosed near-boundary white glyph is not deleted by carrier inset",
+    "status": "PASS"
+  },
+  {
+    "name": "Broad same-hue filled mark retains its original interior, not just an outline",
+    "status": "PASS"
+  },
+  {
+    "name": "Outside ambient colored mark excluded by carrier provenance",
+    "status": "PASS"
+  },
+  {
+    "name": "Two separated colored carriers do not silently choose the larger one",
+    "status": "PASS"
+  },
+  {
+    "name": "Transparent artwork is not reinterpreted as an opaque physical carrier",
+    "status": "PASS"
+  },
+  {
+    "name": "Edge-to-edge flat colored artwork is not a bounded photo carrier",
+    "status": "PASS"
+  },
+  {
+    "name": "Illumination stripe cannot return last glyph of a compatible word",
+    "status": "PASS"
+  },
+  {
+    "name": "A different outside color does not fabricate matching missing glyph evidence",
+    "status": "PASS"
+  }
+]
+[logo release gate] tests/white-carrier-domain.test.cjs
+✔ Retention checks uneroded independent substrate, not output alpha or eroded extraction support (6.755349ms)
+✔ Unrelated chromatic crop padding outside independently declared substrate is not claimed artwork (3.450149ms)
+✔ Completeness ignores matching scene hue only with independent domain; omitted same-carrier ink still rejects (3.669959ms)
+✔ Only agreeing chromatic header plus neutral subtitle resolves half-turn without pixel invention (146.483773ms)
+✔ Icon-over-title and multiple chromatic rows do not force orientation (25.230681ms)
+✔ Equal-weight neutral co-brand row is not assumed to be a subtitle (20.867861ms)
+✔ Row matte retains detached dots, cedilla, trademark, neutral subtitle, outline and exact source RGB (42.895305ms)
+﹣ Private raw packet: four source orientations retain full source marking groups and normalize upright (0.114482ms) # SKIP
+✔ Browser late-loaded orientation module is resolved at call time (193.648123ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 450.2504
+[logo release gate] tests/native-flat-palette-evidence.test.cjs
+✔ native gray and black with tiny local pale ringing preserve two paid families through UI (87.616565ms)
+✔ native four true gray cores retain four and block even manual three (172.475636ms)
+✔ native continuous gray ramp is not implicitly recolored monochrome (40.750629ms)
+✔ native pale patch, horizontal line and detached dots remain unresolved (445.922889ms)
+✔ approximate photo provenance cannot borrow native gray-core exception (106.462867ms)
+✔ detached true fourth ink line cannot be discarded as a red-to-black shade (387.714618ms)
+﹣ private native gray JPEG actual analyzeLogo/prepareLogo plus UI keeps paid gray and black (0.115113ms) # SKIP
+✔ approximate accepted gray artwork cannot collapse four real cores to monochrome (99.53592ms)
+✔ confirmed white carrier cannot make a genuine stable pale line free (93.184278ms)
+✔ legacy three-gray technical-proof fixture is not silently billed as one ink (38.747358ms)
+✔ known fourth solid thin line near a palette core cannot become allowed three (82.79142ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 1567.308517
+[logo release gate] tests/flat-ground-app.test.cjs
+PASS actual logo handler/prepareLogo/feedback, preserved frame, stale flag, metadata cache, scale failure, missing evidence fallback, white exterior masks, preserved inverse/local ground and explicit-only colored package pricing
+[logo release gate] tests/flat-ground-routing.test.cjs
+PASS flat-ground routing: framed planes, native thin strokes, wide inverse, gradients, textures, scale disagreement
+[logo release gate] tests/viewer-chrome-family.test.cjs
+{
+  "privateFamilyRun": false,
+  "results": [
+    {
+      "name": "Synthetic joint viewer 460x1000",
+      "status": "PASS"
+    },
+    {
+      "name": "Synthetic joint viewer 370x800",
+      "status": "PASS"
+    },
+    {
+      "name": "Synthetic joint viewer 600x1300",
+      "status": "PASS"
+    },
+    {
+      "name": "Poster header/footer without status row is untouched",
+      "status": "PASS"
+    },
+    {
+      "name": "Status row alone does not authorize crop",
+      "status": "PASS"
+    },
+    {
+      "name": "Lone close/share-like brand marks are untouched",
+      "status": "PASS"
+    },
+    {
+      "name": "Missing corner control does not authorize crop",
+      "status": "PASS"
+    },
+    {
+      "name": "Multiple interior panels stop rather than drop a brand",
+      "status": "PASS"
+    },
+    {
+      "name": "Separate pale caption also stops rather than disappearing",
+      "status": "PASS"
+    },
+    {
+      "name": "Intentional colored frame within content retained",
+      "status": "PASS"
+    },
+    {
+      "name": "Frame spanning UI and content cannot be silently cropped",
+      "status": "PASS"
+    },
+    {
+      "name": "Genuine gray and near-white contours preserve their rows",
+      "status": "PASS"
+    },
+    {
+      "name": "Tiny full-resolution detached mark cannot vanish during scan",
+      "status": "PASS"
+    },
+    {
+      "name": "Detection does not mutate any source bytes",
+      "status": "PASS"
+    },
+    {
+      "name": "Photographic texture within viewer stops",
+      "status": "PASS"
+    },
+    {
+      "name": "Physical source not corner-viewer crop: tests/fixtures/sponsor-source/packet.jpeg",
+      "status": "PASS"
+    },
+    {
+      "name": "Physical source not corner-viewer crop: tests/fixtures/photo-frame-geometry/source.jpeg",
+      "status": "PASS"
+    }
+  ]
+}
+[logo release gate] tests/reset-source-lifecycle.test.cjs
+[
+  {
+    name: 'Real reset with multi-logo wrapper removes recovery source and cannot resurrect it',
+    status: 'PASS'
+  },
+  {
+    name: 'Retry before reset and fresh upload after reset both still work',
+    status: 'PASS'
+  },
+  {
+    name: 'Reset invalidates in-flight decode and its finally cannot restore source or design',
+    status: 'PASS'
+  },
+  {
+    name: 'Programmatic reset uses same boundary; ordinary cancel retains retry source',
+    status: 'PASS'
+  }
+]
+[logo release gate] tests/approximate-preview-policy.test.cjs
+✔ accepted current idea-preview routes render in-app without certifying ink count or export (12.884776ms)
+✔ known four-plus ink evidence never gets visual unknown exception (2.768834ms)
+✔ no current image, partial source, pending input or failed design can bypass the gate (13.263325ms)
+✔ lifecycle pending, failed, cancelled and stale replacement cannot reuse visible old artwork (5.450196ms)
+✔ approximate extraction needs current user acceptance; native does not manufacture approval (1.876752ms)
+✔ pending text still blocks visual snapshot (0.774124ms)
+✔ only front to rear navigation uses visual gate; pricing and quote still financial (0.344438ms)
+✔ rear material renders visual-only while financial policy remains unresolved (1.195277ms)
+✔ actual calculation, quote rendering and download handlers still reject visually allowed unknown inks (2.54623ms)
+✔ uncertain five shadow clusters may be shown as an idea, never certified or priced (1.074696ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 48.865964
+[logo release gate] tests/composite-screenshot.test.cjs
+[
+  {
+    name: 'Actual composite: full graphic, no photo, no duplicate, no UI',
+    status: 'PASS'
+  },
+  { name: 'Actual layout at scale 0.5', status: 'PASS' },
+  { name: 'Actual layout at scale 0.75', status: 'PASS' },
+  { name: 'Actual layout at scale 1.5', status: 'PASS' },
+  { name: 'Actual layout at scale 2', status: 'PASS' },
+  {
+    name: 'Actual layout with phone status and share header cropped off',
+    status: 'PASS'
+  },
+  {
+    name: 'Actual layout with blank top padding, independent of absolute Y',
+    status: 'PASS'
+  },
+  {
+    name: 'Clean source panel alone is not misidentified as screenshot',
+    status: 'PASS'
+  },
+  {
+    name: 'Photo and clean graphic reordered: choose clean graphic, not largest photo',
+    status: 'PASS'
+  },
+  {
+    name: 'Two isolated clean representations require selection, never union or choose by size',
+    status: 'PASS'
+  },
+  {
+    name: 'Unrelated surrounding photo changes do not alter selected graphic',
+    status: 'PASS'
+  },
+  {
+    name: 'Paragraph help card without logo is not proposed as artwork',
+    status: 'PASS'
+  },
+  {
+    name: 'Independent geometric brand with photo/control context, shift -40',
+    status: 'PASS'
+  },
+  {
+    name: 'Independent geometric brand with photo/control context, shift 0',
+    status: 'PASS'
+  },
+  {
+    name: 'Independent geometric brand with photo/control context, shift 90',
+    status: 'PASS'
+  },
+  {
+    name: 'Close but detached tagline is not silently discarded',
+    status: 'PASS'
+  },
+  {
+    name: 'Graphic with multiline interior lettering preserves whole group',
+    status: 'PASS'
+  },
+  {
+    name: 'Original pixels are not mutated by detection',
+    status: 'PASS'
+  },
+  {
+    name: 'Detector is bounded and contains no brand, filename, network or OCR lookup',
+    status: 'PASS'
+  }
+]
+[logo release gate] tests/screenshot-background.test.cjs
+[
+  {
+    name: 'Actual central brand confidently keeps white without another question',
+    status: 'PASS'
+  },
+  {
+    name: 'Actual technical brand crop keeps strongly verified white',
+    status: 'PASS'
+  },
+  {
+    name: 'Colored central panel is never forced to white',
+    status: 'PASS'
+  },
+  {
+    name: 'Colored panel remains colored under technical proposal thresholds',
+    status: 'PASS'
+  },
+  {
+    name: 'Weak connected-white evidence remains unresolved',
+    status: 'PASS'
+  }
+]
+[logo release gate] tests/screenshot-integration.test.cjs
+[
+  {
+    name: 'Proposed region maps to original image, not scaled scan pixels',
+    status: 'PASS'
+  },
+  { name: 'Ambiguous screen makes no cropped file', status: 'PASS' },
+  { name: 'Non screenshot preserves existing route', status: 'PASS' },
+  {
+    name: 'Screenshot checked before ordinary logo classification and on logo override',
+    status: 'PASS'
+  },
+  {
+    name: 'Proposed screenshot crop requires review and avoids fit geometry changes',
+    status: 'PASS'
+  },
+  {
+    name: 'Ambiguous screenshot resets old design and blocks quote',
+    status: 'PASS'
+  },
+  {
+    name: 'Screenshot uncertain inks stay unknown, not auto-charged as five grays',
+    status: 'PASS'
+  }
+]
+[logo release gate] All screenshot regressions passed.
+
+  vinext build  (Vite 8.0.13)
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+[1/5] analyze client references...
+[2Ktransforming...✓ 239 modules transformed.
+rendering chunks...
+✓ built in 369ms
+[2/5] analyze server references...
+[2Ktransforming...✓ 78 modules transformed.
+rendering chunks...
+✓ built in 98ms
+[3/5] build rsc environment...
+[2Ktransforming...✓ 236 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 444ms
+[4/5] build client environment...
+[2Ktransforming...✓ 124 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 477ms
+[5/5] build ssr environment...
+[2Ktransforming...✓ 84 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 326ms
+[0m
+  Route (app)
+  ┌ λ /                          
+  ├ λ /admin                     
+  ├ λ /api/admin/leads           
+  ├ λ /api/admin/leads/:id/status
+  ├ λ /api/admin/stats           
+  ├ λ /api/analytics             
+  ├ λ /api/fragrance-preferences 
+  ├ λ /api/lead-capabilities     
+  └ λ /api/leads                 
+
+  λ API
+
+  Build complete. Run `vinext start` to start the production server.
+
+

@@ -14,15 +14,13 @@ test('all catalogue products retain their tariffs and carton rounding',()=>{for(
 test('company contact phone delivery fragrance and explicit ground are mandatory',()=>{for(const key of ['customer','contact','phone','province'])assert.throws(()=>R.partialPrice(input({lead:{...input().lead,[key]:''}}),deps));assert.throws(()=>R.partialPrice(input({lead:{...input().lead,province:'Muğla',district:''}}),deps));assert.throws(()=>R.partialPrice(input({fragrance:''}),deps),/koku/);assert.throws(()=>R.partialPrice(input({ground:''}),deps),/zemin/);});
 test('known four inks and uncertain-contact policy cannot be bypassed',()=>{for(const estimate of [{count:4},{count:7},{count:null,status:'unknown',hasArtwork:true}]){const policy=PrintPolicy.evaluate(estimate);assert(policy.blocked);assert.throws(()=>R.partialPrice(input({policy}),deps),/WhatsApp/);}});
 test('regression wiring preserves normal guard and clears recovery before new async ingress',()=>{const lifecycle=fs.readFileSync(require.resolve('../frontend/processing-lifecycle.js'),'utf8');assert.match(lifecycle,/ReferenceRecovery\?\.clear\(\);[^\n]*if\(state.designBlocked\)\{state.sourcePhoto=null;state.sourceKind=null;\}/);assert.match(lifecycle,/function cancelCurrentProcessing[^\n]+ReferenceRecovery\?\.clear/);assert.match(app,/function designIssue\(allowPendingApproval=false\)[^\n]+state.designBlocked/);const draft=fs.readFileSync(require.resolve('../frontend/draft-ui.js'),'utf8');assert.match(draft,/state.designBlocked&&state.sourcePhoto/);});
-test('top product change clears rendered subtotal, resyncs recovery minimum and blocks pending assets',()=>{
- const code=fs.readFileSync(require.resolve('../frontend/reference-recovery.js'),'utf8'),syncCode=code.match(/function sync\(\)\{[\s\S]*?\n\}/)[0];
- let cleared=0,minUpdates=0;const els={recoveryProduct:{value:'BM12'},recoveryResult:{textContent:'Old subtotal'},previewCaption:{},recoveryStart:{},recoveryCalculate:{}};
- const c={eligible:()=>true,state:{sourcePhoto:'same-source',productAssetPending:true},isUnprinted:()=>false,source:'same-source',root:{selectedProductId:'BM545'},$:id=>els[id],minimum:()=>minUpdates++,clearResult:()=>{cleared++;els.recoveryResult.textContent='';},clear:()=>assert.fail('source must remain intact'),box:{hidden:false},document:{body:{classList:{add(){}}}},policy:()=>({blocked:false})};
- vm.createContext(c);vm.runInContext(syncCode+';sync();',c);assert.equal(els.recoveryProduct.value,'BM545');assert.equal(minUpdates,1);assert.equal(cleared,1);assert.equal(els.recoveryResult.textContent,'');assert.equal(els.recoveryCalculate.disabled,true);assert.equal(c.source,'same-source');c.state.productAssetPending=false;vm.runInContext('sync()',c);assert.equal(els.recoveryCalculate.disabled,false);assert.equal(minUpdates,1);
- assert.match(code,/await selectProduct\(e.target.value\);sync\(\)/);
+test('reference UI uses ordinary choices, not a second duplicate form or blank mockup',()=>{
+ const code=fs.readFileSync(require.resolve('../frontend/reference-recovery.js'),'utf8');
+ assert.match(code,/Bu görünümle devam et/);assert.match(code,/referenceRecoveryActive \.workspace\{display:none/);
+ for(const id of ['recoveryProduct','recoveryFragrance','recoveryGround','recoveryCustomer','recoveryCalculate'])assert(!code.includes(id));
+ assert.match(code,/refresh\(\);go\(2\)/);assert.match(code,/state.photoQuoteBg='unknown'/);
 });
-test('new ingress clears old design error before asynchronous decode and recovery start replaces generic failure status',()=>{
+test('new ingress clears old design error before asynchronous decode',()=>{
  const code=fs.readFileSync(require.resolve('../frontend/processing-lifecycle.js'),'utf8');const ingress=code.slice(code.indexOf('async function routeUploadedFile'),code.indexOf('const token=processingSession.begin'));
  assert.match(ingress,/\$\('designError'\)\.hidden=true;\$\('designError'\)\.textContent=''/);
- const ui=fs.readFileSync(require.resolve('../frontend/reference-recovery.js'),'utf8');assert.match(ui,/if\(!state.productAssetPending&&!state.productAssetFailure\)status\('Tasarım henüz hazırlanmadı/);
 });

@@ -9,3 +9,5 @@ Independent QA: actual runtime front artwork, rear and photo rendering for six p
 Aggregate: 317 PASS, 0 FAIL, 0 SKIP with local private regression fixtures. Physical iPhone/Safari and physical printing are not certified. Generic thin-ink/tiny-patch limitations and unsupported semantic storefront extraction remain as previously documented. The proposed no-upload color-count flow is design-only and not part of V59.
 
 Release verification: TypeScript no-emit, guarded framework build, git diff whitespace and source/dist parity PASS. Local Chrome shows all six product choices. BM13 synthetic two-color upload advances through shared front/rear and fragrance into a valid JPG quote: 5,200×3.80 +2,000 cliché +2,600 Ankara freight =24,360 TL excluding VAT. No order or customer request submitted. Pixel-exact shared-body identity is verified independently, not inferred from a single screenshot.
+
+**1 November correction:** this historical V59 review's BM11 3.90 TL colored tariff is superseded by 4.00 TL under the owner's 23 October +0.50 TL/current-price approval. See README “1 November tariff reconciliation — BM11 only”. Geometry and other tariffs are unchanged.

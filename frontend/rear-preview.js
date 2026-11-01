@@ -30,11 +30,11 @@ function hideRearPreview(){globalThis.HijyenLabJourneyMotion?.cancelAll();rearPr
 function showRearPreview(){
  globalThis.HijyenLabJourneyMotion?.cancelAll();
  if(typeof isUnprinted==='function'&&isUnprinted()){hideRearPreview();go(2);return;}
- if(designIssue()||state.designProcessing||!(state.logo||state.photoLayout)||!processingSession.isApproved(designFingerprint())){showDesignIssue();return false;}
+ if(designIssue()||state.designProcessing||!(state.logo||state.photoLayout||(typeof isReferencePreview==='function'&&isReferencePreview()))||!processingSession.isApproved(designFingerprint())){showDesignIssue();return false;}
  rearPreviewFingerprint=designFingerprint();const front=typeof visualPreviewImageData==='function'?visualPreviewImageData():imageData();
  ['design','pricing','summary','photoEditor','pdfPicker','whiteCarrierPanel'].forEach(id=>{if($(id))$(id).hidden=true;});step=4;rearPreview.hidden=false;globalThis.HijyenLabJourneyMotion?.front();$('simpleTools').hidden=true;$('simpleDetails').hidden=true;
  $('rearFlipCard').classList.remove('is-flipped');$('rearFrontImage').src=front;$('rearEditor').open=!rearEmptyForSkip();syncRearFields();renderRearPreview(true);
- $('rearTitle').focus({preventScroll:true});status('Ön yüz onaylandı. Arka yüzdeki alanlar isteğe bağlıdır.');window.scrollTo({top:0,behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});return true;
+ $('rearTitle').focus({preventScroll:true});status((typeof isReferencePreview==='function'&&isReferencePreview())?'Özgün referans korundu. Arka yüz, seçilen ürün için ayrı bir fikir önizlemesidir.':'Ön yüz onaylandı. Arka yüzdeki alanlar isteğe bağlıdır.');window.scrollTo({top:0,behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});return true;
 }
 function renderRearPreview(flip){
  const generation=++rearPreviewGeneration,revision=rearRevision,background=state.bg;if(rearSponsorPrepared&&typeof RearLogo!=='undefined'){rearSponsorWarning=[rearSponsorPrepared.method?.includes('photo')?rearSponsorPrepared.contrastWarning:'',RearLogo.contrastWarning(activeRearSponsor(),background)].filter(Boolean).join(' ');$('rearSponsorWarning').textContent=rearSponsorWarning;$('rearSponsorWarning').hidden=!rearSponsorWarning;}rearPreviewReady=false;syncRearSkip();$('rearToPrice').disabled=true;$('rearAssetError').hidden=true;$('rearEditorError').hidden=true;$('rearPriceNote').hidden=!rearHasContent();

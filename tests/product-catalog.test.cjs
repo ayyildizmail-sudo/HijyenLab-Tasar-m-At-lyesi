@@ -10,3 +10,11 @@ assert.throws(()=>catalog.items.push({}),TypeError);assert.throws(()=>{catalog.d
 for(const invalid of [undefined,null,'','BM99','bm12','__proto__',{},12]){assert.throws(()=>catalog.get(invalid),/doğrulanmış/);assert.throws(()=>catalog.rules(invalid),/doğrulanmış/);}
 const scope={};vm.createContext(scope);vm.runInContext(fs.readFileSync('frontend/product-catalog.js','utf8'),scope);assert.equal(scope.ProductCatalog.rules('BM545').coloredUnitKurus,290);assert(Object.isFrozen(scope.ProductCatalog.items));
 console.log('PASS product catalog: six verified products, prices/minimums/cartons/VAT, dimensions, frozen rules, unknown refusal and browser UMD');
+
+// 23 October owner override supersedes the older September BM11 colored tariff.
+assert.equal(catalog.rules('BM11').whiteUnitKurus,350);
+assert.equal(catalog.rules('BM11').coloredUnitKurus,400);
+assert.equal(catalog.rules('BM11').coloredSurchargeKurus,50);
+assert.equal(catalog.rules('BM11').revision,'BM11-2026-11-01-r2');
+assert.match(catalog.rules('BM11').source,/23 Ekim 2026/);
+assert.deepEqual(catalog.items.map(p=>[p.id,p.priceRules.whiteUnitKurus,p.priceRules.coloredUnitKurus]),[['BM12',290,330],['BM11',350,400],['BM13',380,430],['BM15',250,300],['BM21',140,140],['BM545',240,290]]);
