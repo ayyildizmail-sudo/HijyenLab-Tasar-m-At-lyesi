@@ -129,7 +129,7 @@ function currentPrintPolicy(){
  if(typeof isDeclaredQuote==='function'&&isDeclaredQuote())return {blocked:false}; // The independent declaration gate is not an artwork policy bypass.
  if(typeof PrintPolicy==='undefined'||(typeof isUnprinted==='function'&&isUnprinted()))return {blocked:false};
  const originalKnown=state.processingResult?.referenceKnownActualInkCount??state.processingResult?.flatPrintProposal?.originalKnownActualInkCount;
- if(Number.isInteger(originalKnown)&&originalKnown>PrintPolicy.MAX_PRINT_INKS)return PrintPolicy.evaluate({count:originalKnown,status:'estimated'});
+ if(Number.isInteger(originalKnown)&&originalKnown>PrintPolicy.MAX_PRINT_INKS&&!(state.processingResult?.flatPrintProposal?.method==='source-flat-flexo-proposal-v1'&&approvedFlatPhotoPalette(null,0,0,true)))return PrintPolicy.evaluate({count:originalKnown,status:'estimated'});
  const input=rearInkBaseInput();
  if(typeof rearContent!=='undefined'&&['instagram','website','phone','address','extra'].some(k=>rearContent[k].trim())&&rearContent.inkColor)input.rear.textColor=rearContent.inkColor;
  const estimate=CombinedInks.estimate(input);
@@ -225,11 +225,11 @@ function syncRearInkNote(){
 }
 function approvedFlatPhotoPalette(data,w,h,previewOnly=false){
  const proposal=state.processingResult?.flatPrintProposal;
- if(!proposal||proposal.method!=='audited-photo-glyph-flat-proposal-v1'||proposal.renderedPixelsVerified!==true||proposal.originalKnownActualInkCount>3||!proposal.alphaUnchanged||!proposal.whiteIsSubstrate||state.recolorApplied||(!previewOnly&&state.extractionApprovalRequired)||!currentVisualArtworkReady(previewOnly)||(!previewOnly&&!processingSession.isApproved(designFingerprint())))return null;
+ if(!proposal||!['audited-photo-glyph-flat-proposal-v1','source-flat-flexo-proposal-v1'].includes(proposal.method)||proposal.renderedPixelsVerified!==true||(proposal.originalKnownActualInkCount>3&&proposal.method!=='source-flat-flexo-proposal-v1')||!proposal.alphaUnchanged||!proposal.whiteIsSubstrate||state.recolorApplied||(!previewOnly&&state.extractionApprovalRequired)||!currentVisualArtworkReady(previewOnly)||(!previewOnly&&!processingSession.isApproved(designFingerprint())))return null;
  if(proposal.sourceSHA256!==state.processingResult?.source?.sha256||!['sourcePixelSHA256','outputPixelSHA256'].every(k=>/^[a-f0-9]{64}$/i.test(proposal[k]||'')))return null;
  const colors=proposal.actualProposedPalette;
  if(!Array.isArray(colors)||colors.length<1||colors.length>3||proposal.proposedInkCount!==colors.length||colors.some(c=>!/^#[a-f0-9]{6}$/i.test(c)||c.toLowerCase()==='#ffffff'))return null;
- if(!logoImg||logoImg.width!==proposal.width||logoImg.height!==proposal.height||proposal.width*proposal.height>2500000)return null;
+ if(!logoImg||logoImg.width!==proposal.width||logoImg.height!==proposal.height||proposal.width*proposal.height>(proposal.method==='source-flat-flexo-proposal-v1'?4000000:2500000))return null;
  const layer=document.createElement('canvas');layer.width=w=logoImg.width;layer.height=h=logoImg.height;const context=layer.getContext('2d',{willReadFrequently:true});context.drawImage(logoImg,0,0);data=context.getImageData(0,0,w,h).data;
  const rgb=colors.map(c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16))),seen=new Set();
  // Verify the actually drawn prepared artwork, not the old photo estimate.
@@ -238,7 +238,8 @@ function approvedFlatPhotoPalette(data,w,h,previewOnly=false){
  if(!data||data.length!==w*h*4)return null;
  for(let i=0;i<data.length;i+=4){if(data[i+3]<250||[0,1,2].every(k=>data[i+k]===255))continue;const index=rgb.findIndex(c=>c.every((v,k)=>Math.abs(v-data[i+k])<=2));if(index<0)return null;seen.add(index);}
  if(seen.size!==colors.length)return null;
- return {count:colors.length,colors:colors.slice(),uncertain:false,method:'approved-rendered-flat-photo-proposal',contentEvidence:{content:'flat-colors',basis:'customer-approved-rendered-proposal',physicalInksConfirmed:false},reason:'Onaylanan düz renkli fikir tasarımındaki baskı renkleri; beyaz ambalaj rengi hariç.'};
+ const approved=processingSession.isApproved(designFingerprint());
+ return {count:colors.length,colors:colors.slice(),uncertain:false,method:proposal.method==='source-flat-flexo-proposal-v1'?(approved?'approved-rendered-flat-flexo-proposal':'pending-rendered-flat-flexo-proposal'):'approved-rendered-flat-photo-proposal',contentEvidence:{content:'flat-colors',basis:approved?'customer-approved-rendered-proposal':'rendered-proposal-pending-approval',physicalInksConfirmed:false},reason:approved?'Onaylanan düz renkli fikir tasarımındaki baskı renkleri; beyaz ambalaj rengi hariç.':'Onayınızı bekleyen yeni düz renkli tasarım önerisi; özgün görselin baskı ayrımı değildir.'};
 }
 function photographicInkSource(){
  if(state.photoLayout)return true;

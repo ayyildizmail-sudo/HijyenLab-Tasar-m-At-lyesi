@@ -12,9 +12,11 @@
     function eligible(node) {
       if (!node) return false;
       const editing = textField(doc.activeElement);
+      const rect = node.getBoundingClientRect?.();
+      const offscreen = rect && (rect.top + rect.height <= 0 || rect.top >= (root.innerHeight || Infinity));
       let closed = false;
       for (let parent = node.parentElement; parent; parent = parent.parentElement) if (parent.tagName === 'DETAILS' && !parent.open) closed = true;
-      return !(suspended || media?.matches || doc.hidden || editing || closed || node.closest?.('[hidden]') || !node.animate);
+      return !(suspended || media?.matches || doc.hidden || editing || offscreen || closed || node.closest?.('[hidden]') || !node.animate);
     }
     function play(node, frames, duration = 280, cleanup) {
       if (!node) return;
@@ -139,18 +141,20 @@
       play(get('quoteImage'), [{ opacity: .65, transform: 'translateY(6px)' }, { opacity: 1, transform: 'translateY(0)' }], 360);
       play(get('finalDetails'), [{ opacity: .65 }, { opacity: 1 }], 300);
     }
-    for (const event of ['pointerdown', 'pointermove']) get('package')?.addEventListener?.(event, () => { cancelAll(); hideColorPreview(); }, true);
+    for (const event of ['pointerdown', 'pointermove']) get('package')?.addEventListener?.(event, e => { if (event === 'pointermove' && !e?.buttons) return; cancelAll(); hideColorPreview(); }, true);
     get('bgPanel')?.addEventListener?.('toggle', () => { if (get('bgPanel').open) colorPreview(); else hideColorPreview(); });
     // Cancellation only: no values, validation, artwork or layout reads on typing.
     for (const event of ['focusin', 'input']) doc.addEventListener?.(event, e => { if (textField(e.target)) cancelAll(); }, true);
     root.addEventListener?.('pagehide', cancelAll);
-    root.addEventListener?.('scroll', cancelAll, { capture: true, passive: true });
+    // Only the fixed-position color copy is invalid during scrolling. DOM-attached
+    // finite feedback follows its target and should survive navigation's own scroll.
+    root.addEventListener?.('scroll', () => { if (surface) { cancel(surface); surface?.remove(); surface = null; } }, { capture: true, passive: true });
     root.addEventListener?.('resize', cancelAll);
     doc.addEventListener?.('visibilitychange', () => { if (doc.hidden) cancelAll(); });
     media?.addEventListener?.('change', () => { if (media.matches) cancelAll(); });
     return Object.freeze({
       product() { highlight(get('productSelect')); settle(get('package')); },
-      logo() { settle(get('package')); },
+      logo() { play(get('package'), [{ opacity: .65, transform: 'scale(.995)' }, { opacity: 1, transform: 'scale(1)' }], 300); },
       beforeBackground, background, colorPreview, hideColorPreview,
       front() { highlight(get('rearTitle')); },
       rear() { if (!get('rearEditor')?.contains(doc.activeElement)) settle(get('rearBlankImage')); },
