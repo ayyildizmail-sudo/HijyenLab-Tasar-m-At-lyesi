@@ -4,10 +4,19 @@
   const panels = ['summary', 'pricing', 'fragrancePanel', 'whiteCarrierPanel', 'photoEditor', 'pdfPicker', 'rearPreview', 'design'];
   let controller = null;
   function working(value, panel) {
-    return panel !== 'design' || !!(value.logo || value.photoLayout || value.sourcePhoto || value.designProcessing || value.designBlocked || value.screenSelectionRequired);
+    return panel !== 'design' || !!(value.textDesignEditing || value.logoDesignEditing || value.textDesign || value.logoDesign || value.logo || value.photoLayout || value.sourcePhoto || value.designProcessing || value.designBlocked || value.screenSelectionRequired);
   }
   function editing(node) {
     return !!node && (node.isContentEditable || node.tagName === 'TEXTAREA' || node.tagName === 'SELECT' || (node.tagName === 'INPUT' && !['button', 'submit', 'reset', 'file', 'checkbox', 'radio'].includes(node.type)));
+  }
+  // The visible viewport excludes the software keyboard; leave room for its accessory
+  // row and the field label. Only correct clipping, never centre every keystroke.
+  function fieldScrollDelta(rect, top, height) {
+    const upper = top + 40, lower = top + height - 64;
+    if (rect.bottom - rect.top > lower - upper) return rect.top - upper;
+    if (rect.bottom > lower) return rect.bottom - lower;
+    if (rect.top < upper) return rect.top - upper;
+    return 0;
   }
   function mount(doc) {
     if (doc.getElementById('journeyProductContext')) return controller;
@@ -115,11 +124,31 @@
     });
     // Observers only maintain concise copy and disclosure. Navigation is explicitly requested at panel entry.
     if (root.MutationObserver) new root.MutationObserver(sync).observe(main, { subtree: true, childList: true, attributes: true, attributeFilter: ['hidden'] });
+    let fieldFrame = false;
+    function keepFieldVisible() {
+      if (fieldFrame) return;
+      fieldFrame = true;
+      frame(() => {
+        fieldFrame = false;
+        const field = doc.activeElement;
+        if (!editing(field) || !visible(field) || !field.getBoundingClientRect || doc.hidden || doc.querySelector('dialog[open]')) return;
+        const viewport = root.visualViewport;
+        // Pinch zoom belongs to the user, not this layout helper.
+        if (viewport && Math.abs(viewport.scale - 1) > .05) return;
+        const height = viewport?.height || root.innerHeight;
+        if (!Number.isFinite(height) || height < 140) return;
+        const delta = fieldScrollDelta(field.getBoundingClientRect(), viewport?.offsetTop || 0, height);
+        if (Math.abs(delta) > 1) root.scrollBy?.({ top: delta, behavior: 'instant' });
+      });
+    }
+    doc.addEventListener('focusin', keepFieldVisible);
+    root.visualViewport?.addEventListener('resize', keepFieldVisible);
+    root.addEventListener?.('resize', keepFieldVisible);
     doc.addEventListener('change', sync);
     root.addEventListener?.('hijyenlab:print-mode-change', sync);
     controller = { sync, enter, reveal, afterNavigation }; sync(); return controller;
   }
-  const api = { working, editing, mount, enter: (id, options) => controller?.enter(id, options), reveal: id => controller?.reveal(id), afterNavigation: callback => controller ? controller.afterNavigation(callback) : (callback(true), () => {}) };
+  const api = { working, editing, fieldScrollDelta, mount, enter: (id, options) => controller?.enter(id, options), reveal: id => controller?.reveal(id), afterNavigation: callback => controller ? controller.afterNavigation(callback) : (callback(true), () => {}) };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else { root.HijyenLabResponsiveJourney = api; if (root.document.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', () => mount(root.document), { once: true }); else mount(root.document); }
 })(typeof window !== 'undefined' ? window : globalThis);

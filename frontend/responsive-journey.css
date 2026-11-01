@@ -38,3 +38,53 @@
   #journeyProductContext { margin-top: 8px; margin-bottom: 8px; }
 }
 @media print { #journeyProductContext { display: none; } }
+
+/* Entry choices share the available width. Flex min-content widths previously
+   squeezed upload to four lines and pushed the last choice beyond the phone. */
+main.atelierLayout .simplePrimary {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+}
+main.atelierLayout .simplePrimary > :is(label, button) {
+  width: 100%; min-width: 0; box-sizing: border-box; white-space: normal;
+  overflow-wrap: anywhere; min-height: 48px; padding: 10px 12px;
+  font-size: 15px; line-height: 1.35;
+}
+main.atelierLayout :is(#textDesignPanel, #logoDesignPanel) {
+  min-width: 0; padding: 18px; margin: 12px auto 20px;
+}
+main.atelierLayout :is(#textDesignPanel, #logoDesignPanel) h2 { font-size: 24px; margin-bottom: 14px; }
+main.atelierLayout :is(#textDesignInputGroup, #logoDesignInputGroup) label { font-size: 16px; margin-bottom: 8px; }
+main.atelierLayout :is(#textDesignInput, #logoDesignInput) { min-height: 48px; font-size: 17px; scroll-margin-block: 48px 64px; }
+/* Keep the approved gentle context focus, but do not stack a second heavy ring
+   around a field which already has its own accessible keyboard-focus outline. */
+main.atelierLayout[data-focus-guidance] :is(#textDesignInputGroup, #logoDesignInputGroup)[data-focus-active] {
+  outline-width: 1px; outline-offset: 6px; box-shadow: none;
+}
+main.atelierLayout :is(#textDesignInput, #logoDesignInput):focus-visible { outline-width: 2px; outline-offset: 1px; }
+main.atelierLayout :is(#textDesignMessage, #logoDesignMessage) { margin: 8px 0 12px; min-height: 0; }
+main.atelierLayout :is(.textDesignCard, .logoDesignCard) { padding: 10px; }
+@media (max-width: 600px) {
+
+  main.atelierLayout.welcomeEmpty .simplePrimary > #focusUpload { min-height: 48px; font-size: 15px; }
+  main.atelierLayout :is(#textDesignPanel, #logoDesignPanel) { padding: 16px 12px; }
+  main.atelierLayout :is(#textDesignPanel, #logoDesignPanel) h2 { font-size: 21px; margin-bottom: 12px; }
+  main.atelierLayout :is(.textDesignCard, .logoDesignCard) canvas { max-height: none; width: 100%; height: auto; }
+  main.atelierLayout :is(.textDesignCard, .logoDesignCard) button { min-height: 44px; font-size: 14px; padding: 10px; }
+}
+
+main.atelierLayout .simplePrimary > #focusUpload {
+  grid-column: 1 / -1; min-height: 52px; font-size: 16px;
+}
+main.atelierLayout .simplePrimary > :is(#textDesignStart, #logoDesignStart) {
+  min-height: 44px; padding: 9px 8px; font-size: 13px; font-weight: 600;
+  border-color: #cbd7e4; color: #315777; background: #fff;
+}
+main.atelierLayout.welcomeEmpty #personaNoLogo > summary {
+  min-height: 44px; padding: 9px 12px; font-size: 14px; font-weight: 600;
+  background: #f1f5fa; border-color: #cbd7e4;
+}
+/* A focused text field is already the active frame. Keep passive-context guidance
+   elsewhere, but never surround that field with a second coloured rectangle. */
+main.atelierLayout[data-focus-guidance] :is(#textDesignInputGroup, #logoDesignInputGroup)[data-focus-active]:focus-within {
+  outline: none; box-shadow: none;
+}

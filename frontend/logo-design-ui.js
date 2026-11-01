@@ -12,7 +12,7 @@ const contrastIssue=()=>active()?contrastError():'';
 const safety=value=>{const result=root.HijyenContentSafety?.assess({fields:{frontText:typeof value==='string'?value:value.name,designWish:typeof value==='string'?'':value.wish}});return result?.state==='blocked'?root.HijyenContentSafety.message(result,'preview'):'';};
 const currentPlan=d=>LogoDesign.layout(d,ProductGeometry.area(d.productId),measure);
 const make=(tag,id,text)=>{const n=document.createElement(tag);if(id)n.id=id;if(text)n.textContent=text;return n;};
-const start=make('button','logoDesignStart','Logom yok · Birlikte hazırlayalım');start.type='button';start.className='outline';document.querySelector('.simplePrimary').append(start);
+const start=make('button','logoDesignStart','Logom yok');start.type='button';start.className='outline';document.querySelector('.simplePrimary').append(start);
 const edit=make('button','logoDesignEdit','İsmi veya görünümü değiştir');edit.type='button';edit.className='outline';edit.hidden=true;$('simpleTools').prepend(edit);
 const panel=make('section','logoDesignPanel');panel.hidden=true;panel.setAttribute('aria-labelledby','logoDesignTitle');
 const title=make('h2','logoDesignTitle','İsminizle başlayalım');title.tabIndex=-1;

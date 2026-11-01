@@ -77,3 +77,28 @@ assert(rear.includes("HijyenLabResponsiveJourney?.enter('rearPreview')")); asser
 assert(app.includes("HijyenLabResponsiveJourney?.enter(['design','pricing','summary'][n-1])"));
 assert(fs.readFileSync('frontend/experience-ui.js', 'utf8').includes("HijyenLabResponsiveJourney?.reveal('uploadRecovery')"));
 console.log('PASS responsive journey: real controls/guards retained, initial vs compact layout, accessible disclosure, all panel entries and same-step returns, no typing/observer navigation, reduced motion, modal/newer-entry cancellation, responsive non-cropping CSS. Browser/device geometry NOT_RUN.');
+
+// Text/logo entry starts real work before any rendered logo exists.
+for (const key of ['textDesignEditing', 'logoDesignEditing', 'textDesign', 'logoDesign']) {
+  assert.equal(api.working({ [key]: true }, 'design'), true, key);
+}
+assert.equal(api.fieldScrollDelta({ top: 100, bottom: 148 }, 0, 400), 0);
+assert.equal(api.fieldScrollDelta({ top: 330, bottom: 378 }, 0, 400), 42);
+assert.equal(api.fieldScrollDelta({ top: 10, bottom: 58 }, 0, 400), -30);
+assert.equal(api.fieldScrollDelta({ top: 160, bottom: 208 }, 120, 400), 0, 'visual viewport panning is included');
+assert.equal(api.fieldScrollDelta({ top: 40, bottom: 300 }, 0, 200), 0, 'oversized field keeps its top in view without oscillation');
+let fieldTop = 350, corrections = [];
+field.getBoundingClientRect = () => ({ top: fieldTop, bottom: fieldTop + 48 });
+browser.innerHeight = 400;
+browser.scrollBy = options => { corrections.push(options); fieldTop -= options.top; };
+for (const id of panelIds) get(id).hidden = id !== 'rearPreview';
+doc.activeElement = field;
+listeners.focusin[0](); flush();
+assert.equal(corrections.length, 1); assert.equal(fieldTop + 48, 336, 'field clears keyboard/accessory reserve');
+listeners.focusin[0](); flush(); assert.equal(corrections.length, 1, 'visible field does not move again');
+for (const fn of listeners.input) fn({}); flush(); assert.equal(corrections.length, 1, 'typing never starts scrolling');
+browser.visualViewport = { height: 300, offsetTop: 0, scale: 1 };
+modeListeners.resize(); flush(); assert.equal(fieldTop + 48, 236, 'viewport resize corrects only clipping');
+browser.visualViewport.scale = 2; fieldTop = 400; modeListeners.resize(); flush(); assert.equal(corrections.length, 2, 'pinch zoom is never overridden');
+doc.activeElement = null; modeListeners.resize(); flush(); assert.equal(corrections.length, 2, 'blur stops correction');
+console.log('PASS mobile editor: created-text/logo compact context, focused-field clipping correction, accessory reserve, no typing/zoom/blur scroll.');
