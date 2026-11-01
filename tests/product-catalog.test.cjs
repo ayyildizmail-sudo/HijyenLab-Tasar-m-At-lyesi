@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('assert/strict'),fs=require('fs'),vm=require('vm'),catalog=require('../frontend/product-catalog.js');
-assert.equal(catalog.defaultId,'BM12');assert.deepEqual(catalog.items.map(p=>p.id),['BM12','BM11','BM13','BM15','BM21','BM545']);
+assert.equal(catalog.defaultId,'BM12');assert.deepEqual(catalog.items.map(p=>p.id),['BM12','BM11','BM13','BM15','BM21','BM545','OSHIBORI']);
 for(const [id,white,colored,min,box,towel,opp]of [['BM12',290,330,5200,400,[25,30],[16,17]],['BM15',250,300,5000,500,[25,25],[14,17]],['BM545',240,290,5000,625,[20,25],[14,19]]]){
  const p=catalog.get(id),r=catalog.rules(id);assert.equal(r,p.priceRules);assert.equal(r.product,id);assert.equal(r.whiteUnitKurus,white);assert.equal(r.coloredUnitKurus,colored);assert.equal(r.coloredSurchargeKurus,colored-white);assert.deepEqual(r.minimum,{white:min,colored:10000});assert.equal(r.unitsPerBox,box);assert.deepEqual(p.towelDimensions,towel);assert.deepEqual(p.oppDimensions,opp);assert.equal(r.platePerInkKurus,100000);assert.equal(r.freightPerBoxKurus,20000);assert.equal(r.vatPercent,20);assert.equal(r.vat,.2);assert.equal(r.maxQuantity,1000000);assert.equal(min%box,0);assert.equal(10000%box,0);assert.equal(r.minimum.white/box,id==='BM12'?13:id==='BM15'?10:8);assert(r.source.includes(id==='BM12'?'29 Ekim':'23 Ekim'));assert(r.revision.includes(id));
  assert.throws(()=>{r.minimum.white=1;},TypeError);assert.throws(()=>{r.unitsPerBox=1;},TypeError);assert.throws(()=>{p.towelDimensions.push(99);},TypeError);if(opp)assert.throws(()=>{p.oppDimensions[0]=1;},TypeError);assert.throws(()=>{p.label='wrong';},TypeError);assert(Object.isFrozen(r));assert(Object.isFrozen(p));
@@ -17,4 +17,4 @@ assert.equal(catalog.rules('BM11').coloredUnitKurus,400);
 assert.equal(catalog.rules('BM11').coloredSurchargeKurus,50);
 assert.equal(catalog.rules('BM11').revision,'BM11-2026-11-01-r2');
 assert.match(catalog.rules('BM11').source,/23 Ekim 2026/);
-assert.deepEqual(catalog.items.map(p=>[p.id,p.priceRules.whiteUnitKurus,p.priceRules.coloredUnitKurus]),[['BM12',290,330],['BM11',350,400],['BM13',380,430],['BM15',250,300],['BM21',140,140],['BM545',240,290]]);
+assert.deepEqual(catalog.items.filter(p=>p.id!=='OSHIBORI').map(p=>[p.id,p.priceRules.whiteUnitKurus,p.priceRules.coloredUnitKurus]),[['BM12',290,330],['BM11',350,400],['BM13',380,430],['BM15',250,300],['BM21',140,140],['BM545',240,290]]);

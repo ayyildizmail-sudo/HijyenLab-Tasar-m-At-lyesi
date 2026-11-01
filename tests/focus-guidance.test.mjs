@@ -83,6 +83,13 @@ function fixture() {
   const panels = {};
   for (const id of ['design', 'rearPreview', 'fragrancePanel', 'pricing', 'summary', 'pdfPicker', 'photoEditor', 'whiteCarrierPanel', 'brandRegionPanel']) { panels[id] = add('section', id, main); panels[id].hidden = id !== 'design'; add('h1', id + 'Heading', panels[id]); }
   const work = add('div', 'workspace', panels.design, 'workspace'), visual = add('div', '', work, 'visualSide');
+  const logoPanel = add('section', 'logoDesignPanel', panels.design); logoPanel.hidden = true; add('h2', 'logoDesignTitle', logoPanel);
+  const logoGroup = add('div', 'logoDesignInputGroup', logoPanel); add('label', 'logoDesignLabel', logoGroup); add('input', 'logoDesignInput', logoGroup);
+  const logoOptional = add('details', 'logoDesignOptional', logoPanel); add('summary', 'logoDesignOptionalSummary', logoOptional); add('input', 'logoDesignWish', logoOptional);
+  const logoMessage=add('p','logoDesignMessage',logoPanel);logoMessage.setAttribute('role','status');
+  const logoChoices = add('div', 'logoDesignChoices', logoPanel);
+  for (const id of ['name', 'symbol', 'badge']) { const card = add('article', '', logoChoices, 'logoDesignCard'); add('canvas', 'logoDesignCanvas-' + id, card); add('button', 'logoDesignChoose-' + id, card); }
+  add('button', 'logoDesignCancel', logoPanel);
   const textPanel = add('section', 'textDesignPanel', panels.design); textPanel.hidden = true; add('h2', 'textDesignTitle', textPanel);
   const textInputGroup = add('div', 'textDesignInputGroup', textPanel); add('label', 'textDesignLabel', textInputGroup); add('input', 'textDesignInput', textInputGroup);
   const textMessage = add('p', 'textDesignMessage', textPanel); textMessage.setAttribute('role', 'status');
@@ -204,6 +211,24 @@ test('text-only entry and three style previews share guidance without per-key wo
   f.doc.activeElement = null; f.doc.body.classList.remove('textDesignEditing'); panel.hidden = true; f.flush(); assert.equal(f.controller.getActiveGroup(), 'front-review', 'selected text source returns to real appearance review');
   const html = fs.readFileSync(new URL('../frontend/index.html', import.meta.url), 'utf8');
   assert(html.indexOf('src="text-design-ui.js') < html.indexOf('src="focus-guidance.js'), 'initial text nodes exist before focus mount; no per-input rediscovery hook');
+});
+
+test('local-logo name and three real style previews share guidance without per-key work or hidden legacy owners', () => {
+  const f = fixture(); f.show('design'); const panel = f.doc.getElementById('logoDesignPanel');
+  f.doc.body.classList.add('logoDesignEditing'); f.doc.body.classList.add('logoDesignSource'); panel.hidden = false; f.flush();
+  assert.equal(f.controller.getActiveGroup(), 'logo-entry'); assert.equal(f.model.visible(f.visual), false, 'CSS-hidden legacy preview cannot own attention');
+  assert.equal(f.model.visible(f.doc.getElementById('logoPanel')), false);
+  f.focus('logoDesignTitle'); assert.equal(f.controller.getActiveGroup(), 'logo-entry', 'native heading reveal retains entry group');
+  const input = f.focus('logoDesignInput'), before = f.writes();
+  for (const value of ['İ', 'İŞ', 'İŞLETMEM', '', 'İŞLETMEM & Çay']) { input.value = value; f.dispatch('input', input); f.dispatch('pointerover', f.doc.getElementById('logoDesignChoose-name')); f.flush(); assert.equal(f.controller.getActiveGroup(), 'logo-entry'); assert.equal(input.value, value); }
+  assert.equal(f.writes(), before, 'preview typing produces zero guidance writes');
+  for (const id of ['name', 'symbol', 'badge']) { const button = f.doc.getElementById('logoDesignChoose-' + id); f.dispatch('pointerdown', button); assert.equal(f.controller.getActiveGroup(), 'logo-style', 'first press promotes complete comparison'); f.focus(button); assert.equal(button.disabled, false); assert.equal(f.doc.getElementById('logoDesignCanvas-' + id).hasAttribute('data-focus-passive'), false); }
+  assert.equal(f.doc.getElementById('logoDesignMessage').hasAttribute('data-focus-passive'), false, 'validation stays clear');
+  const optional=f.doc.getElementById('logoDesignOptional');optional.open=true;f.flush();f.focus('logoDesignWish');assert.equal(f.controller.getActiveGroup(),'logo-options');
+  f.focus('logoDesignCancel'); assert.equal(f.controller.getActiveGroup(), 'logo-create');
+  f.doc.activeElement = null; f.doc.body.classList.remove('logoDesignEditing'); panel.hidden = true; f.flush(); assert.equal(f.controller.getActiveGroup(), 'front-review', 'selected local logo source returns to real appearance review');
+  const html = fs.readFileSync(new URL('../frontend/index.html', import.meta.url), 'utf8');
+  assert(html.indexOf('src="logo-design-ui.js') < html.indexOf('src="focus-guidance.js'), 'initial logo nodes exist before focus mount; no per-input rediscovery hook');
 });
 
 test('passive treatment excludes controls, current product selection, monetary evidence and alerts', () => {

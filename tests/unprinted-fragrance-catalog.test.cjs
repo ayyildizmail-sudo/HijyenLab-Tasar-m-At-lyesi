@@ -75,7 +75,7 @@ test('clarified dimensions resolve only to existing verified catalog products', 
     assert.deepEqual(id === 'BM21' ? product.oppDimensions : product.towelDimensions, dimensions);
     assert.equal(product.type, id === 'BM21' ? 'mendil' : 'rulo');
   }
-  assert.deepEqual(ProductCatalog.items.map(p => p.id).sort(), ['BM11', 'BM12', 'BM13', 'BM15', 'BM21', 'BM545']);
+  assert.deepEqual(ProductCatalog.items.map(p => p.id).sort(), ['BM11', 'BM12', 'BM13', 'BM15', 'BM21', 'BM545', 'OSHIBORI']);
 });
 
 for (const [id, , expected, label] of clarified) {

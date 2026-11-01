@@ -26,6 +26,7 @@ test('main button survives refresh/navigation and names the next step in every m
  assert.match(reference,/function continuePrice\(\).*return showFragrance\(\);/);
 });
 function priceHarness(product,ground,inks){
+ if(product==='OSHIBORI'){const FX=require('../frontend/oshibori-fx.js'),now=new Date(),date=FX.today(now);FX.accept({currency:'USD',baseCurrency:'TRY',rateType:'ForexSelling',rate:42.1234,rateDate:date,requestedDate:date,fetchedAt:now.toISOString(),source:'TCMB',sourceUrl:'https://www.tcmb.gov.tr/kurlar/today.xml',isPreviousPublication:false});}
  const nodes={},$=id=>nodes[id]||(nodes[id]=element());
  const c={$ ,ProductCatalog:Catalog,selectedProductId:product,state:{requestedQuantity:null,bg:ground,bgPantone:''},isUnprinted:()=>false,isDeclaredQuote:()=>false,isReferencePreview:()=>false,status(){},document:{createElement:element,querySelectorAll:()=>[$('vatNote')],querySelector:$}};
  vm.createContext(c);
@@ -40,8 +41,8 @@ for(const product of Catalog.items)for(const ground of ['#ffffff','#102f59'])tes
  const quantity=ground==='#ffffff'?rules.minimum.white:rules.minimum.colored,unit=ground==='#ffffff'?rules.whiteUnitKurus:rules.coloredUnitKurus;
  assert(p);assert.equal(rows.length,4);assert.equal(rows[0].children[0].textContent,'Ürün bedeli');
  const money=n=>(n/100).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})+' TL';
- assert.equal(rows[0].children[0].children[0].textContent,quantity.toLocaleString('tr-TR')+' × '+money(unit));
- assert.equal(rows[0].children[1].textContent,money(quantity*unit));
+ assert.equal(rows[0].children[0].children[0].textContent,quantity.toLocaleString('tr-TR')+' × '+(product.id==='OSHIBORI'?rules.fxSnapshot.rate.toLocaleString('tr-TR',{maximumFractionDigits:6})+' TL':money(unit)));
+ assert.equal(rows[0].children[1].textContent,money(Math.round(quantity*unit)));
  assert.equal(rows[1].children[0].textContent,'Klişe bedeli');assert.match(rows[1].children[0].children[0].textContent,/2 renk × /);assert.equal(rows[1].children[1].textContent,money(2*rules.platePerInkKurus));
  assert.equal(rows[2].children[0].textContent,'Kargo');assert.match(rows[2].children[0].children[0].textContent,/Bodrum/);assert.equal(rows[2].children[1].textContent,money(0));
  assert.equal(rows[3].children[0].textContent,'Toplam (KDV hariç)');assert.equal(h.$('vatNote').textContent,`Fiyatlara %${rules.vatPercent} KDV dahil değildir.`);

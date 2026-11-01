@@ -342,3 +342,20 @@ Current common app rules supersede older ancillary tariffs: VAT 20% excluded, cl
 The V59 BM11 colored tariff of 3.90 TL above was based on September evidence and is superseded: the current BM11 tariff is **3.50 TL white / 4.00 TL colored**, revision `BM11-2026-11-01-r2`. The owner's [23 October +0.50 TL colored-ground instruction](https://chatgpt.com/c/6adb3b68-3a60-83ed-83de-d82cd7e595bd?messageId=bd585395-51e7-4910-b3b6-af8d0500261e) and [explicit current-price approval](https://chatgpt.com/c/6adb3b68-3a60-83ed-83de-d82cd7e595bd?messageId=63e4723b-c55c-49e4-b749-12f5782e7d2e) supersede the older table; the dated 23 October tariff image `libfile_62ec28aed55c819185ed9a933ddb6bc8` corroborates 3.50/4.00. A newer retrieval or implementation date does not make an older tariff authoritative.
 
 Only BM11's colored numeral changes. The later 29 October BM12-specific 3.30 TL override remains; BM13 4.30, BM15 3.00, BM545 2.90 and BM21 1.40 TL colored tariffs remain unchanged. Minimums, cartons, assets, geometry, fragrance, KDV, cliché and freight rules are unchanged. No protected HijyenLab records are edited; this correction is confined to the separate design application.
+
+## V76 local candidate: Oshibori
+
+Oshibori is an ordinary product choice with BM12 front/back packet geometry and
+its own 22.5 × 24.5 cm, 100% cotton, 15 g per-towel specification (Denizli).
+250 units/carton; printed minimum 3,000; unprinted minimum one carton. All four
+scents remain available in either mode, with Green Tea first/default. No ordinary
+towel preference statistics are used for this product.
+
+USD 1 excluding VAT converts through the approved public TCMB USD ForexSelling
+snapshot. Last published rates are dated explicitly, with five-minute and
+Istanbul publication/day boundaries. Unavailable/invalid/stale FX blocks quotes,
+not design work. No rate or price is restored from drafts. Full unit-rate
+precision is retained until the product line rounds to kuruş; the existing TL
+plate/freight/Bodrum/VAT rules are unchanged. The source, date and rate appear
+in summary/export. Supplier costs are not bundled or shown. See
+`docs/OSHIBORI_INTEGRATION_PENDING.md` and `docs/TCMB_RATE_SERVICE.md`.

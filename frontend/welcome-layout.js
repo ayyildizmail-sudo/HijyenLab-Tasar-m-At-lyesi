@@ -2,7 +2,7 @@
 (function (root) {
   'use strict';
   function isOpening(value, designVisible, unprinted = false) {
-    return !unprinted && !!designVisible && !value.textDesign && !value.logo && !value.photoLayout && !value.sourcePhoto && !value.designProcessing && !value.designBlocked && !value.screenSelectionRequired;
+    return !unprinted && !!designVisible && !value.logoDesign && !value.textDesign && !value.logo && !value.photoLayout && !value.sourcePhoto && !value.designProcessing && !value.designBlocked && !value.screenSelectionRequired;
   }
   function mount(doc) {
     if (doc.getElementById('welcomeIntro')) return;

@@ -13,7 +13,7 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
     "prebuild": "node scripts/prepare-legacy-frontend.mjs",
-    "test:server": "node --test tests/fragrance-server.test.mjs tests/lead-server.test.mjs"
+    "test:server": "node --test tests/fragrance-server.test.mjs tests/lead-server.test.mjs tests/tcmb-rate-server.test.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

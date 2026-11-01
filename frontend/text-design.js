@@ -1,7 +1,7 @@
 /* Local text artwork contract. No network, font downloads, storage or price rules. */
 (function(root){'use strict';
 const VERSION='text-design-v1',METHOD='text-created-artwork',INK='#102f59',MAX_TEXT=240;
-const PRODUCTS=Object.freeze(['BM12','BM11','BM13','BM15','BM545','BM21']);
+const PRODUCTS=Object.freeze(['BM12','BM11','BM13','BM15','BM545','BM21','OSHIBORI']);
 const STYLES=Object.freeze([
  Object.freeze({id:'simple',label:'Sade',family:'Arial, sans-serif',font:'sans-serif',weight:400}),
  Object.freeze({id:'classic',label:'Klasik',family:'Georgia, "Times New Roman", serif',font:'serif',weight:400}),

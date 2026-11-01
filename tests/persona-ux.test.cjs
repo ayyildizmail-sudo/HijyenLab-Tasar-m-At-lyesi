@@ -4,7 +4,7 @@
 const assert = require('node:assert/strict'), fs = require('node:fs'), vm = require('node:vm');
 function load(path) { const context = { module: { exports: {} } }; vm.runInNewContext(fs.readFileSync(path, 'utf8'), context); return context.module.exports; }
 const source = fs.readFileSync('frontend/persona-ux.js', 'utf8');
-const api = load('frontend/persona-ux.js'), catalog = load('frontend/product-catalog.js');
+const api = load('frontend/persona-ux.js'), catalog = require('../frontend/product-catalog.js');
 for (const [id, min, carton] of [['BM12','5.200','400'], ['BM15','5.000','500'], ['BM545','5.000','625']]) {
   const product = catalog.get(id);
   assert.match(api.minimumCopy(product, 'printed', 'white'), new RegExp(min + ' adet'));
@@ -20,6 +20,20 @@ for (const [id, min, carton] of [['BM12','5.200','400'], ['BM15','5.000','500'],
   assert(!/TL|₺|sertifika|raf ömrü|teslim süresi/.test(printed + blank));
 }
 const wipe=catalog.get('BM21');assert.match(api.productFacts(wipe,'printed').join(' '),/Ambalaj: 7 × 12 cm/);assert.match(api.productFacts(wipe,'unprinted').join(' '),/Yeşil çay koku sabit/);assert(!api.productFacts(wipe,'printed').join(' ').includes('Açılmış havlu'));
+for (const product of catalog.items) for (const mode of ['printed', 'unprinted']) {
+  const facts = api.productFacts(product, mode).join(' ');
+  assert.match(facts, new RegExp(numberForTest(product.priceRules.unitsPerBox) + ' adet / koli'));
+  if (product.id === 'OSHIBORI') {
+    for (const text of ['Oshibori', '22,5 × 24,5 cm', '%100 pamuk', 'Havlu başına 15 g', 'Denizli üretimi', '250 adet / koli', 'Yeşil çay ilk öneridir', 'dört kokunun tamamı seçilebilir']) assert(facts.includes(text), mode + ': ' + text);
+    assert(!/Katlı havlu|Rulo havlu|koku sabit|Flambau|gramaj|gsm|dünyanın/i.test(facts));
+    assert.match(api.minimumCopy(product, mode, 'white'), mode === 'unprinted' ? /En az 1 koli.*250/ : /en az 3.000 adet.*250/);
+  } else {
+    assert(!facts.includes('Oshibori'));
+    assert.match(facts, product.type === 'mendil' ? /Islak mendil/ : product.type === 'rulo' ? /Rulo havlu/ : /Katlı havlu/);
+    if (mode === 'unprinted') assert.match(facts, product.id === 'BM21' ? /Yeşil çay koku sabit/ : /Flambau koku sabit/);
+  }
+}
+function numberForTest(value) { return value.toLocaleString('tr-TR').replace('.', '\\.'); }
 const context = { seen: false, consented: false, hasRestore: false, mode: 'printed', designVisible: true };
 assert.equal(api.draftPromptEligible({}, context), false);
 assert.equal(api.draftPromptEligible({ text: 'name', sourcePhoto: 'pending' }, context), false);
@@ -70,6 +84,15 @@ design.hidden=true;sync();assert.equal(get('personaNoLogo').hidden,true);design.
 mode='unprinted';sync();assert(at(action)>at(preview));assert.equal(get('personaNoLogo').hidden,true);assert.match(get('personaMinimum').textContent,/En az 1 koli/);
 browser.selectedProductId='BM545';sync();assert.match(get('personaMinimum').textContent,/625/);assert.match(get('personaProductFacts').children[1].textContent,/20 × 25/);
 mode='printed';state.bg='#123456';sync();assert.match(get('personaMinimum').textContent,/Renkli.*10.000/);state.photoLayout={};state.photoQuoteBg='unknown';sync();assert.match(get('personaMinimum').textContent,/beyaz zeminde 5.000, renkli zeminde 10.000/);
+// Verify the actual mounted product-details text, including repeated mode/product transitions.
+for (const nextMode of ['printed','unprinted','printed']) {
+  mode=nextMode;browser.selectedProductId='OSHIBORI';sync();
+  const rendered=get('personaProductFacts').children.slice(1).map(node=>node.textContent).join(' ');
+  assert(rendered.includes('22,5 × 24,5 cm'));assert(rendered.includes('%100 pamuk'));assert(rendered.includes('Havlu başına 15 g'));assert(rendered.includes('Denizli üretimi'));assert(rendered.includes('250 adet / koli'));assert(rendered.includes('Yeşil çay ilk öneridir; dört kokunun tamamı seçilebilir.'));
+  assert(!/Katlı havlu|koku sabit|Flambau/.test(rendered));
+  browser.selectedProductId='BM545';sync();assert(get('personaProductFacts').children[2].textContent.includes('Katlı havlu'));
+  if(mode==='unprinted')assert(get('personaProductFacts').children[3].textContent.includes('Flambau koku sabit'));
+}
 assert(!/fetch\(|localStorage|sessionStorage|\.checked\s*=|\.save\(|selectProduct\(/.test(source),'presentation cannot enable storage, send or change selections');
 console.log('PASS persona UX: catalog facts/minima, all products/modes/unknown ground, native node preservation, no observer churn, upload pending/error/reset/back, once-only opt-in prompt, shared-device copy and manual JPG sharing.');
 

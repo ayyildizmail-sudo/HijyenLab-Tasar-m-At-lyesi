@@ -13,6 +13,15 @@ const fixtures = [
   'tests/fixtures/technical-frame/source.jpeg',
 ];
 const suites = [
+  'tests/logo-design.test.cjs',
+  'tests/logo-design-flow.test.cjs',
+  'tests/logo-design-integration.test.cjs',
+  'tests/persona-ux.test.cjs',
+  'tests/oshibori-spec.test.cjs',
+  'tests/oshibori-pricing.test.cjs',
+  'tests/oshibori-fx-ui.test.cjs',
+  'tests/oshibori-validation.test.cjs',
+  'tests/oshibori-fragrance-ui.test.cjs',
   'tests/design-issue-script-chain.test.cjs',
   'tests/partial-reference-inks.test.cjs',
   'tests/reference-preview-flow.test.cjs',

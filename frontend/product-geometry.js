@@ -9,7 +9,7 @@ const profiles={
  BM545:{source:{width:1635,height:962},front:[[.03,.09],[.11,.175],[.125,.181],[.145,.173],[.49,.175],[.66,.19],[.87,.175],[.89,.16],[.972,.09],[.972,.955],[.89,.91],[.87,.905],[.65,.905],[.49,.885],[.15,.895],[.11,.915],[.10,.91],[.03,.955]],back:[[.043,.095],[.125,.175],[.29,.19],[.48,.18],[.84,.175],[.865,.185],[.88,.175],[.962,.095],[.962,.91],[.88,.875],[.86,.87],[.67,.86],[.49,.85],[.28,.865],[.115,.87],[.043,.91]],rear:{source:{width:1616,height:973},safe:{upper:{x:291,y:205,width:1034,height:192},seam:{x:65,y:430,width:1495,height:130}}}}
 };
 // User confirmed identical outer packets; only the inner cloth dimensions differ.
-profiles.BM11=profiles.BM13=profiles.BM12;
+profiles.OSHIBORI=profiles.BM11=profiles.BM13=profiles.BM12;
 function isStandardRulo(id){return get(id)===profiles.BM12;}
 function get(id){if(!profiles[id])throw Error('Ürün geometrisi bulunamadı.');return profiles[id];}
 function frame(id){const p=get(id);if(isStandardRulo(id))return {x:100,y:107,width:1400,height:636};const scale=Math.min(1400/p.source.width,700/p.source.height),width=p.source.width*scale,height=p.source.height*scale;return{x:(1600-width)/2,y:(850-height)/2,width,height};}

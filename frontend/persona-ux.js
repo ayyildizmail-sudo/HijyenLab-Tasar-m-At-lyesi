@@ -9,6 +9,11 @@
     return (ground === 'white' ? 'Beyaz' : 'Renkli') + ' zeminde en az ' + number(rules.minimum[ground]) + ' adet · ' + number(rules.unitsPerBox) + ' adet / koli.';
   }
   function productFacts(product, mode) {
+    if (product.id === 'OSHIBORI') return [
+      'Oshibori · Açılmış havlu: ' + product.towelDimensions.map(number).join(' × ') + ' cm. Bu ölçü ambalaj ölçüsü değildir.',
+      product.material + ' · Havlu başına ' + number(product.weightGramsPerTowel) + ' g · ' + product.productionCity + ' üretimi · ' + number(product.priceRules.unitsPerBox) + ' adet / koli.',
+      'Yeşil çay ilk öneridir; dört kokunun tamamı seçilebilir. ' + (mode === 'unprinted' ? 'Beyaz, baskısız ambalaj · Baskı kalıbı (klişe) uygulanmaz.' : 'Ambalaj önizlemesi baskıya hazır dosya değildir.')
+    ];
     return [
       product.type === 'mendil' ? 'Ambalaj: 7 × 12 cm. Onaylı boş görselle yaklaşık önizleme; baskı payları teknik onay gerektirir.' : 'Açılmış havlu: ' + product.towelDimensions.join(' × ') + ' cm. Bu ölçü ambalaj ölçüsü değildir.',
       (product.type === 'mendil' ? 'Islak mendil' : product.type === 'rulo' ? 'Rulo havlu' : 'Katlı havlu') + ' · ' + number(product.priceRules.unitsPerBox) + ' adet / koli.',

@@ -7,6 +7,10 @@
     ['product-context', '#journeyProductContext'],
     ['product', '.productPicker'],
     ['upload', '.simplePrimary'],
+    ['logo-create', '#logoDesignPanel'],
+    ['logo-entry', '#logoDesignInputGroup'],
+    ['logo-options', '#logoDesignOptional'],
+    ['logo-style', '#logoDesignChoices'],
     ['text-create', '#textDesignPanel'],
     ['text-entry', '#textDesignInputGroup'],
     ['text-style', '#textDesignChoices'],
@@ -59,15 +63,15 @@
     ['help-dialog', '#contactHelpDialog'],
     ['request-dialog', '#visitorRequestDialog']
   ].map(pair => Object.freeze(pair)));
-  const STAGES = Object.freeze(['summary', 'pricing', 'fragrancePanel', 'whiteCarrierPanel', 'photoEditor', 'pdfPicker', 'brandRegionPanel', 'rearPreview', 'textDesignPanel', 'design']);
+  const STAGES = Object.freeze(['summary', 'pricing', 'fragrancePanel', 'whiteCarrierPanel', 'photoEditor', 'pdfPicker', 'brandRegionPanel', 'rearPreview', 'logoDesignPanel', 'textDesignPanel', 'design']);
   const CONTEXTS = '#journeyProductDescription, #welcomeIntro, #leadFields > h2, #rearEditor > h2';
   const PROTECTED = 'input, select, textarea, button, a, label, summary, canvas, [role="alert"], [role="status"], [aria-live], [aria-invalid="true"]';
   const REVEALED_WORK = '#referenceRecovery, #uploadRecovery, #backgroundChoice, #productReview, #rearSponsorRegionPanel, #rearSponsorReview, #rearQrFields, #design .editSide';
   function visible(node) {
     if (!node || node.isConnected === false) return false;
     if (node.ownerDocument?.body?.classList.contains('referenceRecoveryActive') && node.closest('.workspace, #uploadRecovery, #designError')) return false;
-    if (node.ownerDocument?.body?.classList.contains('textDesignEditing') && node.closest('#design > .workspace, #welcomeIntro, #personaNoLogo, #welcomeUploadHint, #productReview')) return false;
-    if (node.ownerDocument?.body?.classList.contains('textDesignSource') && node.closest('#logoPanel')) return false;
+    if ((node.ownerDocument?.body?.classList.contains('logoDesignEditing') || node.ownerDocument?.body?.classList.contains('textDesignEditing')) && node.closest('#design > .workspace, #welcomeIntro, #personaNoLogo, #welcomeUploadHint, #productReview')) return false;
+    if ((node.ownerDocument?.body?.classList.contains('logoDesignSource') || node.ownerDocument?.body?.classList.contains('textDesignSource')) && node.closest('#logoPanel')) return false;
     for (let parent = node; parent; parent = parent.parentElement) {
       if (parent.hidden || (parent.tagName === 'DIALOG' && !parent.open)) return false;
       if (parent !== node && parent.tagName === 'DETAILS' && !parent.open && !parent.querySelector('summary')?.contains(node)) return false;
@@ -133,6 +137,7 @@
       context();
     }
     function defaultGroup(id) {
+      if (id === 'logoDesignPanel') return get('logoDesignInputGroup') || get(id);
       if (id === 'textDesignPanel') return get('textDesignInputGroup') || get(id);
       if (id === 'pricing') return get('leadFields') || get(id);
       if (id === 'summary') return doc.querySelector('#summary > article') || get(id);

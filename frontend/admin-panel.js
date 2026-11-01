@@ -2,7 +2,7 @@
 (function (root) {
   'use strict';
   const STATUS = Object.freeze({ new: 'Yeni', contacted: 'İletişime geçildi', quote_sent: 'Teklif gönderildi', closed: 'Kapatıldı' });
-  const PRODUCTS = Object.freeze({ BM12: '25 × 30 cm Rulo Islak Havlu', BM11: '30 × 30 cm Rulo Islak Havlu', BM13: '30 × 35 cm Rulo Islak Havlu', BM15: '25 × 25 cm Rulo Islak Havlu', BM545: '20 × 25 cm Katlı Islak Havlu', BM21: '7 × 12 cm Islak Mendil' });
+  const PRODUCTS = Object.freeze({ BM12: '25 × 30 cm Rulo Islak Havlu', BM11: '30 × 30 cm Rulo Islak Havlu', BM13: '30 × 35 cm Rulo Islak Havlu', BM15: '25 × 25 cm Rulo Islak Havlu', BM545: '20 × 25 cm Katlı Islak Havlu', BM21: '7 × 12 cm Islak Mendil', OSHIBORI: '22,5 × 24,5 cm Oshibori' });
   const FRAGRANCES = Object.freeze({ flambau: 'Flambau', green_tea: 'Yeşil çay', bodrum_mandarin: 'Bodrum mandalinası', lemon: 'Limon' });
   const STAGES = Object.freeze({ visit: 'Ölçümlü ziyaret', design_started: 'Tasarım başlatıldı', design_ready: 'Tasarım hazır aşamasına ulaşıldı', fragrance_selected: 'Koku seçildi', quote_viewed: 'Teklif görüntülendi' });
   function text(value) { return value === null || value === undefined || value === '' ? 'Belirtilmedi' : String(value); }
