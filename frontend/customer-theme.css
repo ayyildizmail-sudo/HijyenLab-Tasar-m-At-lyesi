@@ -1,5 +1,5 @@
 /* Scoped accents only: never company identity, working canvas, ink swatches or exports. */
-main{--customer-accent:#800d2a;--customer-tint:#f5ecee}
+main{--customer-accent:#800d2a;--customer-tint:#f5ecee;--customer-decoration:#800d2a}
 .atelierLayout #journeyProgress li[aria-current=step]{color:var(--customer-accent)}
 .atelierLayout #journeyProgress li[aria-current=step]::before{background:var(--customer-accent)}
 #journeyProgress li[data-complete=true]{color:var(--customer-accent)}
@@ -7,8 +7,14 @@ main{--customer-accent:#800d2a;--customer-tint:#f5ecee}
 .atelierLayout #journeyProgress li[data-complete=true]::before{width:1em;height:auto;border-radius:0}
 #customerJourneyNote{margin:-4px 0 14px;text-align:center;font-size:12px;line-height:1.5;color:#526577;min-height:18px}
 #customerJourneyNote[hidden]{display:none}
-.fragranceCard:has(input:checked){border-color:var(--customer-accent);background:var(--customer-tint)}
+/* Fragrance cards keep their semantic colors in style.css, including selection. */
 @media print{#customerJourneyNote{display:none}}
+
+/* One small source-colored marker follows each step, without recoloring labels or artwork.
+   Use a background rather than ::after so the rear heading's completion check stays intact. */
+.atelierLayout[data-customer-theme] :is(#design,#rearPreview,#fragrancePanel,#pricing,#summary)>h1{padding-bottom:12px;background-image:linear-gradient(var(--customer-decoration),var(--customer-decoration));background-position:center bottom;background-repeat:no-repeat;background-size:52px 4px}
+.atelierLayout[data-customer-theme] #leadFields{border-top:3px solid var(--customer-decoration)}
+@media print{.atelierLayout[data-customer-theme] :is(#design,#rearPreview,#fragrancePanel,#pricing,#summary)>h1{background-image:none;padding-bottom:0}.atelierLayout[data-customer-theme] #leadFields{border-top:1px solid #dce4ed}}
 
 /* Visible even when the stepper has scrolled away; decoration stays outside images and cost rows. */
 #summary>article{border-top:3px solid var(--customer-accent)}

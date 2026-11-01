@@ -44,7 +44,7 @@ function showLocalFragrance(){
  if(designIssue())return;
  if(typeof rearQuoteReady==='function'&&!rearQuoteReady())return;
  for(const id of ['design','pricing','summary','photoEditor','pdfPicker','whiteCarrierPanel','uploadStart','simpleTools','simpleDetails'])if($(id))$(id).hidden=true;
- if(typeof hideRearPreview==='function')hideRearPreview();$('fragrancePanel').hidden=false;step=5;syncFragrance();
+ if(typeof hideRearPreview==='function')hideRearPreview();$('fragrancePanel').hidden=false;step=5;syncFragrance();root.HijyenLabResponsiveJourney?.enter('fragrancePanel',{quiet:initializing});
 }
 function restoreLeadInputs(resume){if(!resume)return;const lead=resume.lead;for(const [id,key] of [['customerName','customer'],['contactName','contact'],['contactPhone','phone']])$(id).value=lead[key];setSavedSelect('province',lead.province);setDistrict();setSavedSelect('district',lead.district);$('cliche').value=resume.cliche;$('qty').value=resume.quantityInput;if($('cartonQty'))$('cartonQty').value=resume.cartonInput;}
 async function restore(){if(!offer||restoring)return;const payload=offer,ticket=++generation;restoring=true;root.HijyenLabJourneyMotion?.suspend(true);$('restoreDraft').disabled=true;say('Kaynak görseller yeniden kontrol ediliyor…');try{

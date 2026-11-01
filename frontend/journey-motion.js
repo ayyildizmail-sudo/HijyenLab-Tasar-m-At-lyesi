@@ -7,7 +7,7 @@
     const cleanups = new Map(), quoteNodes = new Set();
     const get = id => doc.getElementById(id);
     function cancel(node) { const old = active.get(node); if (old) { active.delete(node); old.cancel(); } const cleanup = cleanups.get(node); cleanups.delete(node); cleanup?.(); }
-    function cancelAll() { for (const node of [...active.keys()]) cancel(node); if (surface) { surface.remove(); surface = null; } }
+    function cancelAll() { root.HijyenLabLogoSettle?.cancel(); for (const node of [...active.keys()]) cancel(node); if (surface) { surface.remove(); surface = null; } }
     const textField = node => node?.tagName === 'TEXTAREA' || (node?.tagName === 'INPUT' && !['radio','checkbox','color','button','submit','range','file'].includes(node.type));
     function eligible(node) {
       if (!node) return false;
@@ -45,7 +45,7 @@
       else if (!was) play(check, [{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'scale(1)' }], 220);
     }
     function reset() {
-      cancelAll(); hideColorPreview(); quoteToken = null;
+      cancelAll(); root.HijyenLabLogoSettle?.reset(); hideColorPreview(); quoteToken = null;
       for (const check of doc.querySelectorAll('.journeyFieldCheck.is-valid')) check.classList.remove('is-valid');
     }
     function hideColorPreview() {
@@ -154,13 +154,13 @@
     media?.addEventListener?.('change', () => { if (media.matches) cancelAll(); });
     return Object.freeze({
       product() { highlight(get('productSelect')); settle(get('package')); },
-      logo() { play(get('package'), [{ opacity: .65, transform: 'scale(.995)' }, { opacity: 1, transform: 'scale(1)' }], 300); },
+      logo(event) { if (!suspended) root.HijyenLabLogoSettle?.request(event); },
       beforeBackground, background, colorPreview, hideColorPreview,
       front() { highlight(get('rearTitle')); },
       rear() { if (!get('rearEditor')?.contains(doc.activeElement)) settle(get('rearBlankImage')); },
       fragrance(node) { settle(node?.querySelector('.fragranceIcon')); highlight(node); },
       slot, lead, quote, reset, cancelAll,
-      suspend(value) { suspended = !!value; if (suspended) reset(); }
+      suspend(value) { suspended = !!value; root.HijyenLabLogoSettle?.suspend(suspended); if (suspended) reset(); }
     });
   }
   if (typeof module !== 'undefined' && module.exports) module.exports = { create };

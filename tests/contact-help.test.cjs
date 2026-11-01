@@ -1,4 +1,5 @@
 'use strict';
+/* eslint-disable @typescript-eslint/no-require-imports */
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
@@ -42,7 +43,8 @@ function element(tag) {
 const doc = { readyState: 'complete', activeElement: null, body: element('body'), documentElement: element('html'),
   createElement: element, createElementNS: (namespace, tag) => { assert.equal(namespace, 'http://www.w3.org/2000/svg'); return element(tag); }, getElementById: id => nodes.get(id), addEventListener: (name, fn) => { events[name] = fn; } };
 nodes.set('pricing', element('section'));
-const browser = { document: doc, addEventListener() {}, setTimeout(fn) { fn(); } };
+const viewportEvents = {}, rootEvents = {};
+const browser = { document: doc, innerHeight: 800, visualViewport: { height: 800, addEventListener(name, fn) { viewportEvents[name] = fn; } }, addEventListener(name, fn) { rootEvents[name] = fn; }, setTimeout(fn) { fn(); } };
 vm.runInNewContext(source, { window: browser });
 assert.equal(doc.body.children.length, 2);
 assert.equal(nodes.get('contactWhatsApp').tagName, 'BUTTON');
@@ -54,6 +56,14 @@ assert.equal(doc.body.children.length, 2);
 doc.activeElement = element('input'); events.focusin(); assert(bodyClasses.has('contactHelpEditing'));
 doc.activeElement = nodes.get('contactWhatsApp'); events.focusout(); assert(!bodyClasses.has('contactHelpEditing'));
 console.log('PASS contact help DOM: mount once, correct accessible links, no outbound activation, keyboard-focus unfix/reset.');
+assert(!bodyClasses.has('contactHelpShortViewport'));
+browser.visualViewport.height = 420; viewportEvents.resize(); assert(bodyClasses.has('contactHelpShortViewport'), 'short keyboard/zoom viewport uses document flow');
+browser.visualViewport.height = 600; rootEvents.resize(); assert(bodyClasses.has('contactHelpShortViewport'));
+browser.visualViewport.height = 800; viewportEvents.resize(); assert(!bodyClasses.has('contactHelpShortViewport'));
+assert(css.includes('body.contactHelpShortViewport #contactHelp { position: static; }'));
+assert(css.includes('(max-height: 600px)'));
+console.log('PASS contact visual-viewport resize: short portrait/landscape/keyboard/zoom falls back to normal flow and restores when tall. No input focus or scroll is triggered.');
+
 
 assert.equal(api.buildMessage(), api.CONTACT.message);
 const contextInput = { product: 'BM12', stage: 'Arka yüz', quantity: 5200, fragrance: 'Limon', customerName: 'SECRET NAME', phone: 'SECRET PHONE', address: 'SECRET ADDRESS', price: 12345, image: 'SECRET IMAGE' };

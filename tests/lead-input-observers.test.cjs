@@ -40,7 +40,7 @@ const draft=add('draftPanel');add('draftConsent','input',draft).checked=false;ad
 const doc={readyState:'complete',createElement:t=>new Node(t),getElementById:id=>main.id===id?main:main.querySelector('#'+id),querySelector:s=>s==='main'?main:main.querySelector(s),addEventListener:(n,f)=>{(events[n]??=[]).push(f);}};
 let mode='printed';const state={logo:null,text:'',bg:'#ffffff'},browser={document:doc,ProductCatalog:require('../frontend/product-catalog.js'),DeclaredQuote:require('../frontend/declared-quote.js'),selectedProductId:'BM12',HijyenLabPrintMode:{get:()=>mode},setTimeout:f=>tasks.push(f),addEventListener:(n,f)=>{(events[n]??=[]).push(f);},MutationObserver:class{constructor(f){this.fn=f;observers.push(this);}observe(n,o){this.node=n;this.options=o;}}};
 const ctx={window:browser,state,effectiveBackground:()=>state.bg,isDeclaredQuote:()=>false,designIssue:()=>{designChecks++;return false;},productRules:()=>browser.ProductCatalog.rules('BM12')};vm.createContext(ctx);
-for(const file of ['experience-ui','customer-focus','welcome-layout','persona-ux'])vm.runInContext(fs.readFileSync('frontend/'+file+'.js','utf8'),ctx);
+for(const file of ['experience-ui','customer-focus','welcome-layout','persona-ux','responsive-journey'])vm.runInContext(fs.readFileSync('frontend/'+file+'.js','utf8'),ctx);
 function settle(label){let rounds=0,calls=0;while(observers.some(o=>o.pending)){assert(++rounds<=20,label+' must converge, not starve input');const pending=observers.filter(o=>o.pending);pending.forEach(o=>o.pending=false);for(const o of pending){calls++;o.fn();}}return calls;}
 settle('boot');nodes.design.hidden=true;nodes.pricing.hidden=false;settle('pricing');const before=designChecks;
 function event(t){for(const f of events[t]||[])f({isTrusted:true});while(tasks.length)tasks.shift()();return settle(t);}
@@ -62,4 +62,4 @@ for(let i=0;i<50;i++){download.disabled=true;hidden.hidden=true;event('hijyenlab
 nodes.pricing.hidden=true;nodes.design.hidden=false;event('change');assert(designChecks>before,'back restores design readiness evaluation');
 mode='unprinted';event('hijyenlab:print-mode-change');mode='printed';event('hijyenlab:print-mode-change');
 assert(!observers.some(o=>o.pending));
-console.log('PASS integrated observers: four real mounts converge on boot, input/clear/retype, repeated invalidation, back and mode transitions; pricing performs zero artwork checks.');
+console.log('PASS integrated observers: five real mounts converge on boot, input/clear/retype, repeated invalidation, back and mode transitions; pricing performs zero artwork checks.');

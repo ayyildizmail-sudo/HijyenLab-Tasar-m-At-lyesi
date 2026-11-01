@@ -49,9 +49,14 @@
     const details = doc.createElement('details'); const summary = doc.createElement('summary'); summary.textContent = 'Hata ayrıntısı';
     const original = doc.createElement('p'); original.id = 'uploadRecoveryOriginal'; details.append(summary, original);
     help.append(errorText, actions, details); progress.after(help);
+    let previousUploadError = '';
     renderStatus = error => {
       help.hidden = !error;
-      if (error) { errorText.textContent = error.short; original.textContent = error.raw; details.open = false; }
+      if (error) {
+        errorText.textContent = error.short; original.textContent = error.raw; details.open = false;
+        if (error.raw !== previousUploadError) root.HijyenLabResponsiveJourney?.reveal('uploadRecovery');
+      }
+      previousUploadError = error?.raw || '';
     };
     const summaryPanel = doc.getElementById('summary');
     const discussion = doc.createElement('div'); discussion.id = 'summaryDiscussion';

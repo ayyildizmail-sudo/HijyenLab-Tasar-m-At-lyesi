@@ -43,3 +43,14 @@ body.contactHelpEditing #contactHelp { position: static; }
 #institutionContactDraft { min-height: 44px; padding: 8px 0; border: 0; border-radius: 0; background: transparent; color: #435b73; font: inherit; font-size: 14px; line-height: 1.5; text-align: left; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 #institutionContactDraft:hover { color: #17324b; }
 #institutionContactDraft:focus-visible { outline: 3px solid #075dc9; outline-offset: 3px; }
+
+/* Short visual viewports must stay unobstructed, including keyboard/zoom resize. */
+body.contactHelpShortViewport { padding-bottom: 0; }
+body.contactHelpShortViewport #contactHelp { position: static; }
+html:has(body:is(.contactHelpEditing, .contactHelpShortViewport)) { scroll-padding-bottom: 16px; }
+body:is(.contactHelpEditing, .contactHelpShortViewport) main :is(button, input, select, textarea, a, summary) { scroll-margin-bottom: 16px; }
+@media (max-height: 600px) {
+  body.hasContactHelp { padding-bottom: 0; }
+  #contactHelp { position: static; }
+  html:has(body.hasContactHelp) { scroll-padding-bottom: 16px; }
+}

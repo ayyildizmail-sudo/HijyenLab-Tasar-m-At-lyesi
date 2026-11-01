@@ -3,13 +3,15 @@
 const FALLBACK='#800d2a';
 function rgb(hex){return /^#[\da-f]{6}$/i.test(hex||'')?[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)):null;}
 function luminance(c){return c.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);}
-function contrast(hex){const c=rgb(hex);return c?1.05/(luminance(c)+.05):0;}
+function contrast(hex,background='#ffffff'){const c=rgb(hex),b=rgb(background);if(!c||!b)return 0;const a=luminance(c),z=luminance(b);return (Math.max(a,z)+.05)/(Math.min(a,z)+.05);}
 function palette(colors){
  const candidates=(colors||[]).filter(c=>rgb(c)).map(c=>c.toLowerCase());
- // Do not turn pale yellow into unreadable text, or alter the customer's actual hue.
- const accent=candidates.find(c=>contrast(c)>=4.5)||FALLBACK;
- const c=rgb(accent),tint='#'+c.map(v=>Math.round(v*.08+255*.92).toString(16).padStart(2,'0')).join('');
- return {accent,tint};
+ // Pale brand colors can decorate the journey, but never become unreadable text.
+ // Keep the sampled/verified hue; this presentation palette never changes artwork inks.
+ const source=candidates.find(c=>contrast(c)>=1.05),decoration=source||FALLBACK;
+ const c=rgb(decoration),tint='#'+c.map(v=>Math.round(v*.08+255*.92).toString(16).padStart(2,'0')).join('');
+ const accent=candidates.find(c=>['#ffffff','#f5f7fa',tint].every(bg=>contrast(c,bg)>=4.5))||FALLBACK;
+ return {accent,tint,decoration,personalized:!!source};
 }
 function sample(data){
  const buckets=new Map();
@@ -41,7 +43,7 @@ function mount(doc){
  const note=doc.createElement('p');note.id='customerJourneyNote';note.hidden=true;note.setAttribute('role','status');note.setAttribute('aria-live','polite');note.setAttribute('aria-atomic','true');
  const progress=doc.getElementById('journeyProgress');if(!progress)return;progress.after(note);
  let lastKey='',lastTheme='',scheduled=false;
- function apply(colors){const theme=palette(colors),key=theme.accent+theme.tint;if(key===lastTheme)return;lastTheme=key;main.style.setProperty('--customer-accent',theme.accent);main.style.setProperty('--customer-tint',theme.tint);}
+ function apply(colors){const theme=palette(colors),key=[theme.accent,theme.tint,theme.decoration,theme.personalized].join('|');if(key===lastTheme)return;lastTheme=key;main.style.setProperty('--customer-accent',theme.accent);main.style.setProperty('--customer-tint',theme.tint);main.style.setProperty('--customer-decoration',theme.decoration);if(theme.personalized)main.setAttribute('data-customer-theme','true');else main.removeAttribute('data-customer-theme');}
  function reset(){lastKey='';apply([]);for(const item of progress.querySelectorAll('li'))if(item.hasAttribute('data-complete'))item.removeAttribute('data-complete');if(note.textContent)note.textContent='';if(!note.hidden)note.hidden=true;}
  function sync(){
   scheduled=false;
@@ -49,7 +51,7 @@ function mount(doc){
   const blank=root.HijyenLabPrintMode?.get()==='unprinted',declared=value.quoteSource==='customer-declared';
   let approved=false;try{approved=!value.designProcessing&&!value.designBlocked&&typeof designFingerprint==='function'&&processingSession.isApproved(designFingerprint());}catch{/* Fail closed before source initialization. */}
   const canTheme=!blank&&!declared&&eligible(value,session);
-  const key=canTheme?[session.operationId,session.designRevision,value.logo,approved].join('|'):'';
+  const key=canTheme?[session.operationId,session.designRevision,session.source.sha256,session.result.method,value.bgDetection?.kind,value.logo,approved].join('|'):'';
   if(key!==lastKey){lastKey=key;apply([]);
    if(canTheme){let colors=[];
     const proposal=session.result.flatPrintProposal;
@@ -57,7 +59,7 @@ function mount(doc){
      colors=approvedFlatPhotoPalette(null,0,0)?.colors||[];
      if(colors.length)try{colors=rankProposal(colors,primaryPixels(doc));}catch{/* Verified palette remains the fallback if sampling is unavailable. */}
     }}
-    else if(session.result.method==='native-logo'&&['white','transparent'].includes(value.bgDetection?.kind)&&!value.sourcePhoto&&typeof logoImg!=='undefined'&&logoImg){
+    else if(session.result.method==='native-logo'&&['white','transparent','color'].includes(value.bgDetection?.kind)&&!value.sourcePhoto&&typeof logoImg!=='undefined'&&logoImg){
      // Only the primary front logo, never a package canvas, photograph, rear sponsor or extra logo.
      try{const canvas=doc.createElement('canvas');canvas.width=48;canvas.height=48;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(logoImg,0,0,48,48);colors=sample(ctx.getImageData(0,0,48,48).data);}catch{/* Unavailable pixels retain accessible HijyenLab accent. */}
     }

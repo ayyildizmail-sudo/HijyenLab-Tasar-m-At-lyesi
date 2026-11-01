@@ -212,9 +212,16 @@
     };
     doc.addEventListener('focusin', updateEditing);
     doc.addEventListener('focusout', () => root.setTimeout(updateEditing, 0));
-    root.addEventListener('resize', measure);
+    const updateViewport = () => {
+      // visualViewport also catches browser chrome, zoom and software-keyboard height changes.
+      const height = root.visualViewport?.height || root.innerHeight;
+      doc.body.classList.toggle('contactHelpShortViewport', Number.isFinite(height) && height <= 600);
+      measure();
+    };
+    root.addEventListener('resize', updateViewport);
+    root.visualViewport?.addEventListener('resize', updateViewport);
     if (root.ResizeObserver) new root.ResizeObserver(measure).observe(bar);
-    measure();
+    updateViewport();
   }
   const api = Object.freeze({ CONTACT, links, messageLink, buildMessage, differentProductMessage, openDifferentProductDraft, openSummaryDraft, openInstitutionDraft, openDeclaredQuoteDraft, mount });
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

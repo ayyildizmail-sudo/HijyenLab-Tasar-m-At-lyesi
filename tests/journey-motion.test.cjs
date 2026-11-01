@@ -42,7 +42,7 @@ test('invalid quote never animates; same ready token once; invalidation cancels'
 });
 test('reduced motion including live preference change, hidden targets and restoration', () => {
   const h = harness(true); h.api.product(); assert.equal(h.animations.length, 0);
-  h.media.matches = false; h.api.logo(); h.media.matches = true; h.media.change(); assert.ok(h.animations[0].canceled);
+  h.media.matches = false; h.api.rear(); h.media.matches = true; h.media.change(); assert.ok(h.animations[0].canceled);
   h.media.matches = false; h.api.suspend(true); h.api.product(); assert.equal(h.animations.length, 1);
   h.api.suspend(false); h.nodes.get('package').hidden = true; h.api.logo(); assert.equal(h.animations.length, 1);
 });

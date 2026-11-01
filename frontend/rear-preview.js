@@ -46,7 +46,7 @@ function showRearPreview(){
  rearPreviewFingerprint=designFingerprint();const front=typeof visualPreviewImageData==='function'?visualPreviewImageData():imageData();
  ['design','pricing','summary','photoEditor','pdfPicker','whiteCarrierPanel'].forEach(id=>{if($(id))$(id).hidden=true;});step=4;rearPreview.hidden=false;globalThis.HijyenLabJourneyMotion?.front();$('simpleTools').hidden=true;$('simpleDetails').hidden=true;
  $('rearFlipCard').classList.remove('is-flipped');$('rearFrontImage').src=front;$('rearEditor').open=!rearEmptyForSkip();syncRearFields();renderRearPreview(true);
- $('rearTitle').focus({preventScroll:true});status('');window.scrollTo({top:0,behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});return true;
+ status('');globalThis.HijyenLabResponsiveJourney?.enter('rearPreview');return true;
 }
 function renderRearPreview(flip){
  if(rearTextEditing())return;
@@ -164,7 +164,7 @@ $('retryRearAsset').onclick=()=>showRearPreview();
 $('rearToPrice').onclick=()=>{
  // Previewing newly typed text is not approval of an older rendered image.
  if(rearInputPending){const active=document.activeElement;if(rearTextFieldIds.includes(active?.id))active.blur();scheduleRearRefresh(0);return;}
- if(rearValidationError()){ $('rearEditorError').textContent=rearValidationError();$('rearEditorError').hidden=false;return;}if(!rearQuoteReady()||(!rearEmptyForSkip()&&!rearPreviewReady)||rearPreviewFingerprint!==designFingerprint()||!processingSession.isApproved(designFingerprint())||designIssue()){go(1);status('Ön yüz değişti. Yeniden kontrol edip onaylayın.');return;}
+ if(rearValidationError()){ $('rearEditorError').textContent=rearValidationError();$('rearEditorError').hidden=false;globalThis.HijyenLabResponsiveJourney?.reveal('rearEditorError');return;}if(!rearQuoteReady()||(!rearEmptyForSkip()&&!rearPreviewReady)||rearPreviewFingerprint!==designFingerprint()||!processingSession.isApproved(designFingerprint())||designIssue()){go(1);status('Ön yüz değişti. Yeniden kontrol edip onaylayın.');return;}
  go(2);
 };
 
