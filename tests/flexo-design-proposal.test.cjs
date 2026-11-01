@@ -10,3 +10,23 @@ test('missing clear carrier declines',()=>{const r=propose(new Uint8ClampedArray
 
 test('thin fourth-color line is not silently discarded',()=>{const d=badge(colors);for(let x=65;x<90;x++)d.set([20,170,70,255],(70*160+x)*4);const r=propose(d,160,160);assert.equal(r.applied,false);assert.equal(r.reason,'minor-independent-hue-needs-review');});
 test('interior opacity ramps cannot be called flat ink',()=>{const d=badge(colors);for(let y=70;y<90;y++)for(let x=70;x<90;x++)d[(y*160+x)*4+3]=180;const r=propose(d,160,160);assert.equal(r.applied,false);assert.equal(r.reason,'interior-opacity-ramp-needs-review');});
+
+test('near-neutral coherent hue on a proven black-to-white antialias edge is not a fourth ink',()=>{
+ const d=badge(colors),copy=d.slice();
+ // A new white knockout with a black outline and a mildly tinted JPEG edge.
+ const ramp=[[3,1,2],[31,30,35],[128,116,126],[227,217,225],[255,253,254],[255,255,255]];
+ for(let y=30;y<45;y++)for(let x=0;x<ramp.length;x++)d.set([...ramp[x],255],(y*160+75+x)*4);
+ const original=d.slice(),r=propose(d,160,160);assert.equal(r.applied,true,r.reason);assert.equal(r.metadata.proposedInkCount,3);assert.deepEqual(d,original);assert.deepEqual(r.originalData,original);assert.notDeepEqual(original,copy);
+ for(let p=0;p<160*160;p++)assert.equal(r.data[p*4+3],original[p*4+3]);
+});
+test('a low-chroma fourth-color line without dark AND white cross-edge witnesses still declines',()=>{
+ for(const color of [[128,116,126],[120,140,130],[20,170,70]]){
+  const d=badge(colors);for(let x=65;x<90;x++)d.set([...color,255],(70*160+x)*4);
+  const r=propose(d,160,160);assert.equal(r.applied,false);assert.equal(r.reason,'minor-independent-hue-needs-review');
+ }
+});
+test('nearby dark and white samples do not exempt a non-monotonic colored detail',()=>{
+ const d=badge(colors),ramp=[[3,1,2],[220,220,220],[128,116,126],[50,50,50],[255,255,255]];
+ for(let y=30;y<45;y++)for(let x=0;x<ramp.length;x++)d.set([...ramp[x],255],(y*160+75+x)*4);
+ const r=propose(d,160,160);assert.equal(r.applied,false);assert.equal(r.reason,'minor-independent-hue-needs-review');
+});

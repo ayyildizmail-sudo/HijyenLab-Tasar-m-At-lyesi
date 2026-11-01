@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- Dual browser/CommonJS module. */
 /* One local operation/revision authority. No UI, network, persistence or image heuristics. */
 (function(root){'use strict';
 const clone=value=>value===undefined?undefined:JSON.parse(JSON.stringify(value));
@@ -21,6 +22,7 @@ function create(){
  const revoke=()=>{quoteJobSequence++;approval=null;if(result)result.approval={required:true,approvedRevision:null};};
  const current=token=>token===activeToken&&token!==null&&!['cancelled','failed','idle'].includes(status);
  const writable=token=>current(token)&&['loading','decoded','proposed','needs-selection'].includes(status);
+ const referenceQuote=snapshot=>status==='ready'&&!error&&result?.method==='source-reference'&&snapshot?.quoteSource==='source-reference'&&snapshot.designApproval===false&&snapshot.rear===null&&snapshot.reference?.artworkApplied===false&&snapshot.reference.sourceSHA256===source?.sha256&&snapshot.reference.operationId===operationId&&snapshot.reference.extractionRevision===result.extractionRevision&&snapshot.design===fingerprint;
  const api={
   begin(metadata={}){operationId++;activeToken=Object.freeze({operationId});status='loading';source=clone(metadata)||{};frame=null;result=null;pendingCandidates=[];fingerprint=null;error=null;revoke();return activeToken;},
   isCurrent:current,
@@ -32,11 +34,11 @@ function create(){
   fail(token,reason){if(!current(token))return false;error=typeof reason==='string'?reason:String(reason||'Processing failed');status='failed';result=null;revoke();return true;},
   cancel(){operationId++;activeToken=null;status='cancelled';result=null;pendingCandidates=[];fingerprint=null;revoke();return true;},
   touchDesign(value){text(value,'design fingerprint');if(value!==fingerprint){fingerprint=value;designRevision++;if(result)result.designRevision=designRevision;revoke();}return designRevision;},
-  approve(value){if(status!=='ready'||!result||typeof value!=='string'||value!==fingerprint)return false;approval={operationId,designRevision,fingerprint:value};result.approval={required:true,approvedRevision:designRevision};return true;},
+  approve(value){if(status!=='ready'||!result||result.method==='source-reference'||typeof value!=='string'||value!==fingerprint)return false;approval={operationId,designRevision,fingerprint:value};result.approval={required:true,approvedRevision:designRevision};return true;},
   isApproved(value){return status==='ready'&&!!approval&&approval.operationId===operationId&&approval.designRevision===designRevision&&approval.fingerprint===fingerprint&&value===fingerprint;},
   invalidateQuotes(){quoteJobSequence++;return quoteJobSequence;},
-  quoteToken(snapshot){const blank=unprintedQuote(snapshot),declared=declaredQuote(snapshot);if(snapshot?.quoteSource==='customer-declared'&&!declared)return null;if(!blank&&!declared&&!api.isApproved(fingerprint))return null;if(snapshot?.printMode==='unprinted'&&!blank)return null;quoteJobSequence++;const token=Object.freeze({operationId,designRevision,fingerprint,quoteJobSequence,unprinted:blank,declared,snapshot:stable(snapshot)});quoteTokens.add(token);return token;},
-  isQuoteCurrent(token,snapshot){return !!token&&quoteTokens.has(token)&&token.quoteJobSequence===quoteJobSequence&&(token.declared?declaredQuote(snapshot):token.unprinted?unprintedQuote(snapshot):api.isApproved(fingerprint))&&token.operationId===operationId&&token.designRevision===designRevision&&token.fingerprint===fingerprint&&token.snapshot===stable(snapshot);},
+  quoteToken(snapshot){const blank=unprintedQuote(snapshot),declared=declaredQuote(snapshot),reference=referenceQuote(snapshot);if(snapshot?.quoteSource==='customer-declared'&&!declared)return null;if(snapshot?.quoteSource==='source-reference'&&!reference)return null;if(!blank&&!declared&&!reference&&!api.isApproved(fingerprint))return null;if(snapshot?.printMode==='unprinted'&&!blank)return null;quoteJobSequence++;const token=Object.freeze({operationId,designRevision,fingerprint,quoteJobSequence,unprinted:blank,declared,reference,snapshot:stable(snapshot)});quoteTokens.add(token);return token;},
+  isQuoteCurrent(token,snapshot){return !!token&&quoteTokens.has(token)&&token.quoteJobSequence===quoteJobSequence&&(token.reference?referenceQuote(snapshot):token.declared?declaredQuote(snapshot):token.unprinted?unprintedQuote(snapshot):api.isApproved(fingerprint))&&token.operationId===operationId&&token.designRevision===designRevision&&token.fingerprint===fingerprint&&token.snapshot===stable(snapshot);},
   getState(){return clone({operationId,quoteJobSequence,status,source,frame,result,candidates:pendingCandidates,designRevision,fingerprint,approval,error});}
  };
  return api;

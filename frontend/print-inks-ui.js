@@ -113,7 +113,7 @@ function currentReferenceInkReady(){
  if(typeof isReferencePreview!=='function'||!isReferencePreview()||!state.sourcePhoto||state.designProcessing||state.designBlocked||state.productAssetPending||state.productAssetFailure||state.productReviewRequired)return false;
  if(typeof processingSession==='undefined'||typeof designFingerprint!=='function'||!globalThis.ReferenceRecovery?.current())return false;
  const live=processingSession.getState(),record=state.processingResult,fingerprint=designFingerprint();
- return live.status==='ready'&&!live.error&&record?.method==='source-reference'&&!!live.result&&live.fingerprint===fingerprint&&live.result.designRevision===live.designRevision&&record.operation?.operationId===live.operationId&&record.extractionRevision===live.result.extractionRevision&&/^[a-f0-9]{64}$/i.test(live.source?.sha256||'')&&record.source?.sha256===live.source.sha256&&live.result.source?.sha256===live.source.sha256&&processingSession.isApproved(fingerprint);
+ return live.status==='ready'&&!live.error&&record?.method==='source-reference'&&!!live.result&&live.fingerprint===fingerprint&&live.result.designRevision===live.designRevision&&record.operation?.operationId===live.operationId&&record.extractionRevision===live.result.extractionRevision&&/^[a-f0-9]{64}$/i.test(live.source?.sha256||'')&&record.source?.sha256===live.source.sha256&&live.result.source?.sha256===live.source.sha256;
 }
 function knownExtraInkLimit(estimate){
  if(frontArtworkInkEstimate?.uncertain===false&&Number.isInteger(frontArtworkInkEstimate.count)&&frontArtworkInkEstimate.count>PrintPolicy.MAX_PRINT_INKS)return frontArtworkInkEstimate.count;

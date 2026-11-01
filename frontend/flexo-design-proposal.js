@@ -49,6 +49,32 @@ function proposePixels(data,width,height){
  // new, explicitly labelled adaptation. Never revise the source ink estimate.
  const hasDarkNeutral=neutral.some(p=>Math.max(...color(p))<85);
  if(hasDarkNeutral&&luminance(colors[darkest])>=100){if(colors.length===3)return decline('no-dark-ink-for-neutral-outlines');const points=neutral.filter(p=>Math.max(...color(p))<85);colors.push([0,1,2].map(k=>median(points.map(p=>data[p*4+k]))));darkest=colors.length-1;}
+ // Hue is unstable near neutral black/white antialias transitions. A coherent
+ // run alone is not independent-color evidence there: require a local opaque,
+ // monotonic cross-edge ramp bounded by both dark neutral and substrate white.
+ // This is deliberately not a blanket low-chroma allowance (gray cores and
+ // low-chroma lines without both witnesses still retain their rejection gates).
+ const transitionCache=new Int8Array(n);
+ function neutralEdgeTransition(p){
+  if(transitionCache[p])return transitionCache[p]===1;
+  const c=color(p),x=p%width,y=Math.floor(p/width);let passed=false;
+  if(Math.max(...c)-Math.min(...c)<30&&data[p*4+3]>=250){
+   for(const [dx,dy] of [[1,0],[0,1],[1,1],[1,-1]]){
+    const samples=[];
+    for(let step=-4;step<=4;step++){const xx=x+dx*step,yy=y+dy*step,q=yy*width+xx;samples.push(xx>=0&&yy>=0&&xx<width&&yy<height&&data[q*4+3]>=250?color(q):null);}
+    const dark=v=>v&&Math.max(...v)<45&&Math.max(...v)-Math.min(...v)<30;
+    const light=v=>v&&Math.min(...v)>230&&Math.max(...v)-Math.min(...v)<30;
+    for(let left=0;left<4&&!passed;left++)for(let right=5;right<9&&!passed;right++){
+     const a=samples[left],b=samples[right];if(!((dark(a)&&light(b))||(light(a)&&dark(b))))continue;
+     const direction=luminance(b)>luminance(a)?1:-1;let monotonic=true;
+     for(let k=left+1;k<=right;k++)if(!samples[k]||!samples[k-1]||direction*(luminance(samples[k])-luminance(samples[k-1])) < -10){monotonic=false;break;}
+     if(monotonic)passed=true;
+    }
+    if(passed)break;
+   }
+  }
+  transitionCache[p]=passed?1:-1;return passed;
+ }
  const output=new Uint8ClampedArray(data),used=new Set();let changedPixels=0,whitePixels=0;
  for(let p=0;p<n;p++){const i=p*4;if(!data[i+3])continue;const c=color(p),hi=Math.max(...c),chroma=hi-Math.min(...c);let target;
   if(c.every(v=>v===255)){target=[255,255,255];whitePixels++;}
@@ -60,7 +86,7 @@ function proposePixels(data,width,height){
    target=witness>=0?colors[witness]:[255,255,255];if(witness<0)whitePixels++;
   }
   else if(chroma<12||hi<35)target=colors[darkest];
-  else {const angle=hue(c);let index=families.reduce((best,f,k)=>gap(f.hue,angle)<gap(families[best].hue,angle)?k:best,0);if(gap(families[index].hue,angle)>45&&data[i+3]>=250){const x=p%width,y=Math.floor(p/width);for(const [dx,dy] of [[1,0],[0,1],[1,1],[-1,1]]){let coherent=true;for(let step=1;step<4;step++){const xx=x+dx*step,yy=y+dy*step;if(xx<0||yy<0||xx>=width||yy>=height){coherent=false;break;}const q=yy*width+xx;if(data[q*4+3]<250||Math.hypot(...color(q).map((v,k)=>v-c[k]))>15){coherent=false;break;}}if(coherent)return decline('minor-independent-hue-needs-review');}}target=colors[index];}
+  else {const angle=hue(c);let index=families.reduce((best,f,k)=>gap(f.hue,angle)<gap(families[best].hue,angle)?k:best,0);if(gap(families[index].hue,angle)>45&&data[i+3]>=250){const x=p%width,y=Math.floor(p/width);for(const [dx,dy] of [[1,0],[0,1],[1,1],[-1,1]]){let coherent=true;for(let step=1;step<4;step++){const xx=x+dx*step,yy=y+dy*step;if(xx<0||yy<0||xx>=width||yy>=height){coherent=false;break;}const q=yy*width+xx;if(data[q*4+3]<250||Math.hypot(...color(q).map((v,k)=>v-c[k]))>15){coherent=false;break;}}if(coherent){let edgeRun=true;for(let step=0;step<4;step++)if(!neutralEdgeTransition((y+dy*step)*width+x+dx*step))edgeRun=false;if(!edgeRun)return decline('minor-independent-hue-needs-review');}else continue;}if(neutralEdgeTransition(p))index=darkest;}target=colors[index];}
   if(target.some((v,k)=>v!==c[k]))changedPixels++;output.set(target,i);if(target[0]!==255||target[1]!==255||target[2]!==255)used.add(hex(target));
  }
  const palette=[...used];if(palette.length!==colors.length||palette.length>3)return decline('palette-family-loss');

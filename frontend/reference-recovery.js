@@ -15,7 +15,7 @@ root.ReferenceRecovery=api;
 // A reference is a source display, never an extracted logo or a print approval.
 const style=document.createElement('style');style.textContent='body.referenceRecoveryActive #uploadRecovery,body.referenceRecoveryActive #designError,body.referenceRecoveryActive .workspace{display:none}#referenceRecovery img{display:block;max-width:100%;max-height:440px;object-fit:contain;margin:12px auto}';document.head.append(style);
 const box=document.createElement('section');box.id='referenceRecovery';box.className='notice light';box.hidden=true;
-box.innerHTML='<h2>Özgün görseliniz korundu</h2><p>Logo güvenle ayrılamadı. Bu görünüm yalnız kaynak referansı olarak kalır; seçtiğiniz ürüne yeniden uygulanmış tasarım değildir. Kartvizit, menü veya teknik belgedeki kişisel bilgiler logo sayılmaz.</p><img id="recoverySource" alt="Özgün kaynak referansı; seçilen ürüne uygulanmadı"><button id="recoveryStart" type="button" class="primary full">Bu görünümle devam et →</button><p class="hint">Arka yüz, koku, adet ve teslimat seçimleriyle devam edebilirsiniz. Baskı renkleri bilinmiyorsa yalnız klişe hariç ara toplam gösterilir.</p>';
+box.innerHTML='<h2>Görsel ürüne yerleştirilemedi.</h2><p>Özgün görseliniz korundu.</p><img id="recoverySource" alt="Özgün görsel; ürüne uygulanmadı"><button id="recoveryStart" type="button" class="outline full">Yalnız ön fiyatı gör</button><p class="hint">Tasarım onayı değildir. Klişe bilinmiyorsa fiyata dahil edilmez.</p>';
 document.querySelector('.workspace').before(box);
 let source=null,referenceSource=null,referenceIdentity=null,accepting=false;
 function hide(){box.hidden=true;document.body.classList.remove('referenceRecoveryActive');}
@@ -28,7 +28,7 @@ function current(){
 function sync(){
  if(isReferencePreview()){
   hide();const label=$('inks').closest?.('label');if(label?.firstChild)label.firstChild.textContent='Baskı renk sayısı (beyaz hariç) · İsteğe bağlı';for(const option of $('inks').options||[])option.hidden=option.value!==''&&(!Number.isInteger(Number(option.value))||Number(option.value)<1||Number(option.value)>3);$('previewCaption').textContent=referencePreviewLabel();$('photoQuoteBgLabel').hidden=false;$('photoPriceNote').hidden=false;$('photoPriceNote').textContent=referenceGroundLabel()+' · Baskı renkleri ve klişe teknik incelemede.';
-  $('simpleTools').hidden=true;$('simpleDetails').hidden=true;document.querySelector('.previewTip').textContent='Özgün kaynak gösterilir; logo veya zemin değiştirilmedi.';$('next').textContent='Bu görünümle devam et →';
+  $('simpleTools').hidden=true;$('simpleDetails').hidden=true;document.querySelector('.previewTip').textContent='Özgün kaynak gösterilir; logo veya zemin değiştirilmedi.';$('next').textContent='Yalnız ön fiyatı gör';
   for(const id of ['mini','finalImage'])$(id).alt=referencePreviewLabel();return;
  }
  $('next').textContent='Ön yüzü onayla';const label=$('inks').closest?.('label');if(label?.firstChild)label.firstChild.textContent='Tahmini baskı rengi sayısı (isterseniz düzeltin)';for(const option of $('inks').options||[])option.hidden=false;
@@ -50,12 +50,13 @@ async function accept(){
   const record=processingSession.commit(token,{method:'source-reference',methodVersion:'v68',referenceKnownActualInkCount:Number.isInteger(knownOriginal)?knownOriginal:null,box:bounds,sourceCoordinates:frame.coordinateFrame,coordinateStatus:'recorded',candidates:[],preservedRegions:[{box:bounds,reason:'Entire source shown as reference; not applied artwork.'}],excludedRegions:[],maskBasis:'No masking or logo extraction.',transformOrder:['browser-decode','aspect-safe-reference-display'],limitations:['Reference only; selected product may differ.','No semantic logo extraction or confirmed printing inks.']});
   if(!record)return false;
   referenceSource=data;referenceIdentity=old.source.sha256;photoImg=img;state.quoteSource='source-reference';state.referenceInkDeclaration=null;state.processingResult=record;state.designBlocked=false;state.screenSelectionRequired=false;state.extractionSourceLimited=false;state.extractionApproximate=false;state.extractionApprovalRequired=false;state.bgDecisionPending=false;state.photoQuoteBg='unknown';state.bgPantone='';state.text='';state.textPending=false;state.inkSelection={status:'unknown',selectedCount:null,estimatedCount:null};
-  $('inks').value='';printInkKey=null;latest=null;invalidateQuote();syncProcessingDesign();if(!approveCurrentDesign())return false;
+  $('inks').value='';printInkKey=null;latest=null;invalidateQuote();syncProcessingDesign();
   root.FlexoDesignUI?.bindReferenceDiagnostic(old.operationId,record);
-  refresh();go(2);return true;
+  refresh();return continuePrice();
  }catch(error){status(error.message||'Referans açılamadı. Görseli yeniden seçin.');return false;}finally{accepting=false;sync();}
 }
+function continuePrice(){if(!current()){showDesignIssue();return false;}if(typeof printPolicyError==='function'&&printPolicyError()){status(printPolicyError());return false;}return showFragrance();}
 $('recoveryStart').onclick=accept;
 const beforeGo=go;go=function(){const result=beforeGo.apply(this,arguments);sync();return result;};
-api.sync=sync;api.clear=clear;api.current=current;api.accept=accept;sync();
+api.continuePrice=continuePrice;api.sync=sync;api.clear=clear;api.current=current;api.accept=accept;sync();
 })(typeof globalThis!=='undefined'?globalThis:this);

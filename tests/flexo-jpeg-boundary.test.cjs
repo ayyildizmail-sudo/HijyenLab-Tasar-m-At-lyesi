@@ -1,0 +1,6 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- Pixel regression harness. */
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const {createCanvas,loadImage}=require('@napi-rs/canvas');
+const {proposePixels}=require('../frontend/flexo-design-proposal.js');
+function source(){const cv=createCanvas(320,320),cx=cv.getContext('2d');cx.fillStyle='white';cx.fillRect(0,0,320,320);cx.save();cx.beginPath();cx.arc(160,160,130,0,Math.PI*2);cx.clip();for(const [y,c] of [[20,'#c31923'],[110,'#dcbe6e'],[210,'#1e2d6e']]){cx.fillStyle=c;cx.fillRect(0,y,320,100);}cx.fillStyle='#050404';cx.fillRect(125,55,60,30);cx.fillStyle='white';cx.fillRect(130,60,50,20);cx.restore();return cv;}
+for(const quality of [75,85,95,100])test('ordinary three-hue badge JPEG remains a bounded design proposal at quality '+quality,async()=>{const input=source(),im=await loadImage(input.toBuffer('image/jpeg',quality)),cv=createCanvas(320,320),cx=cv.getContext('2d');cx.drawImage(im,0,0);const d=cx.getImageData(0,0,320,320).data,r=proposePixels(d,320,320);assert.equal(r.applied,true,r.reason);assert.equal(r.metadata.proposedInkCount,3);assert.deepEqual(r.originalData,d);for(let i=3;i<d.length;i+=4)assert.equal(r.data[i],d[i]);});
