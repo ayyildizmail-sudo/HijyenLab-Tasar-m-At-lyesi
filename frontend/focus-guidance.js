@@ -94,6 +94,7 @@
     if (doc.__hijyenLabFocusGuidance) return doc.__hijyenLabFocusGuidance;
     const main = doc.querySelector('main'); if (!main) return null;
     let active = null, stage = '', queued = false, disposed = false, opening = main.classList.contains('welcomeEmpty');
+    let engaged = false, keyboardIntent = false;
     const groups = new Set(), contexts = new Set(), listeners = [];
     const get = id => doc.getElementById(id);
     const attr = (node, name, yes) => {
@@ -125,7 +126,7 @@
       for (const node of contexts) attr(node, PASSIVE, passiveAllowed(node, active, doc.querySelector('.productPicker')));
     }
     function activate(node) {
-      if (!visible(node)) return;
+      if (!engaged || !visible(node)) return;
       const dialog = activeDialog(); if (dialog && node !== dialog) node = dialog;
       if (active === node) return;
       if (active) attr(active, ACTIVE, false);
@@ -153,8 +154,16 @@
     }
     function sync(preferred) {
       queued = false; if (disposed) return;
+      const previousStage = stage;
       const nextStage = currentStage(), changed = nextStage !== stage; stage = nextStage;
       const nextOpening = main.classList.contains('welcomeEmpty'), openingChanged = opening !== nextOpening; opening = nextOpening;
+      // A fresh blank welcome is a new start, not the last task's attention state.
+      if (opening && stage === 'design' && (openingChanged || (changed && previousStage))) {
+        engaged = false; keyboardIntent = false;
+        if (active) attr(active, ACTIVE, false);
+        active = null;
+      }
+      if (!engaged) { context(); return; }
       const dialog = activeDialog();
       if (dialog) { activate(dialog); context(); return; }
       const focused = visible(doc.activeElement) ? nearest(doc.activeElement) : null;
@@ -177,6 +186,7 @@
       for (const record of records) {
         // Direct body/main additions only: never observe text/price/field churn.
         if (record.type === 'childList') { additions = true; changed = true; continue; }
+        if (record.target === main && record.attributeName === 'class') { changed = true; continue; }
         if (!groups.has(record.target)) continue;
         changed = true;
         // Becoming eligible is not a request to edit: optional extra logos and
@@ -187,7 +197,25 @@
       if (changed) schedule(preferred);
     }) : null;
     function attention(event) {
+      // Browser focus() also emits trusted focusin: only actual input intent may
+      // start guidance. Hover and initialization must leave the welcome clear.
+      if (event.type === 'keydown') {
+        if (event.isTrusted && event.key === 'Tab') keyboardIntent = true;
+        else if (event.isTrusted && !event.metaKey && !event.ctrlKey && !event.altKey &&
+          (event.key === 'Enter' || event.key === ' ' || event.key?.startsWith('Arrow'))) {
+          // Native keyboard activation/selection is deliberate, like a press.
+        } else return;
+        if (event.key === 'Tab') return;
+      }
       let node = nearest(event.target);
+      if (!engaged) {
+        const control = event.target?.closest?.('input, select, textarea, button, a, label, summary, [contenteditable="true"]');
+        const intent = event.isTrusted && (
+          (event.type === 'focusin' && keyboardIntent) ||
+          (['pointerdown', 'input', 'change', 'keydown'].includes(event.type) && control));
+        if (!intent || !node || !visible(node)) return;
+        engaged = true; keyboardIntent = false;
+      }
       if (event.type === 'focusin' && /^H[1-6]$/.test(event.target?.tagName || '') && STAGES.includes(node?.id)) node = defaultGroup(node.id);
       // A drifting mouse is not a request to leave a field being edited.
       // Native focus and an intentional first press can still switch immediately.
@@ -200,12 +228,12 @@
       node.addEventListener(type, fn, options); listeners.push(() => node.removeEventListener(type, fn, options));
     }
     discover();
-    // No input, keyup, composition, pointermove, timers, layout or bitmap work.
+    // Intent checks are constant-time; repeated input causes no writes, layout or bitmap work.
     // Capture runs before the target action/default so the first tap/keystroke
     // always acts on an already crisp, fully enabled real control.
-    for (const type of ['focusin', 'pointerdown', 'pointerover']) listen(doc, type, attention, { capture: true, passive: true });
+    for (const type of ['focusin', 'pointerdown', 'pointerover', 'keydown', 'input', 'change']) listen(doc, type, attention, { capture: true, passive: true });
     listen(doc, 'close', () => sync(), true);
-    if (observer) { observer.observe(doc.body, { childList: true }); observer.observe(main, { childList: true }); }
+    if (observer) { observer.observe(doc.body, { childList: true }); observer.observe(main, { childList: true, attributes: true, attributeFilter: ['class'] }); }
     main.setAttribute('data-focus-guidance', 'true');
     const controller = Object.freeze({
       sync() { discover(); sync(); },

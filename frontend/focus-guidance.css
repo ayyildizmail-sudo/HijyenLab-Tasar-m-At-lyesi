@@ -3,7 +3,7 @@
 @media screen {
   main[data-focus-guidance] [data-focus-group] { border-radius: 14px; }
   main[data-focus-guidance] [data-focus-active],
-  dialog[data-focus-group][open] {
+  dialog[data-focus-group][data-focus-active][open] {
     outline: 2px solid var(--focus-guidance-accent, var(--customer-decoration, #800d2a));
     outline-offset: 4px;
   }
@@ -42,10 +42,10 @@
   main[data-focus-guidance] [data-focus-active] { box-shadow: none; }
 }
 @media (forced-colors: active) {
-  main[data-focus-guidance] [data-focus-active], dialog[data-focus-group][open] { outline-color: Highlight; }
+  main[data-focus-guidance] [data-focus-active], dialog[data-focus-group][data-focus-active][open] { outline-color: Highlight; }
 }
 @media (prefers-contrast: more) and (forced-colors: none) {
-  main[data-focus-guidance] [data-focus-active], dialog[data-focus-group][open] { outline-color: var(--customer-accent, #142d49); outline-width: 3px; }
+  main[data-focus-guidance] [data-focus-active], dialog[data-focus-group][data-focus-active][open] { outline-color: var(--customer-accent, #142d49); outline-width: 3px; }
 }
 /* Export generation uses the untouched canvas pixels. Browser printing also
    removes all screen-only attention treatment, including passive softening. */

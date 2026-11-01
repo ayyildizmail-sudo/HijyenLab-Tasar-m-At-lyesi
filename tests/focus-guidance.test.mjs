@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 const source = fs.readFileSync(new URL('../frontend/focus-guidance.js', import.meta.url), 'utf8');
 const css = fs.readFileSync(new URL('../frontend/focus-guidance.css', import.meta.url), 'utf8');
-function fixture() {
+function fixture({ engaged = true } = {}) {
   let writes = 0;
   const queues = [], observers = [], listeners = new Map();
   function simple(node, selector) {
@@ -43,7 +43,7 @@ function fixture() {
     constructor(tag, id = '', classes = '') {
       this.tagName = tag.toUpperCase(); this.id = id; this.attrs = new Map(); this.children = []; this.parentElement = null; this.ownerDocument = doc;
       const classesSet = new Set(classes.split(' ').filter(Boolean));
-      this.classList = { contains: c => classesSet.has(c), add: c => classesSet.add(c), remove: c => classesSet.delete(c) };
+      this.classList = { contains: c => classesSet.has(c), add: c => { if (!classesSet.has(c)) { classesSet.add(c); mutation(this, 'attributes', 'class'); } }, remove: c => { if (classesSet.delete(c)) mutation(this, 'attributes', 'class'); } };
       const styles = new Map(); this.style = { getPropertyValue: key => styles.get(key) || '', setProperty: (key, value) => { writes++; styles.set(key, value); } };
       this.type = 'text'; this.value = ''; this.checked = false; this.disabled = false;
     }
@@ -133,12 +133,62 @@ function fixture() {
   const context = { window: browser, module: { exports: {} }, Promise };
   vm.runInNewContext(source, context); const model = context.module.exports, controller = model.mount(doc);
   function flush() { let count = 0; while (queues.length || observers.some(o => o.records.length)) { assert(++count < 30, 'observers settle without recursion'); for (const o of observers) if (o.records.length) { const records = o.records.splice(0); o.callback(records); } while (queues.length) queues.shift()(); } }
-  function dispatch(type, target) { if (type === 'focusin') doc.activeElement = target; for (const { fn } of listeners.get(type) || []) fn({ type, target }); }
+  function dispatch(type, target, extra = {}) { if (type === 'focusin') doc.activeElement = target; for (const { fn } of listeners.get(type) || []) fn({ type, target, isTrusted: true, ...extra }); }
   function show(id) { doc.activeElement = null; for (const [key, panel] of Object.entries(panels)) panel.hidden = key !== id; main.classList.remove('welcomeEmpty'); picker.hidden = true; flush(); }
   function focus(id) { const node = typeof id === 'string' ? doc.getElementById(id) : id; dispatch('focusin', node); return node; }
   flush();
+  if (engaged) dispatch('pointerdown', doc.getElementById('productSelect'));
   return { doc, main, model, controller, panels, picker, description, action, visual, edit, rearEditor, sponsor, advanced, optional, lead, fields, error, helpDialog, advisor, rearFields, declaration, recovery, add, focus, dispatch, show, flush, observers, listeners, writes: () => writes };
 }
+
+test('cold opening stays entirely clear through sync, hover, defaults and programmatic focus', () => {
+  const f = fixture({ engaged: false });
+  const clear = () => {
+    assert.equal(f.controller.getActiveGroup(), null);
+    assert.equal(f.doc.querySelectorAll('[data-focus-active]').length, 0);
+    assert.equal(f.doc.querySelectorAll('[data-focus-passive]').length, 0);
+  };
+  clear();
+  for (let i = 0; i < 3; i++) {
+    f.controller.sync(); f.flush();
+    f.dispatch('pointerover', f.doc.getElementById('productSelect'));
+    f.focus('productSelect'); // native focus() can produce trusted focusin
+    f.dispatch('change', f.doc.getElementById('productSelect'), { isTrusted: false });
+    f.dispatch('pointerdown', f.main); clear();
+  }
+  f.helpDialog.open = true; f.focus('contactMessage'); f.flush(); clear();
+  assert.match(css, /dialog\[data-focus-group\]\[data-focus-active\]\[open\]/);
+});
+
+test('trusted press, typing, selection and keyboard navigation each start real guidance', () => {
+  for (const type of ['pointerdown', 'input', 'change']) {
+    const f = fixture({ engaged: false }), control = f.doc.getElementById('productSelect');
+    f.dispatch(type, control, { isTrusted: false }); assert.equal(f.controller.getActiveGroup(), null);
+    f.dispatch(type, control); assert.equal(f.controller.getActiveGroup(), 'product', type);
+    assert.equal(f.doc.getElementById('welcomeIntro').hasAttribute('data-focus-passive'), true);
+    assert.equal(control.hasAttribute('data-focus-passive'), false);
+  }
+  const f = fixture({ engaged: false });
+  f.dispatch('keydown', f.doc.body, { key: 'Tab' });
+  assert.equal(f.controller.getActiveGroup(), null);
+  f.focus('productSelect'); assert.equal(f.controller.getActiveGroup(), 'product');
+});
+
+test('restored stage is initially clear; returning to blank welcome resets intent', () => {
+  const f = fixture({ engaged: false });
+  f.show('pricing'); f.focus('contactName'); f.controller.sync();
+  assert.equal(f.controller.getActiveGroup(), null, 'restored/programmatic stage is not user intent');
+  f.dispatch('input', f.doc.getElementById('contactName'));
+  assert.equal(f.controller.getActiveGroup(), 'quote-contact');
+  f.show('design');
+  f.main.classList.add('welcomeEmpty'); f.picker.hidden = false; f.flush();
+  assert.equal(f.controller.getActiveGroup(), null);
+  assert.equal(f.doc.querySelectorAll('[data-focus-passive]').length, 0);
+  f.focus('productSelect'); f.dispatch('pointerover', f.doc.getElementById('focusUpload')); f.controller.sync();
+  assert.equal(f.controller.getActiveGroup(), null, 'reset is stable through focus/hover/sync');
+  f.dispatch('change', f.doc.getElementById('productSelect'));
+  assert.equal(f.controller.getActiveGroup(), 'product');
+});
 
 test('initial product, upload, declaration and all stage defaults use the real existing groups', () => {
   const f = fixture(), { controller: c } = f;
@@ -173,11 +223,11 @@ test('rear contact, text, sponsor region/review, extra logos and QR switch befor
   f.focus(replacement); assert.equal(f.controller.getActiveGroup(), 'rear-extra-logos', 'new row controls inherit stable owner');
 });
 
-test('typing is inert: no input listener, no queued work, no value changes or repeated frame writes', () => {
+test('typing after intent is inert: no queued work, no value changes or repeated frame writes', () => {
   const f = fixture(); f.show('pricing'); const input = f.focus('contactName');
   const before = f.writes();
   for (const value of ['A','Ad','Adı','İşletme & e-posta','😀İŞLETME']) { input.value = value; f.dispatch('input', input); f.dispatch('pointerover', input); f.flush(); assert.equal(input.value, value); }
-  assert.equal(f.writes(), before); assert.equal(f.listeners.has('input'), false); assert.equal(f.listeners.has('keydown'), false); assert.equal(f.listeners.has('pointermove'), false);
+  assert.equal(f.writes(), before); assert.equal(f.listeners.has('pointermove'), false);
   f.dispatch('pointerover', f.description); assert.equal(f.controller.getActiveGroup(), 'quote-contact', 'a drifting mouse never steals the writing frame'); assert.equal(f.writes(), before);
   f.error.hidden = false; f.flush(); assert.equal(f.controller.getActiveGroup(), 'quote-contact'); assert.equal(f.writes(), before + 1, 'unobserved validation leaves have no guidance work');
   f.doc.activeElement = null; f.focus('province'); assert.equal(f.controller.getActiveGroup(), 'quote-settings'); assert.equal(f.doc.getElementById('province').disabled, false);
@@ -192,6 +242,7 @@ test('asynchronous optional eligibility cannot steal review or upload attention'
   const compare = f.add('details', 'flexoProposalNote', f.visual); compare.hidden = true; f.controller.sync(); f.flush();
   compare.hidden = false; f.flush(); assert.equal(f.controller.getActiveGroup(), 'upload', 'new optional comparison stays passive');
   f.main.classList.add('welcomeEmpty'); f.picker.hidden = false; f.doc.activeElement = null; f.flush();
+  f.dispatch('pointerdown', f.doc.getElementById('focusUpload'));
   f.main.classList.remove('welcomeEmpty'); f.picker.hidden = true; extras.hidden = true; f.flush();
   assert.equal(f.controller.getActiveGroup(), 'front-review', 'completed opening enters actual appearance review');
 });
@@ -254,7 +305,7 @@ test('body-level and late dialogs own visual attention without changing native f
 test('source/CSS contract preserves performance, navigation, safety, sensory colors and real exports', () => {
   assert(!/\.focus\(|\.blur\(|scrollIntoView|scrollTo\(|requestAnimationFrame|setTimeout|createElement|cloneNode|innerHTML|replaceChildren|getContext|getImageData|toDataURL|fetch\(|localStorage|\.value\s*=|\.checked\s*=|\.disabled\s*=|\binert\b/.test(source));
   assert(!/characterData|subtree\s*:\s*true/.test(source));
-  assert(!/addEventListener\(['"](?:input|keyup|keydown|composition|pointermove)/.test(source));
+  assert(!/addEventListener\(['"](?:keyup|composition|pointermove)/.test(source));
   assert.match(css, /blur\(\.55px\)/); assert.match(css, /opacity: \.78/);
   for (const preference of ['prefers-reduced-motion', 'prefers-reduced-transparency', 'prefers-contrast', 'forced-colors']) assert(css.includes(preference));
   assert.match(css, /@media print/); assert.match(css, /filter: none !important/);
