@@ -1,12 +1,19 @@
 /* Local business-policy hints only. No network, OCR, legal verdict or production approval. */
 (function(root){'use strict';
-const POLICY_VERSION='content-policy-local-v1';
+const POLICY_VERSION='content-policy-local-v2';
 const STATES=Object.freeze(['clear_local','blocked','review_needed','not_checked','service_unavailable']);
 // Deliberately small, high-specificity seed phrases. Not a complete language dictionary.
 const PHRASES=Object.freeze(['siktir git','orospu çocuğu','fuck you','motherfucker','son of a bitch','fick dich','hurensohn','va te faire foutre','hijo de puta','vaffanculo','сука блядь','иди нахуй','ابن القحبة']);
 function normalize(value){return String(value||'').normalize('NFKC').toLowerCase().replace(/\u0130/g,'i').replace(/[\u200b-\u200f\u202a-\u202e\u2060-\u206f\ufeff]/g,'').replace(/i\u0307/g,'i').replace(/\s+/gu,' ').trim();}
 function letters(value){return normalize(value).replace(/[^\p{L}\p{N}]/gu,'');}
 const exact=new Set(PHRASES.map(letters));
+// Paired quotation marks are a context signal, not approval. Keep them before
+// the compact comparison, which otherwise erases the distinction from abuse.
+const QUOTE_PAIRS=Object.freeze([['"','"'],["'","'"],['“','”'],['‘','’'],['«','»'],['‹','›'],['„','“'],['「','」'],['『','』']]);
+function isWholeQuotation(value){
+ const quoted=value.replace(/[.!?…]+$/u,'').trim();
+ return QUOTE_PAIRS.some(([open,close])=>quoted.startsWith(open)&&quoted.endsWith(close)&&quoted.length>open.length+close.length);
+}
 function result(state,reason,field){return {state,reason,field:field||null,policyVersion:POLICY_VERSION,legalApproval:false,serverApproval:false};}
 function checkText(value,field){
  if(typeof value!=='string')return result('not_checked','missing_text',field);
@@ -14,7 +21,7 @@ function checkText(value,field){
  if(!normalized)return result('clear_local','no_local_match',field);
  // Entire-field comparison avoids Scunthorpe/brand substring false positives.
  // Separator/zero-width obfuscation of an otherwise exact phrase is covered.
- if(exact.has(letters(normalized)))return result('blocked','explicit_abuse_phrase',field);
+ if(exact.has(letters(normalized)))return isWholeQuotation(normalized)?result('review_needed','quotation_context_required',field):result('blocked','explicit_abuse_phrase',field);
  // Longer contexts may quote, condemn, or report abuse. Never auto-convict them.
  for(const phrase of PHRASES){const p=normalize(phrase),at=normalized.indexOf(p);if(at>=0){const before=normalized.slice(0,at),after=normalized.slice(at+p.length);if((!before||!/[\p{L}\p{N}]$/u.test(before))&&(!after||! /^[\p{L}\p{N}]/u.test(after)))return result('review_needed','context_required',field);}}
  return result('clear_local','no_local_match',field);
@@ -36,7 +43,7 @@ function assessPayload(payload){
 }
 function message(check,stage='preview'){
  if(check?.state==='blocked')return 'Bu ifade içerik kurallarımıza uygun değil. Lütfen metni düzenleyin; diğer seçimleriniz korunur.';
- if(check?.state==='review_needed')return stage==='preview'?'':'Bu içerik için ek kontrol gerekiyor. Tasarımınızı düzenleyebilir veya destek isteyebilirsiniz.';
+ if(check?.state==='review_needed')return stage==='preview'?'':'İfadenin bağlamı yerel kontrolde belirlenemedi. Bu bir ret kararı değildir; tasarımınızı düzenlemeye devam edebilirsiniz. Henüz gönderim yapılmadı.';
  if(stage==='preview')return '';
  return 'İçerik kontrolü henüz tamamlanmadı. Tasarımınızı düzenlemeye devam edebilirsiniz; şu anda gönderim yapılmadı.';
 }

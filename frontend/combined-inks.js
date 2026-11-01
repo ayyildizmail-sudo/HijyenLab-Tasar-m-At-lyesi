@@ -28,16 +28,19 @@ function selectTextInk(colors,background){
 }
 function estimate(input={}){
  const colors=[],actualInkColors=[],reasons=[],explicit=[],pendingChosen=[],front=input.front,rear=input.rear||{};
+ // A verified rendered proposal owns exact ink identities. Do not re-cluster its
+ // palette for price only: any new rear/extra/ground ink must stay visible in count.
+ const exactPalette=front?.inkIdentity==='verified-rendered-flat-palette'||rear.sponsor?.palette?.inkIdentity==='verified-rendered-flat-palette';
  function add(raw,chosen=false,flush=false){if(chosen&&!flush){pendingChosen.push(raw);return;}let c=parse(raw);if(!c){reasons.push('Geçersiz veya bilinmeyen baskı rengi.');return;}if(chosen?white(c):sampleWhite(c))return;if(actualInkColors.some(p=>distance(p,c)===0)){if(chosen&&!explicit.some(p=>distance(p,c)===0))explicit.push(c.slice());return;}actualInkColors.push(c.slice());
  // Count-only estimate: sampled dark JPEG neutrals may share black; explicitly chosen gray above 40 stays distinct. Actual QR colors were retained above.
- if(!chosen&&neutral(c)&&Math.max(...c)<=64)c=[0,0,0];
- const match=colors.find(p=>distance(p,c)<=(chosen?0:24)),differentChosen=chosen&&!explicit.some(p=>distance(p,c)===0)&&explicit.some(p=>distance(p,c)>0&&distance(p,c)<=24);
+ if(!exactPalette&&!chosen&&neutral(c)&&Math.max(...c)<=64)c=[0,0,0];
+ const match=colors.find(p=>distance(p,c)<=(exactPalette||chosen?0:24)),differentChosen=chosen&&!explicit.some(p=>distance(p,c)===0)&&explicit.some(p=>distance(p,c)>0&&distance(p,c)<=24);
  if(!match||differentChosen)colors.push(c);if(chosen&&!explicit.some(p=>distance(p,c)===0))explicit.push(c);
  }
  if(!front||!['estimated','none'].includes(front.status)||front.uncertain)reasons.push('Ön yüz baskı renkleri henüz güvenilir biçimde tahmin edilemedi.');
  else if(front.status==='none'){if(front.colors?.length)reasons.push('Ön yüz renk durumu tutarsız.');}
  else if(!Array.isArray(front.colors)||front.colors.length>12||front.colors.some(c=>!parse(c)))reasons.push('Ön yüz renk paleti eksik veya geçersiz.');
- else if(front.monochrome===true){const cs=front.colors.map(parse).filter(c=>!sampleWhite(c));if(cs.length){if(cs.every(neutral))add(cs.reduce((a,b)=>a.reduce((s,n)=>s+n,0)<b.reduce((s,n)=>s+n,0)?a:b));else if(cs.every(c=>distance(c,cs[0])<=32))add(cs[0]);else reasons.push('Tek renk iddiası ön yüz renkleriyle uyuşmuyor.');}}
+ else if(front.monochrome===true&&!exactPalette){const cs=front.colors.map(parse).filter(c=>!sampleWhite(c));if(cs.length){if(cs.every(neutral))add(cs.reduce((a,b)=>a.reduce((s,n)=>s+n,0)<b.reduce((s,n)=>s+n,0)?a:b));else if(cs.every(c=>distance(c,cs[0])<=32))add(cs[0]);else reasons.push('Tek renk iddiası ön yüz renkleriyle uyuşmuyor.');}}
  else front.colors.forEach(c=>add(c));
  if(input.frontTextColor!=null)add(input.frontTextColor,true);
  if(input.background==null)reasons.push('Ambalaj zemin rengi bilinmiyor.');else add(input.background,true);
@@ -71,7 +74,7 @@ function estimate(input={}){
  for(const color of pendingChosen)add(color,true,true);
  if(colors.length>6)reasons.push('Birleşik renk tahmini desteklenen otomatik sınırı aşıyor.');
  let qrColor=null;if(rear.qr===true&&!reasons.length){const selection=selectQrInk(actualInkColors);if(selection.ok)qrColor=selection.color;else reasons.push(selection.reason);}
- return {qrColor,actualInkColors:actualInkColors.map(hex),status:reasons.length?'unknown':'estimated',count:reasons.length?null:colors.length,colors:colors.map(hex),reason:reasons.length?[...new Set(reasons)].join(' '):'Ön ve arka yüz birlikte yaklaşık hesaplandı; ortak renk bir kez, beyaz hariç. Fiziksel klişe ayrımı teknik onay gerektirir.',estimateOnly:true};
+ return {qrColor,inkIdentity:exactPalette?'verified-rendered-flat-palette':null,actualInkColors:actualInkColors.map(hex),status:reasons.length?'unknown':'estimated',count:reasons.length?null:colors.length,colors:colors.map(hex),reason:reasons.length?[...new Set(reasons)].join(' '):exactPalette?'Onaylanan önerinin gerçek renk paleti; ön, arka, ek yazı/logo ve zemin birlikte, aynı renk bir kez, beyaz hariç. Fiziksel klişe ayrımı teknik onay gerektirir.':'Ön ve arka yüz birlikte yaklaşık hesaplandı; ortak renk bir kez, beyaz hariç. Fiziksel klişe ayrımı teknik onay gerektirir.',estimateOnly:true};
 }
 const api=Object.freeze({estimate,selectQrInk,selectTextInk});if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CombinedInks=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

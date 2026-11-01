@@ -13,7 +13,9 @@ async function prepare(current,{allowReferenceRecovery=false,ingressMode='unknow
  if(c.width*c.height>4000000)return decline('pixel-limit');
  const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(img,0,0);const before=cx.getImageData(0,0,c.width,c.height);
  const estimate=PrintInks.estimate(before.data,c.width,c.height,{acceptedArtwork:true});
- if(estimate.contentEvidence?.content!=='continuous-gradient')return decline('not-continuous-gradient');
+ // Source geometry/texture evidence, not the original ink estimator, decides
+ // eligibility. Flat 4+ colors, JPEG and gradients all use the same proposal.
+ if(estimate.contentEvidence?.content==='photographic')return decline('photographic-source-needs-review');
  const proposal=await FlexoDesignProposal.propose(before.data,c.width,c.height,{sourceSHA256:source.sha256});if(!current())return decline('operation-replaced');if(!proposal.applied)return decline(proposal.reason||'proposal-declined');
  cx.putImageData(new ImageData(proposal.data,c.width,c.height),0,0);const encoded=c.toDataURL('image/png'),decoded=await loadImage(encoded);if(!current())return decline('operation-replaced');
  cx.clearRect(0,0,c.width,c.height);cx.drawImage(decoded,0,0);const actual=cx.getImageData(0,0,c.width,c.height).data;

@@ -38,7 +38,7 @@ for(const name of ['q100s0.jpg','q80s0.jpg','q80s2.jpg','q90s2.jpg'])test('contr
  assert(c.approveCurrentDesign());assert(c.processingSession.isApproved(c.designFingerprint()));c.state.text='changed';c.syncProcessingDesign();assert(!c.processingSession.isApproved(c.designFingerprint()));
 });
 
-test('unrelated continuous-gradient admission gate remains conservative for q85 4:2:0',{skip:!fs.existsSync(path.join(directory,'q85s2.jpg'))},async()=>{
+test('q85 4:2:0 uses source evidence instead of continuous-gradient-only admission',{skip:!fs.existsSync(path.join(directory,'q85s2.jpg'))},async()=>{
  const bytes=fs.readFileSync(path.join(directory,'q85s2.jpg')),c=setup();await c.$('unifiedUpload').onchange({target:{files:[new File([bytes],'unrelated.jpeg',{type:'image/jpeg'})],value:'chosen'}});
- assert.equal(c.processingSession.getState().status,'failed');assert.equal(vm.runInContext('localDiagnostic.reason',c),'not-continuous-gradient');assert(!c.processingSession.isApproved(c.designFingerprint()));
+ assert.equal(c.processingSession.getState().status,'ready');assert.equal(vm.runInContext('localDiagnostic.reason',c),'proposal-ready');assert.equal(c.processingSession.getState().result.flatPrintProposal.proposedInkCount,3);assert(!c.processingSession.isApproved(c.designFingerprint()));
 });

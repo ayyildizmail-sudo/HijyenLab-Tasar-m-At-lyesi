@@ -9,7 +9,8 @@ function palette(colors){
  // Pale brand colors can decorate the journey, but never become unreadable text.
  // Keep the sampled/verified hue; this presentation palette never changes artwork inks.
  const source=candidates.find(c=>contrast(c)>=1.05),decoration=source||FALLBACK;
- const c=rgb(decoration),tint='#'+c.map(v=>Math.round(v*.08+255*.92).toString(16).padStart(2,'0')).join('');
+ // A visible but restrained card wash; UI-only, not a generated printing ink.
+ const c=rgb(decoration),tint='#'+c.map(v=>Math.round(v*.14+255*.86).toString(16).padStart(2,'0')).join('');
  const accent=candidates.find(c=>['#ffffff','#f5f7fa',tint].every(bg=>contrast(c,bg)>=4.5))||FALLBACK;
  return {accent,tint,decoration,personalized:!!source};
 }

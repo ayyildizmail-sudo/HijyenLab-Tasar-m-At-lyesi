@@ -94,3 +94,41 @@ test('identity/link fields request no browser spelling correction, capitalizatio
   if(['rearWebsite','rearQrUrl'].includes(id))assert(tag.includes('inputmode="url"'));
  }
 });
+
+// Empty rear never needs a second preview tap, even immediately after deleting old text.
+test('clearing every rear field skips in one action without stale content, rendering or lost front guards',()=>{
+ const h=harness();
+ for(const id of ['rearInstagram','rearWebsite','rearPhone','rearAddress','rearExtra']){h.$(id).focus();h.type(id,'Previous '+id);}
+ h.doc.activeElement.blur();h.settle();h.complete();assert(h.ctx.rearQuoteImage());
+ for(const id of ['rearInstagram','rearWebsite','rearPhone','rearAddress','rearExtra']){h.$(id).focus();h.type(id,'');}
+ const scans=h.calls.inks,renders=h.calls.render;
+ assert.equal(h.ctx.rearEmptyForSkip(),true);assert.equal(h.read('rearInputPending'),true);
+ h.$('skipEmptyRear').onclick();assert.deepEqual(h.calls.go,[2]);assert.equal(h.doc.activeElement,null);
+ assert.equal(h.calls.inks,scans);assert.equal(h.calls.render,renders);assert.equal(h.ctx.rearQuoteImage(),null);
+ assert.equal(h.read('rearRenderedData'),null);assert.equal(h.ctx.latest,null);
+ for(const field of ['instagram','website','phone','address','extra'])assert.equal(h.ctx.rearQuoteSnapshot()[field],'');
+ h.ctx.processingSession.isApproved=()=>false;h.$('skipEmptyRear').onclick();assert.deepEqual(h.calls.go,[2,1]);
+ h.ctx.processingSession.isApproved=()=>true;h.ctx.designFingerprint=()=> 'changed-front';h.$('skipEmptyRear').onclick();assert.deepEqual(h.calls.go,[2,1,1]);
+});
+test('empty skip stays unavailable for QR, sponsor sources, pending/reviewed logos and failures',()=>{
+ const h=harness();
+ for(const setup of ["rearContent.qrEnabled=true", "rearContent.sponsorHash='accepted'", "rearSponsorSource={file:{}}", "rearSponsorPending=true", "rearSponsorReview={}", "rearSponsorFailure='failed'"]){
+  h.read("rearContent.qrEnabled=false;rearContent.sponsorHash='';rearSponsorSource=null;rearSponsorPending=false;rearSponsorReview=null;rearSponsorFailure='';"+setup);
+  h.ctx.syncRearSkip();assert.equal(h.$('skipEmptyRear').hidden,true);assert.equal(h.$('skipEmptyRear').disabled,true);
+  h.$('skipEmptyRear').onclick();assert.deepEqual(h.calls.go,[]);
+ }
+});
+for(const ready of [false,true])for(const filled of [false,true])test(`rear label matches actual next route: fragrance ready=${ready}, content=${filled}`,()=>{
+ const h=harness();h.ctx.fragranceReady=()=>ready;
+ if(filled){h.$('rearExtra').focus();h.type('rearExtra','Approved text');h.$('rearExtra').blur();h.settle();h.complete();}
+ h.ctx.syncRearSkip();const button=h.$(filled?'rearToPrice':'skipEmptyRear');
+ assert.match(button.textContent,ready?/fiyatı gör/:/koku seçimine geç/);
+ // Exercise the actual central go(2), not a fake destination selection.
+ const app=fs.readFileSync('frontend/app.js','utf8');
+ Object.assign(h.ctx,{isUnprinted:()=>false,isDeclaredQuote:()=>false,isReferencePreview:()=>false,simpleReady:false,showFragrance:()=>{h.ctx.destination='fragrance';},hideFragrance(){},draw(){}});
+ h.doc.querySelectorAll=()=>[];
+ vm.runInContext(app.slice(app.indexOf('function go(n){'),app.indexOf("$('useMinimum').onclick")),h.ctx);
+ button.onclick();
+ if(ready){assert.equal(h.ctx.step,2);assert.equal(h.$('pricing').hidden,false);assert.equal(h.ctx.destination,undefined);}
+ else assert.equal(h.ctx.destination,'fragrance');
+});

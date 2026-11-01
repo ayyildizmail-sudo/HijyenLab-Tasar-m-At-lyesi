@@ -20,7 +20,15 @@ test('theme text meets AA on white, actual app ground and generated tint across 
  for(let r=0;r<=255;r+=17)for(let g=0;g<=255;g+=17)for(let b=0;b<=255;b+=17){
   const color='#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join(''),theme=palette([color]);
   for(const bg of ['#ffffff','#f5f7fa',theme.tint])assert.ok(contrast(theme.accent,bg)>=4.5,`${color} text on ${bg}`);
+  for(const text of ['#142d49','#34485f'])assert.ok(contrast(text,theme.tint)>=4.5,`${color} neutral card text ${text}`);
  }
+});
+test('card wash is visibly source-derived without changing the decoration or printing palette',()=>{
+ const input=['#183078','#f0d818'],before=input.slice(),theme=palette(input);
+ assert.equal(theme.tint,'#dfe2ec');
+ assert.equal(theme.decoration,input[0]);assert.deepEqual(input,before);
+ assert.notEqual(theme.tint,palette(['#b01830']).tint);
+ assert.equal(palette(['#fff200']).tint,'#fffddb');
 });
 test('sampling ignores white substrate, transparency and neutral photo noise',()=>{
  const pixels=new Uint8ClampedArray([255,255,255,255,0,0,255,0,130,130,130,255,24,48,120,255]);
@@ -51,9 +59,9 @@ test('mounted theme follows current source, approval, cancel and reset without s
  const context={document:doc,queueMicrotask:fn=>fn(),addEventListener(){},MutationObserver:class{constructor(fn){observer=fn;}observe(){}},state:{logo:'first',bg:'#ffffff',bgDetection:{kind:'transparent'}},logoImg:{},processingSession:{getState:()=>session,isApproved:()=>approved},designFingerprint:()=> 'current',fragranceReady:()=>true,HijyenLabPrintMode:{get:()=>printMode}};context.window=context;
  vm.runInNewContext(fs.readFileSync('frontend/customer-theme.js','utf8'),context);
  assert.equal(styles['--customer-accent'],'#183078');assert.equal(pixels,1);assert.equal(steps[0].hasAttribute('data-complete'),false);
- assert.equal(styles['--customer-decoration'],'#183078');assert.equal(main.hasAttribute('data-customer-theme'),true);
+ assert.equal(styles['--customer-decoration'],'#183078');assert.equal(styles['--customer-tint'],'#dfe2ec');assert.equal(main.hasAttribute('data-customer-theme'),true);
  approved=true;context.HijyenLabCustomerTheme.sync();assert.equal(steps[0].hasAttribute('data-complete'),true);assert.equal(nodes.get('customerJourneyNote').textContent,'Tasarım ve koku seçiminiz hazır.');
- context.state.designProcessing=true;session.operationId++;session.status='loading';approved=false;observer();assert.equal(styles['--customer-accent'],'#800d2a');assert.equal(steps[0].hasAttribute('data-complete'),false);
+ context.state.designProcessing=true;session.operationId++;session.status='loading';approved=false;observer();assert.equal(styles['--customer-accent'],'#800d2a');assert.equal(styles['--customer-tint'],palette([]).tint);assert.equal(steps[0].hasAttribute('data-complete'),false);
  assert.equal(main.hasAttribute('data-customer-theme'),false,'new loading source clears personalized decoration');
  const previous=pixels;session.status='cancelled';context.state.designProcessing=false;context.HijyenLabCustomerTheme.sync();assert.equal(pixels,previous);assert.equal(styles['--customer-accent'],'#800d2a');
  session.status='ready';session.result.method='photo-region';context.HijyenLabCustomerTheme.sync();assert.equal(pixels,previous,'never sample photos');
@@ -111,23 +119,29 @@ test('approved proposal chooses dominant readable exact ink, never bright gold o
  assert.deepEqual(colors,['#183078','#b01830','#f0d818'],'does not reorder commercial/source palette');
  assert.equal(palette(rankProposal(['#f0d818'],pixels)).accent,'#800d2a');
 });
-test('summary accents are card decoration only, never status, prices or image recoloring',()=>{
- const css=require('node:fs').readFileSync('frontend/customer-theme.css','utf8');
- assert.match(css,/#summary>article\{border-top:3px solid var\(--customer-accent\)\}/);
- assert.match(css,/#summary #journeyQuoteDescription\{border-bottom:1px solid var\(--customer-accent\);padding-bottom:12px\}/);
- const summaryRules=css.split('\n').filter(line=>line.startsWith('#summary'));
- assert.equal(summaryRules.length,2);
- assert.ok(summaryRules.every(line=>!/(?:\.notice|priceRow|journeyQuoteCosts|quoteImage|finalImage|filter:|background:|[^-]color:)/.test(line)));
+test('working frames are visible source-colored screen decoration, never canvas or layout changes',()=>{
+ const css=require('node:fs').readFileSync('frontend/customer-theme.css','utf8').replace(/\/\*[\s\S]*?\*\//g,'');
+ const rule=css.match(/\.atelierLayout\[data-customer-theme\] :is\(#design \.preview,#rearPreview \.rearFlipScene\)\{([^}]+)\}/)?.[1];
+ assert.ok(rule,'frame is limited to the front and rear working containers');
+ assert.match(rule,/outline:3px solid var\(--customer-decoration\)/);
+ assert.match(rule,/box-shadow:0 0 0 4px #142d4929/,'pale source hues keep a visible neutral outer hairline');
+ assert.ok(!/background|padding|margin|width|height|position|transform|filter/.test(rule),'white working ground, artwork geometry and coordinates are untouched');
+ assert.ok(!css.includes('52px'),'the rejected tiny heading marker is gone');
+ const screen=css.indexOf('@media screen{');
+ for(const match of css.matchAll(/\.atelierLayout\[data-customer-theme\]/g))assert.ok(match.index>screen,'all new personalized paint is screen-only and current-source gated');
 });
-test('customer color accents are restricted to journey headings and lead-card edge',()=>{
- const css=require('node:fs').readFileSync('frontend/customer-theme.css','utf8');
- const rules=css.split('\n').filter(line=>line.startsWith('.atelierLayout[data-customer-theme]'));
- assert.equal(rules.length,2);
- assert.match(rules[0],/:is\(#design,#rearPreview,#fragrancePanel,#pricing,#summary\)>h1\{/);
- assert.match(rules[0],/background-size:52px 4px/);
- assert.match(rules[1],/#leadFields\{border-top:3px solid var\(--customer-decoration\)\}/);
- assert.ok(rules.every(line=>!/(?:color:|::after|canvas|\.preview|button|contact|notice|priceRow|fragranceCard)/.test(line)),'text, rear completion check, canvas, semantic controls and status colors remain untouched');
- assert.match(css,/@media print\{[^\n]*background-image:none/,'decorative heading marker does not enter print output');
+test('logo tint follows selected product, completed progress, lead and quote-summary cards only',()=>{
+ const css=require('node:fs').readFileSync('frontend/customer-theme.css','utf8').replace(/\/\*[\s\S]*?\*\//g,'');
+ const rules=css.split('\n').map(line=>line.trim()).filter(line=>line.startsWith('.atelierLayout[data-customer-theme]'));
+ const tinted=rules.filter(line=>line.includes('background:var(--customer-tint)'));
+ assert.equal(tinted.length,4,'not every panel gets a colored fill');
+ for(const selector of ['#journeyProductSummary','#journeyProgress li:is([aria-current=step],[data-complete=true])','#leadFields{','#summary #journeyQuoteDescription'])assert.ok(tinted.some(rule=>rule.includes(selector)),selector);
+ assert.match(css,/#journeyProductMode\{color:#34485f\}/);
+ assert.match(css,/#leadFields>\.hint\{color:#34485f\}/);
+ assert.match(css,/#summary #journeyQuoteDescription\{[^}]*color:#34485f/);
+ assert.match(css,/#summary>article\{border-color:var\(--customer-decoration\);box-shadow:inset 0 3px 0 var\(--customer-decoration\)\}/);
+ assert.ok(rules.every(line=>!/(?:canvas|button|contact|notice|actionHelp|priceRow|journeyQuoteCosts|quoteImage|finalImage|fragranceCard|company|::after|filter:)/.test(line)),'company, artwork, costs, semantic messages, fragrance cards, contacts and rear completion remain untouched');
+ assert.ok(rules.every(line=>!/(?:padding|margin|width|height|position|transform):/.test(line)),'no layout, input or navigation geometry changes');
 });
 
 test('fragrance cards keep fixed sage, leaf-green, mandarin and lemon palettes outside the customer theme',()=>{

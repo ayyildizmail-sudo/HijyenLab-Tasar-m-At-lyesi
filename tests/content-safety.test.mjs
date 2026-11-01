@@ -7,11 +7,18 @@ import {handleLeadIngest} from '../server/lead-service.mjs';
 const require=createRequire(import.meta.url),safety=require('../frontend/content-safety.js');
 const normal={contact:{companyName:'Şifa Café',contactName:'Ali'},design:{frontText:'HijyenLab',rearText:'',qrEnabled:false}};
 test('benign multilingual names, substrings, political/religious/news context stay quiet',()=>{
- const cases=['Scunthorpe','Classical Glass','Dickson','Siktaş','Fucking village tourism','Şifa Café','Müller','مرحبا','שלום','你好','Светлана','Barış ve demokrasi','Ramazanınız mübarek olsun','Terör saldırısını kınıyoruz','PKK hakkında haber','ISIS historical reporting','السلام عليكم'];
+ const cases=['Scunthorpe','Classical Glass','Dickson','Siktaş','Fucking village tourism','Şifa Café','Müller','مرحبا','שלום','你好','Светлана','Barış ve demokrasi','Ramazanınız mübarek olsun','Terör saldırısını kınıyoruz','PKK hakkında haber','ISIS historical reporting','السلام عليكم','Talih','Platform Şans Oyunları','Talih Turizm A.Ş.','Şans Oyunları Araştırma Merkezi','Terörle Mücadele Derneği','Kumar bağımlılığı farkındalık semineri'];
  for(const text of cases){const out=safety.checkText(text);assert.equal(out.state,'clear_local',text);assert.equal(safety.message(out,'preview'),'');assert.equal(out.legalApproval,false);}
 });
 test('high-specificity full-field profanity and separator/Unicode evasion block',()=>{
- for(const text of ['SİKTİR GİT','s i k t i r g i t','f.u.c.k y.o.u','ＦＵＣＫ ＹＯＵ','fu\u200bck you','FICK DICH','hijo de puta','иди нахуй','ابن القحبة'])assert.equal(safety.checkText(text).state,'blocked',text);
+ for(const text of ['SİKTİR GİT','s i k t i r g i t','f.u.c.k y.o.u','ＦＵＣＫ ＹＯＵ','fu\u200bck you','FICK DICH','hijo de puta','иди нахуй','ابن القحبة','fuck you!!!','(siktir git)'])assert.equal(safety.checkText(text).state,'blocked',text);
+});
+test('whole-field paired quotations require context instead of automatic rejection or approval',()=>{
+ for(const text of ['"fuck you"',"'siktir git'",'“SİKTİR GİT”','‘hijo de puta’','«fick dich»','‹hurensohn›','„motherfucker“','「иди нахуй」','『ابن القحبة』','“f.u.c.k y.o.u”','“fu\u200bck you”','"ＦＵＣＫ ＹＯＵ".','“fuck you!”']){
+  const out=safety.checkText(text,'frontText');assert.equal(out.state,'review_needed',text);assert.equal(out.reason,'quotation_context_required');assert.equal(out.field,'frontText');assert.equal(out.legalApproval,false);assert.equal(out.serverApproval,false);assert.equal(safety.message(out,'preview'),'');assert.match(safety.message(out,'submit'),/ret kararı değildir/);assert.match(safety.message(out,'submit'),/gönderim yapılmadı/);
+ }
+ // A quote in one field cannot override a separate explicit abusive field.
+ assert.equal(safety.assess({fields:{frontText:'“fuck you”',rearText:'siktir git'}}).state,'blocked');
 });
 test('quotation/context is review, not a criminal accusation or substring block',()=>{
  const out=safety.checkText('Please do not say fuck you to customers');assert.equal(out.state,'review_needed');assert.equal(safety.message(out,'preview'),'');assert.ok(!safety.message(out,'submit').includes('suç'));
@@ -23,6 +30,16 @@ test('image/QR/poor OCR are unassessed, never unsafe and never block ordinary pr
 });
 test('unconfigured final service fails closed including blank/unprinted and forged client approvals',async()=>{
  for(const value of [normal,{contact:{contactName:'Ali'},design:null},{...normal,approved:true,serverApproval:true,state:'approved'}]){const out=await guardTransmission(value);assert.equal(out.allowed,false);assert.equal(out.state,'service_unavailable');}
+});
+test('quoted and contextual text never receive final transmission approval or invoke a review service',async()=>{
+ let reviewed=false;const adapter={assess:async()=>{reviewed=true;throw Error('must not be called');}};
+ for(const frontText of ['“fuck you”','Please do not say fuck you to customers']){
+  const out=await guardTransmission({...normal,design:{...normal.design,frontText}},{adapter});assert.equal(out.allowed,false);assert.equal(out.state,'review_needed');
+ }
+ assert.equal(reviewed,false);
+ for(const companyName of ['Talih','Platform Şans Oyunları']){
+  const out=await guardTransmission({...normal,contact:{...normal.contact,companyName}});assert.equal(out.allowed,false);assert.equal(out.state,'service_unavailable');
+ }
 });
 test('all string fields are locally screened without forwarding, including null-design requests',async()=>{
  for(const value of [{design:null,contact:{contactName:'fuck you'}},{...normal,notes:'siktir git'},{...normal,contact:{district:'fick dich'}}]){const out=await guardTransmission(value);assert.equal(out.allowed,false);assert.equal(out.state,'blocked');}

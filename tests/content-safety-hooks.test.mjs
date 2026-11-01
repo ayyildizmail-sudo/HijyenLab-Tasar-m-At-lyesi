@@ -25,7 +25,7 @@ test('actual front placement/export/quote hooks reject explicit profanity and pr
 test('actual rear and contact hooks cover each field; poor images and normal foreign names are not blocked',()=>{
  const {box,rearContent,controls}=harness();
  for(const key of ['extra','instagram','website','phone','address']){rearContent[key]='fick dich';assert.match(box.rearValidationError(),/içerik kurallarımıza/);assert.throws(()=>box.rearMaterialDataURL(),/içerik kurallarımıza/);rearContent[key]='';}
- for(const value of ['Müller','مرحبا','Светлана','Barış ve demokrasi','Ramazanınız mübarek olsun','Scunthorpe']){controls.customerName.value=value;assert.equal(box.contentSafetyError(),'');}
+ for(const value of ['Müller','مرحبا','Светлана','Barış ve demokrasi','Ramazanınız mübarek olsun','Scunthorpe','Talih','Platform Şans Oyunları']){controls.customerName.value=value;assert.equal(box.contentSafetyError(),'');}
  controls.customerName.value='hijo de puta';assert.throws(()=>box.imageData(),/içerik kurallarımıza/);
 });
 test('restored/imported state is rechecked without clearing it; corrections remove only safety notice',()=>{
@@ -36,11 +36,18 @@ test('restored/imported state is rechecked without clearing it; corrections remo
 test('long quotation/review remains quiet in live preview',()=>{
  const {box,state}=harness();state.text='Do not say fuck you to customers';assert.equal(box.contentSafetyAssessment().state,'review_needed');assert.equal(box.contentSafetyError(),'');
 });
+test('whole-field quotation removes only an old local block notice and preserves front/rear content',()=>{
+ const {box,state,rearContent,controls}=harness();state.text='fuck you';box.showContentSafetyBlock();assert.ok(controls.status.textContent);
+ state.text='“fuck you”';const before=JSON.stringify(state);assert.equal(box.contentSafetyAssessment().state,'review_needed');assert.equal(box.showContentSafetyBlock(),false);assert.equal(controls.status.textContent,'');assert.equal(JSON.stringify(state),before);
+ rearContent.extra='«siktir git»';assert.equal(box.contentSafetyAssessment('rear').state,'review_needed');assert.equal(box.contentSafetyError('rear'),'');assert.equal(rearContent.extra,'«siktir git»');
+ controls.status.textContent='Unrelated file error';box.showContentSafetyBlock();assert.equal(controls.status.textContent,'Unrelated file error');
+});
 test('actual request validation covers nested notes and unprinted contacts',()=>{
  const source=readFileSync(new URL('../frontend/visitor-requests.js',import.meta.url),'utf8'),context={HijyenContentSafety:safety};vm.createContext(context);vm.runInContext(source,context);
  const p={contact:{contactName:'Ali',phone:'05550000000'},printMode:'unprinted',productId:'BM12',fragrance:'flambau',quantity:400,design:null};
  for(const override of [{notes:'fuck you'},{contact:{...p.contact,companyName:'fick dich'}},{design:{rearText:'hijo de puta'}}])assert.match(context.HijyenLabVisitorRequests.requestError({...p,...override}),/içerik kurallarımıza/);
  assert.equal(context.HijyenLabVisitorRequests.requestError(p),'');
+ const reviewMessage=context.HijyenLabVisitorRequests.requestError({...p,notes:'“fuck you”'});assert.match(reviewMessage,/ret kararı değildir/);assert.match(reviewMessage,/gönderim yapılmadı/);assert.doesNotMatch(reviewMessage,/kurallarımıza uygun değil/);
 });
 test('integration load order and all output boundary calls are wired, with no draft-state deletion',()=>{
  const html=readFileSync(new URL('../frontend/index.html',import.meta.url),'utf8');assert.ok(html.indexOf('src="content-safety.js')<html.indexOf('src="app.js'));

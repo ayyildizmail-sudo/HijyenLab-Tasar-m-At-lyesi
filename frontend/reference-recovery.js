@@ -28,10 +28,10 @@ function current(){
 function sync(){
  if(isReferencePreview()){
   hide();const label=$('inks').closest?.('label');if(label?.firstChild)label.firstChild.textContent='Baskı renk sayısı (beyaz hariç) · İsteğe bağlı';for(const option of $('inks').options||[])option.hidden=option.value!==''&&(!Number.isInteger(Number(option.value))||Number(option.value)<1||Number(option.value)>3);$('previewCaption').textContent=referencePreviewLabel();$('photoQuoteBgLabel').hidden=false;$('photoPriceNote').hidden=false;$('photoPriceNote').textContent=referenceGroundLabel()+' · Baskı renkleri ve klişe teknik incelemede.';
-  $('simpleTools').hidden=true;$('simpleDetails').hidden=true;document.querySelector('.previewTip').textContent='Özgün kaynak gösterilir; logo veya zemin değiştirilmedi.';$('next').textContent='Yalnız ön fiyatı gör';
+  $('simpleTools').hidden=true;$('simpleDetails').hidden=true;document.querySelector('.previewTip').textContent='Özgün kaynak gösterilir; logo veya zemin değiştirilmedi.';$('next').textContent='Koku seçimine geç →';
   for(const id of ['mini','finalImage'])$(id).alt=referencePreviewLabel();return;
  }
- $('next').textContent='Ön yüzü onayla';const label=$('inks').closest?.('label');if(label?.firstChild)label.firstChild.textContent='Tahmini baskı rengi sayısı (isterseniz düzeltin)';for(const option of $('inks').options||[])option.hidden=false;
+ $('next').textContent=isUnprinted()?'Fiyatı gör →':typeof isDeclaredQuote==='function'&&isDeclaredQuote()?'Koku seçimine geç →':'Onayla ve arka yüze geç →';const label=$('inks').closest?.('label');if(label?.firstChild)label.firstChild.textContent='Tahmini baskı rengi sayısı (isterseniz düzeltin)';for(const option of $('inks').options||[])option.hidden=false;
  if(!eligible(state)||isUnprinted()){hide();return;}
  if(source!==state.sourcePhoto){source=state.sourcePhoto;$('recoverySource').src=source;}
  box.hidden=false;document.body.classList.add('referenceRecoveryActive');$('recoveryStart').disabled=accepting||!!state.productAssetPending||!!state.productAssetFailure;
