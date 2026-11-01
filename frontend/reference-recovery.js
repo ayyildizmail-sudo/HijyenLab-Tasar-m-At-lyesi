@@ -51,6 +51,7 @@ async function accept(){
   if(!record)return false;
   referenceSource=data;referenceIdentity=old.source.sha256;photoImg=img;state.quoteSource='source-reference';state.referenceInkDeclaration=null;state.processingResult=record;state.designBlocked=false;state.screenSelectionRequired=false;state.extractionSourceLimited=false;state.extractionApproximate=false;state.extractionApprovalRequired=false;state.bgDecisionPending=false;state.photoQuoteBg='unknown';state.bgPantone='';state.text='';state.textPending=false;state.inkSelection={status:'unknown',selectedCount:null,estimatedCount:null};
   $('inks').value='';printInkKey=null;latest=null;invalidateQuote();syncProcessingDesign();if(!approveCurrentDesign())return false;
+  root.FlexoDesignUI?.bindReferenceDiagnostic(old.operationId,record);
   refresh();go(2);return true;
  }catch(error){status(error.message||'Referans açılamadı. Görseli yeniden seçin.');return false;}finally{accepting=false;sync();}
 }

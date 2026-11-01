@@ -42,6 +42,11 @@ test('mounted theme follows current source, approval, cancel and reset without s
  context.state.designProcessing=true;session.operationId++;session.status='loading';approved=false;observer();assert.equal(styles['--customer-accent'],'#800d2a');assert.equal(steps[0].hasAttribute('data-complete'),false);
  const previous=pixels;session.status='cancelled';context.state.designProcessing=false;context.HijyenLabCustomerTheme.sync();assert.equal(pixels,previous);assert.equal(styles['--customer-accent'],'#800d2a');
  session.status='ready';session.result.method='photo-region';context.HijyenLabCustomerTheme.sync();assert.equal(pixels,previous,'never sample photos');
+ session.result.flatPrintProposal={method:'source-flat-flexo-proposal-v1'};session.designRevision++;approved=true;
+ context.approvedFlatPhotoPalette=()=>({colors:['#b01830','#183078']});
+ context.HijyenLabCustomerTheme.sync();assert.equal(styles['--customer-accent'],'#183078','uses actual approved pixels, not palette ordering');
+ const sampled=pixels;context.HijyenLabCustomerTheme.sync();assert.equal(pixels,sampled,'unchanged source/revision is cached');
+ session.status='cancelled';approved=false;context.HijyenLabCustomerTheme.sync();assert.equal(styles['--customer-accent'],'#800d2a');assert.equal(pixels,sampled,'canceled proposal is never sampled');
  context.HijyenLabCustomerTheme.reset();assert.equal(nodes.get('customerJourneyNote').hidden,true);
  assert.equal(context.state.bg,'#ffffff','never changes package ground');
 });
@@ -57,4 +62,27 @@ test('finite logo reveal survives navigation scroll, not dragging; offscreen nev
   top=900;api.logo();assert.equal(animations.length,1);
   top=-200;api.logo();assert.equal(animations.length,1);
  }finally{if(saved.addEventListener===undefined)delete global.addEventListener;else global.addEventListener=saved.addEventListener;if(saved.innerHeight===undefined)delete global.innerHeight;else global.innerHeight=saved.innerHeight;}
+});
+test('approved proposal chooses dominant readable exact ink, never bright gold or invented colors',()=>{
+ const {rankProposal}=require('../frontend/customer-theme.js');
+ const colors=['#183078','#b01830','#f0d818'];
+ const pixels=new Uint8ClampedArray([
+  ...Array(2).fill([24,48,120,255]).flat(),
+  ...Array(8).fill([176,24,48,255]).flat(),
+  ...Array(12).fill([240,216,24,255]).flat(),
+  255,255,255,255,0,0,0,0
+ ]);
+ assert.deepEqual(rankProposal(colors,pixels),['#f0d818','#b01830','#183078']);
+ assert.equal(palette(rankProposal(colors,pixels)).accent,'#b01830');
+ assert.ok(rankProposal(colors,pixels).every(c=>colors.includes(c)));
+ assert.deepEqual(colors,['#183078','#b01830','#f0d818'],'does not reorder commercial/source palette');
+ assert.equal(palette(rankProposal(['#f0d818'],pixels)).accent,'#800d2a');
+});
+test('summary accents are card decoration only, never status, prices or image recoloring',()=>{
+ const css=require('node:fs').readFileSync('frontend/customer-theme.css','utf8');
+ assert.match(css,/#summary>article\{border-top:3px solid var\(--customer-accent\)\}/);
+ assert.match(css,/#summary #journeyQuoteDescription\{border-bottom:1px solid var\(--customer-accent\);padding-bottom:12px\}/);
+ const summaryRules=css.split('\n').filter(line=>line.startsWith('#summary'));
+ assert.equal(summaryRules.length,2);
+ assert.ok(summaryRules.every(line=>!/(?:\.notice|priceRow|journeyQuoteCosts|quoteImage|finalImage|filter:|background:|[^-]color:)/.test(line)));
 });

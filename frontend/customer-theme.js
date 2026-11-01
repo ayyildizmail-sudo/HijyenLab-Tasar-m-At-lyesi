@@ -17,6 +17,23 @@ function sample(data){
  const key=c.map(v=>Math.min(255,Math.round(v/24)*24));const hex='#'+key.map(v=>v.toString(16).padStart(2,'0')).join('');buckets.set(hex,(buckets.get(hex)||0)+1);}
  return [...buckets].sort((a,b)=>b[1]-a[1]).map(([c])=>c);
 }
+// Rank only existing verified proposal inks, never invent an ink from antialiasing.
+function rankProposal(colors,data){
+ const inks=(colors||[]).filter(c=>rgb(c)).map(c=>({hex:c.toLowerCase(),rgb:rgb(c),weight:0}));
+ if(!data)return inks.map(c=>c.hex);
+ for(let i=0;i<data.length;i+=4){if(data[i+3]<220||Math.min(data[i],data[i+1],data[i+2])>225)continue;
+  let nearest=null,distance=Infinity;
+  for(const ink of inks){const d=ink.rgb.reduce((sum,v,k)=>sum+(v-data[i+k])**2,0);if(d<distance){nearest=ink;distance=d;}}
+  if(nearest&&distance<=80**2)nearest.weight++;
+ }
+ return inks.sort((a,b)=>b.weight-a.weight).map(c=>c.hex);
+}
+function primaryPixels(doc){
+ if(typeof logoImg==='undefined'||!logoImg)return null;
+ const canvas=doc.createElement('canvas');canvas.width=48;canvas.height=48;
+ const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(logoImg,0,0,48,48);
+ return ctx.getImageData(0,0,48,48).data;
+}
 function eligible(value,session){return !!value?.logo&&!value.removed&&!value.photoLayout&&!value.designProcessing&&!value.designBlocked&&!value.extractionApproximate&&!value.screenSelectionRequired&&!value.productAssetPending&&!value.productAssetFailure&&session?.status==='ready'&&/^[a-f0-9]{64}$/i.test(session.source?.sha256||'')&&!!session.result&&session.result.source?.sha256===session.source?.sha256;}
 function completion({approved,fragrance,quote,blank,declared}){return {design:!!approved&&!blank&&!declared,fragrance:!!approved&&!!fragrance&&!blank&&!declared,quote:!!quote};}
 function mount(doc){
@@ -36,7 +53,10 @@ function mount(doc){
   if(key!==lastKey){lastKey=key;apply([]);
    if(canTheme){let colors=[];
     const proposal=session.result.flatPrintProposal;
-    if(proposal){if(approved&&typeof approvedFlatPhotoPalette==='function')colors=approvedFlatPhotoPalette(null,0,0)?.colors||[];}
+    if(proposal){if(approved&&typeof approvedFlatPhotoPalette==='function'){
+     colors=approvedFlatPhotoPalette(null,0,0)?.colors||[];
+     if(colors.length)try{colors=rankProposal(colors,primaryPixels(doc));}catch{/* Verified palette remains the fallback if sampling is unavailable. */}
+    }}
     else if(session.result.method==='native-logo'&&['white','transparent'].includes(value.bgDetection?.kind)&&!value.sourcePhoto&&typeof logoImg!=='undefined'&&logoImg){
      // Only the primary front logo, never a package canvas, photograph, rear sponsor or extra logo.
      try{const canvas=doc.createElement('canvas');canvas.width=48;canvas.height=48;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(logoImg,0,0,48,48);colors=sample(ctx.getImageData(0,0,48,48).data);}catch{/* Unavailable pixels retain accessible HijyenLab accent. */}
@@ -57,7 +77,7 @@ function mount(doc){
  root.addEventListener('hijyenlab:print-mode-change',queue);
  root.HijyenLabCustomerTheme={reset,sync};apply([]);sync();
 }
-const api={palette,sample,contrast,eligible,completion,mount};
+const api={palette,sample,rankProposal,contrast,eligible,completion,mount};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 else{root.HijyenLabCustomerThemeModel=api;if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',()=>mount(root.document),{once:true});else mount(root.document);}
 })(typeof window!=='undefined'?window:globalThis);

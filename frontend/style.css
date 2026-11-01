@@ -82,3 +82,8 @@ header.companyHeader{align-items:flex-start;gap:12px}header .companyIdentity{dis
 #leadError:empty, #leadError[hidden] { display: none; }
 
 .visualSide{position:static;top:auto}
+
+/* Keep a focused contact control inside its own box, clear of the label.
+   The 16px minimum avoids iOS focus zoom; native keyboard/scrolling stay native. */
+#leadFields input { margin-top: 8px; font-size: max(16px, 1rem); scroll-margin-block: 6rem; }
+#leadFields input:focus-visible { outline: 3px solid #477fae; outline-offset: -3px; }

@@ -9,3 +9,8 @@ main{--customer-accent:#800d2a;--customer-tint:#f5ecee}
 #customerJourneyNote[hidden]{display:none}
 .fragranceCard:has(input:checked){border-color:var(--customer-accent);background:var(--customer-tint)}
 @media print{#customerJourneyNote{display:none}}
+
+/* Visible even when the stepper has scrolled away; decoration stays outside images and cost rows. */
+#summary>article{border-top:3px solid var(--customer-accent)}
+#summary #journeyQuoteDescription{border-bottom:1px solid var(--customer-accent);padding-bottom:12px}
+@media print{#summary>article{border-top-color:transparent}#summary #journeyQuoteDescription{border-bottom-color:transparent}}

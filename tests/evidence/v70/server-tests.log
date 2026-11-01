@@ -1,0 +1,34 @@
+✔ immutable seed is towels-only 63/19/11/7 without exposing counts or IDs (11.699059ms)
+✔ new, retry, refresh and changed choice count one UUID once (8.042922ms)
+✔ parallel independent IDs and duplicate retries retain all votes (64.218502ms)
+✔ new handler/redeployment does not recreate seed or reset votes (3.36581ms)
+✔ invalid family, fields, enum, UUID and injection do not write (2.38133ms)
+✔ same-origin, content-type and bounded raw bodies are enforced (3.404599ms)
+✔ database failures never claim seed is live shared data or expose internals (0.763718ms)
+✔ failed atomic batch rolls back and percentages sum100 (4.409178ms)
+✔ late and duplicated older revisions cannot overwrite the newer preference (2.777796ms)
+✔ migration DML guard rejects real writes but allows foreign-key actions (0.559682ms)
+✔ capabilities fail closed without explicit owner, flags and retention (1.282868ms)
+✔ all private reads and writes deny anonymous/non-owner before database access (6.359941ms)
+✔ explicit complete/partial consent, nullable unknowns, product quantity rules and exact schemas (2.067339ms)
+✔ lead retries are idempotent, changed payload conflicts, owner lists only metadata (19.171563ms)
+✔ disabled intake, origin, oversized/malformed and extra field rejection never write (3.481324ms)
+✔ status CAS revision and audit are atomic; rejected edits do not create audit rows (3.966885ms)
+✔ analytics exact consent-only schema, stage dedup and unique session counts (4.962992ms)
+✔ expired private data is excluded and purge removes leads, audit and analytics without touching fragrance (4.440286ms)
+✔ rate limits are bounded and failures never expose request or database data (14.132547ms)
+✔ admin shells never embed records and safely escape caller identity (0.734595ms)
+✔ flags never confer admin access and public methods cannot list leads (3.120472ms)
+✔ invalid admin pagination, status origins and atomic database failures remain safe (6.028393ms)
+✔ explicit unprinted mode accepts only blank carton-multiple requests with normal consent/contact/fragrance (5.98643ms)
+✔ print mode migration preserves existing printed lead, audit and fragrance inside transaction (2.613349ms)
+✔ BM21 validation uses wet-wipe carton, printed minimum and fixed unprinted green tea (0.245369ms)
+✔ BM11 and BM13 accept confirmed printed minimum and unprinted full cartons only (0.355454ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 229.68853

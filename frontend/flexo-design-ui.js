@@ -1,22 +1,24 @@
 /* Source-derived flat-ink proposal; never an original-ink certification. */
 (function(root){'use strict';
 const METHOD='source-flat-flexo-proposal-v1';
-async function prepare(current,{allowReferenceRecovery=false}={}){
+let localDiagnostic=null;
+async function prepare(current,{allowReferenceRecovery=false,ingressMode='unknown'}={}){
+ const session=processingSession.getState(),diagnostic={operationId:session.operationId,sourceSHA256:session.source?.sha256||null,mode:ingressMode,reason:'checking'};localDiagnostic=diagnostic;const decline=reason=>{diagnostic.reason=reason;return false;};
  const fallback=allowReferenceRecovery&&state.designBlocked&&!state.logo&&!state.photoLayout&&!!state.sourcePhoto&&['unsupported','photo-region'].includes(state.sourceKind);
- if(!root.FlexoDesignProposal||!current()||(!fallback&&(!state.logo||!logoImg||state.photoLayout||state.designBlocked||state.extractionApproximate||state.screenCropApplied||state.technicalFrameProposed||state.extractionSourceLimited||state.recolorApplied||processingContext?.pending?.method||!['white','transparent','ambiguous'].includes(state.bgDetection?.kind))))return false;
- const source=processingSession.getState().source;if(!/^[a-f0-9]{64}$/i.test(source?.sha256||''))return false;
- const img=fallback?await loadImage(state.sourcePhoto):prepareLogo();if(!current())return false;
- if(fallback&&(typeof SourceContext==='undefined'||SourceContext.inspectImage(img)))return false;
+ if(!root.FlexoDesignProposal||!current()||(!fallback&&(!state.logo||!logoImg||state.photoLayout||state.designBlocked||state.extractionApproximate||state.screenCropApplied||state.technicalFrameProposed||state.extractionSourceLimited||state.recolorApplied||processingContext?.pending?.method||!['white','transparent','ambiguous'].includes(state.bgDetection?.kind))))return decline('source-route-ineligible');
+ const source=processingSession.getState().source;if(!/^[a-f0-9]{64}$/i.test(source?.sha256||''))return decline('source-identity-unavailable');
+ const img=fallback?await loadImage(state.sourcePhoto):prepareLogo();if(!current())return decline('operation-replaced');
+ if(fallback&&(typeof SourceContext==='undefined'||SourceContext.inspectImage(img)))return decline('source-context-excluded');
  const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
- if(c.width*c.height>4000000)return false;
+ if(c.width*c.height>4000000)return decline('pixel-limit');
  const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(img,0,0);const before=cx.getImageData(0,0,c.width,c.height);
  const estimate=PrintInks.estimate(before.data,c.width,c.height,{acceptedArtwork:true});
- if(estimate.contentEvidence?.content!=='continuous-gradient')return false;
- const proposal=await FlexoDesignProposal.propose(before.data,c.width,c.height,{sourceSHA256:source.sha256});if(!current()||!proposal.applied)return false;
- cx.putImageData(new ImageData(proposal.data,c.width,c.height),0,0);const encoded=c.toDataURL('image/png'),decoded=await loadImage(encoded);if(!current())return false;
+ if(estimate.contentEvidence?.content!=='continuous-gradient')return decline('not-continuous-gradient');
+ const proposal=await FlexoDesignProposal.propose(before.data,c.width,c.height,{sourceSHA256:source.sha256});if(!current())return decline('operation-replaced');if(!proposal.applied)return decline(proposal.reason||'proposal-declined');
+ cx.putImageData(new ImageData(proposal.data,c.width,c.height),0,0);const encoded=c.toDataURL('image/png'),decoded=await loadImage(encoded);if(!current())return decline('operation-replaced');
  cx.clearRect(0,0,c.width,c.height);cx.drawImage(decoded,0,0);const actual=cx.getImageData(0,0,c.width,c.height).data;
- if(!verifyFlatProposalRoundtrip(proposal.data,actual))return false;
- const digest=await crypto.subtle.digest('SHA-256',actual);if(!current())return false;
+ if(!verifyFlatProposalRoundtrip(proposal.data,actual))return decline('PNG-roundtrip-mismatch');
+ const digest=await crypto.subtle.digest('SHA-256',actual);if(!current())return decline('operation-replaced');
  const actualHash=Array.from(new Uint8Array(digest),v=>v.toString(16).padStart(2,'0')).join('');
  const original=fallback?state.sourcePhoto:state.logo;state.flexoOriginalLogo=original;state.logo=encoded;logoImg=decoded;processedLogo=null;processedKey=null;
  if(fallback){state.designBlocked=false;state.extractionSourceLimited=false;state.screenSelectionRequired=false;state.sourceKind='logo';state.sourcePhoto=null;state.photoLayout=null;state.removed=false;state.quoteSource='uploaded-artwork';if(state.bgSource!=='manual'){state.bg='#ffffff';state.bgPantone='';state.bgSource='scope-white-default';}state.bgDecisionPending=false;photoImg=null;markProcessingOutput();globalThis.ReferenceRecovery?.clear();}
@@ -24,11 +26,15 @@ async function prepare(current,{allowReferenceRecovery=false}={}){
  state.extractionApprovalRequired=true;state.nativeContentReviewRequired=true;state.extractionApproximate=false;state.recolor=false;state.recolorApplied=false;
  const frame=frameOfContext(),flatPrintProposal={...proposal.metadata,proposalPixelSHA256:proposal.metadata.outputPixelSHA256,outputPixelSHA256:actualHash,renderedPixelsVerified:true,originalKnownActualInkCount:estimate.uncertain===false?estimate.count:null};
  stageProcessingResult(METHOD,'v1',[0,0,frame.width,frame.height],{maskBasis:'Existing prepared artwork geometry and alpha retained; source RGB replaced by explicit proposal inks.',transforms:['browser-decode','existing-native-artwork-preparation','source-derived-flat-ink-proposal','verified-PNG-roundtrip','aspect-safe-fit'],limitations:['Proposed flat-color reinterpretation; original remains available.','Not physical spot separation, print master or production approval.'],extra:{contentReviewRequired:true,flatPrintProposal}});
- printInkKey=null;invalidateQuote();return true;
+ diagnostic.reason='proposal-ready';printInkKey=null;invalidateQuote();return true;
 }
 const panel=document.createElement('div');panel.id='flexoProposalNote';panel.className='notice light';panel.hidden=true;panel.innerHTML='<strong>Düz renkli flekso tasarım önerisi</strong><p id="flexoProposalDescription"></p><details><summary>Özgün görseli karşılaştır</summary><img id="flexoProposalOriginal" alt="Uyarlanmamış özgün logo" style="display:block;max-width:100%;max-height:300px;object-fit:contain;margin:auto"></details>';
 document.querySelector('.preview').after(panel);
-function sync(){const p=state.processingResult?.flatPrintProposal,active=p?.method===METHOD&&!!state.logo&&!state.removed&&!state.designBlocked&&!state.designProcessing;panel.hidden=!active;if(!active)return;$('flexoProposalOriginal').src=state.flexoOriginalLogo||'';$('flexoProposalDescription').textContent=`Geçişler ${p.proposedInkCount} düz baskı rengine uyarlandı; beyaz ambalaj rengi sayılmaz. Harfleri, şekli ve renkleri kontrol edip normal ön yüz onayıyla devam edin. Bu yeni öneridir; özgün görselin renk sayısı veya baskıya hazır dosya değildir.`;if(canReviewExtractedArtwork())approvalQuestion.textContent='Bu düz renkli öneride marka, harfler ve renkler uygun mu? Onayınız yalnız bu yeni tasarımın ön fiyatı içindir; baskı onayı değildir.';}
-const beforeSync=syncSimpleUI;syncSimpleUI=function(){const result=beforeSync.apply(this,arguments);sync();return result;};
-root.FlexoDesignUI=Object.freeze({prepare,sync});
+// Local-only failure information: no filenames, contact fields, pixels or network.
+const diagnosticPanel=document.createElement('details');diagnosticPanel.id='localProcessingDiagnostic';diagnosticPanel.hidden=true;const diagnosticTitle=document.createElement('summary');diagnosticTitle.textContent='Teknik ayrıntı';const diagnosticText=document.createElement('pre');diagnosticText.style.whiteSpace='pre-wrap';diagnosticText.style.overflowWrap='anywhere';diagnosticPanel.append(diagnosticTitle,diagnosticText);document.querySelector('main').append(diagnosticPanel);
+function bindReferenceDiagnostic(parentOperationId,record){const d=localDiagnostic,live=processingSession.getState();if(!d||d.reason==='proposal-ready'||d.operationId!==parentOperationId||d.sourceSHA256!==live.source?.sha256||record?.source?.sha256!==d.sourceSHA256||record?.method!=='source-reference'||record.operation?.operationId!==live.operationId||record.extractionRevision!==live.result?.extractionRevision||!root.ReferenceRecovery?.current())return false;d.referenceOperationId=live.operationId;d.referenceExtractionRevision=record.extractionRevision;return true;}
+function syncDiagnostic(){const session=processingSession.getState(),d=localDiagnostic,record=session.result,reference=!!d&&d.referenceOperationId===session.operationId&&d.referenceExtractionRevision===record?.extractionRevision&&record?.method==='source-reference'&&record.source?.sha256===d.sourceSHA256&&record.operation?.operationId===session.operationId&&root.ReferenceRecovery?.current(),active=!state.designProcessing&&d?.sourceSHA256===session.source?.sha256&&((!!state.designBlocked&&d?.operationId===session.operationId)||reference);diagnosticPanel.hidden=!active;if(!active){diagnosticText.textContent='';return;}const frame=session.frame;diagnosticText.textContent=JSON.stringify({release:document.querySelector('meta[name="app-release"]')?.content||'unknown',mode:d.mode,sourceSHA256:d.sourceSHA256,dimensions:frame?{width:frame.width,height:frame.height}:null,sourceKind:state.sourceKind||null,resultMethod:session.result?.method||null,proposalStage:d.reason},null,2);}
+function sync(){const p=state.processingResult?.flatPrintProposal,active=p?.method===METHOD&&!!state.logo&&!state.removed&&!state.designBlocked&&!state.designProcessing;panel.hidden=!active;if(!active)return;for(const id of ['visibleInterpretation','inputOverride']){const control=$(id);if(control)control.hidden=true;}$('flexoProposalOriginal').src=state.flexoOriginalLogo||'';$('flexoProposalDescription').textContent=`Geçişler ${p.proposedInkCount} düz baskı rengine uyarlandı; beyaz ambalaj rengi sayılmaz. Harfleri, şekli ve renkleri kontrol edip normal ön yüz onayıyla devam edin. Bu yeni öneridir; özgün görselin renk sayısı veya baskıya hazır dosya değildir.`;if(canReviewExtractedArtwork())approvalQuestion.textContent='Bu düz renkli öneride marka, harfler ve renkler uygun mu? Onayınız yalnız bu yeni tasarımın ön fiyatı içindir; baskı onayı değildir.';}
+const beforeSync=syncSimpleUI;syncSimpleUI=function(){const result=beforeSync.apply(this,arguments);sync();syncDiagnostic();return result;};
+root.FlexoDesignUI=Object.freeze({prepare,sync,bindReferenceDiagnostic});
 })(typeof globalThis!=='undefined'?globalThis:this);
