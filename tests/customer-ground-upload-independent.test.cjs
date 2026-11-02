@@ -20,6 +20,7 @@ function setup(){
  const roundtrip=read('white-carrier-ui');vm.runInContext(roundtrip.slice(roundtrip.indexOf('function verifyFlatProposalRoundtrip'),roundtrip.indexOf('let flatProposalDiagnosticURL')),c);
  c.AdaptedPhotoProposal=require('../frontend/adapted-photo-proposal.js');c.currentPrintArea=()=>require('../frontend/product-geometry.js').area(c.selectedProductId||'BM12');c.currentVisualArtworkReady=preview=>!c.state.designProcessing&&!c.state.designBlocked&&c.processingSession.getState().status==='ready'&&(preview||!c.state.extractionApprovalRequired);vm.runInContext(read('adapted-photo-ui'),c);
  c.LocalEmblem=require('../frontend/local-emblem.js');vm.runInContext(read('independent-emblem-ui'),c);
+ c.LowResWordmark=require('../frontend/lowres-wordmark.js');vm.runInContext(read('lowres-wordmark-ui'),c);
  const ui=read('flexo-design-ui');c.root=c;vm.runInContext(ui.slice(ui.indexOf('const METHOD'),ui.indexOf('const panel=')),c);c.FlexoDesignUI={prepare:c.prepare,sync(){}};
  // Actual public event adapter; browser rendering/scrolling are intentionally inert.
  vm.runInContext(app.split('\n').find(l=>l.startsWith("$('unifiedUpload').onchange=")),c);
@@ -112,4 +113,35 @@ test('actual clipped-package round emblem becomes a verified flat preview throug
  const combined=require('../frontend/combined-inks').estimate({front:{status:'estimated',colors:palette.colors,inkIdentity:palette.inkIdentity},background:c.state.bg});assert.equal(combined.status,'estimated');assert.equal(combined.count,2);assert.equal(require('../frontend/combined-inks').estimate({front:{status:'estimated',colors:palette.colors,inkIdentity:palette.inkIdentity},background:'#123456'}).count,3);
  vm.runInContext(app.split('\n').find(line=>line.startsWith('function pricing(')),c);const rules=require('../frontend/product-catalog').get('BM12').priceRules,price=c.pricing(10000,c.state.bg,'Muğla','Bodrum','new',combined.count,rules);assert.equal(price.plate,combined.count*100000);
  await upload(c,flatFile('white'));assert.equal(c.state.bg,'#ffffff');assert.notEqual(c.processingSession.getState().result.method,'source-independent-emblem-proposal-v2');assert(!c.processingSession.isApproved(c.designFingerprint()));
+});
+
+test('mandatory actual tiny wordmark ordinary upload gives source-bound full ground and usable reviewed artwork',async()=>{
+ const file=process.env.HIJYENLAB_PRIVATE_ULFET;
+ assert(file,'HIJYENLAB_PRIVATE_ULFET is required; materialize original libfile_276b099e519481919b7e13b2f671ced7, never substitute synthetic artwork');
+ const bytes=fs.readFileSync(file),sha=createHash('sha256').update(bytes).digest('hex');
+ assert.equal(sha,'890f38745715d16412cc1e9281b25e73f64241e193408a62b41978b1d5600dde');
+ const original=await loadImage(bytes);assert.equal(original.width,176);assert.equal(original.height,56);
+ const c=setup();await upload(c,new File([bytes],'ordinary-small-customer-image.jpeg',{type:'image/jpeg'}));
+ const live=c.processingSession.getState();assert.equal(live.status,'ready',c.lastStatus);
+ assert.equal(live.source.sha256,sha);assert.equal(live.result.method,'source-lowres-wordmark-proposal-v1','Safe refusal or unchanged blurry native route is not customer success');
+ assert.equal(c.state.bg,'#231f20','Original dark field proposes the whole package, not a local rectangle on white');
+ assert.equal(c.state.groundScope.packageGroundProposed,true);assert.equal(c.state.groundScope.sourceGroundVerified,false);
+ c.restoreSourceGroundIntent({bg:'#231f20',backgroundIntent:{kind:'unknown',color:'#231f20'}});assert.equal(c.state.bg,'#231f20','Draft restore reapplies source-bound original ground');
+ assert(!c.state.designBlocked);assert.notEqual(c.state.quoteSource,'source-reference');assert(c.state.extractionApprovalRequired);
+ assert(!c.processingSession.isApproved(c.designFingerprint()));
+ assert.equal(c.state.flexoOriginalLogo,'data:image/jpeg;base64,'+bytes.toString('base64'),'Comparison retains the exact original bytes');
+ const audit=live.result.lowResWordmark?.topologyAudit;assert(audit?.passed);assert.equal(audit.sourceComponents,7);assert.equal(audit.outputComponents,7,'Both umlaut dots and disconnected letter groups survive');assert.equal(audit.sourceHoles,1);assert.equal(audit.outputHoles,1);assert.equal(audit.retainedCorePixels,audit.corePixels);assert(audit.componentCoreWitnesses.every(n=>n>0));
+ assert.deepEqual(Array.from(live.result.lowResWordmark.foregroundBounds),[35,5,130,53]);
+ const p=live.result.flatPrintProposal;assert(p.renderedPixelsVerified);assert.equal(p.sourceSHA256,sha);assert.equal(p.physicalInksConfirmed,false);
+ assert(p.actualProposedPalette.includes('#231f20'));assert(c.logoImg.width>176&&c.logoImg.height>56,'Source-derived higher-resolution preview is actually used');
+ const printUI=read('print-inks-ui');vm.runInContext(printUI.slice(printUI.indexOf('function approvedFlatPhotoPalette('),printUI.indexOf('function photographicInkSource(')),c);
+ assert.equal(c.approvedFlatPhotoPalette(null,0,0),null);assert(c.approvedFlatPhotoPalette(null,0,0,true));
+ assert(c.approveCurrentDesign());c.state.extractionApprovalRequired=false;
+ const palette=c.approvedFlatPhotoPalette(null,0,0);assert(palette);assert.equal(palette.inkIdentity,'verified-rendered-flat-palette');
+ const combined=require('../frontend/combined-inks').estimate({front:{status:'estimated',colors:palette.colors,inkIdentity:palette.inkIdentity},background:c.state.bg});
+ assert.equal(combined.count,p.proposedInkCount,'Rendered ground counted only once; source light ink is not silently discarded');
+ vm.runInContext(app.split('\n').find(line=>line.startsWith('function pricing(')),c);const price=c.pricing(10000,c.state.bg,'İstanbul','','new',combined.count,require('../frontend/product-catalog').get('BM12').priceRules);
+ assert.equal(price.minimum,10000);assert.equal(price.plate,combined.count*100000);
+ assert.equal(createHash('sha256').update(fs.readFileSync(file)).digest('hex'),sha);
+ await upload(c,flatFile('white'));assert.equal(c.state.bg,'#ffffff');assert(!c.processingSession.isApproved(c.designFingerprint()));assert.notEqual(c.processingSession.getState().result.method,'source-lowres-wordmark-proposal-v1');
 });

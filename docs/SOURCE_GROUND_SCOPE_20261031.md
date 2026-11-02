@@ -37,3 +37,23 @@ Actual NOA historical proof passes with just the marked packet body; HARUNA tech
 ### Ground-role palette identity
 
 The retained original crop can yield an edge-median RGB differing by one channel from its accepted-artwork palette centroid. `canonicalGroundPalette` aliases only a unique, independently edge-connected ground core within RGB distance 4 to the current source-proposed ground; a competing nearby core, uncertain/photo palette or altered unrelated ground declines. Original sampled palette is retained in `sampledColors`, role evidence in `groundRole`, and all source pixels/count/foreground colors remain unchanged. The caller must bind this to the current source proposal and exclude manual colors/recolor. This prevents counting the same ground twice; it does not force a customer-specific count or merge genuine nearby foreground inks. The actual retained NOA crop independently estimates two cores before this role mapping.
+
+### V84 bounded low-resolution native ground
+
+A `coherent-small-flat-ground` detector result is now eligible for an appearance
+proposal only after independent pixel checks: opaque flat artwork, short side
+32–63 px, area at most 32,000 px, connected ground at least 65%, three 2-pixel
+sides at least 98.5% ground-consistent, and the fourth side returning to at least
+98.5% matching ground at the next inward pixel line. This is a narrow boundary
+contamination exception, not a global confidence reduction. It preserves every
+source pixel; it does not certify original package color or permit background
+removal. Existing SHA binding, customer override, scene exclusion, and normal
+appearance approval remain required. Source clarity is a separate concern.
+
+Mandatory regression: `ULFET_PRIVATE_ROOT=/consumer/local/ulfet_analysis_1507 node
+--test tests/small-native-ground.test.cjs`. The root must contain
+`prior/66f3804c-439f-4338-ad9b-e9afe2f57084.jpeg` from Library
+`libfile_276b099e519481919b7e13b2f671ced7`, SHA-256
+`890f38745715d16412cc1e9281b25e73f64241e193408a62b41978b1d5600dde`.
+No private image is stored in public assets. Missing or changed bytes fail the
+suite; the aggregate requires this environment variable too.

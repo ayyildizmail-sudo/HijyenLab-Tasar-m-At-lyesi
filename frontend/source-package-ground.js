@@ -35,12 +35,26 @@ function canonicalGroundPalette(data,w,h,estimate,background){
 // normal front-appearance approval and an alternative local-panel view remain
 // authoritative. Only an opaque, flat, edge-to-edge field is eligible.
 function nativeProposal(data,w,h,detection){
- if(!data||data.length!==w*h*4||w<32||h<32||w*h>160000||detection?.kind!=='color'||detection.maskAllowed===false||detection.confidence<.97||detection.connected<.65||!/^#[a-f0-9]{6}$/i.test(detection.color||''))return null;
+ if(!data||data.length!==w*h*4||w<32||h<32||w*h>160000||detection?.kind!=='color'||detection.maskAllowed===false||detection.connected<.65||!/^#[a-f0-9]{6}$/i.test(detection.color||''))return null;
  const flat=B.inspectFlatGraphic(data,w,h);if(!flat.flatGraphic)return null;
  const rgb=[1,3,5].map(i=>parseInt(detection.color.slice(i,i+2),16));let edge=0,matched=0;
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;if(data[i+3]<250)return null;if(x<2||y<2||x>=w-2||y>=h-2){edge++;if(distance([data[i],data[i+1],data[i+2]],rgb)<=24)matched++;}}
- if(matched/edge<.985)return null;
- return {basis:'native-fullbleed-appearance-proposal',color:detection.color.toLowerCase(),fullBleed:true,flatGraphic:true,opaque:true,sourceGroundVerified:false,preserveSourcePixels:true,width:w,height:h,foregroundBounds:foregroundBounds(data,w,h,detection)};
+ const strict=detection.confidence>=.97&&matched/edge>=.985;
+ let groundEvidence=null;
+ if(!strict){
+  // A separate bounded path for tiny native artwork, NOT a relaxed global
+  // border threshold. Recompute evidence from this frame (not caller metadata).
+  const measured=B.analyze(data,w,h);
+  if(Math.min(w,h)>=64||w*h>32000||measured.reason!=='coherent-small-flat-ground'||measured.color!==detection.color||measured.connected<.65)return null;
+  const sides=[[],[],[],[]],insets=[[],[],[],[]];
+  const match=(x,y)=>{const i=(y*w+x)*4;return distance([data[i],data[i+1],data[i+2]],rgb)<=24?1:0;};
+  for(let x=0;x<w;x++){sides[0].push(match(x,0),match(x,1));sides[2].push(match(x,h-1),match(x,h-2));insets[0].push(match(x,2));insets[2].push(match(x,h-3));}
+  for(let y=0;y<h;y++){sides[1].push(match(w-1,y),match(w-2,y));sides[3].push(match(0,y),match(1,y));insets[1].push(match(w-3,y));insets[3].push(match(2,y));}
+  const fraction=a=>a.reduce((sum,v)=>sum+v,0)/a.length,coverage=sides.map(fraction),failed=coverage.map((v,i)=>v<.985?i:-1).filter(i=>i>=0);
+  if(failed.length!==1||fraction(insets[failed[0]])<.985)return null;
+  groundEvidence={basis:'coherent-small-flat-thin-boundary',boundarySide:['top','right','bottom','left'][failed[0]],maxBoundaryWidth:2,sideCoverage:coverage,insetCoverage:fraction(insets[failed[0]]),sourceLimited:true};
+ }
+ return {basis:'native-fullbleed-appearance-proposal',...(groundEvidence?{groundEvidence}: {}),color:detection.color.toLowerCase(),fullBleed:true,flatGraphic:true,opaque:true,sourceGroundVerified:false,preserveSourcePixels:true,width:w,height:h,foregroundBounds:foregroundBounds(data,w,h,detection)};
 }
 function detect(data,w,h){
  if(!Number.isInteger(w)||!Number.isInteger(h)||w<100||h<100||w*h>640*640||!data||data.length!==w*h*4)return null;
