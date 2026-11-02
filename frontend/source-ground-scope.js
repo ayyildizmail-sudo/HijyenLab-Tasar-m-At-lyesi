@@ -7,7 +7,7 @@ function resolve(input={}){
  const detection=input.detection||{},choice=input.customerChoice,evidence=input.packageEvidence;
  const trustedArtwork=['native-artwork','selected-brand-region','isolated-brand'].includes(input.artifactKind);
  const sampled=color(detection.color)||color(input.localBackground);
- const result={sourceIdentity:identity(input.sourceIdentity),packageColor:'#ffffff',scope:'unknown',basis:'white-default-not-source-ground-proof',preserveArtwork:true,preserveLocalPanel:true,allowColorRemoval:false,allowWhiteExteriorRemoval:false,mayPlaceArtwork:trustedArtwork,localBackground:sampled,customerChosen:false,sourceGroundVerified:false,preserveInkRoles:true,whiteOppInkCount:0,requiresReview:!trustedArtwork};
+ const result={sourceIdentity:identity(input.sourceIdentity),packageColor:'#ffffff',scope:'unknown',basis:'white-default-not-source-ground-proof',preserveArtwork:true,preserveLocalPanel:true,allowColorRemoval:false,allowWhiteExteriorRemoval:false,mayPlaceArtwork:trustedArtwork,localBackground:sampled,customerChosen:false,sourceGroundVerified:false,packageGroundProposed:false,preserveInkRoles:true,whiteOppInkCount:0,requiresReview:!trustedArtwork};
  // Customer intent is authoritative for the package only, never permission to
  // paste an unisolated photograph or erase a logo's local reverse-contrast field.
  if(choice?.explicit===true&&choice.scope==='package'&&color(choice.color)){
@@ -21,6 +21,19 @@ function resolve(input={}){
  }
  if(input.artifactKind==='scene')return {...result,scope:'scene',basis:'scene-not-package-ground'};
  if(!trustedArtwork)return result;
+ // Geometry is evidence for a bounded proposal, not a claim of semantic or
+ // physical ink verification. Bind to the source AND current PDF page, and
+ // require the placed artwork's local color to agree. Use that exact local
+ // color to avoid inventing a second near-identical ground ink.
+ const rgb=c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16));
+ const agrees=(a,b)=>a&&b&&Math.hypot(...rgb(a).map((v,i)=>v-rgb(b)[i]))<=24;
+ if(source&&identity(evidence?.sourceIdentity)===source&&evidence?.scope==='package'&&evidence?.basis==='detected-product-layout'&&evidence?.verifiedGeometry===true&&evidence?.preserveSourcePixels===true&&Array.isArray(evidence.carrierBoxes)&&evidence.carrierBoxes.length&&Array.isArray(evidence.corroboratingRegions)&&evidence.corroboratingRegions.length&&(evidence.pageNumber??null)===(input.pageNumber??null)&&agrees(sampled,color(evidence.color))){
+  return {...result,packageColor:sampled,scope:'package',basis:'detected-product-layout-proposal',packageGroundProposed:true,requiresReview:true};
+ }
+ const proposal=detection.packageGroundProposal;
+ if(source&&identity(proposal?.sourceIdentity)===source&&input.artifactKind==='native-artwork'&&proposal?.basis==='native-fullbleed-appearance-proposal'&&proposal.fullBleed===true&&proposal.flatGraphic===true&&proposal.opaque===true&&proposal.preserveSourcePixels===true&&color(proposal.color)===sampled){
+  return {...result,packageColor:sampled,scope:'package',basis:proposal.basis,packageGroundProposed:true,requiresReview:true};
+ }
  if(detection.kind==='transparent')return {...result,scope:'artwork',basis:'transparent-artwork-white-package',requiresReview:false};
  if(detection.kind==='white')return {...result,scope:'artwork',basis:'white-artwork-white-package',allowWhiteExteriorRemoval:detection.maskAllowed!==false,requiresReview:false};
  return {...result,scope:'logo-local',basis:'local-artwork-ground-not-package',requiresReview:true};
