@@ -1,5 +1,5 @@
 /* Scoped presentation only: never company identity, working canvas, ink swatches or exports. */
-main{--customer-accent:#800d2a;--customer-tint:#eddde1;--customer-decoration:#800d2a}
+main{--customer-accent:#800d2a;--customer-tint:#eddde1;--customer-decoration:#800d2a;--customer-on-decoration:#ffffff}
 .atelierLayout #journeyProgress li[aria-current=step]{color:var(--customer-accent)}
 .atelierLayout #journeyProgress li[aria-current=step]::before{background:var(--customer-accent)}
 #journeyProgress li[data-complete=true]{color:var(--customer-accent)}
@@ -15,6 +15,8 @@ main{--customer-accent:#800d2a;--customer-tint:#eddde1;--customer-decoration:#80
    canvas coordinates or exported artwork changes. The neutral hairline defines pale hues. */
 @media screen{
  .atelierLayout[data-customer-theme] :is(#design .preview,#rearPreview .rearFlipScene){outline:3px solid var(--customer-decoration);outline-offset:0;box-shadow:0 0 0 4px #142d4929}
+ .atelierLayout[data-customer-theme] :is(#design,#rearPreview,#fragrancePanel,#pricing,#summary) button.primary{background:var(--customer-decoration);color:var(--customer-on-decoration);border-color:var(--customer-accent);box-shadow:inset 0 0 0 1px var(--customer-accent)}
+ .atelierLayout[data-customer-theme] :is(#design,#rearPreview,#fragrancePanel,#pricing,#summary) button.primary:focus-visible{outline:3px solid var(--customer-accent);outline-offset:3px}
  .atelierLayout[data-customer-theme] #journeyProductSummary{border-color:var(--customer-decoration);background:var(--customer-tint);box-shadow:inset 0 0 0 1px var(--customer-decoration)}
  .atelierLayout[data-customer-theme] #journeyProductMode{color:#34485f}
  /* Progress uses existing active/completed states; paint does not add padding or move steps. */

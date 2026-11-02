@@ -12,7 +12,8 @@ function palette(colors){
  // A visible but restrained card wash; UI-only, not a generated printing ink.
  const c=rgb(decoration),tint='#'+c.map(v=>Math.round(v*.14+255*.86).toString(16).padStart(2,'0')).join('');
  const accent=candidates.find(c=>['#ffffff','#f5f7fa',tint].every(bg=>contrast(c,bg)>=4.5))||FALLBACK;
- return {accent,tint,decoration,personalized:!!source};
+ const onDecoration=contrast('#142d49',decoration)>=4.5?'#142d49':contrast('#ffffff',decoration)>=4.5?'#ffffff':'#000000';
+ return {accent,tint,decoration,onDecoration,personalized:!!source};
 }
 function sample(data){
  const buckets=new Map();
@@ -44,7 +45,7 @@ function mount(doc){
  const note=doc.createElement('p');note.id='customerJourneyNote';note.hidden=true;note.setAttribute('role','status');note.setAttribute('aria-live','polite');note.setAttribute('aria-atomic','true');
  const progress=doc.getElementById('journeyProgress');if(!progress)return;progress.after(note);
  let lastKey='',lastTheme='',scheduled=false;
- function apply(colors){const theme=palette(colors),key=[theme.accent,theme.tint,theme.decoration,theme.personalized].join('|');if(key===lastTheme)return;lastTheme=key;main.style.setProperty('--customer-accent',theme.accent);main.style.setProperty('--customer-tint',theme.tint);main.style.setProperty('--customer-decoration',theme.decoration);if(theme.personalized)main.setAttribute('data-customer-theme','true');else main.removeAttribute('data-customer-theme');}
+ function apply(colors){const theme=palette(colors),key=[theme.accent,theme.tint,theme.decoration,theme.onDecoration,theme.personalized].join('|');if(key===lastTheme)return;lastTheme=key;main.style.setProperty('--customer-accent',theme.accent);main.style.setProperty('--customer-tint',theme.tint);main.style.setProperty('--customer-decoration',theme.decoration);main.style.setProperty('--customer-on-decoration',theme.onDecoration);if(theme.personalized)main.setAttribute('data-customer-theme','true');else main.removeAttribute('data-customer-theme');}
  function reset(){lastKey='';apply([]);for(const item of progress.querySelectorAll('li'))if(item.hasAttribute('data-complete'))item.removeAttribute('data-complete');if(note.textContent)note.textContent='';if(!note.hidden)note.hidden=true;}
  function sync(){
   scheduled=false;
@@ -71,7 +72,7 @@ function mount(doc){
   const done=completion({approved,fragrance:typeof fragranceReady==='function'&&fragranceReady(),quote,blank,declared});
   for(const item of progress.querySelectorAll('li')){const yes=done[item.dataset.step];if(yes&&!item.hasAttribute('data-complete'))item.setAttribute('data-complete','true');else if(!yes&&item.hasAttribute('data-complete'))item.removeAttribute('data-complete');}
   // customerName accepts people as well as organizations: never guess a brand from it or OCR.
-  const message=quote?'Teklif önizlemeniz hazır.':done.fragrance?'Tasarım ve koku seçiminiz hazır.':done.design?'Tasarım önizlemenizi onayladınız.':'';
+  const message=quote?'Teklif önizlemeniz hazır.':done.fragrance?'Tasarım ve koku seçiminiz hazır.':done.design?'Tasarım önizlemenizi onayladınız.':main.hasAttribute('data-customer-theme')?'Ekran vurguları logonuzun renklerine uyarlandı.':'';
   if(note.textContent!==message)note.textContent=message;if(note.hidden!==!message)note.hidden=!message;
  }
  function queue(){if(!scheduled){scheduled=true;root.queueMicrotask(sync);}}

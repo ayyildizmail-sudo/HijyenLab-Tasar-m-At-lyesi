@@ -19,6 +19,7 @@ test('dominant pale brand colors remain visible as decoration, not text or inven
 test('theme text meets AA on white, actual app ground and generated tint across RGB samples',()=>{
  for(let r=0;r<=255;r+=17)for(let g=0;g<=255;g+=17)for(let b=0;b<=255;b+=17){
   const color='#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join(''),theme=palette([color]);
+  assert.ok(contrast(theme.onDecoration,theme.decoration)>=4.5,`${color} readable primary action`);
   for(const bg of ['#ffffff','#f5f7fa',theme.tint])assert.ok(contrast(theme.accent,bg)>=4.5,`${color} text on ${bg}`);
   for(const text of ['#142d49','#34485f'])assert.ok(contrast(text,theme.tint)>=4.5,`${color} neutral card text ${text}`);
  }
@@ -68,6 +69,7 @@ test('mounted theme follows current source, approval, cancel and reset without s
  session.result.flatPrintProposal={method:'source-flat-flexo-proposal-v1'};session.designRevision++;approved=true;
  context.approvedFlatPhotoPalette=()=>({colors:['#b01830','#183078']});
  context.HijyenLabCustomerTheme.sync();assert.equal(styles['--customer-accent'],'#183078','uses actual approved pixels, not palette ordering');
+ session.result.method='source-independent-emblem-proposal-v1';session.designRevision++;context.HijyenLabCustomerTheme.sync();assert.equal(styles['--customer-decoration'],'#183078','independent emblem uses verified approved palette');
  const sampled=pixels;context.HijyenLabCustomerTheme.sync();assert.equal(pixels,sampled,'unchanged source/revision is cached');
  session.status='cancelled';approved=false;context.HijyenLabCustomerTheme.sync();assert.equal(styles['--customer-accent'],'#800d2a');assert.equal(pixels,sampled,'canceled proposal is never sampled');
  context.HijyenLabCustomerTheme.reset();assert.equal(nodes.get('customerJourneyNote').hidden,true);
@@ -140,16 +142,16 @@ test('logo tint follows selected product, completed progress, lead and quote-sum
  assert.match(css,/#leadFields>\.hint\{color:#34485f\}/);
  assert.match(css,/#summary #journeyQuoteDescription\{[^}]*color:#34485f/);
  assert.match(css,/#summary>article\{border-color:var\(--customer-decoration\);box-shadow:inset 0 3px 0 var\(--customer-decoration\)\}/);
- assert.ok(rules.every(line=>!/(?:canvas|button|contact|notice|actionHelp|priceRow|journeyQuoteCosts|quoteImage|finalImage|fragranceCard|company|::after|filter:)/.test(line)),'company, artwork, costs, semantic messages, fragrance cards, contacts and rear completion remain untouched');
+ assert.ok(rules.every(line=>!/(?:canvas|contact|notice|actionHelp|priceRow|journeyQuoteCosts|quoteImage|finalImage|fragranceCard|company|::after|filter:)/.test(line)),'company, artwork, costs, semantic messages, fragrance cards, contacts and rear completion remain untouched');
  assert.ok(rules.every(line=>!/(?:padding|margin|width|height|position|transform):/.test(line)),'no layout, input or navigation geometry changes');
 });
 
-test('fragrance cards keep fixed sage, leaf-green, mandarin and lemon palettes outside the customer theme',()=>{
+test('fragrance cards keep fixed flower-pink, leaf-green, mandarin and lemon palettes outside the customer theme',()=>{
  const fs=require('node:fs'),css=fs.readFileSync('frontend/style.css','utf8'),theme=fs.readFileSync('frontend/customer-theme.css','utf8');
  const rule=selector=>{const escaped=selector.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');return css.match(new RegExp(escaped+'\\{([^}]+)\\}'))?.[1]||'';};
  const expected={
-  flambau:['#f7fbf8','#9cbfb3','#315b53','#edf5f0'],
-  green_tea:['#f2f8ed','#a9c88c','#386a24','#e8f2df'],
+  flambau:['#fff0f6','#df8eb1','#9d2459','#ffe2ee'],
+  green_tea:['#edf8e8','#80b66a','#316523','#daf0ce'],
   bodrum_mandarin:['#fff5e9','#e5b16f','#ad570d','#fff0d8'],
   lemon:['#fffbe4','#dbc96c','#8c7412','#fff5bd'],
  };
@@ -168,7 +170,7 @@ test('fragrance cards keep fixed sage, leaf-green, mandarin and lemon palettes o
  assert.ok(cardRules.every(line=>!line.includes('--customer-')),'logo-derived hue cannot recolor cards');
  assert.ok(!theme.replace(/\/\*[\s\S]*?\*\//g,'').includes('.fragranceCard'),'customer theme leaves semantic cards alone');
  assert.match(rule('#fragranceCards .fragranceCard'),/background:var\(--fragrance-tint\);color:#182e4e/);
- assert.match(rule('.fragranceRecommendation'),/color:#315b53;background:#eaf4ef/,'existing Flambau recommendation badge stays sage');
+ assert.match(rule('.fragranceRecommendation'),/color:var\(--fragrance-active\);background:var\(--fragrance-selected\)/,'recommendation badge follows its semantic palette');
 });
 
 test('fragrance selection and keyboard focus remain visible without relying on card hue alone',()=>{
@@ -179,4 +181,11 @@ test('fragrance selection and keyboard focus remain visible without relying on c
  assert.ok(!css.split('\n').filter(line=>line.includes('.fragranceCard')).some(line=>/appearance:none|outline:none|display:none/.test(line)),'native checked dot and focus remain available');
  assert.ok(ui.includes("radio.type='radio';radio.name='fragrance';radio.value=item.id"),'native grouped radio controls remain the selection mechanism');
  assert.match(css,/@media\(max-width:560px\)\{\.fragranceCards\{grid-template-columns:1fr;gap:10px\}/,'existing mobile stack stays intact');
+});
+
+test('source-colored primary actions are visible and contrast-safe without recoloring scents',()=>{
+ const css=require('node:fs').readFileSync('frontend/customer-theme.css','utf8');
+ assert.match(css,/button\.primary\{background:var\(--customer-decoration\);color:var\(--customer-on-decoration\)/);
+ assert.match(css,/button\.primary:focus-visible\{outline:3px solid var\(--customer-accent\)/);
+ for(const color of ['#fff200','#183078','#f01818','#222222','#999999'])assert(contrast(palette([color]).onDecoration,color)>=4.5);
 });

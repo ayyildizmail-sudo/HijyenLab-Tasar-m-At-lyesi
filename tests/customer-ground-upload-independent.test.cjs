@@ -19,6 +19,7 @@ function setup(){
  vm.runInContext(read('processing-lifecycle'),c);
  const roundtrip=read('white-carrier-ui');vm.runInContext(roundtrip.slice(roundtrip.indexOf('function verifyFlatProposalRoundtrip'),roundtrip.indexOf('let flatProposalDiagnosticURL')),c);
  c.AdaptedPhotoProposal=require('../frontend/adapted-photo-proposal.js');c.currentPrintArea=()=>require('../frontend/product-geometry.js').area(c.selectedProductId||'BM12');c.currentVisualArtworkReady=preview=>!c.state.designProcessing&&!c.state.designBlocked&&c.processingSession.getState().status==='ready'&&(preview||!c.state.extractionApprovalRequired);vm.runInContext(read('adapted-photo-ui'),c);
+ c.LocalEmblem=require('../frontend/local-emblem.js');vm.runInContext(read('independent-emblem-ui'),c);
  const ui=read('flexo-design-ui');c.root=c;vm.runInContext(ui.slice(ui.indexOf('const METHOD'),ui.indexOf('const panel=')),c);c.FlexoDesignUI={prepare:c.prepare,sync(){}};
  // Actual public event adapter; browser rendering/scrolling are intentionally inert.
  vm.runInContext(app.split('\n').find(l=>l.startsWith("$('unifiedUpload').onchange=")),c);
@@ -97,4 +98,18 @@ test('actual NOA technical proof ordinary upload isolates one original business 
 test('actual fullbleed native artwork shares canonical package ground and plate price',async()=>{
  const root=process.env.SOURCE_GROUND_PRIVATE_ROOT||path.resolve(__dirname,'../../noa_phone_inspect'),bytes=fs.readFileSync(path.join(root,'originals/a9cdf382-1b9f-4984-aed3-6c0dc14eafd2.jpeg'));
  const c=setup();await upload(c,new File([bytes],'unrelated-native-artwork.jpg',{type:'image/jpeg'}));assert.equal(c.processingSession.getState().status,'ready');assert(c.approveCurrentDesign());assertCanonicalQuote(c,1);
+});
+
+test('actual clipped-package round emblem becomes a verified flat preview through ordinary upload',async()=>{
+ const file=process.env.HIJYENLAB_PRIVATE_BIRTAT;assert(file,'HIJYENLAB_PRIVATE_BIRTAT is required for the real customer success fixture');
+ const bytes=fs.readFileSync(file);assert.equal(createHash('sha256').update(bytes).digest('hex'),'90036dd9686bac49827a66501def598f160664b7e71f99c55f1b8b191ba1c26b');
+ const c=setup();await upload(c,new File([bytes],'customer-package-photo.jpg',{type:'image/jpeg'}));const live=c.processingSession.getState();
+ assert.equal(live.status,'ready',c.lastStatus);assert.equal(live.result.method,'source-independent-emblem-proposal-v1');assert.equal(c.state.designBlocked,false);assert(c.state.extractionApprovalRequired);assert.equal(c.state.sourceKind,'independent-emblem');assert(c.state.flexoOriginalLogo.startsWith('data:image/jpeg'));
+ const p=live.result.flatPrintProposal;assert(p.renderedPixelsVerified);assert.equal(p.sourceSHA256,createHash('sha256').update(bytes).digest('hex'));assert(p.proposedInkCount>=1&&p.proposedInkCount<=3);assert.equal(p.physicalInksConfirmed,false);
+ const printUI=read('print-inks-ui');vm.runInContext(printUI.slice(printUI.indexOf('function approvedFlatPhotoPalette('),printUI.indexOf('function photographicInkSource(')),c);
+ assert.equal(c.approvedFlatPhotoPalette(null,0,0),null,'Unapproved photographic proposal cannot be commercially reused');assert(c.approvedFlatPhotoPalette(null,0,0,true),'Actual rendered palette may be previewed');
+ assert(c.approveCurrentDesign());c.state.extractionApprovalRequired=false;const palette=c.approvedFlatPhotoPalette(null,0,0);assert(palette);assert.equal(palette.inkIdentity,'verified-rendered-flat-palette');
+ const combined=require('../frontend/combined-inks').estimate({front:{status:'estimated',colors:palette.colors,inkIdentity:palette.inkIdentity},background:c.state.bg});assert.equal(combined.status,'estimated');assert(combined.count>=1&&combined.count<=3);
+ vm.runInContext(app.split('\n').find(line=>line.startsWith('function pricing(')),c);const rules=require('../frontend/product-catalog').get('BM12').priceRules,price=c.pricing(10000,c.state.bg,'Muğla','Bodrum','new',combined.count,rules);assert.equal(price.plate,combined.count*100000);
+ await upload(c,flatFile('white'));assert.equal(c.state.bg,'#ffffff');assert.notEqual(c.processingSession.getState().result.method,'source-independent-emblem-proposal-v1');assert(!c.processingSession.isApproved(c.designFingerprint()));
 });

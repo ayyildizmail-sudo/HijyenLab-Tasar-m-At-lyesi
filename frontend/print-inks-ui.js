@@ -192,7 +192,7 @@ function visualPreviewPolicyError(){
 function pendingFlatPhotoNotice(){
  if(state.extractionApprovalRequired!==true)return '';
  const palette=approvedFlatPhotoPalette(null,0,0,true);
- const count=palette&&state.processingResult?.flatPrintProposal?.whiteKnockout?CombinedInks.estimate({front:{status:'estimated',colors:palette.colors,inkIdentity:palette.inkIdentity},background:state.bg}).count:palette?.count;
+ const count=palette?CombinedInks.estimate({front:{status:'estimated',colors:palette.colors,inkIdentity:palette.inkIdentity},background:state.bg}).count:null;
  return Number.isInteger(count)?`Logo önizlemesi ${count} baskı rengiyle hazır; tasarımınızı onaylayarak devam edin.`:'';
 }
 function deferUncertainPrintNotice(policy){return policy?.blocked===true&&policy.count===null&&state.extractionApprovalRequired===true&&!!state.logo&&!state.removed&&!state.designBlocked&&!state.designProcessing&&!state.extractionSourceLimited;}

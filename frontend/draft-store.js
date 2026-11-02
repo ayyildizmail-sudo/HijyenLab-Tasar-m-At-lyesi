@@ -99,8 +99,8 @@ function validate(input){
  if(design.requestedQuantity!==null&&!Number.isInteger(design.requestedQuantity))fail('INVALID','Taslak adedi geçersiz.');
  for(const k of ['instagram','website','phone','address','extra'])rear[k]=str(input.rear[k],1000);
  rear.inkColor=hex(input.rear.inkColor,true);rear.qrEnabled=bool(input.rear.qrEnabled);rear.qrUrl=str(input.rear.qrUrl,2048);
- if(!['','flambau','green_tea','bodrum_mandarin','lemon'].includes(input.fragrance))fail('INVALID','Taslak kokusu geçersiz.');
- const result={schemaVersion:input.schemaVersion,...(input.schemaVersion>=2?{printMode:'printed'}:{}),productId:input.productId,design,rear,fragrance:input.fragrance};let size=0;
+ const customFragrance=input.fragrance?.id==='other';if(customFragrance){exact(input.fragrance,['id','customName']);str(input.fragrance.customName,80);if(/[\u0000-\u001f\u007f]/.test(input.fragrance.customName))fail('INVALID','Taslak kokusu geçersiz.');}else if(!['','flambau','green_tea','bodrum_mandarin','lemon'].includes(input.fragrance))fail('INVALID','Taslak kokusu geçersiz.');
+ const result={schemaVersion:input.schemaVersion,...(input.schemaVersion>=2?{printMode:'printed'}:{}),productId:input.productId,design,rear,fragrance:customFragrance?{id:'other',customName:input.fragrance.customName.trim().replace(/\s+/g,' ')}:input.fragrance};let size=0;
  for(const side of ['front','rear']){
   const file=input[side+'File'],name=str(input[side+'Name'],255);
   if(file!==null&&(!(file instanceof Blob)||file.size===0||file.size>MAX_FILE_BYTES||!MIME.includes(file.type.toLowerCase())))fail('INVALID','Taslak görseli desteklenmiyor veya çok büyük.');

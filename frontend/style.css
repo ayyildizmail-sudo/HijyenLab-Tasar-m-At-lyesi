@@ -73,15 +73,17 @@ header.companyHeader{align-items:flex-start;gap:12px}header .companyIdentity{dis
 /* Fragrance meaning is fixed; these card colors never inherit the uploaded-logo accent. */
 .fragranceCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:28px 0}
 .fragranceCard{display:flex;align-items:center;gap:12px;border:2px solid #dce3ed;border-radius:16px;padding:22px 18px;cursor:pointer;min-height:90px;background:white}
-#fragranceCards .fragranceCard:has(input[value=flambau]){--fragrance-tint:#f7fbf8;--fragrance-border:#9cbfb3;--fragrance-active:#315b53;--fragrance-selected:#edf5f0}
-#fragranceCards .fragranceCard:has(input[value=green_tea]){--fragrance-tint:#f2f8ed;--fragrance-border:#a9c88c;--fragrance-active:#386a24;--fragrance-selected:#e8f2df}
+#fragranceCards .fragranceCard:has(input[value=flambau]){--fragrance-tint:#fff0f6;--fragrance-border:#df8eb1;--fragrance-active:#9d2459;--fragrance-selected:#ffe2ee}
+#fragranceCards .fragranceCard:has(input[value=green_tea]){--fragrance-tint:#edf8e8;--fragrance-border:#80b66a;--fragrance-active:#316523;--fragrance-selected:#daf0ce}
 #fragranceCards .fragranceCard:has(input[value=bodrum_mandarin]){--fragrance-tint:#fff5e9;--fragrance-border:#e5b16f;--fragrance-active:#ad570d;--fragrance-selected:#fff0d8}
 #fragranceCards .fragranceCard:has(input[value=lemon]){--fragrance-tint:#fffbe4;--fragrance-border:#dbc96c;--fragrance-active:#8c7412;--fragrance-selected:#fff5bd}
+#fragranceCards .fragranceCard:has(input[value=other]){--fragrance-tint:#f4f5f7;--fragrance-border:#a4aab3;--fragrance-active:#46505f;--fragrance-selected:#e5e8ed;grid-column:1/-1}
+#customFragranceFields{margin:16px 0;padding:18px;border:1px solid #a4aab3;border-radius:12px;background:#f4f5f7}#customFragranceFields[hidden]{display:none}#customFragranceName{max-width:480px}#customFragranceQuantity{margin-top:8px}
 #fragranceCards .fragranceCard{border-color:var(--fragrance-border);background:var(--fragrance-tint);color:#182e4e}
 #fragranceCards .fragranceCard:has(input:checked){border-color:var(--fragrance-active);background:var(--fragrance-selected);box-shadow:0 0 0 1px var(--fragrance-active)}
 .fragranceCard input{width:22px;height:22px;flex-shrink:0;accent-color:var(--fragrance-active)}
 .fragranceCard strong{font-size:19px}.fragranceCardCopy{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0}
-.fragranceRecommendation{font-size:12px;font-weight:600;color:#315b53;background:#eaf4ef;border-radius:999px;padding:4px 9px}
+.fragranceRecommendation{font-size:12px;font-weight:600;color:var(--fragrance-active);background:var(--fragrance-selected);border-radius:999px;padding:4px 9px}
 #fragranceCards .fragranceCard:focus-within{outline:3px solid #183153;outline-offset:3px}
 @media(max-width:560px){.fragranceCards{grid-template-columns:1fr;gap:10px}.fragranceCard{padding:17px;min-height:74px}}
 .fragrancePriceSummary{display:block;padding:16px;border:1px solid #cbddee;border-radius:12px;background:#edf5ff;margin:16px 0}.fragrancePriceSummary .textButton{min-height:44px;margin-left:10px}.fragrancePriceSummary p{margin-bottom:0}
@@ -100,3 +102,13 @@ header.companyHeader{align-items:flex-start;gap:12px}header .companyIdentity{dis
    The 16px minimum avoids iOS focus zoom; native keyboard/scrolling stay native. */
 #leadFields input { margin-top: 8px; font-size: max(16px, 1rem); scroll-margin-block: 6rem; }
 #leadFields input:focus-visible { outline: 3px solid #477fae; outline-offset: -3px; }
+
+/* Scent identity stays local to the selection and summary; brand theme stays logo-derived. */
+#fragrancePriceSummary[data-fragrance=flambau],.fragranceSummaryBadge[data-fragrance=flambau],#fragrancePanel[data-fragrance=flambau]{--fragrance-tint:#fff0f6;--fragrance-border:#df8eb1;--fragrance-active:#9d2459;--fragrance-selected:#ffe2ee}
+#fragrancePriceSummary[data-fragrance=green_tea],.fragranceSummaryBadge[data-fragrance=green_tea],#fragrancePanel[data-fragrance=green_tea]{--fragrance-tint:#edf8e8;--fragrance-border:#80b66a;--fragrance-active:#316523;--fragrance-selected:#daf0ce}
+#fragrancePriceSummary[data-fragrance=bodrum_mandarin],.fragranceSummaryBadge[data-fragrance=bodrum_mandarin],#fragrancePanel[data-fragrance=bodrum_mandarin]{--fragrance-tint:#fff5e9;--fragrance-border:#e5b16f;--fragrance-active:#ad570d;--fragrance-selected:#fff0d8}
+#fragrancePriceSummary[data-fragrance=lemon],.fragranceSummaryBadge[data-fragrance=lemon],#fragrancePanel[data-fragrance=lemon]{--fragrance-tint:#fffbe4;--fragrance-border:#dbc96c;--fragrance-active:#8c7412;--fragrance-selected:#fff5bd}
+#fragrancePriceSummary[data-fragrance=other],.fragranceSummaryBadge[data-fragrance=other],#fragrancePanel[data-fragrance=other]{--fragrance-tint:#f4f5f7;--fragrance-border:#a4aab3;--fragrance-active:#46505f;--fragrance-selected:#e5e8ed}
+#fragrancePriceSummary[data-fragrance]:not([data-fragrance=""]){background:var(--fragrance-tint);border-color:var(--fragrance-border);color:#182e4e}
+.fragranceSummaryBadge{display:inline-block;border:1px solid var(--fragrance-border);border-radius:8px;padding:6px 10px;background:var(--fragrance-tint);color:#182e4e}
+#fragrancePanel[data-fragrance]:not([data-fragrance=""])>.subtitle{border-left:4px solid var(--fragrance-active);background:var(--fragrance-tint);padding:10px 12px;border-radius:6px;color:#182e4e}
