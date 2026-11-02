@@ -28,6 +28,8 @@ const suites = [
   'tests/native-content-review.test.cjs',
   'tests/pending-proposal-design-issue.test.cjs',
   'tests/photo-flat-hook.test.cjs',
+  'tests/photo-candidate-routing.test.cjs',
+  'tests/photo-candidate-quality.test.cjs',
   'tests/white-carrier-ui.test.cjs',
   'tests/customer-no-manual-region.test.cjs',
   'tests/flexo-policy.test.cjs',

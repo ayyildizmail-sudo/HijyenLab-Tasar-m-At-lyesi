@@ -9,6 +9,7 @@ class Reader{readAsDataURL(file){file.arrayBuffer().then(b=>{this.result='data:'
 function setup(){
  const els={},c={File,FileReader:Reader,ImageData,loadImage,crypto:webcrypto,Uint8Array,Uint8ClampedArray,document:{createElement:()=>make()},loading:0,photoSourceFiles:new WeakSet(),lastUploadedFile:null,selectedPdfLogoFile:null,photoKind:'photo',photoRectified:null,photoTouched:false,logoImg:null,photoImg:null,processedLogo:null,processedKey:null,printInkKey:null,printInkManual:false,activePdf:null,activePdfTask:null,pdfRenderTasks:new Set(),approvedDesignFingerprint:null,state:{bg:'#ffffff',bgPantone:'',bgSource:'scope-white-default'},$ :id=>els[id]||(els[id]={replaceChildren(){},removeAttribute(){}}),status(message){c.lastStatus=message;},remember(){},refresh(){c.reconcileSourceGroundScope?.();},go(){},showDesignIssue(){},syncPrintInks(){},resetRegionEditor(){},invalidateQuote(){c.processingSession?.invalidateQuotes();},requestAnimationFrame:fn=>fn(),placementIssue:()=>false,designFingerprint:()=>JSON.stringify([c.state.logo,c.state.bg,c.state.text||'']),unexpectedRoutes:[],preparePhotoSource(){c.unexpectedRoutes.push('editor');throw Error('Unexpected editor route outside this focused harness');},applyAutomaticWhiteCarrier(){c.unexpectedRoutes.push('carrier');throw Error('Unexpected carrier application outside this focused harness');},backgroundFeedback(){},PantoneApprox:{extractInks:()=>[]}};
  for(const [name,file]of Object.entries({SourcePackageGround:'source-package-ground',ProcessingSession:'processing-session',UploadFormat:'upload-format',BackgroundAnalysis:'background',PhotoReference:'photo',FlatArtwork:'flat-artwork',ScreenshotArtwork:'screenshot-artwork',TechnicalFrame:'technical-frame',MarkOrientation:'mark-orientation',LocalInkExtraction:'ink-extraction',ColoredFidelity:'colored-fidelity',PhotoFidelity:'photo-fidelity',WhiteCarrier:'white-carrier',LightSurface:'light-surface',SourceGroundScope:'source-ground-scope',PrintInks:'print-inks',FlexoDesignProposal:'flexo-design-proposal'}))c[name]=require('../frontend/'+file+'.js');
+ c.PhotoCandidateQuality=require('../frontend/photo-candidate-quality.js');
  c.SourceContext={inspectImage:img=>require('../frontend/source-context.js').inspectImage(img,{createCanvas:make})};c.RearPhoto=require('../frontend/rear-photo.js');c.StandardPhoto={prepare:img=>require('../frontend/standard-photo.js').prepare(img,{createCanvas:make})};
  vm.createContext(c);
  function run(a,b){const start=app.indexOf(a),end=app.indexOf(b,start);assert(start>=0&&end>start,a);vm.runInContext(app.slice(start,end),c);}
@@ -144,4 +145,57 @@ test('mandatory actual tiny wordmark ordinary upload gives source-bound full gro
  assert.equal(price.minimum,10000);assert.equal(price.plate,combined.count*100000);
  assert.equal(createHash('sha256').update(fs.readFileSync(file)).digest('hex'),sha);
  await upload(c,flatFile('white'));assert.equal(c.state.bg,'#ffffff');assert(!c.processingSession.isApproved(c.designFingerprint()));assert.notEqual(c.processingSession.getState().result.method,'source-lowres-wordmark-proposal-v1');
+});
+
+
+test('mandatory real Giritli ordinary upload rejects fragment route and delivers reviewed upright blue-ground business artwork',async()=>{
+ const f=require('./private-photo-fixtures.cjs').fixture('giritli'),c=setup();
+ await upload(c,new File([f.bytes],'ordinary-customer-photo.jpeg',{type:'image/jpeg'}));
+ const live=c.processingSession.getState();
+ assert.equal(live.source.sha256,f.sha256,'Actual mandatory source identity, never a synthetic replacement');
+ assert.equal(live.status,'ready',c.lastStatus);
+ assert.equal(live.result.method,c.AdaptedPhotoUI.METHOD,'A source-pixel fragment accepted by StandardPhoto is NOT a successful customer result');
+ assert.equal(c.state.sourceKind,'adapted-photo');assert.equal(c.state.designBlocked,false);
+ assert.notEqual(c.state.quoteSource,'source-reference');assert(c.state.extractionApprovalRequired);
+ assert(!c.processingSession.isApproved(c.designFingerprint()),'Fresh output requires one appearance review');
+ assert(c.logoImg.width>c.logoImg.height*1.5,'Business layout is horizontal, not the failed vertical fragment');
+ const rgb=[1,3,5].map(i=>parseInt(c.state.bg.slice(i,i+2),16));
+ assert(rgb[2]>rgb[0]&&rgb[2]>rgb[1]&&Math.max(...rgb)<200,'Source blue/purple field fills package rather than white');
+ assert.equal(c.state.groundScope.scope,'package');assert.equal(c.state.groundScope.sourceIdentity,f.sha256);
+ const adapted=live.result.adaptedPhoto;assert(adapted,'Real grouped proposal metadata retained');
+ assert.equal(adapted.orientation.quarterTurnsClockwise,3,'Source reading direction corrected');
+ assert(adapted.orientation.evidence.retainedAlphaFraction>.99,'All retained business groups survive orientation');
+ const layer=make(c.logoImg.width,c.logoImg.height),ctx=layer.getContext('2d');ctx.drawImage(c.logoImg,0,0);
+ const pixels=ctx.getImageData(0,0,layer.width,layer.height).data;let foreground=0,minX=layer.width,maxX=-1;
+ for(let i=0;i<pixels.length;i+=4)if(pixels[i+3]>127){foreground++;const x=(i/4)%layer.width;minX=Math.min(minX,x);maxX=Math.max(maxX,x);}
+ assert(foreground>layer.width*layer.height*.04,'Nontrivial source lettering remains, not thin incidental fragments');
+ assert(maxX-minX>layer.width*.65,'Business lettering spans a useful horizontal region');
+ assert.equal(c.AdaptedPhotoUI.paletteEstimate(false),null,'Unapproved output cannot enter commercial palette');
+ const previewPalette=c.AdaptedPhotoUI.paletteEstimate(true);assert(previewPalette,'Actual source-bound pixels available for preview count');
+ if(adapted.requiresExclusionReview){assert(c.AdaptedPhotoUI.reviewIssue(),'Exclusions require comparison before appearance approval');assert(c.AdaptedPhotoUI.comparisonImage());assert(c.AdaptedPhotoUI.noteComparisonPresented(live.result.flatPrintProposal.outputPixelSHA256));assert.equal(c.AdaptedPhotoUI.reviewIssue(),null);}
+ assert(c.approveCurrentDesign());c.state.extractionApprovalRequired=false;
+ const palette=c.AdaptedPhotoUI.paletteEstimate(false);assert(palette,'Approved exact rendered output can enter quote');
+ const combined=require('../frontend/combined-inks').estimate({front:{status:'estimated',colors:palette.colors,inkIdentity:palette.inkIdentity},background:c.state.bg});
+ assert.equal(combined.count,1,'White is substrate, blue package counted once');
+ vm.runInContext(app.split('\n').find(line=>line.startsWith('function pricing(')),c);
+ const price=c.pricing(10000,c.state.bg,'İstanbul','','new',combined.count,require('../frontend/product-catalog').get('BM12').priceRules);
+ assert.equal(price.minimum,10000);assert.equal(price.plate,100000);
+ await upload(c,flatFile('white'));assert.equal(c.state.bg,'#ffffff');assert(!c.processingSession.isApproved(c.designFingerprint()));assert.notEqual(c.processingSession.getState().result.method,c.AdaptedPhotoUI.METHOD);
+});
+
+test('mandatory Giritli manual host survives adaptation and white contrast cannot silently pass',async()=>{
+ const f=require('./private-photo-fixtures.cjs').fixture('giritli');
+ for(const background of ['#123456','#ffffff']){
+  const c=setup();c.state.bg=background;c.state.bgSource='manual';
+  await upload(c,new File([f.bytes],'customer-manual-ground.jpeg',{type:'image/jpeg'}));
+  assert.equal(c.processingSession.getState().result.method,c.AdaptedPhotoUI.METHOD);
+  assert.equal(c.state.bg,background,'Adaptation must not silently replace customer-selected ground');
+  assert.equal(c.state.bgSource,'manual');
+  assert.notEqual(c.state.processingResult.flatPrintProposal.groundRgb,background,'Source canonical ground remains independent of manual host');
+  assert.equal(c.AdaptedPhotoUI.restoreGroundIntent({bg:background,backgroundIntent:{kind:'manual',color:background}}),false);
+  assert.equal(c.state.bg,background);
+  if(background==='#ffffff'){assert(c.AdaptedPhotoUI.contrastIssue(),'White source lettering on manually white package requires a visible blocking contrast issue');const proof=c.state.processingResult;if(proof.adaptedPhoto.requiresExclusionReview)assert(c.AdaptedPhotoUI.noteComparisonPresented(proof.flatPrintProposal.outputPixelSHA256));assert.equal(c.AdaptedPhotoUI.reviewIssue(),null);assert.equal(c.approveCurrentDesign(),false,'Even after source comparison, invisible white-on-white cannot be approved');}
+  else assert.equal(c.AdaptedPhotoUI.contrastIssue(),null);
+  assert(!c.processingSession.isApproved(c.designFingerprint()));
+ }
 });
