@@ -69,7 +69,7 @@ test('mounted theme follows current source, approval, cancel and reset without s
  session.result.flatPrintProposal={method:'source-flat-flexo-proposal-v1'};session.designRevision++;approved=true;
  context.approvedFlatPhotoPalette=()=>({colors:['#b01830','#183078']});
  context.HijyenLabCustomerTheme.sync();assert.equal(styles['--customer-accent'],'#183078','uses actual approved pixels, not palette ordering');
- session.result.method='source-independent-emblem-proposal-v1';session.designRevision++;context.HijyenLabCustomerTheme.sync();assert.equal(styles['--customer-decoration'],'#183078','independent emblem uses verified approved palette');
+ session.result.method='source-independent-emblem-proposal-v2';session.designRevision++;context.HijyenLabCustomerTheme.sync();assert.equal(styles['--customer-decoration'],'#183078','independent emblem uses verified approved palette');
  const sampled=pixels;context.HijyenLabCustomerTheme.sync();assert.equal(pixels,sampled,'unchanged source/revision is cached');
  session.status='cancelled';approved=false;context.HijyenLabCustomerTheme.sync();assert.equal(styles['--customer-accent'],'#800d2a');assert.equal(pixels,sampled,'canceled proposal is never sampled');
  context.HijyenLabCustomerTheme.reset();assert.equal(nodes.get('customerJourneyNote').hidden,true);
@@ -97,7 +97,7 @@ test('finite logo-only reveal cancels fixed-overlay scroll and dragging; hover i
   const media={matches:false,addEventListener(){}};const settle=createLogoSettle(doc,media,{innerHeight:800,queueMicrotask:fn=>queued.push(fn),addEventListener:listen});global.HijyenLabLogoSettle=settle;
   const api=create(doc,media),data={canvas:packageNode,asset:{},printed:{},plan:{drawRect:{x:-200,y:-70,width:400,height:140},rotation:0},x:800,y:425,area:{left:280,right:1320,top:210,bottom:640}};
   function apply(token){api.logo({token,current:()=>true,render(){settle.beforeDraw();settle.capture(data);}});while(queued.length)queued.shift()();}
-  apply('first');assert.equal(animations.length,1);assert.notEqual(animations[0].node,packageNode,'only copied logo layer animates');assert.equal(animations[0].options.iterations,1);assert.equal(animations[0].options.duration,780);
+  apply('first');assert.equal(animations.length,1);assert.notEqual(animations[0].node,packageNode,'only copied logo layer animates');assert.equal(animations[0].options.iterations,1);assert.equal(animations[0].options.duration,1400);
   for(const fn of events.scroll)fn();assert.equal(animations[0].canceled,true,'fixed-position overlay must disappear during scrolling');assert.equal(packageNode.style.opacity,'');
   apply('second');pointer.pointermove({buttons:0});assert.equal(animations[1].canceled,undefined,'hover does not interrupt');
   pointer.pointermove({buttons:1});assert.equal(animations[1].canceled,true,'drag cancels before coordinate mapping');assert.equal(packageNode.style.opacity,'');

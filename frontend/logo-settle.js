@@ -1,7 +1,8 @@
 /* One finite presentation of a newly applied logo. Never writes artwork pixels,
  * placement, approval or quote state; the real canvas remains the export source. */
 (function(root){'use strict';
-const DURATION=780;
+const DURATION=1400;
+const PHASE_EASING='cubic-bezier(.4,0,.2,1)';
 function geometry(plan,x,y,area){
  const d=plan?.drawRect,r=(plan?.rotation||0)*Math.PI/180;
  if(!d||![d.x,d.y,d.width,d.height,x,y,area?.left,area?.right,area?.top,area?.bottom,r].every(Number.isFinite)||d.width<=0||d.height<=0)return null;
@@ -79,7 +80,10 @@ function create(doc,media,env=root){
   // capture cancels this layer before any drag coordinates are interpreted.
   canvas.style.opacity='0';
   let animation;
-  try{animation=logo.animate([{transform:'scale(.94)',offset:0},{transform:`scale(${fit.peak})`,offset:.58},{transform:'scale(.995)',offset:.8},{transform:'scale(1)',offset:1}],{duration:DURATION,easing:'cubic-bezier(.25,.1,.25,1)',iterations:1});}
+  // Show the shrink itself, rather than first appearing already small. One
+  // deliberate shrink/grow/settle is easier to follow; its peak is still the
+  // geometry-capped value and the real computed final placement never changes.
+  try{animation=logo.animate([{transform:'scale(1)',offset:0,easing:PHASE_EASING},{transform:'scale(.88)',offset:.28,easing:PHASE_EASING},{transform:`scale(${fit.peak})`,offset:.72,easing:PHASE_EASING},{transform:'scale(1)',offset:1}],{duration:DURATION,easing:'linear',iterations:1});}
   catch{overlay.remove();canvas.style.opacity=opacity;return false;}
   const entry={overlay,canvas,opacity,animation};active=entry;
   const done=()=>{if(active===entry){active=null;overlay.remove();canvas.style.opacity=opacity;}};

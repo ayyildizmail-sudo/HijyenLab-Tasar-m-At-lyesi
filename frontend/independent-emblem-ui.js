@@ -1,6 +1,6 @@
 /* Bounded local-emblem fallback. No service calls or semantic text generation. */
 (function(root){'use strict';
-const METHOD='source-independent-emblem-proposal-v1';
+const METHOD='source-independent-emblem-proposal-v2';
 const hex=rgb=>'#'+rgb.map(v=>v.toString(16).padStart(2,'0')).join('');
 const hash=async data=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',data)),v=>v.toString(16).padStart(2,'0')).join('');
 function make(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
@@ -35,8 +35,8 @@ async function prepare(current){
   state.removeWhite=false;state.recolor=false;state.recolorApplied=false;state.bg=background;state.bgPantone=state.bgSource==='manual'?state.bgPantone:'';state.bgSource=state.bgSource==='manual'?'manual':'independent-emblem-proposal';
   state.groundScope={sourceIdentity:source.sha256,packageColor:background,scope:'package',basis:'independent-emblem-appearance-proposal',customerChosen:state.bgSource==='manual',sourceGroundVerified:false,requiresReview:true,preserveLocalPanel:true,mayPlaceArtwork:true,allowColorRemoval:false};
   state.bgDecisionPending=false;state.bgDetection={kind:'transparent',color:'#ffffff',rgb:[255,255,255],maskAllowed:false};state.photoPlacementProfile=null;state.sourceGroundPlacement=null;state.restoredGroundCandidate=null;state.size=90;state.rotation=0;const area=currentPrintArea();state.x=(area.left+area.right)/2;state.y=(area.top+area.bottom)/2;
-  const flatPrintProposal={method:'source-flat-flexo-proposal-v1',adaptationMethod:METHOD,sourceSHA256:source.sha256,sourcePixelSHA256:sourceHash,outputPixelSHA256:outputHash,renderedPixelsVerified:true,width:w,height:h,actualProposedPalette:colors,proposedInkCount:colors.length,groundRgb:background,whiteIsSubstrate:true,alphaUnchanged:true,originalKnownActualInkCount:null,physicalInksConfirmed:false};
-  markProcessingOutput();root.ReferenceRecovery?.clear();stageProcessingResult(METHOD,'1',box,{maskBasis:'Source-derived local emblem mask; white local field is an explicit flat appearance proposal, not measured metal/substrate.',transforms:p.transforms||[],limitations:p.limitations||[],extra:{contentReviewRequired:true,independentEmblem:p,flatPrintProposal}});
+  const flatPrintProposal={method:'source-flat-flexo-proposal-v1',adaptationMethod:METHOD,sourceSHA256:source.sha256,sourcePixelSHA256:sourceHash,outputPixelSHA256:outputHash,renderedPixelsVerified:true,width:w,height:h,actualProposedPalette:colors,proposedInkCount:colors.length,groundRgb:background,localFieldColor:p.localField?.color||null,algorithmRevision:p.methodVersion||'2',whiteIsSubstrate:true,alphaUnchanged:true,originalKnownActualInkCount:null,physicalInksConfirmed:false};
+  markProcessingOutput();root.ReferenceRecovery?.clear();stageProcessingResult(METHOD,'2',box,{maskBasis:'Source-derived local emblem mask; source-derived local field is an explicit flat appearance proposal, not measured metal/substrate.',transforms:p.transforms||[],limitations:p.limitations||[],extra:{contentReviewRequired:true,independentEmblem:p,flatPrintProposal}});
   diagnostic('result','proposal-ready');printInkKey=null;invalidateQuote();return true;
  }catch(error){return live()?decline(error?.message||'local-emblem-processing-error'):false;}
 }

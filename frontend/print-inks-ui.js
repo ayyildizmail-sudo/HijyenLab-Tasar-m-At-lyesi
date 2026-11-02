@@ -253,6 +253,8 @@ function approvedFlatPhotoPalette(data,w,h,previewOnly=false){
  const proposal=state.processingResult?.flatPrintProposal;
  if(!proposal||!['audited-photo-glyph-flat-proposal-v1','source-flat-flexo-proposal-v1'].includes(proposal.method)||proposal.renderedPixelsVerified!==true||(proposal.originalKnownActualInkCount>3&&proposal.method!=='source-flat-flexo-proposal-v1')||!proposal.alphaUnchanged||!proposal.whiteIsSubstrate||state.recolorApplied||(!previewOnly&&state.extractionApprovalRequired)||!currentVisualArtworkReady(previewOnly)||(!previewOnly&&!processingSession.isApproved(designFingerprint())))return null;
  if(proposal.sourceSHA256!==state.processingResult?.source?.sha256||!['sourcePixelSHA256','outputPixelSHA256'].every(k=>/^[a-f0-9]{64}$/i.test(proposal[k]||'')))return null;
+ // A reprocessed emblem revision must not inherit the previous white-field palette or approval.
+ if(proposal.adaptationMethod?.startsWith('source-independent-emblem-proposal-')&&(proposal.adaptationMethod!=='source-independent-emblem-proposal-v2'||state.processingResult?.method!==proposal.adaptationMethod))return null;
  const colors=proposal.actualProposedPalette;
  if(!Array.isArray(colors)||colors.length<1||colors.length>3||proposal.proposedInkCount!==colors.length||Array.from(colors).some(c=>!/^#[a-f0-9]{6}$/i.test(c)||c.toLowerCase()==='#ffffff')||new Set(colors.map(c=>c.toLowerCase())).size!==colors.length)return null;
  if(!logoImg||logoImg.width!==proposal.width||logoImg.height!==proposal.height||proposal.width*proposal.height>(proposal.method==='source-flat-flexo-proposal-v1'?4000000:2500000))return null;
