@@ -1,6 +1,6 @@
 /* Failed-photo recovery is a separate, local, incomplete estimate. It never approves artwork. */
 (function(root){'use strict';
-function eligible(s){return !!s.sourcePhoto&&s.designBlocked===true&&!s.designProcessing&&!s.logo&&!s.photoLayout&&['unsupported','photo-region'].includes(s.sourceKind);}
+function eligible(s){return !!s.sourcePhoto&&s.designBlocked===true&&!s.designProcessing&&!s.logo&&!s.photoLayout&&['unsupported','photo-region','screen'].includes(s.sourceKind);}
 function partialPrice(input,deps){
  if(input.policy?.blocked)throw Error(input.policy.reason);
  const error=deps.leadError(input.lead);if(error)throw Error(error[1]);
@@ -70,9 +70,9 @@ async function accept(openPricing=true){
    return true;
   }
   refresh();return continuePrice();
- }catch(error){status(error.message||'Referans açılamadı. Görseli yeniden seçin.');return false;}finally{accepting=false;sync();}
+ }catch(error){if(ticket===loading&&data===state.sourcePhoto)status(error.message||'Referans açılamadı. Görseli yeniden seçin.');return false;}finally{if(ticket===loading){accepting=false;sync();}}
 }
-function continuePrice(){if(!current()){showDesignIssue();return false;}if(typeof printPolicyError==='function'&&printPolicyError()){status(printPolicyError());return false;}return showFragrance();}
+function continuePrice(){if(!current()){showDesignIssue();return false;}if(typeof printPolicyError==='function'&&printPolicyError()){status(printPolicyError());return false;}const advanced=showFragrance();sync();return advanced;}
 $('recoveryStart').onclick=()=>current()?continuePrice():accept();
 api.showSourcePreview=()=>accept(false);
 const beforeGo=go;go=function(){const result=beforeGo.apply(this,arguments);sync();return result;};

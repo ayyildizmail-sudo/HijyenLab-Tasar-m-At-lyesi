@@ -62,7 +62,7 @@ async function routeUploadedFile(file,mode='auto'){
   if(info.type==='gif'||info.type==='webp')status('Görsel yüklendi; hareketli dosyalarda yalnız ilk kare kullanılır.');
  }catch(error){if(processingSession.isCurrent(token)){processingSession.fail(token,error.message);state.processingResult=null;status(error.message||'Bu dosya çözülemedi. PNG, JPG veya PDF olarak dışa aktarın.');}}
  finally{if(processingContext===context){state.designProcessing=false;printInkKey=null;syncPrintInks();refresh();if(state.designBlocked){
-  if(['auto','photo'].includes(mode)&&!contentSafetyError())await globalThis.ReferenceRecovery?.showSourcePreview();
+  if(['auto','photo'].includes(mode)&&globalThis.ReferenceRecovery?.showSourcePreview&&!contentSafetyError())await globalThis.ReferenceRecovery.showSourcePreview();
   if(processingContext===context&&state.designBlocked)showDesignIssue();
  }}}
 }

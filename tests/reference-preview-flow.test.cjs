@@ -40,3 +40,16 @@ test('automatic failed-photo reference stays on design until the customer choose
  assert(c.$('recoveryStart').onclick());
  assert.equal(c.step,5);
 });
+
+test('a failed decode from a replaced source cannot overwrite the current status', async () => {
+ const c=harness();
+ let reject;
+ c.loadImage=()=>new Promise((_,fail)=>{reject=fail;});
+ const pending=c.ReferenceRecovery.showSourcePreview();
+ c.loading++;
+ c.ReferenceRecovery.clear();
+ c.status('new source');
+ reject(Error('old decode'));
+ assert.equal(await pending,false);
+ assert.equal(c.message,'new source');
+});
