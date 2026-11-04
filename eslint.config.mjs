@@ -12,7 +12,18 @@ const eslintConfig = defineConfig([
     ".sites-runtime/**",
     "outputs/**",
     "work/**",
+    // Upstream browser runtimes and test decoder are kept verbatim.
+    "frontend/vendor/**",
+    "tests/qr-vendor/**",
   ]),
+  {
+    // These scripts are CommonJS or expose a CommonJS branch to Node tests.
+    files: [
+      "tests/**/*.cjs",
+      "frontend/{declared-quote,flat-artwork,flat-placement-evidence,light-surface,mark-orientation,photo-fidelity,rear-logo,rear-photo,white-carrier}.js",
+    ],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
   {
     files: ["components/ui/**/*.{ts,tsx}", "hooks/use-mobile.ts"],
     rules: {

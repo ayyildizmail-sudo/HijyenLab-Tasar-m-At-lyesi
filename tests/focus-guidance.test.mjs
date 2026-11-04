@@ -57,7 +57,7 @@ function fixture({ engaged = true } = {}) {
     removeAttribute(key) { if (!this.attrs.has(key)) return; writes++; this.attrs.delete(key); mutation(this, 'attributes', key); }
     contains(node) { return !!node && (node === this || this.children.some(n => n.contains(node))); }
     matches(selector) { return matches(this, selector); }
-    closest(selector) { for (let n = this; n; n = n.parentElement) if (n.matches(selector)) return n; return null; }
+    closest(selector) { return this.matches(selector) ? this : this.parentElement?.closest(selector) ?? null; }
     querySelectorAll(selector) { const nodes = []; const visit = n => { for (const c of n.children) { if (c.matches(selector)) nodes.push(c); visit(c); } }; visit(this); return nodes; }
     querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
     addEventListener(type, fn) { const k = this.id + ':' + type; if (!listeners.has(k)) listeners.set(k, []); listeners.get(k).push(fn); }
