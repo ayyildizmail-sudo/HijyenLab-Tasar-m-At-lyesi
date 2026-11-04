@@ -25,7 +25,7 @@ test('v4 all six products preserve incomplete lead and quantity, printed/unprint
  for(const productId of ['BM12','BM11','BM13','BM15','BM545','BM21'])for(const printMode of ['printed','unprinted'])for(const quantity of [null,0,1,1000000]){
   const value={...v4(),productId,printMode};value.design.requestedQuantity=quantity;
   if(printMode==='unprinted')Object.assign(value,{design:{requestedQuantity:quantity},rear:null,frontFile:null,frontName:'',rearFile:null,rearName:''});
-  await store.save(value);const got=await store.load();assert.equal(got.schemaVersion,4);assert.equal(got.design.requestedQuantity,quantity);assert.deepEqual(got.resume,value.resume);assert.deepEqual(got.frontExtras,[]);
+  await store.save(value);const got=await store.load();assert.equal(got.schemaVersion,4);assert.equal(got.design.requestedQuantity,quantity);assert.deepEqual(got.resume,{...value.resume,cliche:'new'});assert.equal(value.resume.cliche,'existing');assert.deepEqual(got.frontExtras,[]);
  }
 });
 test('v4 declared flow supports partial or blocked declaration without saving artwork/price/token',()=>{

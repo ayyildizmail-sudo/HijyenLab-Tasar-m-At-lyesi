@@ -18,7 +18,7 @@ function snapshotValid(s){
  if(!locations||locations.error(s.lead.province,s.lead.district))return false;
  if(!['flambau','green_tea','bodrum_mandarin','lemon'].includes(s.fragrance?.id)||s.fragrance.productFamily!==(s.product==='BM21'?'wet_wipes':s.product==='OSHIBORI'?'oshibori':'towels'))return false;
  const r=s.rules,q=Number(s.quantity),p=s.price,min=r.minimum?.[s.declaration.ground];
- if(!['BM12','BM11','BM13','BM15','BM545','BM21','OSHIBORI'].includes(s.product)||!Number.isSafeInteger(q)||q<min||q>r.maxQuantity||!Number.isSafeInteger(r.unitsPerBox)||r.unitsPerBox<1||!['new','existing'].includes(s.cliche))return false;
+ if(!['BM12','BM11','BM13','BM15','BM545','BM21','OSHIBORI'].includes(s.product)||!Number.isSafeInteger(q)||q<min||q>r.maxQuantity||!Number.isSafeInteger(r.unitsPerBox)||r.unitsPerBox<1||s.cliche!=='new')return false;
  const boxes=Math.ceil(q/r.unitsPerBox),base=s.product==='OSHIBORI'?Math.round(q*r.whiteUnitKurus):q*r.whiteUnitKurus,color=s.declaration.ground==='white'?0:q*(r.coloredUnitKurus-r.whiteUnitKurus),plate=s.declaration.count*r.platePerInkKurus,shipping=s.lead?.province==='Muğla'&&s.lead?.district==='Bodrum'?0:boxes*r.freightPerBoxKurus;
  return [base,color,plate,shipping].every(Number.isSafeInteger)&&p.base===base&&p.color===color&&p.plate===plate&&p.shipping===shipping&&p.boxes===boxes&&p.subtotal===base+color+plate+shipping&&p.plateUnknown===false&&JSON.stringify(p.rules)===JSON.stringify(r);
 }

@@ -13,6 +13,7 @@ const fixtures = [
   'tests/fixtures/technical-frame/source.jpeg',
 ];
 const suites = [
+  'tests/new-plate-only.test.cjs',
   'tests/logo-design.test.cjs',
   'tests/logo-design-flow.test.cjs',
   'tests/logo-design-integration.test.cjs',

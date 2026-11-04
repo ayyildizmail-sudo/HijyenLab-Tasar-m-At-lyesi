@@ -22,7 +22,7 @@ test('quote_snapshot_deeply_immutable',()=>{const snap=c.makeQuoteSnapshot();ass
 const a=JSON.stringify(c.makeQuoteSnapshot());rules.revision='qa-B';rules.platePerInkKurus=123500;const b=JSON.stringify(c.makeQuoteSnapshot());
 test('policy_change_alone_changes_quote_snapshot',()=>assert.notEqual(a,b));
 test('maximum_quantity_uses_same_policy',()=>assert.throws(()=>c.pricing(900001,'#ffffff','Muğla','Bodrum','new',1)));
-test('existing_plate_remains_unverified_not_free',()=>{const p=c.pricing(6000,'#ffffff','Muğla','Bodrum','existing',1);assert(p.platePending);assert.equal(p.plate,123500);});
+test('legacy_existing_plate_normalizes_to_new_without_discount',()=>{const p=c.pricing(6000,'#ffffff','Muğla','Bodrum','existing',1);assert.equal(p.platePending,false);assert.equal(p.plate,123500);});
 test('integer_kurus_rounding_alternate_policy',()=>{for(const q of [6001,6002,6011,8001]){const p=c.pricing(q,'#ffffff','İstanbul','Kadıköy','new',2);const net=q*311+2*rules.platePerInkKurus+Math.ceil(q/300)*22200;assert.equal(p.subtotal,net);assert.equal(p.tax,Math.round(net*18/100));assert(Number.isSafeInteger(p.total));}});
 test('colored_direct_unit_price',()=>{const p=c.pricing(12000,'#123456','Muğla','Bodrum','new',1);assert.equal(p.base+p.color,12000*355);});
 vm.runInContext(app.slice(app.indexOf('function syncQuantity('),app.indexOf('function calculateRaw(){')),c);

@@ -18,7 +18,7 @@ function syncUnprintedUI(){
  $('previewCaption').textContent='Baskısız · Beyaz ambalaj · '+fixedLabel+' kokulu';$('minimumNote').textContent='En az 1 koli · '+rules.unitsPerBox.toLocaleString('tr-TR')+' adet / koli · '+fixedLabel+' kokulu';
  for(const el of document.querySelectorAll('[data-commercial-prices]'))el.textContent=oshibori?'Baskısız beyaz ürün: 1 USD + KDV/adet; TCMB döviz satış kuru ile TL hesaplanır.':'Baskısız beyaz ürün: '+money(rules.whiteUnitKurus)+'/adet.';
  for(const el of document.querySelectorAll('[data-commercial-quantities]'))el.textContent='En az 1 koli ve tam koli katları · '+cartonContentLabel(rules)+'. Klişe bedeli yok. Bodrum teslimatı ücretsiz; diğer adreslerde koli başına '+money(rules.freightPerBoxKurus)+' kargo.';
- $('inks').value='0';$('cliche').value='new';$('fragrancePriceValue').textContent='Koku: '+fixedLabel+(oshibori?'':' · Baskısız ürünlerde sabit');
+ $('inks').value='0';$('fragrancePriceValue').textContent='Koku: '+fixedLabel+(oshibori?'':' · Baskısız ürünlerde sabit');
 }
 async function setPrintMode(mode){
  if(!['printed','unprinted'].includes(mode))throw Error('Geçersiz baskı seçimi.');if(mode===globalThis.selectedPrintMode){syncUnprintedUI();return;}

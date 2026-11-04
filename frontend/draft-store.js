@@ -17,6 +17,8 @@ function bool(value){if(typeof value!=='boolean')fail('INVALID','Taslak seçimi 
 // CSS hex case has no visual meaning; canonicalize it before strict tariff comparisons.
 function hex(value,empty=false){if(empty&&value==='')return value;if(typeof value!=='string'||!/^#[0-9a-f]{6}$/i.test(value))fail('INVALID','Taslak rengi geçersiz.');return value.toLowerCase();}
 function topKeys(input){return input?.schemaVersion===6?TOP.concat('printMode','frontExtras','rearExtras','resume','textDesign','logoDesign'):input?.schemaVersion===5?TOP.concat('printMode','frontExtras','rearExtras','resume','textDesign'):input?.schemaVersion===4?TOP.concat('printMode','frontExtras','rearExtras','resume'):input?.schemaVersion===3?TOP.concat('printMode','frontExtras','rearExtras'):input?.schemaVersion===2?TOP.concat('printMode'):TOP;}
+// Legacy 'existing' is accepted only to read old drafts; returned metadata always uses new plates.
+// Validation does not mutate or delete the original stored record.
 function validateResume(input){
  exact(input,['lead','cliche','stage','quoteSource','declaration','fragranceConfirmed','quantityInput','cartonInput','rearTone']);
  exact(input.lead,['customer','contact','phone','province','district']);const lead={};
@@ -26,7 +28,7 @@ function validateResume(input){
  if((input.quoteSource==='customer-declared')!==(declaration!==null))fail('INVALID','Taslak renk beyanı akışı geçersiz.');
  for(const key of ['quantityInput','cartonInput']){str(input[key],24);if(!/^[-+0-9.eE]*$/.test(input[key]))fail('INVALID','Taslak adet girişi geçersiz.');}
  if(!['','#ffffff','#111111'].includes(input.rearTone))fail('INVALID','Taslak arka logo tonu geçersiz.');
- return {quantityInput:input.quantityInput,cartonInput:input.cartonInput,rearTone:input.rearTone,lead,cliche:input.cliche,stage:input.stage,quoteSource:input.quoteSource,declaration,fragranceConfirmed:bool(input.fragranceConfirmed)};
+ return {quantityInput:input.quantityInput,cartonInput:input.cartonInput,rearTone:input.rearTone,lead,cliche:'new',stage:input.stage,quoteSource:input.quoteSource,declaration,fragranceConfirmed:bool(input.fragranceConfirmed)};
 }
 function validateV4(input){
  exact(input,topKeys(input));const resume=validateResume(input.resume);
