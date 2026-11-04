@@ -32,7 +32,14 @@ function syncSummaryTitle(){
 function sync(){
  syncSummaryTitle();
  if(isReferencePreview()){
-  hide();const label=$('inks').closest?.('label');if(label?.firstChild)label.firstChild.textContent='Baskı renk sayısı (beyaz hariç) · İsteğe bağlı';for(const option of $('inks').options||[])option.hidden=option.value!==''&&(!Number.isInteger(Number(option.value))||Number(option.value)<1||Number(option.value)>3);$('previewCaption').textContent=referencePreviewLabel();$('photoQuoteBgLabel').hidden=false;$('photoPriceNote').hidden=false;$('photoPriceNote').textContent=referenceGroundLabel()+' · Baskı renkleri ve klişe teknik incelemede.';
+  hide();
+  if(step===1&&current()){
+   $('recoverySource').src=referenceSource;
+   $('recoveryStart').disabled=false;
+   box.hidden=false;
+   document.body.classList.add('referenceRecoveryActive');
+  }
+  const label=$('inks').closest?.('label');if(label?.firstChild)label.firstChild.textContent='Baskı renk sayısı (beyaz hariç) · İsteğe bağlı';for(const option of $('inks').options||[])option.hidden=option.value!==''&&(!Number.isInteger(Number(option.value))||Number(option.value)<1||Number(option.value)>3);$('previewCaption').textContent=referencePreviewLabel();$('photoQuoteBgLabel').hidden=false;$('photoPriceNote').hidden=false;$('photoPriceNote').textContent=referenceGroundLabel()+' · Baskı renkleri ve klişe teknik incelemede.';
   $('simpleTools').hidden=true;$('simpleDetails').hidden=true;document.querySelector('.previewTip').textContent='Özgün kaynak gösterilir; logo veya zemin değiştirilmedi.';$('next').textContent='Koku seçimine geç →';
   for(const id of ['mini','finalImage'])$(id).alt=referencePreviewLabel();return;
  }
@@ -41,7 +48,7 @@ function sync(){
  if(source!==state.sourcePhoto){source=state.sourcePhoto;$('recoverySource').src=source;}
  box.hidden=false;document.body.classList.add('referenceRecoveryActive');$('recoveryStart').disabled=accepting||!!state.productAssetPending||!!state.productAssetFailure;
 }
-async function accept(){
+async function accept(openPricing=true){
  if(accepting||!eligible(state)||isUnprinted()||state.productAssetPending||state.productAssetFailure)return false;
  const data=state.sourcePhoto,old=processingSession.getState(),ticket=loading;
  if(!/^[a-f0-9]{64}$/i.test(old.source?.sha256||''))return false;
@@ -57,11 +64,17 @@ async function accept(){
   referenceSource=data;referenceIdentity=old.source.sha256;photoImg=img;state.quoteSource='source-reference';state.referenceInkDeclaration=null;state.processingResult=record;state.designBlocked=false;state.screenSelectionRequired=false;state.extractionSourceLimited=false;state.extractionApproximate=false;state.extractionApprovalRequired=false;state.bgDecisionPending=false;state.photoQuoteBg='unknown';state.bgPantone='';state.text='';state.textPending=false;state.inkSelection={status:'unknown',selectedCount:null,estimatedCount:null};
   $('inks').value='';printInkKey=null;latest=null;invalidateQuote();syncProcessingDesign();
   root.FlexoDesignUI?.bindReferenceDiagnostic(old.operationId,record);
+  if(!openPricing){
+   refresh();
+   status('Özgün görsel gösteriliyor. Baskı renkleri ve klişe teknik incelemede.');
+   return true;
+  }
   refresh();return continuePrice();
  }catch(error){status(error.message||'Referans açılamadı. Görseli yeniden seçin.');return false;}finally{accepting=false;sync();}
 }
 function continuePrice(){if(!current()){showDesignIssue();return false;}if(typeof printPolicyError==='function'&&printPolicyError()){status(printPolicyError());return false;}return showFragrance();}
-$('recoveryStart').onclick=accept;
+$('recoveryStart').onclick=()=>current()?continuePrice():accept();
+api.showSourcePreview=()=>accept(false);
 const beforeGo=go;go=function(){const result=beforeGo.apply(this,arguments);sync();return result;};
 api.continuePrice=continuePrice;api.sync=sync;api.clear=clear;api.current=current;api.accept=accept;sync();
 })(typeof globalThis!=='undefined'?globalThis:this);

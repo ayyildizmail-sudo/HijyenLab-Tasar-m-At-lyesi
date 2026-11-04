@@ -27,3 +27,16 @@ test('reference labels and ground provenance remain in ordinary summary and JPG'
  const app=fs.readFileSync(require.resolve('../frontend/app.js'),'utf8'),life=fs.readFileSync(require.resolve('../frontend/processing-lifecycle.js'),'utf8');
  assert.match(app,/referencePreviewLabel\(\),referenceGroundLabel\(\)/);assert.match(app,/quoteSnapshot.reference.groundLabel/);assert.match(app,/quoteSnapshot.quoteSource==='source-reference'&&side==='front'/);assert.match(life,/artworkApplied:false/);assert.match(life,/ground:state.photoQuoteBg/);
 });
+
+test('automatic failed-photo reference stays on design until the customer chooses pricing', async () => {
+ const c=harness();
+ c.step=1;
+ assert(await c.ReferenceRecovery.showSourcePreview(),c.message);
+ assert.equal(c.step,1);
+ assert(c.ReferenceRecovery.current());
+ assert.equal(c.$('recoverySource').src,'original');
+ assert.equal(c.state.inkSelection.selectedCount,null);
+ assert.equal(c.processingSession.isApproved('reference-fingerprint'),false);
+ assert(c.$('recoveryStart').onclick());
+ assert.equal(c.step,5);
+});
