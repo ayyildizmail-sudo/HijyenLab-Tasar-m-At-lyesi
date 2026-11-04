@@ -25,7 +25,7 @@ test('three inks expose exact existing palette and white; disable new custom/Pan
  const h=harness();assert.deepEqual(h.swatches().map(b=>b.dataset.ink),['#153b67','#be3322','#ccb633','#ffffff']);
  for(const id of ['textCustom','textPantone']){assert.equal(h.$(id).disabled,true);assert.equal(h.$(id).label.hidden,true);}
  assert.equal(h.$('textPantoneResult').hidden,true);assert.equal(h.$('rearInkColor').options.find(o=>o.value==='#111111').disabled,true);
- assert.equal(h.$('rearInkColor').options.find(o=>o.value==='#ffffff').disabled,false);
+ assert.equal(h.$('rearInkColor').options.find(o=>o.value==='#ffffff').disabled,true,'white rear text is unreadable on the current white background');
  assert.match(h.$('frontPrintPolicyNote').textContent,/En fazla 3/);
 });
 test('new front text defaults to existing darkest legible ink without changing artwork or plate count',()=>{
@@ -67,4 +67,24 @@ test('customer labels are simple while exact color values remain available',()=>
  const h=harness();assert.deepEqual(h.swatches().map(b=>b.children[1].textContent),['Renk 1','Renk 2','Renk 3','Beyaz']);
  assert.equal(h.swatches()[0].dataset.ink,'#153b67');assert.equal(h.swatches()[0].title,'#153B67');
  assert.equal(h.$('rearInkColor').options.find(o=>o.value==='#be3322').textContent,'Renk 2');
+});
+
+test('rear unreadable choices disable without recoloring and recover on background change',()=>{
+ const h=harness({colors:['#153b67'],rearChosen:'#153b67',rearText:'example.com'});
+ assert.equal(h.swatches('rear')[0].disabled,false);assert.equal(h.swatches('rear')[1].disabled,true);
+ h.ctx.state.bg='#153b67';h.ctx.refresh();
+ assert.equal(h.ctx.rearContent.inkColor,'#153b67','explicit choice is retained for correction');
+ assert.equal(h.swatches('rear')[0].disabled,true);assert.equal(h.swatches('rear')[1].disabled,false);
+ assert.match(h.$('rearPrintPolicyNote').textContent,/yeterince okunaklı değil/);
+ h.swatches('rear')[0].onclick();assert.equal(h.ctx.rearContent.inkColor,'#153b67');
+ h.swatches('rear')[1].onclick();assert.equal(h.ctx.rearContent.inkColor,'#ffffff');
+ h.ctx.state.bg='#ffffff';h.ctx.refresh();assert.equal(h.swatches('rear')[1].disabled,true);assert.equal(h.swatches('rear')[0].disabled,false);
+ assert.equal(h.ctx.rearContent.inkColor,'#ffffff','changing ground does not replace a choice');
+});
+test('rear contrast does not weaken three-ink cap or mutate front colors',()=>{
+ const h=harness({colors:['#153b67','#be3322','#ccb633'],rearText:'example.com'}),before=h.ctx.state.textColor;
+ h.ctx.state.bg='#153b67';h.ctx.refresh();assert.equal(h.$('rearInkColor').options.find(o=>o.value==='#111111').disabled,true);
+ h.swatches('rear').find(b=>b.dataset.ink==='#ffffff').onclick();assert.equal(h.ctx.rearContent.inkColor,'#ffffff');assert.equal(h.ctx.state.textColor,before);
+ h.ctx.state.bg='#cccccc';h.ctx.refresh();for(let i=0;i<3;i++)h.ctx.refresh();
+ assert.equal(h.$('rearInkColor').options.filter(o=>o.value==='#153b67').length,1);
 });

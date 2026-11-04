@@ -15,19 +15,22 @@
   box.append(note,choices);anchor.insertAdjacentElement('afterend',box);return {box,note,choices,key:''};
  }
  const front=makePanel(byId('textColors'),'front'),rear=makePanel(byId('rearInkColor')?.closest('label')||byId('rearInkColor'),'rear');
+ function readable(side,color){return side!=='rear'||CombinedInks.checkTextContrast(color,state.bg).ok;}
  function choose(side,color){
-  if(!textColorAllowed(color,side))return;
+  if(!textColorAllowed(color,side)||!readable(side,color))return;
   if(side==='front'){explicitFront=true;remember();state.textColor=color;state.textPantone='';refresh();}
   else{const select=byId('rearInkColor');select.value=color;select.dispatchEvent(new Event('input',{bubbles:true}));}
   sync();
  }
  function renderPanel(panel,side,p,current,hasText){
   if(!panel)return;
-  const invalid=hasText&&!!current&&!textColorAllowed(current,side);
+  const invalid=hasText&&!!current&&!textColorAllowed(current,side),contrast=side==='rear'&&hasText&&!!current?CombinedInks.checkTextContrast(current,state.bg):null;
   panel.note.textContent=p.colors.length>PrintPolicy.MAX_PRINT_INKS?PrintPolicy.CONTACT_MESSAGE:invalid?'Bu yazı rengi dördüncü baskı rengini ekliyor. Mevcut renklerden birini seçin; seçiminiz kendiliğinden değiştirilmedi.':p.capped?'En fazla 3 baskı rengi. Yazı için mevcut renklerden birini seçin. Beyaz yeni mürekkep eklemez.':p.colors.length?'Yazıda mevcut baskı renklerini kullanabilirsiniz. Beyaz yeni mürekkep eklemez.':'';
+  if(!invalid&&contrast&&!contrast.ok)panel.note.textContent=contrast.reason;
+  else if(side==='rear'&&p.colors.length)panel.note.textContent+=' Bu zeminde okunmayan renkler kapalıdır.';
   const colors=p.colors.length?[...p.colors,'#ffffff']:[],key=JSON.stringify(colors);
   if(panel.key!==key){panel.key=key;panel.choices.replaceChildren();for(const [index,color] of colors.entries()){const button=document.createElement('button');button.type='button';button.dataset.ink=color;button.setAttribute('aria-label',color==='#ffffff'?'Beyaz · mürekkepsiz alan':'Mevcut baskı rengi '+color.toUpperCase());const dot=document.createElement('i');dot.style.backgroundColor=color;dot.setAttribute('aria-hidden','true');const label=document.createElement('span');label.textContent=color==='#ffffff'?'Beyaz':'Renk '+(index+1);button.title=color.toUpperCase();button.append(dot,label);button.onclick=()=>choose(side,color);panel.choices.appendChild(button);}}
-  for(const button of panel.choices.children){button.setAttribute('aria-pressed',String(hex(current)===button.dataset.ink));button.disabled=!textColorAllowed(button.dataset.ink,side);}
+  for(const button of panel.choices.children){button.setAttribute('aria-pressed',String(hex(current)===button.dataset.ink));button.disabled=!textColorAllowed(button.dataset.ink,side)||!readable(side,button.dataset.ink);button.title=readable(side,button.dataset.ink)?button.dataset.ink.toUpperCase():'Bu renk seçili zeminde yeterince okunaklı değil.';}
   panel.box.hidden=!panel.note.textContent&&!colors.length;
  }
  function sync(){
@@ -42,7 +45,7 @@
   const select=byId('rearInkColor');
   if(select){const current=rearContent.inkColor||'';for(const option of [...select.options])if(option.dataset.policyOption)option.remove();
    for(const color of [...r.colors,...(current?[current]:[])])if(![...select.options].some(o=>hex(o.value)===hex(color))){const option=document.createElement('option');option.value=color;option.textContent=color.toLowerCase()==='#ffffff'?'Beyaz':r.colors.includes(color)?'Renk '+(r.colors.indexOf(color)+1):'Seçili renk';option.title=color.toUpperCase();option.dataset.policyOption='true';select.appendChild(option);}
-   for(const option of select.options){const prohibited=!!option.value&&!textColorAllowed(option.value,'rear');option.disabled=prohibited;option.hidden=prohibited&&option.value!==current;}
+   for(const option of select.options){const prohibited=!!option.value&&!textColorAllowed(option.value,'rear'),lowContrast=!!option.value&&!readable('rear',option.value);option.disabled=prohibited||lowContrast;option.hidden=prohibited&&option.value!==current;option.title=lowContrast?'Bu renk seçili zeminde yeterince okunaklı değil.':option.value;}
    select.value=current;select.setAttribute('aria-describedby','rearPrintPolicyNote');renderPanel(rear,'rear',r,current,['instagram','website','phone','address','extra'].some(k=>rearContent[k]?.trim()));
   }
  }

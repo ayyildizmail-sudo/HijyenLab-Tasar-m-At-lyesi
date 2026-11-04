@@ -215,8 +215,8 @@ function syncPrintPolicyNotice(){
 }
 function rearTextInkDecision(){
  const chosen=typeof rearContent!=='undefined'?rearContent.inkColor:'';
- if(/^#[0-9a-f]{6}$/i.test(chosen||''))return textColorAllowed(chosen)?{ok:true,color:chosen,source:'explicit-rear'}:{ok:false,color:null,reason:PrintPolicy.CONTACT_MESSAGE};
- if(state.recolor&&state.recolorApplied&&/^#[0-9a-f]{6}$/i.test(state.color||''))return {ok:true,color:state.color,source:'explicit-front'};
+ if(/^#[0-9a-f]{6}$/i.test(chosen||''))return textColorAllowed(chosen)?{...CombinedInks.checkTextContrast(chosen,state.bg),source:'explicit-rear'}:{ok:false,color:null,reason:PrintPolicy.CONTACT_MESSAGE};
+ if(state.recolor&&state.recolorApplied&&/^#[0-9a-f]{6}$/i.test(state.color||''))return {...CombinedInks.checkTextContrast(state.color,state.bg),source:'explicit-front'};
  const base=baseRearInkEstimate();
  if(base.status!=='estimated')return {ok:false,color:null,reason:'Mevcut baskı renkleri henüz net değil. Arka yazı için bir renk seçin; yeni renk klişe tahminini değiştirebilir.'};
  return {...CombinedInks.selectTextInk(base.actualInkColors||base.colors,state.bg),source:'existing-palette'};

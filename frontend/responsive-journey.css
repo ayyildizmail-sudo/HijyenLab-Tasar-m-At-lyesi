@@ -88,3 +88,16 @@ main.atelierLayout.welcomeEmpty #personaNoLogo > summary {
 main.atelierLayout[data-focus-guidance] :is(#textDesignInputGroup, #logoDesignInputGroup)[data-focus-active]:focus-within {
   outline: none; box-shadow: none;
 }
+
+/* Rear optional text controls need a real vertical gap between their labels.
+   An input-only margin left the following select flush with its label, and its
+   external keyboard-focus ring crossed the text. Keep one clear inside ring. */
+#rearEditor .rearOptional > label:has(> :is(#rearExtra, #rearInkColor)) {
+  min-width: 0; margin-top: 16px; line-height: 1.45;
+}
+#rearEditor :is(#rearExtra, #rearInkColor) {
+  display: block; min-width: 0; max-width: 100%; margin-top: 8px; font-size: 16px;
+}
+main.atelierLayout #rearEditor :is(input:not([type=checkbox]):not([type=file]), select):focus-visible {
+  outline: 3px solid #477fae; outline-offset: -3px;
+}

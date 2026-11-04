@@ -1,6 +1,8 @@
 /* Gallery uses reviewed visible source crops only; it never changes customer/design/quote state. */
 (function(root){'use strict';
 const all=root.PrivatePreviewSamples||[];
+let previewCovered=false;
+function coverPreview(next){const previous=previewCovered;previewCovered=next;if(previous&&!next&&root.dispatchEvent&&root.Event)root.dispatchEvent(new root.Event('hijyenlab:opening-preview-visible'));}
 function eligible(s,visible,unprinted){return !!visible&&!unprinted&&!['logo','photoLayout','sourcePhoto','logoDesign','textDesign','designProcessing','designBlocked','screenSelectionRequired'].some(k=>s[k]);}
 function productId(id,catalog){return catalog.items.some(p=>p.id===id)?id:catalog.defaultId;}
 function mount(doc){
@@ -41,10 +43,10 @@ function mount(doc){
   if(failed&&canRun()){if(index>=list().length-1){dismiss();return;}index++;face='front';load();return;}
   if(canAdvance()){const generation=timerGeneration;timer=root.setInterval(()=>{if(generation!==timerGeneration)return;if(!canAdvance()){schedule();return;}if(index>=list().length-1){dismiss();return;}index++;face='front';load();},SAMPLE_DURATION_MS);}}
  function load(){stop();cancelPending();cancelRender();image=null;failed=false;render();const s=list()[index],ticket=++revision;if(!s){schedule();return;}const img=new root.Image();pendingImage=img;img.decoding='async';img.onload=()=>{if(ticket!==revision||!active||dismissed)return;pendingImage=null;img.onload=null;img.onerror=null;image=img;render();schedule();};img.onerror=()=>{if(ticket!==revision)return;pendingImage=null;img.onload=null;img.onerror=null;image=null;failed=true;if(!active||dismissed)return;schedule();};img.src=s.files[face]+'?v='+s.hashes[face].slice(0,12);}
- function dismiss(){if(!active)return;const moveFocus=contains(doc.activeElement);dismissed=true;allowFocusedPlay=false;revision++;image=null;cancelPending();cancelRender();releaseCanvas();stop();active=false;hovered=false;focused=false;if(!panel.hidden)panel.hidden=true;main.classList.remove('showOpeningExamples');if(moveFocus)doc.getElementById('focusUpload')?.focus?.();}
+ function dismiss(){if(!active)return;const moveFocus=contains(doc.activeElement);dismissed=true;allowFocusedPlay=false;revision++;image=null;cancelPending();cancelRender();releaseCanvas();stop();active=false;hovered=false;focused=false;if(!panel.hidden)panel.hidden=true;main.classList.remove('showOpeningExamples');coverPreview(false);if(moveFocus)doc.getElementById('focusUpload')?.focus?.();}
  function sync(){const chosen=productId(root.selectedProductId,root.ProductCatalog);if(lastId&&chosen!==lastId)dismissed=false;const s=typeof state==='undefined'?{}:state,next=eligible(s,!doc.getElementById('design').hidden,root.HijyenLabPrintMode?.get()==='unprinted')&&!dismissed&&all.some(sample=>sample.product===chosen);
-  if(!next){if(active){active=false;allowFocusedPlay=false;stop();revision++;image=null;cancelPending();cancelRender();releaseCanvas();hovered=false;focused=false;}if(!panel.hidden)panel.hidden=true;main.classList.remove('showOpeningExamples');return;}
-  if(panel.hidden)panel.hidden=false;main.classList.add('showOpeningExamples');if(!active||lastId!==chosen){allowFocusedPlay=false;active=true;lastId=chosen;index=0;face='front';stop();doc.getElementById('sampleProduct').textContent=root.ProductCatalog.get(lastId).label;load();}
+  if(!next){if(active){active=false;allowFocusedPlay=false;stop();revision++;image=null;cancelPending();cancelRender();releaseCanvas();hovered=false;focused=false;}if(!panel.hidden)panel.hidden=true;main.classList.remove('showOpeningExamples');coverPreview(false);return;}
+  if(panel.hidden)panel.hidden=false;main.classList.add('showOpeningExamples');coverPreview(true);if(!active||lastId!==chosen){allowFocusedPlay=false;active=true;lastId=chosen;index=0;face='front';stop();doc.getElementById('sampleProduct').textContent=root.ProductCatalog.get(lastId).label;load();}
  }
  doc.getElementById('samplePrevious').onclick=()=>{allowFocusedPlay=false;const count=list().length;if(!count)return;index=(index+count-1)%count;face='front';load();};doc.getElementById('sampleNext').onclick=()=>{allowFocusedPlay=false;if(index>=list().length-1){dismiss();return;}index++;face='front';load();};pause.onclick=()=>{if(motion?.matches)return;paused=!paused;allowFocusedPlay=!paused;schedule();};
  function chooseFace(next){allowFocusedPlay=false;if(face===next){render();schedule();return;}face=next;load();}
@@ -60,5 +62,5 @@ function mount(doc){
  let densityMedia=null;function watchDensity(){densityMedia?.removeEventListener?.('change',densityChanged);densityMedia=root.matchMedia?.('(resolution: '+(root.devicePixelRatio||1)+'dppx)');densityMedia?.addEventListener?.('change',densityChanged);}function densityChanged(){requestRender();watchDensity();}watchDensity();
  upload.addEventListener('click',dismiss,true);doc.addEventListener('click',e=>{if(e.target.closest?.('label[for="unifiedUpload"]'))dismiss();},true);doc.addEventListener('visibilitychange',schedule);doc.addEventListener('change',sync);root.addEventListener?.('hijyenlab:print-mode-change',sync);motion?.addEventListener?.('change',schedule);new root.MutationObserver(sync).observe(doc.getElementById('design'),{subtree:true,attributes:true,attributeFilter:['hidden','disabled']});sync();
 }
-root.HijyenLabOpeningExamples={eligible,productId,mount};if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',()=>mount(root.document),{once:true});else mount(root.document);
+root.HijyenLabOpeningExamples={eligible,productId,mount,coversPreview:()=>previewCovered};if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',()=>mount(root.document),{once:true});else mount(root.document);
 })(window);

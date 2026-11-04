@@ -54,3 +54,11 @@ body:is(.contactHelpEditing, .contactHelpShortViewport) main :is(button, input, 
   #contactHelp { position: static; }
   html:has(body.hasContactHelp) { scroll-padding-bottom: 16px; }
 }
+
+/* The rear editor can show a multi-line validation message at any scroll
+   position. Keep help in document flow while it is open, so no warning or
+   corrective action can be painted underneath the footer. */
+body.hasContactHelp:has(#rearPreview:not([hidden]) #rearEditor[open]) { padding-bottom: 0; }
+body:has(#rearPreview:not([hidden]) #rearEditor[open]) #contactHelp { position: static; }
+html:has(#rearPreview:not([hidden]) #rearEditor[open]) { scroll-padding-bottom: 16px; }
+body:has(#rearPreview:not([hidden]) #rearEditor[open]) main :is(button, input, select, textarea, a, summary) { scroll-margin-bottom: 16px; }

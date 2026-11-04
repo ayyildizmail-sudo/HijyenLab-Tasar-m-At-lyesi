@@ -12,6 +12,15 @@ function selectQrInk(colors){
  if(contrast<4.5)return {ok:false,color:null,contrast,reason:'Mevcut baskı renkleri QR için beyaz zeminde yeterince koyu değil. Yeni renk otomatik eklenmedi; teknik kontrol gerekli.'};
  return {ok:true,color:hex(darkest),contrast,reason:'QR mevcut en koyu baskı rengini kullanır; ekran kontrastı fiziksel baskı okunabilirliği garantisi değildir.'};
 }
+// Every selected rear text color, including explicit white/knockout, uses the
+// same screen-contrast threshold. A failed check never picks a new ink.
+function checkTextContrast(color,background){
+ const ink=parse(color),ground=parse(background),failure=(reason,contrast=null)=>({ok:false,color:null,contrast,reason});
+ if(![ink,ground].every(c=>c&&Array.from(c).every(Number.isFinite)))return failure('Yazı veya ambalaj zemin rengi doğrulanamadı. Renk seçimini kontrol edin.');
+ const luminance=c=>c.map(n=>n/255).map(n=>n<=.04045?n/12.92:((n+.055)/1.055)**2.4).reduce((sum,n,i)=>sum+n*[.2126,.7152,.0722][i],0),a=luminance(ink),b=luminance(ground),contrast=(Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+ if(contrast<4.5)return failure('Bu yazı rengi seçili zeminde yeterince okunaklı değil. Aşağıdaki okunaklı renklerden birini seçin veya ön yüzde zemini kontrol edin. Seçiminiz kendiliğinden değiştirilmedi.',contrast);
+ return {ok:true,color:hex(ink),contrast};
+}
 // Automatic rear text reuses a readable existing ink, never a new fallback plate.
 // Explicit user colors are resolved by the caller, outside this selector.
 function selectTextInk(colors,background){
@@ -76,5 +85,5 @@ function estimate(input={}){
  let qrColor=null;if(rear.qr===true&&!reasons.length){const selection=selectQrInk(actualInkColors);if(selection.ok)qrColor=selection.color;else reasons.push(selection.reason);}
  return {qrColor,inkIdentity:exactPalette?'verified-rendered-flat-palette':null,actualInkColors:actualInkColors.map(hex),status:reasons.length?'unknown':'estimated',count:reasons.length?null:colors.length,colors:colors.map(hex),reason:reasons.length?[...new Set(reasons)].join(' '):exactPalette?'Onaylanan önerinin gerçek renk paleti; ön, arka, ek yazı/logo ve zemin birlikte, aynı renk bir kez, beyaz hariç. Fiziksel klişe ayrımı teknik onay gerektirir.':'Ön ve arka yüz birlikte yaklaşık hesaplandı; ortak renk bir kez, beyaz hariç. Fiziksel klişe ayrımı teknik onay gerektirir.',estimateOnly:true};
 }
-const api=Object.freeze({estimate,selectQrInk,selectTextInk});if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CombinedInks=api;
+const api=Object.freeze({estimate,selectQrInk,selectTextInk,checkTextContrast});if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.CombinedInks=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

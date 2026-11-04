@@ -58,3 +58,14 @@ test('all three actual product profiles render the same selected text ink record
   const pixels=context.getImageData(0,0,width,height).data;let opaque=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i+3]===255){opaque++;assert.equal(pixels[i],21);assert.equal(pixels[i+1],59);assert.equal(pixels[i+2],103);}assert.ok(opaque>0);
  }
 });
+
+test('manual rear and inherited front colors cannot bypass current-ground contrast',()=>{
+ const h=harness();h.update({instagram:'example',inkColor:'#153b67'});assert.equal(h.ctx.rearTextInkDecision().ok,true);
+ h.ctx.state.bg='#153b67';assert.equal(h.ctx.rearTextInkDecision().ok,false);assert.equal(h.ctx.effectiveRearInkColor(),null);assert.match(h.ctx.rearValidationError(),/okunaklı değil/);
+ assert.throws(()=>h.ctx.rearMaterialDataURL({},'#153b67'),/okunaklı değil/);assert.equal(h.ctx.rearQuoteSnapshot().inkColor,null);
+ h.update({inkColor:'#ffffff'});assert.equal(h.ctx.rearTextInkDecision().ok,true);assert.equal(h.ctx.effectiveRearInkColor(),'#ffffff');assert.equal(h.nodes.inks.value,'1','white creates no new plate');
+ h.ctx.state.bg='#ffffff';assert.equal(h.ctx.rearTextInkDecision().ok,false);assert.equal(h.ctx.rearContent.inkColor,'#ffffff','invalid user choice is not silently recolored');
+ h.ctx.state.recolor=true;h.ctx.state.recolorApplied=true;h.ctx.state.color='#153b67';h.ctx.state.bg='#153b67';h.update({inkColor:''});
+ assert.equal(h.ctx.rearTextInkDecision().ok,false);assert.equal(h.ctx.rearTextInkDecision().source,'explicit-front');
+ h.ctx.state.bg='#ffffff';assert.equal(h.ctx.rearTextInkDecision().ok,true);
+});

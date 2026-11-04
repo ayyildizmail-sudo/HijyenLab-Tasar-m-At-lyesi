@@ -30,3 +30,10 @@ test('explicit text choice is handled independently, never changed by selector',
  const before=JSON.stringify(request);assert.equal(selectTextInk(request.front.colors,request.background).color,'#142850');
  const result=estimate(request);assert.equal(result.count,2);assert.ok(result.actualInkColors.includes('#800d2e'));assert.equal(JSON.stringify(request),before);
 });
+
+test('explicit rear contrast uses the same threshold including white knockout',()=>{
+ const {checkTextContrast}=require('../frontend/combined-inks.js');
+ for(const [color,bg,ok]of [['#153b67','#153b67',false],['#ffffff','#ffffff',false],['#ffffff','#153b67',true],['#153b67','#ffffff',true],['#777777','#ffffff',false],['#767676','#ffffff',true]]){assert.equal(checkTextContrast(color,bg).ok,ok,color+' / '+bg);}
+ for(const color of [null,undefined,'#fff','bad',new Array(3),[1,2,Infinity]])assert.equal(checkTextContrast(color,'#ffffff').ok,false);
+ for(const bg of [null,'',new Array(3)])assert.equal(checkTextContrast('#153b67',bg).ok,false);
+});

@@ -13,6 +13,20 @@ const fixtures = [
   'tests/fixtures/technical-frame/source.jpeg',
 ];
 const suites = [
+  'tests/first-viewport.test.cjs',
+  'tests/drag-geometry.test.cjs',
+  'tests/critical-gate-membership.test.cjs',
+  'tests/welcome-layout.test.cjs',
+  'tests/rear-layout.test.cjs',
+  'tests/rear-layout-profiles.test.cjs',
+  'tests/rear-contrast.test.cjs',
+  'tests/rear-text-ink.test.cjs',
+  'tests/rear-text-ink-ui.test.cjs',
+  'tests/rear-qr-decode.test.cjs',
+  'tests/logo-release-gate.test.mjs',
+  'tests/rear-layout-spacing-private.test.cjs',
+
+  'tests/startup-preview-performance.test.cjs',
   'tests/gallery-source-assets.test.cjs',
   'tests/gallery-raster.test.cjs',
   'tests/opening-examples.test.cjs',
@@ -156,4 +170,4 @@ for (const suite of suites) {
   if (result.error) throw result.error;
   if (result.status !== 0) throw new Error(`Logo regression gate failed: ${suite} (status ${result.status}, signal ${result.signal})`);
 }
-console.log('[logo release gate] All screenshot regressions passed.');
+console.log('[logo release gate] All selected source/native regression suites passed.');

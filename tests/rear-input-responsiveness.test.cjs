@@ -132,3 +132,23 @@ for(const ready of [false,true])for(const filled of [false,true])test(`rear labe
  if(ready){assert.equal(h.ctx.step,2);assert.equal(h.$('pricing').hidden,false);assert.equal(h.ctx.destination,undefined);}
  else assert.equal(h.ctx.destination,'fragrance');
 });
+
+test('invalid manual contrast revokes image, blocks approval, and hides the stale preview until repaired',()=>{
+ const h=harness();h.$('rearInstagram').focus();h.type('rearInstagram','example');h.$('rearInstagram').blur();h.settle();h.complete();
+ assert.equal(h.ctx.rearQuoteReady(),true);const oldSource=h.images.at(-1).onload,oldImage=h.$('rearBlankImage').onload;
+ h.$('rearInkColor').value='#ffffff';h.$('rearInkColor').oninput();h.settle();
+ assert.equal(h.ctx.rearQuoteReady(),false);assert.equal(h.ctx.rearQuoteImage(),null);assert.equal(h.$('rearToPrice').disabled,true);
+ assert.match(h.$('rearEditorError').textContent,/okunaklı değil/);assert.equal(h.$('rearFlipCard').hidden,true);assert.equal(h.$('rearPreviewStatus').hidden,false);
+ oldSource();oldImage();assert.equal(h.ctx.rearQuoteReady(),false);h.$('rearToPrice').onclick();assert.deepEqual(h.calls.go,[]);
+ assert.equal(h.read('rearContent.inkColor'),'#ffffff');assert.equal(h.read('rearContent.instagram'),'example');
+ h.$('rearInstagram').focus();h.type('rearInstagram','example_after_error');h.settle();
+ assert.equal(h.$('rearFlipCard').hidden,true);assert.equal(h.ctx.rearQuoteReady(),false);assert.equal(h.ctx.rearQuoteImage(),null);
+ h.$('rearInstagram').blur();h.settle();assert.equal(h.$('rearFlipCard').hidden,true);
+ h.$('rearInkColor').value='#153b67';h.$('rearInkColor').oninput();h.settle();h.complete();
+ assert.equal(h.ctx.rearQuoteReady(),true);assert.equal(h.$('rearFlipCard').hidden,false);assert.equal(h.$('rearPreviewStatus').hidden,true);h.$('rearToPrice').onclick();assert.deepEqual(h.calls.go,[2]);
+});
+test('a stale ready snapshot cannot be reused after ground or front fingerprint changes',()=>{
+ const h=harness();h.$('rearInstagram').focus();h.type('rearInstagram','example');h.$('rearInstagram').blur();h.settle();h.complete();assert.equal(h.ctx.rearQuoteReady(),true);
+ h.ctx.state.bg='#153b67';assert.equal(h.ctx.rearQuoteReady(),false);assert.equal(h.ctx.rearQuoteImage(),null);
+ h.ctx.state.bg='#ffffff';h.ctx.designFingerprint=()=> 'changed-ground-or-front';assert.equal(h.ctx.rearQuoteReady(),false);assert.equal(h.ctx.rearQuoteImage(),null);
+});
