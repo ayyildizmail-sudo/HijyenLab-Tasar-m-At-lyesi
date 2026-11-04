@@ -36,3 +36,12 @@ test('reference summary never labels the unprocessed source as a prepared design
  c.state={sourcePhoto:'original',sourceKind:'unsupported',designBlocked:true};c.syncSummaryTitle();assert.equal(designTitle.textContent,'Yüklediğiniz görsel');
  c.state={logo:'recovered',designBlocked:false};c.syncSummaryTitle();assert.equal(designTitle.textContent,'Size özel ambalaj');
 });
+
+test('switching products keeps a valid quantity while reference ground is unresolved',()=>{
+ const code=fs.readFileSync(require.resolve('../frontend/product-ui.js'),'utf8');
+ const scope={currentProduct:()=>ProductCatalog.get('BM12'),state:{quoteSource:'source-reference',requestedQuantity:5200,photoQuoteBg:'unknown'},effectiveBackground:()=> 'photo-color'};
+ vm.createContext(scope);vm.runInContext(code.slice(code.indexOf('function productChoiceCarryover('),code.indexOf('async function selectProduct(')),scope);
+ const carry=scope.productChoiceCarryover(ProductCatalog.get('BM12'));
+ assert.equal(carry.requestedQuantity,5200);
+ assert.match(carry.notes[0],/henüz doğrulanmadı/);
+});
