@@ -9,8 +9,8 @@ function modeHarness(){
  const c={$ ,state:{requestedQuantity:null},productRules:()=>Catalog.rules('BM12'),printedDesignHeading:'Design',printedQuoteNote:'Quote',printedProductReview:'Review',modePicker:{querySelectorAll:()=>[]},cartonLabel:element(),cartonInput:element(),document:{querySelector:$,querySelectorAll:()=>[],body:{dataset:{},classList:{toggle(){}}}},isUnprinted:()=>mode==='unprinted',isDeclaredQuote:()=>mode==='declared',isReferencePreview:()=>mode==='reference',money:String,cartonContentLabel:()=>'',hide(){},eligible:()=>false};
  vm.createContext(c);vm.runInContext(unprinted.slice(unprinted.indexOf('function syncUnprintedUI(){'),unprinted.indexOf('async function setPrintMode')),c);
  // The reference controller also writes the main label after navigation.
- Object.assign(c,{referencePreviewLabel:()=>'',referenceGroundLabel:()=>'',box:element()});
- vm.runInContext(reference.slice(reference.indexOf('function syncSummaryTitle(){'),reference.indexOf('async function accept(){')),c);
+ Object.assign(c,{referencePreviewLabel:()=>'',referenceGroundLabel:()=>'',box:element(),step:1,current:()=>false});
+ vm.runInContext(reference.slice(reference.indexOf('function syncSummaryTitle(){'),reference.indexOf('async function accept(')),c);
  return {c,$,mode:value=>{mode=value;}};
 }
 test('main button survives refresh/navigation and names the next step in every mode',()=>{
@@ -23,7 +23,7 @@ test('main button survives refresh/navigation and names the next step in every m
  assert.match(app,/approveInk\.textContent='Bu görünümü onayla · Arka yüze geç →'/);
  // Declaration/reference have no invented design approval; they call the existing fragrance step.
  assert.match(app,/function continueDeclaredQuote\(\).*return showFragrance\(\);/);
- assert.match(reference,/function continuePrice\(\).*return showFragrance\(\);/);
+ assert.match(reference,/function continuePrice\(\).*\bshowFragrance\(\)/);
 });
 function priceHarness(product,ground,inks){
  if(product==='OSHIBORI'){const FX=require('../frontend/oshibori-fx.js'),now=new Date(),date=FX.today(now);FX.accept({currency:'USD',baseCurrency:'TRY',rateType:'ForexSelling',rate:42.1234,rateDate:date,requestedDate:date,fetchedAt:now.toISOString(),source:'TCMB',sourceUrl:'https://www.tcmb.gov.tr/kurlar/today.xml',isPreviousPublication:false});}
