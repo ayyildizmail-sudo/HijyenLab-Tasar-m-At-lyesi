@@ -5,13 +5,18 @@ let localDiagnostic=null;
 async function prepare(current,{allowReferenceRecovery=false,ingressMode='unknown'}={}){
  const session=processingSession.getState(),diagnostic={operationId:session.operationId,sourceSHA256:session.source?.sha256||null,mode:ingressMode,reason:'checking'};localDiagnostic=diagnostic;const decline=reason=>{diagnostic.reason=reason;return false;};
  if(root.LowResWordmarkUI&&await root.LowResWordmarkUI.prepare(current)){diagnostic.reason='proposal-ready';return true;}
+ // Native artwork with source-bound package ground already has its own ink-role
+ // evidence. Quantizing it again changes the source and can count that ground twice.
+ const ground=state.groundScope;
+ if(!state.designBlocked&&state.logo&&!state.photoLayout&&ground?.sourceIdentity===session.source?.sha256&&(ground.packageGroundProposed||ground.sourceGroundVerified))return decline('source-ground-artwork-preserved');
  const fallback=allowReferenceRecovery&&state.designBlocked&&!state.logo&&!state.photoLayout&&!!state.sourcePhoto&&['unsupported','photo-region'].includes(state.sourceKind);
  if(fallback&&root.AdaptedPhotoUI&&await root.AdaptedPhotoUI.prepare(current)){diagnostic.reason='proposal-ready';return true;}
  if(fallback&&root.IndependentEmblemUI&&await root.IndependentEmblemUI.prepare(current)){diagnostic.reason='proposal-ready';return true;}
  if(!root.FlexoDesignProposal||!current()||(!fallback&&(!state.logo||!logoImg||state.photoLayout||state.designBlocked||state.extractionApproximate||state.screenCropApplied||state.technicalFrameProposed||state.extractionSourceLimited||state.recolorApplied||processingContext?.pending?.method||!['white','transparent','ambiguous'].includes(state.bgDetection?.kind))))return decline('source-route-ineligible');
  const source=processingSession.getState().source;if(!/^[a-f0-9]{64}$/i.test(source?.sha256||''))return decline('source-identity-unavailable');
  const img=fallback?await loadImage(state.sourcePhoto):prepareLogo();if(!current())return decline('operation-replaced');
- if(fallback&&(typeof SourceContext==='undefined'||SourceContext.inspectImage(img)))return decline('source-context-excluded');
+ // Full pages must never become a flat-ink logo merely by palette reduction.
+ if(typeof SourceContext==='undefined'||SourceContext.inspectImage(img))return decline('source-context-excluded');
  const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
  if(c.width*c.height>4000000)return decline('pixel-limit');
  const cx=c.getContext('2d',{willReadFrequently:true});cx.drawImage(img,0,0);const before=cx.getImageData(0,0,c.width,c.height);

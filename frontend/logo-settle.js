@@ -1,7 +1,7 @@
 /* One finite presentation of a newly applied logo. Never writes artwork pixels,
  * placement, approval or quote state; the real canvas remains the export source. */
 (function(root){'use strict';
-const DURATION=520;
+const DURATION=1400;
 const PHASE_EASING='cubic-bezier(.4,0,.2,1)';
 function geometry(plan,x,y,area){
  const d=plan?.drawRect,r=(plan?.rotation||0)*Math.PI/180;

@@ -1,6 +1,40 @@
 /* Bounded, local preview checks; never OCR, redraw, or certify physical ink. */
 (function(root){'use strict';
-const VERSION=1,MAX_SIDE=512;
+const VERSION=2,MAX_SIDE=512;
+// Compare only registered crops. Whole-image contrast totals can hide a lost
+// small word or disconnected mark when a much larger symbol survives.
+function lightRegions(source,candidate,ground){
+ if(source.width!==candidate.width||source.height!==candidate.height)return null;
+ const {width,height}=source,threshold=Math.max(140,(ground[0]+ground[1]+ground[2])/3+55);
+ const size=width*height;
+ if(size>MAX_SIDE*MAX_SIDE)return null;
+ function light(pixels,i){
+  const j=i*4,r=pixels[j],g=pixels[j+1],b=pixels[j+2];
+  return pixels[j+3]>=128&&(r+g+b)/3>threshold&&Math.max(r,g,b)-Math.min(r,g,b)<55;
+ }
+ const visited=new Uint8Array(size),queue=new Int32Array(size),regions=[];
+ for(let start=0;start<size;start++){
+  if(visited[start]||!light(source.data,start))continue;
+  let head=0,tail=1,retained=0,x0=width,y0=height,x1=0,y1=0;
+  queue[0]=start;visited[start]=1;
+  while(head<tail){
+   const i=queue[head++],x=i%width,y=Math.floor(i/width);
+   x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);
+   let found=false;
+   // One-pixel tolerance accommodates sampling and alpha-edge changes.
+   for(let dy=-1;dy<=1&&!found;dy++)for(let dx=-1;dx<=1;dx++){
+    const nx=x+dx,ny=y+dy;
+    if(nx>=0&&nx<width&&ny>=0&&ny<height&&light(candidate.data,ny*width+nx)){found=true;break;}
+   }
+   if(found)retained++;
+   const neighbors=[y>0?i-width:-1,y+1<height?i+width:-1,x>0?i-1:-1,x+1<width?i+1:-1];
+   for(const next of neighbors)if(next>=0&&!visited[next]&&light(source.data,next)){visited[next]=1;queue[tail++]=next;}
+  }
+  // Single-pixel noise has no independent completeness claim.
+  if(tail>=4)regions.push({box:[x0,y0,x1+1,y1+1],pixels:tail,retention:retained/tail});
+ }
+ return regions;
+}
 function rgb(value){return /^#[\da-f]{6}$/i.test(value||'')?value.slice(1).match(/../g).map(v=>parseInt(v,16)):null;}
 function measure(data,width,height,ground){
  if(!data||data.length!==width*height*4||!Number.isInteger(width)||!Number.isInteger(height)||width<1||height<1)throw Error('invalid-quality-pixels');
@@ -18,6 +52,13 @@ function assessPixels(candidate,options={}){
  const reject=reason=>({accepted:false,reason,evidence});
  if(evidence.candidate.alphaFraction<.0001)return reject('empty-candidate');
  if(options.source){evidence.source=measure(options.source.data,options.source.width,options.source.height,ground);evidence.sourceComparison='same-source-crop-contrast-mass';for(const role of ['light','dark']){const key=role+'Fraction',baseline=evidence.source[key];if(baseline>=.01){const retained=evidence.candidate[key]/baseline;evidence[role+'Retention']=retained;if(retained<.45)return reject('source-'+role+'-content-lost');}}}
+ if(options.source){
+  const regions=lightRegions(options.source,candidate,ground);
+  if(regions){
+   evidence.lightRegions=regions;
+   if(regions.some(region=>region.retention<.45))return reject('source-light-region-lost');
+  }
+ }
  const output=options.rendered?measure(options.rendered.data,options.rendered.width,options.rendered.height,ground):evidence.candidate;evidence.rendered=output;evidence.outputBasis=options.rendered?'actual-processed-artwork-layer':'candidate-layer';
  if(output.alphaFraction<.0001)return reject('empty-rendered-artwork');
  if(output.visibleAlphaFraction<.35||output.visibleFraction<.0001)return reject('insufficient-ground-contrast');
@@ -27,7 +68,7 @@ function assessPixels(candidate,options={}){
 }
 function assess(original,result,options={}){
  const make=options.createCanvas||((w,h)=>{const c=root.document.createElement('canvas');c.width=w;c.height=h;return c;});
- function pixels(image,box){if(!image||!(image.width>0)||!(image.height>0))throw Error('missing-quality-image');const w=box?box[2]-box[0]:image.width,h=box?box[3]-box[1]:image.height,s=Math.min(1,MAX_SIDE/Math.max(w,h)),c=make(Math.max(1,Math.round(w*s)),Math.max(1,Math.round(h*s))),cx=c.getContext('2d',{willReadFrequently:true});if(box)cx.drawImage(image,box[0],box[1],w,h,0,0,c.width,c.height);else cx.drawImage(image,0,0,c.width,c.height);return cx.getImageData(0,0,c.width,c.height);}
+ function pixels(image,box){if(!image||!(image.width>0)||!(image.height>0))throw Error('missing-quality-image');const w=box?box[2]-box[0]:image.width,h=box?box[3]-box[1]:image.height,s=Math.min(1,MAX_SIDE/Math.max(w,h)),c=make(Math.max(1,Math.round(w*s)),Math.max(1,Math.round(h*s))),cx=c.getContext('2d',{willReadFrequently:true});try{if(box)cx.drawImage(image,box[0],box[1],w,h,0,0,c.width,c.height);else cx.drawImage(image,0,0,c.width,c.height);return cx.getImageData(0,0,c.width,c.height);}finally{c.width=c.height=1;}}
  try{
   const candidate=pixels(result?.canvas),ground=options.ground||result.background||'#ffffff',p=result.processing||{},box=p.box;
   // Only compare directly mapped crops. Rectification, selected groups, native content and

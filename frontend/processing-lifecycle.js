@@ -1,7 +1,8 @@
 /* V25 critical-slice migration: one ingress/operation/quote authority.
  * Legacy masking algorithms remain bounded and separately named in the result contract. */
-const processingSession=ProcessingSession.create();globalThis.processingSession=processingSession;
+const processingSession=ProcessingSession.create({bindQuoteDesign:true});globalThis.processingSession=processingSession;
 let processingContext=null;const sourceIdentityCache=new WeakMap();
+globalThis.HijyenLabRestorationClient=globalThis.LogoRestoration?.create({fetcher:(...args)=>fetch(...args),notify:()=>status('Logonuz temizleniyor ve netleştiriliyor…')});
 globalThis.HijyenLabSourceDiscoveryClient=globalThis.LogoSourceDiscovery?.create({
  fetcher:(...args)=>fetch(...args),
  encode:async file=>{
@@ -32,10 +33,10 @@ function buildCurrentFlexoVector(record){
  state.flexoVectorPreview=null;
  if(!globalThis.FlexoVector||!record||!state.logo||!logoImg||state.photoLayout||state.designBlocked||state.recolorApplied)return;
  try{
-  const image=prepareLogo();if(image.width*image.height>1000000)return;
+  const image=prepareLogo(),pixelBudget=record.method==='reviewed-logo-redraw'?2000000:1000000;if(image.width*image.height>pixelBudget)return;
   const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;
   const context=canvas.getContext('2d',{willReadFrequently:true});context.drawImage(image,0,0);
-  const vector=FlexoVector.trace(context.getImageData(0,0,canvas.width,canvas.height).data,canvas.width,canvas.height);
+  const vector=FlexoVector.trace(context.getImageData(0,0,canvas.width,canvas.height).data,canvas.width,canvas.height,{maxPixels:pixelBudget});
   if(vector.ok)state.flexoVectorPreview={...vector,sourceSHA256:record.source.sha256,extractionRevision:record.extractionRevision,fingerprint:designFingerprint()};
  }catch{/* Ineligible photographic/complex sources never become a vector by relabelling. */}
 }
@@ -67,11 +68,17 @@ function clearResetUploadSource(){
  $('pdfPages')?.replaceChildren();$('photoCandidates')?.replaceChildren();
  for(const id of ['originalReference','whiteCarrierOriginal','whiteCarrierProposed','brandRegionOriginal','brandRegionExtracted'])$(id)?.removeAttribute?.('src');
 }
-function cancelCurrentProcessing(reason='cancel'){globalThis.HijyenLabSourceDiscoveryClient?.cancel();state.logoSourceDiscovery=null;state.flexoVectorPreview=null;globalThis.HijyenLabJourneyMotion?.reset();globalThis.ReferenceRecovery?.clear();if(reason==='reset')clearResetUploadSource();loading++;if(globalThis.processingSession)processingSession.cancel();processingContext=null;state.designProcessing=false;state.extractionApprovalRequired=!!(state.logo||state.photoLayout);approvedDesignFingerprint=null;invalidateQuote();disposePdf();if(typeof printInkKey!=='undefined')printInkKey=null;}
+function cancelCurrentProcessing(reason='cancel'){globalThis.HijyenLabRestorationClient?.cancel();globalThis.HijyenLabSourceDiscoveryClient?.cancel();state.logoSourceDiscovery=null;state.flexoVectorPreview=null;globalThis.HijyenLabJourneyMotion?.reset();globalThis.ReferenceRecovery?.clear();if(reason==='reset')clearResetUploadSource();loading++;if(globalThis.processingSession)processingSession.cancel();processingContext=null;state.designProcessing=false;state.extractionApprovalRequired=!!(state.logo||state.photoLayout);approvedDesignFingerprint=null;invalidateQuote();disposePdf();if(typeof printInkKey!=='undefined')printInkKey=null;}
 async function sourceIdentity(file,bytes){if(!globalThis.crypto?.subtle)throw Error('Bu tarayıcıda güvenli dosya kontrolü kullanılamıyor. Uygulamayı HTTPS üzerinden açın.');if(sourceIdentityCache.has(file))return sourceIdentityCache.get(file);const digest=await crypto.subtle.digest('SHA-256',bytes),sha256=Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,'0')).join('');const identity={name:file.name,mime:file.type||'unknown',byteLength:file.size,sha256,identityBasis:'exact-uploaded-file-bytes; local-only'};sourceIdentityCache.set(file,identity);return identity;}
 // Reviewed reference artwork keyed by exact input bytes, never by a guessed name.
 const ghaliaReference={filename:'ghalia-reviewed-logo.png',version:'019d602ad28b',ground:'#742c40'};
+const serefeRedraw={filename:'serefe-reviewed-redraw.png',version:'859369bee53c',ground:'#650d21',restoration:true,redraw:true};
 const verifiedLogoReferences=new Map([
+ ...Object.entries(globalThis.ReviewedArtworkRegistry||{}),
+ // Approved proof; exact known bytes only, no paid generation and no filename guessing.
+ ['6f3ee96b3a026f5b1543e28a7da5553e036956a33958bf921602475c25e469ef',serefeRedraw],
+ ['99f38680fa46df1c03ee1064c103df48205bc4f5dca3d10eea24a9dd336fd34c',serefeRedraw],
+ ['9d478f1c1b86670949d3da84d5294e5b096f0edb5ee5d01a3ff0791b84c28973',{filename:'cevre-approved-restoration.png',version:'1',restoration:true}],
  ['77774ff66baec6bd2d41a6aae301a37083ff651242c38b8594c5ef2fb10249e1',ghaliaReference],
  ['e03e2f84b7396970f8e1ab6c5fa4cf17633788a55d621200f6ffb192429c0f73',ghaliaReference],
  ['eb8064a85f9efc8573ee66c0045668cbf3574576d9414376079532a0fc00856c',ghaliaReference],
@@ -167,32 +174,139 @@ async function recoverVerifiedMenuLogo(identity,token,file){
   if(matches.length===1)reference=matches[0];
  }
  if(!reference||!processingSession.isCurrent(token)||ticket!==loading)return false;
+ const sourceComparison=reference.redraw?await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);}):null;
+ if(!processingSession.isCurrent(token)||ticket!==loading)return false;
  recordDecodedFrame(image);
  const response=await fetch('./assets/'+reference.filename+'?v='+reference.version);
  if(!response.ok||!processingSession.isCurrent(token)||ticket!==loading)return;
  const asset=await response.blob();
+ // An approved identity must never silently serve different artwork bytes.
+ if(reference.assetSHA256){
+  const digest=await crypto.subtle.digest('SHA-256',await asset.arrayBuffer());
+  const actual=Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,'0')).join('');
+  if(actual!==reference.assetSHA256){status('Onaylı görsel doğrulanamadı; önizleme uygulanmadı.');return false;}
+ }
  if(!processingSession.isCurrent(token)||ticket!==loading)return;
  await logoFileHandler({target:{files:[new File([asset],reference.filename,{type:'image/png'})],value:''}});
  if(!processingSession.isCurrent(token)||loading!==ticket+1||state.designBlocked||!state.logo)return;
  if(reference.ground&&state.bgSource!=='manual'){
   state.bg=reference.ground;
-  state.bgSource='source-product-ground';
-  state.groundScope={...state.groundScope,packageColor:reference.ground,sourceIdentity:identity.sha256,sourceGroundVerified:true};
+  state.bgSource=reference.redraw?'redraw-proposal':'source-product-ground';
+  state.groundScope={...state.groundScope,packageColor:reference.ground,sourceIdentity:identity.sha256,sourceGroundVerified:!reference.redraw};
  }
- const method=reference.ground?'verified-package-artwork':'verified-menu-preview';
+ if(Number.isFinite(reference.placementSize))state.size=Math.max(20,Math.min(100,reference.placementSize));
+ const method=reference.redraw?'reviewed-logo-redraw':reference.restoration?'reviewed-ai-logo-restoration':reference.ground?'verified-package-artwork':'verified-menu-preview';
  state.sourceKind=method;
+ if(reference.redraw)state.sourcePhoto=sourceComparison;
+ if(reference.restoration)state.removeWhite=false;
  state.nativeContentReviewRequired=true;
  state.extractionApprovalRequired=true;
  stageProcessingResult(method,'1',null,{
-  maskBasis:reference.ground?'Reviewed source artwork with background removed.':'Separate archived menu artwork; no mask applied to the upload.',
+  maskBasis:reference.redraw?'Source-referenced redraw proposal matched by exact SHA256; not original-pixel extraction and not previously customer-approved.':reference.restoration?'User-approved AI reconstruction matched by exact uploaded source SHA256.':reference.ground?'Reviewed source artwork with background removed.':'Separate archived menu artwork; no mask applied to the upload.',
   transforms:[exact?'exact-source-sha256-match':'reviewed-mark-shape-match',reference.ground?'reviewed-source-artwork':'archived-menu-artwork','aspect-safe-fit'],
-  limitations:['One-color idea preview; no print approval.'],
-  extra:{contentReviewRequired:true,...(reference.ground?{referenceGround:reference.ground}:{referenceDocumentSha256:reference.documentSha256})}
+  limitations:reference.redraw?['Source-referenced redraw; letterforms and illustration need customer review.','Curtains, lighting and edit badge omitted; occluded regular frame redrawn.','Gold ink plus burgundy ground are a proposed two-color appearance, not confirmed production separations.']:reference.restoration?['Reviewed AI reconstruction; not source-pixel extraction or SVG.','Letter identity and print separations require review.']:['One-color idea preview; no print approval.'],
+  extra:{contentReviewRequired:true,...(reference.restoration?{reviewedBrand:reference.brand,reviewedAssetSHA256:reference.assetSHA256,automaticReconstruction:false,reviewedInstructions:reference.instructions||null}:{}),...(reference.ground?{referenceGround:reference.ground}:{referenceDocumentSha256:reference.documentSha256})}
  });
  return true;
  }finally{image.close();}
 }
+async function recoverGeneratedLogo(identity,token,file){
+ if(!globalThis.HijyenLabRestorationClient||!['image/png','image/jpeg'].includes(file.type))return false;
+ const ticket=loading,current=()=>processingSession.isCurrent(token)&&ticket===loading;
+ // Preserve native transparency instead of generating replacement artwork.
+ if(file.type==='image/png'){
+  const native=await createImageBitmap(file);
+  try{
+   if(!current())return false;
+   const scan=document.createElement('canvas'),scale=Math.min(1,256/Math.max(native.width,native.height));
+   scan.width=Math.max(1,Math.round(native.width*scale));scan.height=Math.max(1,Math.round(native.height*scale));
+   const ctx=scan.getContext('2d',{willReadFrequently:true});ctx.drawImage(native,0,0,scan.width,scan.height);
+   const pixels=ctx.getImageData(0,0,scan.width,scan.height).data;
+   for(let i=3;i<pixels.length;i+=4)if(pixels[i]<250)return false;
+  }finally{native.close();}
+ }
+ if(!current())return false;
+ const result=await globalThis.HijyenLabRestorationClient.restore({file,identity,current});
+ if(!result||!current())return false;
+ const bitmap=await createImageBitmap(result.blob);
+ try{
+  if(!current())return false;
+  UploadFormat.dimensions(bitmap.width,bitmap.height);
+  if(bitmap.width*bitmap.height>4000000)return false;
+  const c=document.createElement('canvas');c.width=bitmap.width;c.height=bitmap.height;
+  const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(bitmap,0,0);
+  const data=ctx.getImageData(0,0,c.width,c.height).data;
+  let x0=c.width,y0=c.height,x1=-1,y1=-1,transparent=0,visible=0;
+  for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){
+   const alpha=data[(y*c.width+x)*4+3];
+   if(alpha<8)transparent++;
+   if(alpha>16){visible++;x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);}
+  }
+  // A white rectangle or a fully transparent/near-empty reply is not a logo layer.
+  if(transparent<c.width*c.height*.1||visible<64||x0<2||y0<2||x1>=c.width-2||y1>=c.height-2)return false;
+  const out=document.createElement('canvas');out.width=x1-x0+5;out.height=y1-y0+5;
+  out.getContext('2d').drawImage(c,x0,y0,x1-x0+1,y1-y0+1,2,2,x1-x0+1,y1-y0+1);
+  const blob=await new Promise(resolve=>out.toBlob(resolve,'image/png'));
+  if(!blob||!current())return false;
+  // Retain the original input coordinate frame; generated geometry has no source ROI.
+  const source=await createImageBitmap(file);try{if(!current())return false;recordDecodedFrame(source);}finally{source.close();}
+  if(!current())return false;
+  await logoFileHandler({target:{files:[new File([blob],'netlestirilmis-logo.png',{type:'image/png'})],value:''}});
+  if(!processingSession.isCurrent(token)||loading!==ticket+1||state.designBlocked||!state.logo)return false;
+  state.sourceKind='ai-logo-reconstruction';state.nativeContentReviewRequired=true;state.extractionApprovalRequired=true;state.extractionApproximate=true;
+  stageProcessingResult('ai-logo-reconstruction','1',null,{
+   maskBasis:'Generated alpha; no source-coordinate extraction mask exists.',
+   transforms:['original-upload','server-image-edit','transparent-output-check','alpha-bounds','aspect-safe-fit'],
+   limitations:['AI reconstruction may change glyphs; visual review required.','Not source-pixel extraction, SVG or certified ink separation.'],
+   extra:{contentReviewRequired:true,reconstruction:true,semanticFidelity:'unverified',printSeparation:'unverified'}
+  });
+  return true;
+ }finally{bitmap.close();}
+}
+async function recoverIlluminatedSign(identity,token,file){
+ if(!globalThis.IlluminatedSign||!['image/jpeg','image/png'].includes(file.type)||typeof createImageBitmap!=='function')return false;
+ const ticket=loading;
+ const image=await createImageBitmap(file);
+ try{
+  if(!processingSession.isCurrent(token)||ticket!==loading)return false;
+  const context=typeof SourceContext!=='undefined'?SourceContext.inspectImage(image):null;
+  const screen=!!context;
+  const sign=IlluminatedSign.prepare(image,(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;},PhotoReference,{screen});
+  const phoneScreenshot=context?.evidence?.startsWith('phone-')||context?.evidence==='mobile-preview-controls';
+  if(!sign&&!phoneScreenshot)return false;
+  const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});
+  if(!processingSession.isCurrent(token)||ticket!==loading)return false;
+  recordDecodedFrame(image);
+  if(typeof lastUploadedFile!=='undefined')lastUploadedFile=file;
+   if(!sign&&phoneScreenshot){blockScreenshotSelection(data);return true;}
+   if(sign?.ambiguous){blockScreenshotSelection(data);status('Görselde birden fazla tabela alanı var. Özgün görsel inceleme için korundu.');return true;}
+   if(sign?.canvas){
+    const blob=await new Promise(resolve=>sign.canvas.toBlob(resolve,'image/png'));if(!processingSession.isCurrent(token)||ticket!==loading)return false;
+    if(!blob)throw Error('Tabela önizlemesi hazırlanamadı.');
+    const expected=loading+1;
+    await logoFileHandler({target:{files:[new File([blob],'tabela-baski-katmani.png',{type:'image/png'})],value:''}});
+    if(!processingSession.isCurrent(token)||loading!==expected||!processingContext?.produced||!state.logo||state.designBlocked)return false;
+    if(state.bgSource!=='manual'){
+     state.bg=sign.ground;state.bgSource='photo-estimate';state.bgDecisionPending=false;
+     state.groundScope={...state.groundScope,packageColor:sign.ground,sourceIdentity:identity.sha256,packageGroundProposed:true};
+    }
+    state.sourcePhoto=data;state.sourceKind='illuminated-sign';state.removeWhite=false;
+    state.size=VisibleArtwork.defaultSize(visibleLogoMeasurement(logoImg).measured);
+    state.extractionApproximate=true;state.extractionApprovalRequired=true;state.nativeContentReviewRequired=true;
+    stageProcessingResult(sign.quad?'illuminated-sign-perspective':'illuminated-sign-silhouette','2',sign.box,{
+     maskBasis:'Contrasting source pixels inside a detected sign panel.',
+     transforms:[sign.quad?'four-corner-perspective':'surface-silhouette','source-contrast-separation',...(sign.crispNeon?['neon-coverage-contrast']:[]),'aspect-safe-fit'],
+     limitations:['A single sufficiently distinct sign panel and coherent lettering contrast are required.','Silhouettes without reliable straight edges retain the original lettering angle.','Brand content and suggested ground require review.'],
+     extra:{...(sign.quad?{sourceQuad:sign.quad}:{}),contentReviewRequired:true}
+    });
+    refresh();go(1);status('Tabela yazısı yerleştirildi. Yazının tamamını ve önerilen zemini kontrol edin.');return true;
+   }
+  return false;
+ }finally{image.close();}
+}
+const reviewedArtworkUnavailable='Onaylı tasarım yüklenemedi. Aynı dosyayı yeniden yükleyin.';
 async function routeUploadedFile(file,mode='auto'){
+ globalThis.HijyenLabRestorationClient?.cancel();
  if(!file||(typeof isUnprinted==='function'&&isUnprinted()))return;
  globalThis.HijyenLabSourceDiscoveryClient?.cancel();state.logoSourceDiscovery=null;state.flexoVectorPreview=null;
  if(state.quoteSource==='source-reference'){
@@ -209,11 +323,28 @@ async function routeUploadedFile(file,mode='auto'){
   else{const bitmap=await createImageBitmap(new Blob([bytes],{type:info.mime}));try{UploadFormat.dimensions(bitmap.width,bitmap.height);if(!processingSession.isCurrent(token))return;const c=document.createElement('canvas');c.width=bitmap.width;c.height=bitmap.height;c.getContext('2d').drawImage(bitmap,0,0);const blob=await new Promise(resolve=>c.toBlob(resolve,'image/png'));if(!processingSession.isCurrent(token))return;if(!blob)throw Error('Görsel dönüştürülemedi.');normalized=new File([blob],file.name.replace(/\.[^.]*$/,'')+'.png',{type:'image/png'});}finally{bitmap.close();}}
   sourceIdentityCache.set(normalized,identity);if(photoSourceFiles.has(file))photoSourceFiles.add(normalized);
   let recovered=false;
-  if(['auto','photo'].includes(mode)&&typeof createImageBitmap==='function'){
-   try{recovered=await recoverVerifiedMenuLogo(identity,token,normalized);}catch{/* Continue with the uploaded source. */}
+  const reviewedSource=!!verifiedLogoReferences.get(identity.sha256)?.assetSHA256;
+  if(reviewedSource||(['auto','photo'].includes(mode)&&typeof createImageBitmap==='function')){
+   try{recovered=await recoverVerifiedMenuLogo(identity,token,normalized);}catch{/* An unreviewed upload can still use ordinary routing. */}
   }
   if(!processingSession.isCurrent(token))return;
-  if(!recovered)await routeImageCandidate(normalized,mode);
+  if(reviewedSource&&!recovered){
+   state.logo=null;state.photoLayout=null;state.sourcePhoto=null;state.sourceKind=null;
+   state.removed=true;state.designBlocked=true;logoImg=null;photoImg=null;
+   context.reviewedUnavailable=true;
+   throw Error(reviewedArtworkUnavailable);
+  }
+  if(reviewedSource){
+   if(typeof lastUploadedFile!=='undefined')lastUploadedFile=file;
+  }else if(!recovered){
+   if(['auto','photo','logo'].includes(mode)){
+    recovered=await recoverIlluminatedSign(identity,token,normalized);
+    if(!processingSession.isCurrent(token))return;
+    if(!recovered)recovered=await recoverGeneratedLogo(identity,token,normalized);
+   }
+   if(!processingSession.isCurrent(token))return;
+   if(!recovered)await routeImageCandidate(normalized,mode);
+  }
   if(!processingSession.isCurrent(token))return;
   // Interpretation labels are hints, not proposal eligibility. Only a verified
   // source-derived proposal may release this file's prior photo-routing lock.
@@ -224,18 +355,21 @@ async function routeUploadedFile(file,mode='auto'){
  }catch(error){if(processingSession.isCurrent(token)){processingSession.fail(token,error.message);state.processingResult=null;status(error.message||'Bu dosya çözülemedi. PNG, JPG veya PDF olarak dışa aktarın.');}}
  finally{if(processingContext===context){state.designProcessing=false;printInkKey=null;syncPrintInks();refresh();if(state.designBlocked){
   if(['auto','photo'].includes(mode)&&globalThis.ReferenceRecovery?.showSourcePreview&&!contentSafetyError())await globalThis.ReferenceRecovery.showSourcePreview();
-  if(processingContext===context&&state.designBlocked)showDesignIssue();
+  if(processingContext===context&&state.designBlocked){
+  showDesignIssue();
+  if(context.reviewedUnavailable){if($('designError'))$('designError').textContent=reviewedArtworkUnavailable;status(reviewedArtworkUnavailable);}
+ }
  }
  if(globalThis.HijyenLabSourceDiscoveryClient&&processingContext===context&&processingSession.isCurrent(token)&&!contentSafetyError()){
   const live=processingSession.getState(),frame=live.frame;
-  const needed=!['verified-package-artwork','verified-menu-preview'].includes(state.sourceKind)&&(live.status==='needs-selection'||state.designBlocked||state.extractionSourceLimited||state.extractionApproximate||state.nativeContentReviewRequired||!!(frame&&Math.min(frame.width,frame.height)<256));
+  const needed=!verifiedLogoReferences.get(live.source?.sha256)?.restoration&&!['verified-package-artwork','verified-menu-preview'].includes(state.sourceKind)&&(live.status==='needs-selection'||state.designBlocked||state.extractionSourceLimited||state.extractionApproximate||state.nativeContentReviewRequired||!!(frame&&Math.min(frame.width,frame.height)<256));
   void globalThis.HijyenLabSourceDiscoveryClient?.discover({identity:live.source?.sha256,file,current:()=>processingContext===context&&processingSession.isCurrent(token),needed});
  }
  }}
 }
 function restoreProcessingResult(record){if(!record){state.processingResult=null;return;}const token=processingSession.begin(record.source);processingContext={token,pending:null,produced:true};processingSession.decoded(token,record.frame);processingContext.pending={...record};delete processingContext.pending.source;delete processingContext.pending.operation;delete processingContext.pending.approval;delete processingContext.pending.designRevision;state.processingResult=processingSession.commit(token,processingContext.pending);syncProcessingDesign();state.nativeContentReviewRequired=!!record.contentReviewRequired;state.extractionApprovalRequired=!!state.extractionApproximate||state.nativeContentReviewRequired;}
 function recordManualRegionResult(result){const old=processingSession.getState(),identity=old.source;if(!identity?.sha256||!regionSource){state.processingResult=null;return;}const token=processingSession.begin(identity);processingContext={token,pending:null,produced:true};recordDecodedFrame(regionSource,selectedPdfLogoFile?'pdf-rendered-page':'browser-decoded');const quad=result.quad.map(p=>({x:p.x*regionSource.width,y:p.y*regionSource.height})),box=[Math.min(...quad.map(p=>p.x)),Math.min(...quad.map(p=>p.y)),Math.max(...quad.map(p=>p.x)),Math.max(...quad.map(p=>p.y))];stageProcessingResult('manual-perspective-region','v18',box,{maskBasis:result.localPanelPreserved?'Original rectified selected-region pixels; local colored field retained without alpha deletion.':'Rectified-region local coordinates; then alpha crop and six-pixel padding.',transforms:['browser-decode','user-selected-quad','homography-rectification',...(result.localPanelPreserved?['preserve-source-local-panel']:['local-background-mask','alpha-crop-plus-padding']),'aspect-safe-fit'],limitations:['User-selected region, not automatic semantic validation.'],extra:{sourceQuad:quad}});finalizeProcessingResult();}
-function makeQuoteSnapshot(){const declared=typeof isDeclaredQuote==='function'&&isDeclaredQuote(),unprinted=typeof isUnprinted==='function'&&isUnprinted();syncProcessingDesign();const snapshot=JSON.parse(JSON.stringify({quoteSource:declared?'customer-declared':unprinted?'unprinted':(typeof isReferencePreview==='function'&&isReferencePreview())?'source-reference':state.logoDesign?'locally-created-logo-artwork':state.textDesign?'text-created-artwork':'uploaded-artwork',textDesign:state.textDesign||null,logoDesign:state.logoDesign||null,reference:(typeof isReferencePreview==='function'&&isReferencePreview())?{sourceSHA256:processingSession.getState().source?.sha256,ground:state.photoQuoteBg,groundLabel:referenceGroundLabel(),label:referencePreviewLabel(),artworkApplied:false,operationId:processingSession.getState().operationId,extractionRevision:processingSession.getState().result?.extractionRevision}:null,declaration:declared?state.declaration:null,designApproval:declared||(typeof isReferencePreview==='function'&&isReferencePreview())?false:null,artworkAdaptation:state.processingResult?.flatPrintProposal?.method==='source-flat-flexo-proposal-v1'?{method:state.processingResult.flatPrintProposal.method,sourceSHA256:state.processingResult.flatPrintProposal.sourceSHA256,outputPixelSHA256:state.processingResult.flatPrintProposal.outputPixelSHA256,proposedPalette:state.processingResult.flatPrintProposal.actualProposedPalette,...(state.processingResult.flatPrintProposal.adaptationMethod?{adaptationMethod:state.processingResult.flatPrintProposal.adaptationMethod,algorithmRevision:state.processingResult.flatPrintProposal.algorithmRevision||null,localFieldColor:state.processingResult.flatPrintProposal.localFieldColor||null,groundRgb:state.bg}:{}),physicalInksConfirmed:false}:null,ruleVersion:productRules().revision,printMode:unprinted?'unprinted':'printed',product:globalThis.selectedProductId||'BM12',design:unprinted||declared?null:designFingerprint(),rear:unprinted||declared?null:(typeof rearQuoteSnapshot==='function'?rearQuoteSnapshot():null),fragrance:typeof fragranceSnapshot==='function'?fragranceSnapshot():null,lead:leadValues(),quantity:$('qty').value,inkCount:unprinted?'0':$('inks').value,inkSelection:unprinted?null:(state.inkSelection||null),cliche:unprinted?'none':'new',rules:productRules(),price:latest?{...latest}:null}));return freezeCommercial(snapshot);}
+function makeQuoteSnapshot(){const declared=typeof isDeclaredQuote==='function'&&isDeclaredQuote(),unprinted=typeof isUnprinted==='function'&&isUnprinted();syncProcessingDesign();const live=processingSession.getState();const snapshot=JSON.parse(JSON.stringify({quoteSource:declared?'customer-declared':unprinted?'unprinted':(typeof isReferencePreview==='function'&&isReferencePreview())?'source-reference':state.logoDesign?'locally-created-logo-artwork':state.textDesign?'text-created-artwork':'uploaded-artwork',textDesign:state.textDesign||null,logoDesign:state.logoDesign||null,reference:(typeof isReferencePreview==='function'&&isReferencePreview())?{sourceSHA256:processingSession.getState().source?.sha256,ground:state.photoQuoteBg,groundLabel:referenceGroundLabel(),label:referencePreviewLabel(),artworkApplied:false,operationId:processingSession.getState().operationId,extractionRevision:processingSession.getState().result?.extractionRevision}:null,declaration:declared?state.declaration:null,designApproval:declared||(typeof isReferencePreview==='function'&&isReferencePreview())?false:null,artworkAdaptation:state.processingResult?.flatPrintProposal?.method==='source-flat-flexo-proposal-v1'?{method:state.processingResult.flatPrintProposal.method,sourceSHA256:state.processingResult.flatPrintProposal.sourceSHA256,outputPixelSHA256:state.processingResult.flatPrintProposal.outputPixelSHA256,proposedPalette:state.processingResult.flatPrintProposal.actualProposedPalette,...(state.processingResult.flatPrintProposal.adaptationMethod?{adaptationMethod:state.processingResult.flatPrintProposal.adaptationMethod,algorithmRevision:state.processingResult.flatPrintProposal.algorithmRevision||null,localFieldColor:state.processingResult.flatPrintProposal.localFieldColor||null,groundRgb:state.bg}:{}),physicalInksConfirmed:false}:null,ruleVersion:productRules().revision,printMode:unprinted?'unprinted':'printed',product:globalThis.selectedProductId||'BM12',design:unprinted||declared?null:designFingerprint(),sourceSHA256:live.source?.sha256,designRevision:live.designRevision,rear:unprinted||declared?null:(typeof rearQuoteSnapshot==='function'?rearQuoteSnapshot():null),filmFinish:typeof currentFilmFinish==='function'?currentFilmFinish():'',fragrance:typeof fragranceSnapshot==='function'?fragranceSnapshot():null,lead:leadValues(),quantity:$('qty').value,inkCount:unprinted?'0':$('inks').value,inkSelection:unprinted?null:(state.inkSelection||null),cliche:unprinted?'none':'new',rules:productRules(),price:latest?{...latest}:null}));return freezeCommercial(snapshot);}
 $('upload').onchange=e=>{const file=e.target.files[0];e.target.value='';return routeUploadedFile(file);};
 $('photoUpload').onchange=e=>{const file=e.target.files[0];e.target.value='';return routeUploadedFile(file,'photo');};
 
@@ -251,7 +385,7 @@ function sameProcessingSource(a,b){if(a===b)return true;const x=a&&sourceIdentit
 // Bound to this source and exact design; no stale vector after edits or replacement.
 (function(){
  if(!globalThis.document)return;
- const host=$('simpleDetails');if(!host)return;
+ const host=$('simpleDetails');if(!host||typeof host.append!=='function'||typeof syncSimpleUI!=='function')return;
  const button=document.createElement('button');button.type='button';button.className='outline';button.textContent='Düz renkli SVG önizlemesini indir';button.hidden=true;
  const note=document.createElement('p');note.className='hint';note.textContent='SVG, mevcut düz renkli piksellerin sınırlarını korur. Yeni ayrıntı üretmez; baskı onayı değildir.';note.hidden=true;host.append(button,note);
  function current(){const vector=state.flexoVectorPreview,record=state.processingResult;return vector&&record&&vector.sourceSHA256===record.source?.sha256&&vector.extractionRevision===record.extractionRevision&&vector.fingerprint===designFingerprint()&&!state.designBlocked&&!state.designProcessing;}

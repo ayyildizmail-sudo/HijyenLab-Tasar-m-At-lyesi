@@ -117,3 +117,13 @@ header.companyHeader{align-items:flex-start;gap:12px}header .companyIdentity{dis
 #simpleOrientation button[aria-pressed="true"]{background:#153b67;color:#fff;border-color:#153b67}
 #backgrounds button[data-recommended]{outline:2px dashed #53687e;outline-offset:3px}
 #backgrounds button[data-recommended][aria-pressed="true"]{outline-style:solid}
+
+.filmFinishChoice{min-width:0;border:0;margin:.75rem 0 0;padding:0;text-align:left}
+.filmFinishChoice legend{font-weight:700;padding:0}
+.filmFinishChoice .hint{margin:.35rem 0 .65rem}
+.filmFinishOptions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+.filmFinishOptions label{display:flex;align-items:flex-start;gap:.4rem;min-height:44px;padding:.55rem;border:1px solid #b8c9dd;border-radius:9px;cursor:pointer}
+.filmFinishOptions label:has(input:checked){border-color:#075dc9;background:#eaf4ff}
+.filmFinishOptions input{width:auto;margin:.2em 0 0;accent-color:#075dc9}
+.filmFinishOptions small{display:block;margin-top:.2rem;color:#475c72}
+.filmFinishChoice[hidden]{display:none}

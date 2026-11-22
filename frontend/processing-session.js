@@ -21,7 +21,7 @@ function unprintedQuote(snapshot){
  return !!units&&Number.isSafeInteger(quantity)&&quantity>=units&&quantity<=1000000&&quantity%units===0;
 }
 function declaredQuote(snapshot){const validator=typeof module!=='undefined'&&module.exports?require('./declared-quote.js'):root.DeclaredQuote;return !!validator?.snapshotValid(snapshot);}
-function create(){
+function create({bindQuoteDesign=false}={}){
  const quoteTokens=new WeakSet();
  let quoteJobSequence=0;
  let operationId=0,activeToken=null,status='idle',source=null,frame=null,result=null,pendingCandidates=[],designRevision=0,fingerprint=null,approval=null,error=null;
@@ -42,22 +42,28 @@ function create(){
   if(result?.method!==method&&a?.adaptationMethod!==method)return true;
   return status==='ready'&&!error&&result?.method===method&&p?.adaptationMethod===method&&p.whiteKnockout===true&&p.renderedPixelsVerified===true&&p.sourceSHA256===source?.sha256&&snapshot.quoteSource==='uploaded-artwork'&&snapshot.printMode==='printed'&&snapshot.design===fingerprint&&a?.method==='source-flat-flexo-proposal-v1'&&a.adaptationMethod===method&&a.physicalInksConfirmed===false&&a.sourceSHA256===source?.sha256&&a.outputPixelSHA256===p.outputPixelSHA256&&/^[a-f0-9]{64}$/i.test(p.outputPixelSHA256||'')&&Array.isArray(a.proposedPalette)&&a.proposedPalette.length===0&&/^#[a-f0-9]{6}$/i.test(a.groundRgb||'');
  };
+ const matchesDesign=snapshot=>{
+  if(!bindQuoteDesign)return true;
+  if(!snapshot||!/^[a-f0-9]{64}$/i.test(source?.sha256||'')||snapshot.design!==fingerprint||snapshot.sourceSHA256!==source?.sha256||snapshot.designRevision!==designRevision)return false;
+  try{return JSON.parse(fingerprint)[0]===snapshot.product;}catch{return false;}
+ };
+ const nextRevision=()=>{if(designRevision>=Number.MAX_SAFE_INTEGER){revoke();throw new RangeError("design revision exhausted");}return ++designRevision;};
  const api={
   begin(metadata={}){operationId++;activeToken=Object.freeze({operationId});status='loading';source=clone(metadata)||{};frame=null;result=null;pendingCandidates=[];fingerprint=null;error=null;revoke();return activeToken;},
   isCurrent:current,
   setSource(token,metadata){if(!writable(token))return false;if(!metadata||typeof metadata!=='object')throw new TypeError('source metadata must be an object');source={...source,...clone(metadata)};return true;},
   decoded(token,value){if(!writable(token))return false;if(!value||!Number.isInteger(value.width)||!Number.isInteger(value.height)||value.width<1||value.height<1||!['browser-decoded','pdf-rendered-page'].includes(value.coordinateFrame))throw new TypeError('decoded frame needs positive integer dimensions and browser-decoded or pdf-rendered-page coordinates');frame={width:value.width,height:value.height,coordinateFrame:value.coordinateFrame};status='decoded';pendingCandidates=[];result=null;fingerprint=null;revoke();return true;},
   candidate(token,value){if(!writable(token))return false;if(!frame)throw new TypeError('decode before proposing a candidate');validateCandidate(value,frame);pendingCandidates.push(clone(value));status='proposed';return true;},
-  commit(token,value){if(!writable(token))return false;if(!frame)throw new TypeError('decode before commit');validateResult(value,frame,source);designRevision++;fingerprint=null;approval=null;result={...clone(value),schemaVersion:1,source:clone(source),operation:{operationId},frame:clone(frame),extractionRevision:designRevision,designRevision,approval:{required:true,approvedRevision:null}};status=value.status||'ready';error=null;return clone(result);},
+  commit(token,value){if(!writable(token))return false;if(!frame)throw new TypeError('decode before commit');validateResult(value,frame,source);nextRevision();fingerprint=null;approval=null;result={...clone(value),schemaVersion:1,source:clone(source),operation:{operationId},frame:clone(frame),extractionRevision:designRevision,designRevision,approval:{required:true,approvedRevision:null}};status=value.status||'ready';error=null;return clone(result);},
   pendingSelection(token,reason){if(!writable(token))return false;status='needs-selection';result=null;fingerprint=null;error=typeof reason==='string'?reason:null;revoke();return true;},
   fail(token,reason){if(!current(token))return false;error=typeof reason==='string'?reason:String(reason||'Processing failed');status='failed';result=null;revoke();return true;},
   cancel(){operationId++;activeToken=null;status='cancelled';result=null;pendingCandidates=[];fingerprint=null;revoke();return true;},
-  touchDesign(value){text(value,'design fingerprint');if(value!==fingerprint){fingerprint=value;designRevision++;if(result)result.designRevision=designRevision;revoke();}return designRevision;},
+  touchDesign(value){text(value,'design fingerprint');if(value!==fingerprint){nextRevision();fingerprint=value;if(result)result.designRevision=designRevision;revoke();}return designRevision;},
   approve(value){if(status!=='ready'||!result||result.method==='source-reference'||typeof value!=='string'||value!==fingerprint)return false;approval={operationId,designRevision,fingerprint:value};result.approval={required:true,approvedRevision:designRevision};return true;},
   isApproved(value){return status==='ready'&&!!approval&&approval.operationId===operationId&&approval.designRevision===designRevision&&approval.fingerprint===fingerprint&&value===fingerprint;},
   invalidateQuotes(){quoteJobSequence++;return quoteJobSequence;},
-  quoteToken(snapshot){if(!logoQuote(snapshot)||!adaptedPhotoQuote(snapshot)||!productQuoteRulesValid(snapshot))return null;const blank=unprintedQuote(snapshot),declared=declaredQuote(snapshot),reference=referenceQuote(snapshot);if(snapshot?.quoteSource==='customer-declared'&&!declared)return null;if(snapshot?.quoteSource==='source-reference'&&!reference)return null;if(!blank&&!declared&&!reference&&!api.isApproved(fingerprint))return null;if(snapshot?.printMode==='unprinted'&&!blank)return null;quoteJobSequence++;const token=Object.freeze({operationId,designRevision,fingerprint,quoteJobSequence,unprinted:blank,declared,reference,snapshot:stable(snapshot)});quoteTokens.add(token);return token;},
-  isQuoteCurrent(token,snapshot){return logoQuote(snapshot)&&adaptedPhotoQuote(snapshot)&&productQuoteRulesValid(snapshot)&&!!token&&quoteTokens.has(token)&&token.quoteJobSequence===quoteJobSequence&&(token.reference?referenceQuote(snapshot):token.declared?declaredQuote(snapshot):token.unprinted?unprintedQuote(snapshot):api.isApproved(fingerprint))&&token.operationId===operationId&&token.designRevision===designRevision&&token.fingerprint===fingerprint&&token.snapshot===stable(snapshot);},
+  quoteToken(snapshot){if(!snapshot||typeof snapshot!=='object'||Array.isArray(snapshot))return null;if(!logoQuote(snapshot)||!adaptedPhotoQuote(snapshot)||!productQuoteRulesValid(snapshot))return null;const blank=unprintedQuote(snapshot),declared=declaredQuote(snapshot),reference=referenceQuote(snapshot);if(snapshot?.quoteSource==='customer-declared'&&!declared)return null;if(snapshot?.quoteSource==='source-reference'&&!reference)return null;if(!blank&&!declared&&!reference&&(!matchesDesign(snapshot)||!api.isApproved(fingerprint)))return null;if(snapshot?.printMode==='unprinted'&&!blank)return null;quoteJobSequence++;const token=Object.freeze({operationId,designRevision,fingerprint,quoteJobSequence,unprinted:blank,declared,reference,snapshot:stable(snapshot)});quoteTokens.add(token);return token;},
+  isQuoteCurrent(token,snapshot){return logoQuote(snapshot)&&adaptedPhotoQuote(snapshot)&&productQuoteRulesValid(snapshot)&&!!token&&quoteTokens.has(token)&&token.quoteJobSequence===quoteJobSequence&&(token.reference?referenceQuote(snapshot):token.declared?declaredQuote(snapshot):token.unprinted?unprintedQuote(snapshot):matchesDesign(snapshot)&&api.isApproved(fingerprint))&&token.operationId===operationId&&token.designRevision===designRevision&&token.fingerprint===fingerprint&&token.snapshot===stable(snapshot);},
   getState(){return clone({operationId,quoteJobSequence,status,source,frame,result,candidates:pendingCandidates,designRevision,fingerprint,approval,error});}
  };
  return api;

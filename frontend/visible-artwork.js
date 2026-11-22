@@ -35,5 +35,12 @@ function plan(measured,area,options={}){
  // Equivalent full-source transform; no faint source pixels are deleted by anchor choice.
  fullSourceRect:{x:-ax*scale,y:-ay*scale,width:measured.width*scale,height:measured.height*scale}};
 }
-const api={measure,plan};if(typeof module!=='undefined')module.exports=api;else root.VisibleArtwork=api;
+// Visual balance inside the SAME product safe area: wide wordmarks default to 90%.
+// Opaque/unresolved photographs are not treated as extracted logos.
+function defaultSize(measured){
+ if(!measured||measured.empty||measured.basis==='full-source-conservative')return 100;
+ const b=measured.bounds,ratio=(b.right-b.left)/(b.bottom-b.top);
+ return ratio>=2.5?90:100;
+}
+const api={measure,plan,defaultSize};if(typeof module!=='undefined')module.exports=api;else root.VisibleArtwork=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

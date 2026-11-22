@@ -6,7 +6,7 @@ function caption(applied){if(typeof $!=='function')return;const node=$('previewC
 function clear(reason){cache=new WeakMap();last={applied:false,reason};activeKey=null;caption(false);}
 function eligible(){
  if(typeof state==='undefined'||!state.logo||state.removed||state.photoLayout||state.extractionApproximate||state.recolorApplied||state.designProcessing||state.designBlocked||state.extractionSourceLimited||root.MultiLogo?.frontComposite()||root.MultiLogo?.pending())return false;
- if(state.sourceKind==='verified-package-artwork')return false;
+ if(['verified-package-artwork','reviewed-ai-logo-restoration'].includes(state.sourceKind))return false;
  if(typeof currentVisualArtworkReady!=='function'||!currentVisualArtworkReady()||typeof frontInkStatus==='undefined'||frontInkStatus!=='estimated'||typeof printInkKey==='undefined'||printInkKey!==printInkFingerprint())return false;
  const p=currentPrintPolicy();return !p.blocked&&Number.isInteger(p.count)&&p.count>=1&&p.count<=3;
 }
