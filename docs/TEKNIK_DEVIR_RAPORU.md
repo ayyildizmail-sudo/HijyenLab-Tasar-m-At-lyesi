@@ -34,12 +34,21 @@ Bu dosyalar `DEVIR_PAKETI_OKU_BENI.txt` dosyasında "Claude'a gönderilecek" ola
 |---|---|---|
 | `HijyenLab_Devir_2026-11-04.zip` (207.074.077 bayt) | `f9a45999…7548c` | **çalıştırılamadı.** Dosya yok. |
 | `HijyenLab_v91_Kaynak_Kod_2026-11-05.zip` (55.312.834 bayt) | `ab5e4a58…d78e6` | **çalıştırılamadı.** Dosya yok. |
-| `HijyenLab_Denetim_Kesiti_2026-11-05.json` | `622e528b…cd5eae` | **çalıştırılamadı.** Dosya yok. |
+| `HijyenLab_Denetim_Kesiti_2026-11-05.json` (703.474 bayt) | `622e528b…cd5eae` | **geçti.** 22.11'de ayrıca yüklendi, checksum birebir aynı. İçerik notu için A.3'e bakın. |
 | `HijyenLab_Tam_Denetim_2026-11-05.txt` | `ae56f95d…64ab652` | **çalıştırılamadı.** Dosya yok. |
 
 Yapılan arama: Yükleme klasörü, çalışma klasörü, geçici klasörler ve tüm disk tarandı. Arama terimleri zip, bundle, "hijyen", "devir", "denetim" ve "TESLIM" adlarıydı, ayrıca 10 MB'tan büyük tüm dosyalara bakıldı. Sonuç olarak yalnızca yukarıdaki 4 KB'lık zip bulundu. GitHub deposunda ise sadece bu raporun commit'i var.
 
 Arşivler geldiğinde bu tablodaki beklenen checksum'lar kullanılarak doğrulama yapılacak.
+
+### A.3 `HijyenLab_Denetim_Kesiti_2026-11-05.json` içerik incelemesi
+
+- **Bu dosya tasarım uygulamasının denetimi değil.** HijyenLab'ın muhasebe/cari Excel çalışma kitabının (iç sürüm 802, önceki sürüm 799) salt okunur denetim kesitidir. İçinde müşteriler, yetkililer, faturalar, tahsilatlar, siparişler, maliyetler ve cari bakiyeler var. Kendi kaydına göre denetim kısmi kalmış: `run_status = PARTIAL_READ_ONLY_AUDIT; MAIN_WRITES_BLOCKED`, `full_historical_audit_completed = false`.
+- Dosyada `130f530`, `f81488373…`, `03eb5656…`, "commit", "mockup" veya önizleme adresi **hiç geçmiyor.** Yani V95'in ya da uygulamanın herhangi bir sürümünün kaynak kimliği için kanıt içermiyor.
+- Talimata göre müşteri/cari muhasebe verileri bu devrin kapsamı dışında. Dosya ayrıca kişisel ve finansal müşteri verisi içeriyor. Bu nedenle:
+  - içeriğinden hiçbir değer bu rapora veya depoya alınmadı (depo herkese açık),
+  - içindeki sipariş geçmişindeki ölçü, koli ve selefon bilgileri "onaylı ticari referans" olarak **kullanılmadı.**
+- Uygulama açısından tek olası katkısı şudur: Sipariş kayıtlarında koku ve selefon alanlarının var olması, uygulamadaki seçeneklerin gerçek iş akışına karşılık geldiğini gösteriyor. Bu bilgi kural kaynağı değildir.
 
 ## B. Kaynak kimliği tablosu
 
@@ -107,7 +116,7 @@ Bu turda gerçekten çalıştırılan komutlar şunlar. Hiçbiri uygulama testi 
 **Dosyalar (öncelik sırasıyla):**
 1. `HijyenLab_Devir_2026-11-04.zip`: Git bundle, v89 TAR, 8 çalışma ağacının yedekleri ve README.
 2. `HijyenLab_v91_Kaynak_Kod_2026-11-05.zip`
-3. `HijyenLab_Denetim_Kesiti_2026-11-05.json` ve `HijyenLab_Tam_Denetim_2026-11-05.txt`
+3. `HijyenLab_Tam_Denetim_2026-11-05.txt`. Denetim kesiti JSON'u geldi, ama uygulamayla ilgili değil (bkz. A.3).
 4. **V95 kaynak kodu.** Hiçbir pakette olduğu bildirilmiyor. ChatGPT projesinden ayrıca dışa aktarılması gerekiyor. Bu yapılamazsa V95 kaynağı kalıcı olarak "bulunamadı" kabul edilecek.
 5. V94'e ait kaynak, sürüm notu veya yayın manifesti (varsa).
 
@@ -175,3 +184,4 @@ Dosyalar geldiğinde bu rapor gerçek bulgularla yeniden yazılacak. Hakan Bey o
 |---|---|---|
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | 1. sürüm |
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | 2. sürüm: A–J biçimine geçildi, yüklenen belge paketi doğrulandı. Uygulama kodu yok. |
+| 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | Denetim kesiti JSON doğrulandı ve A.3 eklendi. Müşteri verisi eklenmedi. |
