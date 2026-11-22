@@ -117,6 +117,54 @@ Eşleştirmeye yarayacak bir yöntem hazır: `frontend/index.html` her JS ve CSS
 
 Yayın kaydına göre V89'un 04.11'de canlıya alındığı biliniyor. Önizlemenin **bugün** hangi sürümü çalıştırdığı doğrulanamadı.
 
+### D.1 Canlı ön yüz kurtarma (22.11.2026, yalnızca okuma)
+
+Kullanıcı onayıyla bu oturuma yalnızca önizleme adresine okuma erişimi verildi. Sitede hiçbir değişiklik yapılmadı. Yalnızca GET istekleri gönderildi.
+
+- **Ana sayfa:** HTTP 200 döndü. 125 içerik özetli JS/CSS referansı var. Sayfadaki sürüm etiketi `app-release=DENEME` ve sürüm numarası içermiyor.
+- **İndirilen dosyalar:** 125 dosyanın 125'i indirildi. Her dosyanın SHA-256'sının ilk 12 hanesi, sayfadaki `?v=` değeriyle **birebir eşleşti.** Yani dosyalar canlıda sunulan baytların aynısı.
+- **Kaynakla karşılaştırma:**
+  - 95 dosya V89 ile aynı.
+  - **105 dosya "V91" paketiyle aynı.**
+  - **20 dosya V91'de yok ya da farklı.**
+  - Sonuç: Canlı sürüm V89'dan da V91'den de **daha yeni** ve V91 çalışmasının üzerine kurulu.
+- **V91'e göre yeni modüller:**
+  - `film-finish.js`: **mat/parlak selefon** görünümü. Kendi notunda "fiyatı ve renk sayısını değiştirmez" yazıyor. Bu özellik V89 ve V91'de **hiç yok.**
+  - `enclosed-mark.js`
+  - `illuminated-sign.js`
+  - `logo-restoration.js`
+  - `reviewed-artwork-registry.js`
+  - `source-brand-regions.js`
+- **V91'e göre değişen dosyalar:**
+  - `app.js` (+4,4 KB, selefon bağlantısı dahil)
+  - `processing-lifecycle.js` (+11 KB)
+  - `photo-candidate-quality.js`
+  - `source-context.js`
+  - `processing-session.js`
+  - `style.css`
+  - ve 8 küçük değişiklik
+- **Değişmeyen dosyalar** (V89 = V91 = canlı):
+  - `product-catalog.js` (fiyatlar)
+  - `draft-store.js`, `draft-ui.js` (kayıt)
+  - `unprinted-flow.js`
+  - `declared-quote.js`
+  - `fragrance.js`
+  - `multi-logo-*.js`
+  - `quote-layout.js`
+  - `shipping-location.js`
+- **Görseller:** 33 ürün ve galeri görseli V89 ve V91 ile aynı.
+- **Kimlik:** Canlı sürüm, ChatGPT'nin bildirdiği V95 değişiklikleriyle **uyumlu**: selefon eklenmiş, onay ve işleme akışı değişmiş. Ancak sürüm numarası veya commit kimliği canlıda yazmıyor. Bu yüzden "canlı = V95 (`130f530`)" eşleşmesi **kanıtlanmış değil, güçlü bir çıkarım.**
+- **Kurtarılamayanlar:**
+  - sunucu kodu (`server/`, `worker/`, `app/api`)
+  - D1 migration'ları
+  - yönetici paneli dosyaları
+  - testler
+  - V91'den sonraki commit geçmişi
+- **Canlı API'den alınan bilgiler** (GET, salt okuma):
+  - `/api/lead-capabilities`: `leadEnabled:false`, `analyticsEnabled:false`, `emailEnabled:false`. Talep toplama canlıda **kapalı.** Bu yüzden H'deki veritabanı ürün kısıtı şu an müşteriyi etkilemiyor, ama açıldığı anda etkiler.
+  - `/api/fragrance-preferences`: koku oranları 63/19/11/7.
+- **Kurtarılan paket:** `canli-onyuz-20261122.tar.gz` (SHA-256 `b6303a4d72f039534ee8785ef9bde8d18fe9352c65afe7f27d4b4390a9193743`, 158 dosya, manifesto dahil). Geçici çalışma klasöründe duruyor. Müşteri logolu galeri görselleri içerdiği için **depo gizli yapılana kadar** depoya eklenmedi.
+
 ## E. Çalıştırma ve kurulum gereksinimleri
 
 Bilgiler kaynaktan ve gerçek kurulum denemesinden alındı.
@@ -200,7 +248,7 @@ Oshibori'nin fiyatı dolar üzerinden ve TCMB kuruyla hesaplanıyor; minimum 3.0
 
 | # | Konu | Durum | Kanıt |
 |---|---|---|---|
-| 1 | İki sekmede kayıt kaybı | **AÇIK. Gerçek Chromium'da yeniden üretildi.** | Uygulamanın taslak modülü (`draft-store.js`, değiştirilmeden) iki sekmede aynı tarayıcı profiliyle çalıştırıldı. 1. sekme "Tasarım-A"yı kaydetti ve "kaydedildi" yanıtı aldı. 2. sekme "Tasarım-B"yi kaydetti. 1. sekmeden okununca "Tasarım-B" geldi, yani A sessizce kayboldu. **Neden:** Bütün sekmeler tek bir kayıt anahtarına yazıyor (`DB_NAME='hijyenlab-local-design-draft-v1'`, `KEY='active'`). Sekmeler arası eşgüdüm yok (BroadcastChannel ya da Web Locks kullanılmıyor). Sınır: Bu deneme tam uygulama ekranıyla ve Safari'de yapılmadı. |
+| 1 | İki sekmede kayıt kaybı | **AÇIK. Gerçek Chromium'da yeniden üretildi. Canlıda da mevcut:** canlı `draft-store.js` V89 ile birebir aynı. | Uygulamanın taslak modülü (`draft-store.js`, değiştirilmeden) iki sekmede aynı tarayıcı profiliyle çalıştırıldı. 1. sekme "Tasarım-A"yı kaydetti ve "kaydedildi" yanıtı aldı. 2. sekme "Tasarım-B"yi kaydetti. 1. sekmeden okununca "Tasarım-B" geldi, yani A sessizce kayboldu. **Neden:** Bütün sekmeler tek bir kayıt anahtarına yazıyor (`DB_NAME='hijyenlab-local-design-draft-v1'`, `KEY='active'`). Sekmeler arası eşgüdüm yok (BroadcastChannel ya da Web Locks kullanılmıyor). Sınır: Bu deneme tam uygulama ekranıyla ve Safari'de yapılmadı. |
 | 2 | Beyaz fiyat değişince baskısız fiyatın güncellenmemesi | **Fonksiyon düzeyinde kapalı. Ekran düzeyinde doğrulanamadı.** | `unprinted-flow.js:pricing` fiyatı her seferinde katalogdaki beyaz fiyattan okuyor. Altı ürünün hepsinde beyaz fiyat +10 kuruş artırılınca baskısız birim fiyat da aynı miktarda değişti, klişe bedeli 0 kaldı. **Ek risk:** Sunucu tarafındaki talep doğrulaması (`server/lead-service.mjs:28-29`) koli adetlerini ve minimumları kendi içinde ikinci bir kopya olarak tutuyor. Katalog değişirse sunucu aynı değişikliği izlemez. |
 | 3 | Çoklu logonun ön yüz teklif görselinde yanlış üretilmesi | **Doğrulanamadı.** | Çoklu logo kodu mevcut (`multi-logo-*.js`, `MultiLogo.frontComposite`). Gerçek çoklu logo yükleyip JPG üretmek tarayıcıda tam ekran testi gerektiriyor, bu turda yapılmadı. |
 | + | **YENİ: Talep kaydının 4 üründe reddedilmesi** | **AÇIK. Yerel SQLite'ta doğrulandı.** | `drizzle/0003` migration'ı `product_id` için yalnızca `'BM12','BM15','BM545'` değerlerine izin veriyor. Uygulama ve sunucu ise 7 ürünü kabul ediyor. Migration'lar sırayla yerel bir SQLite'a uygulandı. BM11 (30×30), BM13 (30×35), BM21 (mendil) ve OSHIBORI için kayıt denemesi `CHECK constraint failed: lead_product` hatasıyla reddedildi. Talep toplama `LEAD_COLLECTION_ENABLED` ayarına bağlı. Canlıda bu ayarın açık olup olmadığı bilinmiyor. |
@@ -257,6 +305,7 @@ DNS değişikliklerini kullanıcı yapar veya açıkça yetkilendirir. Entegrasy
 | Tarih | Dosya | Değişiklik |
 |---|---|---|
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | 1. ve 2. sürüm: arşivler henüz gelmemişken yazıldı |
+| 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | D.1 eklendi: Canlı ön yüz (125 dosya) özet doğrulamasıyla kurtarıldı. Canlı sürüm V91'den yeni, selefon özelliği içeriyor. |
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | C.1 eklendi: ChatGPT V95 kaynağına erişemediğini bildirdi; V94 = `900dea6`, bundle'da yok. |
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | G.8 eklendi: 04.11 manifestosundaki 27 dosyanın teslim edilmediği tespit edildi. |
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | 3. sürüm: 18 dosya doğrulandı; bundle, V89 ve V91 incelendi; testler çalıştırıldı. Uygulama kodu ve müşteri verisi eklenmedi. |
