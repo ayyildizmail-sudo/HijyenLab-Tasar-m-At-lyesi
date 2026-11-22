@@ -137,5 +137,15 @@ function sourceRetention(data,w,h,detection,box,sourceW,sourceH){
  const retainedFraction=total?inside/total:0;
  return {applicable:true,ok:total>=24&&retainedFraction>=.9,retainedFraction,total,inside,reason:'source-marking-coverage',surface};
 }
-const api={analyze,edgeMask,assessMaskAgreement,hex,inspectSurface,inspectFlatGraphic,sourceRetention};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.BackgroundAnalysis=api;
+// Digital artwork on a large clean white exterior can contain shaded letters.
+// This evidence does not flatten gradients or authorize photographic extraction.
+function inspectWhiteGraphic(data,w,h,detection){
+ if(data?.length!==w*h*4||w<32||h<32||w*h>160000||detection?.kind!=='white'||detection.maskAllowed===false)return false;
+ const mask=edgeMask(data,w,h,[255,255,255],12);if(mask.count/(w*h)<.65)return false;
+ let left=w,top=h,right=0,bottom=0,count=0;
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=y*w+x;if(mask.mask[i]||data[i*4+3]<240)continue;count++;left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x);bottom=Math.max(bottom,y);}
+ if(count<24||left<2||top<2||right>w-3||bottom>h-3)return false;
+ return !inspectSurface(data,w,h,detection).photoLike;
+}
+const api={analyze,edgeMask,assessMaskAgreement,hex,inspectSurface,inspectFlatGraphic,sourceRetention,inspectWhiteGraphic};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.BackgroundAnalysis=api;
 })(typeof window!=='undefined'?window:globalThis);

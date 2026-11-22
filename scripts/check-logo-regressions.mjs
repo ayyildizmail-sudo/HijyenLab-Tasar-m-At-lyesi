@@ -13,6 +13,14 @@ const fixtures = [
   'tests/fixtures/technical-frame/source.jpeg',
 ];
 const suites = [
+  'tests/flexo-vector.test.cjs',
+  'tests/phone-ingress.test.cjs',
+  'tests/package-layer.test.cjs',
+  'tests/logo-source-discovery.test.cjs',
+  'tests/logo-source-lifecycle.test.cjs',
+  'tests/logo-ground-readability.test.cjs',
+  'tests/logo-safe-margin.test.cjs',
+  'tests/logo-source-search.test.mjs',
   'tests/first-viewport.test.cjs',
   'tests/drag-geometry.test.cjs',
   'tests/critical-gate-membership.test.cjs',

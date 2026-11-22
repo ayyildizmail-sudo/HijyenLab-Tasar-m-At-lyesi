@@ -37,7 +37,7 @@ test('automatic failed-photo reference stays on design until the customer choose
  assert.equal(c.$('recoverySource').src,'original');
  assert.equal(c.state.inkSelection.selectedCount,null);
  assert.equal(c.processingSession.isApproved('reference-fingerprint'),false);
- assert(c.$('recoveryStart').onclick());
+ assert(c.ReferenceRecovery.continuePrice());
  assert.equal(c.step,5);
 });
 

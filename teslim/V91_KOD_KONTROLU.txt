@@ -1,0 +1,30 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/app.js
+   25:10   warning  'clearDeclaration' is defined but never used           @typescript-eslint/no-unused-vars
+   31:10   warning  'setDeclaration' is defined but never used             @typescript-eslint/no-unused-vars
+   69:10   warning  'restoreSourceGroundIntent' is defined but never used  @typescript-eslint/no-unused-vars
+  143:10   warning  'visualPreviewImageData' is defined but never used     @typescript-eslint/no-unused-vars
+  187:171  warning  'photoMatteRgb' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  205:20   warning  'activePdfTask' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  235:221  warning  'e' is defined but never used                          @typescript-eslint/no-unused-vars
+  255:16   warning  'routeImageCandidate' is defined but never used        @typescript-eslint/no-unused-vars
+  276:10   warning  'e' is defined but never used                          @typescript-eslint/no-unused-vars
+  335:8    warning  'design' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  413:10   warning  'fitLogoToPrintArea' is defined but never used         @typescript-eslint/no-unused-vars
+  413:51   warning  'density' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  421:10   warning  'inkCoverage' is defined but never used                @typescript-eslint/no-unused-vars
+  440:10   warning  'leadFingerprint' is defined but never used            @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/processing-lifecycle.js
+   57:10  warning  'approveNativeDesignIfEligible' is defined but never used  @typescript-eslint/no-unused-vars
+   58:86  warning  'e' is defined but never used                              @typescript-eslint/no-unused-vars
+  237:10  warning  'recordManualRegionResult' is defined but never used       @typescript-eslint/no-unused-vars
+  238:10  warning  'makeQuoteSnapshot' is defined but never used              @typescript-eslint/no-unused-vars
+  242:10  warning  'recordPdfPageFrame' is defined but never used             @typescript-eslint/no-unused-vars
+  244:10  warning  'cancelRegionEditing' is defined but never used            @typescript-eslint/no-unused-vars
+  247:10  warning  'recordExplicitArtwork' is defined but never used          @typescript-eslint/no-unused-vars
+  249:10  warning  'sameProcessingSource' is defined but never used           @typescript-eslint/no-unused-vars
+
+✖ 22 problems (0 errors, 22 warnings)
+

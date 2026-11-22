@@ -1,0 +1,444 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> hijyenlab-tasarim-atolyesi@0.1.0 lint
+> eslint . --ignore-pattern dist --ignore-pattern .next
+
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/app.js
+   25:10   warning  'clearDeclaration' is defined but never used           @typescript-eslint/no-unused-vars
+   31:10   warning  'setDeclaration' is defined but never used             @typescript-eslint/no-unused-vars
+   69:10   warning  'restoreSourceGroundIntent' is defined but never used  @typescript-eslint/no-unused-vars
+  131:10   warning  'visualPreviewImageData' is defined but never used     @typescript-eslint/no-unused-vars
+  175:171  warning  'photoMatteRgb' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  193:20   warning  'activePdfTask' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  223:221  warning  'e' is defined but never used                          @typescript-eslint/no-unused-vars
+  243:16   warning  'routeImageCandidate' is defined but never used        @typescript-eslint/no-unused-vars
+  264:10   warning  'e' is defined but never used                          @typescript-eslint/no-unused-vars
+  323:8    warning  'design' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  401:10   warning  'fitLogoToPrintArea' is defined but never used         @typescript-eslint/no-unused-vars
+  401:51   warning  'density' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  409:10   warning  'inkCoverage' is defined but never used                @typescript-eslint/no-unused-vars
+  428:10   warning  'leadFingerprint' is defined but never used            @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/brand-region-ui.js
+  60:10  warning  'resetRegionEditor' is defined but never used                   @typescript-eslint/no-unused-vars
+  63:10  warning  'designFingerprint' is defined but never used                   @typescript-eslint/no-unused-vars
+  64:5   warning  'approvedDesignFingerprint' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/experience-ui.js
+  85:99  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/fragrance-ui.js
+   9:69   warning  'fragranceStats' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  19:10   warning  'fragranceReady' is defined but never used           @typescript-eslint/no-unused-vars
+  20:10   warning  'restoreFragrance' is defined but never used         @typescript-eslint/no-unused-vars
+  27:393  warning  'e' is defined but never used                        @typescript-eslint/no-unused-vars
+  28:131  warning  'e' is defined but never used                        @typescript-eslint/no-unused-vars
+  32:86   warning  'e' is defined but never used                        @typescript-eslint/no-unused-vars
+  50:9    warning  'e' is defined but never used                        @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/local-emblem.js
+  11:527  warning  'outside' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/photo-fidelity.js
+  58:411  warning  'sharpBoundary' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/print-inks-ui.js
+    9:35  warning  'w' is defined but never used                         @typescript-eslint/no-unused-vars
+    9:37  warning  'h' is defined but never used                         @typescript-eslint/no-unused-vars
+  167:10  warning  'printPolicyError' is defined but never used          @typescript-eslint/no-unused-vars
+  183:10  warning  'visualPreviewPolicyError' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/processing-lifecycle.js
+   46:10  warning  'approveNativeDesignIfEligible' is defined but never used  @typescript-eslint/no-unused-vars
+   47:86  warning  'e' is defined but never used                              @typescript-eslint/no-unused-vars
+  226:10  warning  'recordManualRegionResult' is defined but never used       @typescript-eslint/no-unused-vars
+  227:10  warning  'makeQuoteSnapshot' is defined but never used              @typescript-eslint/no-unused-vars
+  231:10  warning  'recordPdfPageFrame' is defined but never used             @typescript-eslint/no-unused-vars
+  233:10  warning  'cancelRegionEditing' is defined but never used            @typescript-eslint/no-unused-vars
+  236:10  warning  'recordExplicitArtwork' is defined but never used          @typescript-eslint/no-unused-vars
+  238:10  warning  'sameProcessingSource' is defined but never used           @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/product-advisor.js
+  166:61  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/product-ui.js
+   6:10    warning  'drawAlternateProductArtwork' is defined but never used  @typescript-eslint/no-unused-vars
+  21:2213  warning  'error' is defined but never used                        @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/qr-preview.js
+  7:128  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/rear-logo.js
+  24:125  warning  'edge' is assigned a value but never used             @typescript-eslint/no-unused-vars
+  24:140  warning  'edgeTransparent' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/rear-preview.js
+  24:10  warning  'rearQuoteSnapshot' is defined but never used  @typescript-eslint/no-unused-vars
+  26:10  warning  'rearQuoteImage' is defined but never used     @typescript-eslint/no-unused-vars
+  41:10  warning  'resetRearPreview' is defined but never used   @typescript-eslint/no-unused-vars
+  86:32  warning  'ready' is assigned a value but never used     @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/standard-photo.js
+  13:226  warning  'area' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  14:458  warning  'lum' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  16:265  warning  'a' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  19:176  warning  'pixels' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/visible-artwork.js
+  26:80   warning  'c' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  26:110  warning  's' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/white-carrier-ui.js
+   7:10  warning  'showWhiteCarrierProposal' is defined but never used    @typescript-eslint/no-unused-vars
+  51:9   warning  'error' is defined but never used                       @typescript-eslint/no-unused-vars
+  72:16  warning  'applyAutomaticWhiteCarrier' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/white-carrier.js
+  60:8   warning  'y0' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  60:48  warning  'y1' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/adapted-photo-proposal.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/approximate-preview-policy.test.cjs
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/company-branding.test.cjs
+  1:56  warning  'crypto' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/compressed-photo-geometry.test.cjs
+  2:111  warning  'R' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/contact-help.test.cjs
+   2:1   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+  36:66  warning  Expected an assignment or function call and instead saw an expression                                     @typescript-eslint/no-unused-expressions
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/content-safety-vm.test.cjs
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/critical-gate-membership.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/customer-focus.test.cjs
+  4:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/customer-ground-upload-independent.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/customer-journey-recovery.test.cjs
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/customer-no-manual-region.test.cjs
+  7:110  warning  'nodes' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/customer-theme.test.cjs
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/declared-quote-lifecycle.test.cjs
+  2:210  warning  'out' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/declared-quote.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/design-issue-script-chain.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/draft-resume-independent.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/draft-resume-ui-independent.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/draft-text-design.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/draft-v3.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/draft-v4.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/drag-geometry.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/experimental-packet-ui.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/experiments/colored-packet-diagnostic.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/experiments/colored-packet-diagnostic.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/experiments/packet-grouping.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/first-viewport.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-design-proposal.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-design-ui.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-jpeg-boundary-handler.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-jpeg-boundary.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-policy.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-preview-adapter.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-preview-browser.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-runtime.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-single-family-gradient.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-three-ink-rendered.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/fragrance-ui.test.cjs
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/front-approval-boundary.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/gallery-raster.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/gallery-source-assets.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/helpers/content-safety-vm.cjs
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/helpers/private-gallery-harness.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/helpers/single-family-gradient.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/independent-emblem-ui.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/interpretation-proposal-parity.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/journey-motion-independent.test.cjs
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/journey-motion-observers-independent.test.cjs
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/journey-motion.test.cjs
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/journey-next-step-copy.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/kraft-photo.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/lead-gate.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/lead-input-observers.test.cjs
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/lead-panel-ui.test.cjs
+  3:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/local-emblem.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/local-image-download.test.cjs
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/logo-design-flow.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/logo-design-integration.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/logo-design.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/logo-fit.test.cjs
+  1:181  warning  'end' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/logo-settle.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/lowres-wordmark.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/mobile-contact-layout.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/mobile-journey.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/multi-inks-ui.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/multi-inks.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/multi-logo-model.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/multi-logo-row.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/multi-logo-ui.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/native-content-review.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/native-flat-preview.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/navigation-scroll-stability.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/new-plate-only.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/opening-examples-accessibility.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/opening-examples-mobile.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/opening-examples.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/oshibori-fragrance-ui.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/oshibori-fx-ui.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/oshibori-pricing.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/oshibori-spec.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/oshibori-validation.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/paired-cta-order.test.cjs
+  3:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/partial-reference-inks.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/persona-ux.test.cjs
+  3:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/photo-angle-stress.cjs
+  2:51   warning  'assert' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  3:111  warning  'R' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/photo-candidate-quality.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/photo-candidate-routing.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/photo-derived-ink-evidence.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/private-photo-fixtures.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/private-raw-ink-palette.test.cjs
+  2:88  warning  'path' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  3:69  warning  'B' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  7:5   warning  'route' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  7:16  warning  'proposal' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/product-ui.test.cjs
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/proposal-palette-pricing.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-background.test.cjs
+  4:261  warning  'rgb' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-canonical-proposal.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-input-responsiveness.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-layout-spacing-private.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-preview.test.cjs
+  3:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-text-ink-ui.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-text-ink.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/reference-preview-flow.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/reference-recovery.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/reset-source-lifecycle.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/responsive-journey.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/source-ground-integration.test.cjs
+  5:26  warning  'elements' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/startup-preview-performance.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/text-design-flow.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/unprinted-boundaries.test.cjs
+  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/unprinted-flow.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/unprinted-fragrance-catalog.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/unprinted-mode.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/v21-pricing-ui.test.cjs
+  8:161  warning  'id' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/viewer-chrome-family.test.cjs
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/welcome-layout.test.cjs
+  3:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
+
+✖ 177 problems (0 errors, 177 warnings)
+  0 errors and 102 warnings potentially fixable with the `--fix` option.
+

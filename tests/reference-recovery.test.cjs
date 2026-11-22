@@ -17,7 +17,7 @@ test('known four inks and uncertain-contact policy cannot be bypassed',()=>{for(
 test('regression wiring preserves normal guard and clears recovery before new async ingress',()=>{const lifecycle=fs.readFileSync(require.resolve('../frontend/processing-lifecycle.js'),'utf8');assert.match(lifecycle,/ReferenceRecovery\?\.clear\(\);[^\n]*if\(state.designBlocked\)\{state.sourcePhoto=null;state.sourceKind=null;\}/);assert.match(lifecycle,/function cancelCurrentProcessing[^\n]+ReferenceRecovery\?\.clear/);assert.match(app,/function designIssue\(allowPendingApproval=false\)[^\n]+state.designBlocked/);const draft=fs.readFileSync(require.resolve('../frontend/draft-ui.js'),'utf8');assert.match(draft,/state.designBlocked&&state.sourcePhoto/);});
 test('reference UI uses ordinary choices, not a second duplicate form or blank mockup',()=>{
  const code=fs.readFileSync(require.resolve('../frontend/reference-recovery.js'),'utf8');
- assert.match(code,/Yalnız ön fiyatı gör/);assert.match(code,/referenceRecoveryActive \.workspace\{display:none/);
+ assert.match(code,/Görseli değiştir/);assert.match(code,/referenceRecoveryActive \.workspace\{display:none/);
  for(const id of ['recoveryProduct','recoveryFragrance','recoveryGround','recoveryCustomer','recoveryCalculate'])assert(!code.includes(id));
  assert.match(code,/refresh\(\);return continuePrice\(\)/);assert.match(code,/state.photoQuoteBg='unknown'/);
 });

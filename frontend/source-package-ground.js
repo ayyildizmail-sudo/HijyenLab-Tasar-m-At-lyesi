@@ -41,7 +41,19 @@ function nativeProposal(data,w,h,detection){
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;if(data[i+3]<250)return null;if(x<2||y<2||x>=w-2||y>=h-2){edge++;if(distance([data[i],data[i+1],data[i+2]],rgb)<=24)matched++;}}
  const strict=detection.confidence>=.97&&matched/edge>=.985;
  let groundEvidence=null;
- if(!strict){
+ let smoothLightMark=false;
+ if(!strict&&Math.min(w,h)>=64&&!B.inspectSurface(data,w,h,detection).photoLike){
+  let edgeTotal=0,edgeNear=0,foreground=0,lightMark=0;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+   const i=(y*w+x)*4,c=[data[i],data[i+1],data[i+2]],gap=distance(c,rgb);
+   if(x<3||y<3||x>=w-3||y>=h-3){edgeTotal++;if(gap<=40)edgeNear++;}
+   if(gap>48){foreground++;if(Math.min(...c)>220&&Math.max(...c)-Math.min(...c)<18)lightMark++;}
+  }
+  // Bounded digital light-on-color appearance proposal. No photographic
+  // surface, frame, competing dark marks or arbitrary edge hue is promoted.
+  smoothLightMark=edgeNear/Math.max(1,edgeTotal)>=.97&&foreground>=24&&lightMark/foreground>=.98&&foreground/(w*h)<.3;
+ }
+ if(!strict&&!smoothLightMark){
   // A separate bounded path for tiny native artwork, NOT a relaxed global
   // border threshold. Recompute evidence from this frame (not caller metadata).
   const measured=B.analyze(data,w,h);
@@ -54,7 +66,7 @@ function nativeProposal(data,w,h,detection){
   if(failed.length!==1||fraction(insets[failed[0]])<.985)return null;
   groundEvidence={basis:'coherent-small-flat-thin-boundary',boundarySide:['top','right','bottom','left'][failed[0]],maxBoundaryWidth:2,sideCoverage:coverage,insetCoverage:fraction(insets[failed[0]]),sourceLimited:true};
  }
- return {basis:'native-fullbleed-appearance-proposal',...(groundEvidence?{groundEvidence}: {}),color:detection.color.toLowerCase(),fullBleed:true,flatGraphic:true,opaque:true,sourceGroundVerified:false,preserveSourcePixels:true,width:w,height:h,foregroundBounds:foregroundBounds(data,w,h,detection)};
+ return {basis:'native-fullbleed-appearance-proposal',...(groundEvidence?{groundEvidence}: {}),...(smoothLightMark?{groundEvidence:{basis:'smooth-digital-field-with-light-mark'},appearanceOnly:true}:{}),color:detection.color.toLowerCase(),fullBleed:true,flatGraphic:true,opaque:true,sourceGroundVerified:false,preserveSourcePixels:true,width:w,height:h,foregroundBounds:foregroundBounds(data,w,h,detection)};
 }
 function detect(data,w,h){
  if(!Number.isInteger(w)||!Number.isInteger(h)||w<100||h<100||w*h>640*640||!data||data.length!==w*h*4)return null;

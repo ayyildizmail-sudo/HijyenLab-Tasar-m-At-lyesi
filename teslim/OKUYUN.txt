@@ -1,0 +1,33 @@
+HijyenLab Tasarım Atölyesi — 5 Kasım 2026 çalışma paketi
+
+Bu paket, önceki 22 değişikliği ve bu oturumdaki ek kaynak kodunu birleştirir. Yayın yapılmadı. Paket kaynak koddur; önceki derlenmiş dist klasörü bilerek dağıtılmıyor. Yerel açılış: npm ci, npm run dev. Yayın derlemesi npm run build ile mevcut zorunlu regresyon kapısına tabidir.
+
+BU OTURUMDA EKLENENLER
+- Tüm yedi ürün ailesinde normal logo için %8 daha küçük başlangıç yerleşimi. Dikey/yatay/kare logolar ve 90 derece dönüş test edildi. Mevcut özel fotoğraf/zemin yerleşim payları korunur. Bu görsel güvenlik payıdır; fiziksel baskı ölçüsü sertifikası değildir.
+- Renk önerisi yalnız ortalama kontrasta dayanmaz. Logonun %2’den fazla kısmı çok düşük kontrastta veya %10’dan fazla kısmı yetersiz kontrastta kalıyorsa o zemin önerilmez. Marka rengi otomatik değiştirilmez.
+- Genel otomatik kaynak arama istemcisi yükleme akışına bağlandı. Küçük, yaklaşık, başarısız veya seçim bekleyen kaynaklarda ek arama denenir. Önceden doğrulanmış hazır kaynaklarda gereksiz arama yapılmaz.
+- Önce sunucu yeteneği kontrol edilir. Hizmet kapalıysa veya statik sitede uç nokta yoksa görsel gönderilmez. Etkinse en fazla 960 piksel uzun kenarlı, 1 MB sınırında JPEG kopyası gönderilir. Arama ve gönderim mesajı dürüstçe gösterilir.
+- Tekrar istek sınırı, 12 saniye zaman aşımı, sıfırlama/yeni yüklemede iptal, eski sonucun yeni kaynağa uygulanmasını engelleme, HTTPS aday süzme eklendi.
+- Arama sonuçları doğrulanmamış aday olarak tutulur; mevcut tasarımı, renkleri veya müşteri onayını değiştirmez.
+- Yeni testler zorunlu regresyon listesine eklendi; değişen dosyaların önbellek sürümleri güncellendi.
+
+ÖNCEKİ KOD PAKETİNDEN KORUNANLAR
+Flambau varsayılanı; ürününe göre koku önerisi; sade galeri başlıkları; Ghalia ve Mindel için kayıtlı kaynak kurtarma; zemin renginin ürün değişiminde taşınması; dik/yan yerleşim kontrolleri; havada kalan renk animasyonunun kaldırılması; renk seçici isteklerinin birleştirilmesi; panel içindeki Tamam düğmesi; kapalı panelde boş çerçevenin gizlenmesi; koku açıklamasındaki bordo şeridin kaldırılması; eski yükleme ve boş tasarımın onaylanmasını engelleyen kontroller. Kaynakta bunlar bulunur; tamamının bu oturumda gerçek tarayıcıda yeniden denendiği iddia edilmez.
+
+AÇIK İŞLER — TAMAMLANDI SAYILMAMALI
+1. Genel çevrim içi kaynak araması mevcut statik deneme sitesinde çalışmaz. Sunucu çalışma ortamı ve LOGO_VISION_API_KEY tanımı yoktur. Kod bunu etkinmiş gibi göstermemektedir. Uç nokta mevcut özel deneme sahibinin erişimiyle sınırlıdır.
+2. Bulunan adayın doğru markaya ait olduğunu, logonun tüm yazı/sembollerini içerdiğini ve mevcut kaynaktan daha iyi olduğunu doğrulayarak otomatik uygulama henüz yoktur. Bu nedenle tüm müşteriler için otomatik logo iyileştirme tamamlandı denemez.
+3. Kayıtlı Ghalia/Mindel örneklerinin başarısı genel marka tanıma veya her fotoğraftan kusursuz logo çıkarma kanıtı değildir.
+4. Eksiksiz yayın derlemesi ve mobil tarayıcı testi bu oturumda tamamlanmadı. Uzun genel regresyon koşusu tamamlanmadan kesildi; PASS kabul edilmedi. Ayrı hedefli sonuçlar test kayıtlarında bulunur.
+
+DOĞRULAMA
+- İlk hedefli grup: 14 test sonucu geçti.
+- Gerçek kaynak zemin/yerleşim, kontrast, sıfırlama ve önizleme grubu: 18 sonuç geçti.
+- Gerçek yükleme akışının aramayı çağırması ve içerik güvenliği: 2 test geçti.
+- Sunucu grubu: 34 test geçti.
+- TypeScript: npx tsc --noEmit geçti.
+- ESLint: 0 hata, 177 uyarı; uyarılar giderildi denmiyor.
+- Varlık sürüm kontrolü: 118 yerel başvuru geçti.
+- Hedefli testler toplamı: 68 başarılı sonuç. Bu, tüm uygulamada hata olmadığı anlamına gelmez.
+
+Test kayıtları teslim klasöründedir. Özel test görselleri dağıtıma yeni eklenmedi. Önceden kaynak arşivinde bulunan test fixture dosyaları korunur.

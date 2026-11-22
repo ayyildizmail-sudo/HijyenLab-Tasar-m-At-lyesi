@@ -1,0 +1,10 @@
+✔ actual upload lifecycle starts supplementary search for small artwork and revokes its token on reset (19.816226ms)
+✔ content safety failures never start a source lookup (8.377751ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 192.715101

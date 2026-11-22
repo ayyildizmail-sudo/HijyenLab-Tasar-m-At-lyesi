@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const Renderer=require('../frontend/print-renderer.js'),app=fs.readFileSync('frontend/app.js','utf8');
 const sha='a'.repeat(64),c={state:{bg:'#621a1b',bgDetection:{color:'#621a1b'},groundScope:{sourceIdentity:sha,packageGroundProposed:true}},processingSession:{getState:()=>({source:{sha256:sha}})}};vm.createContext(c);
-for(const name of ['materialColor','sourceGroundMaterialResponse'])vm.runInContext(app.split('\n').find(l=>l.startsWith('function '+name+'(')),c);
+vm.runInContext(app.slice(app.indexOf('function sourceGroundMaterialResponse('),app.indexOf('function initialTextLayout(')),c);
 assert.equal(c.sourceGroundMaterialResponse(),c.materialColor);
 for(const lum of [30,80,120,180,220,250,255]){
  const ink=new Uint8ClampedArray([98,26,27,255,100,30,34,255,255,255,255,255,98,26,27,0]);

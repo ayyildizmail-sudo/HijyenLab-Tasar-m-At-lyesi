@@ -12,17 +12,15 @@ function mount(doc){
  const motion=root.matchMedia?.('(prefers-reduced-motion: reduce)'),hoverCapability=root.matchMedia?.('(any-hover: hover)');
  const SAMPLE_DURATION_MS=2500;
  const panel=doc.createElement('section');panel.id='openingExamples';panel.setAttribute('aria-label','Gönderilen tasarım provaları');
- panel.innerHTML='<p class="sampleEyebrow">TASARIM ÖRNEKLERİ</p><p id="sampleProduct"></p><h2 id="sampleTitle"></h2><div class="sampleFaces"><button type="button" id="sampleFront" aria-pressed="true">Ön yüz</button><button type="button" id="sampleBack" aria-pressed="false">Arka yüz</button></div><canvas width="1" height="1" role="img"></canvas><div class="sampleControls"><button type="button" id="samplePrevious" aria-label="Önceki örnek">←</button><button type="button" id="sampleNext" aria-label="Sonraki örnek">→</button><button type="button" id="samplePause">Durdur</button></div><p id="samplePlaybackStatus" class="sampleVisuallyHidden" role="status" aria-live="polite"></p>';
+ panel.innerHTML='<p class="sampleEyebrow">TASARIM ÖRNEKLERİ</p><p id="sampleProduct"></p><div class="sampleFaces"><button type="button" id="sampleFront" aria-pressed="true">Ön yüz</button><button type="button" id="sampleBack" aria-pressed="false">Arka yüz</button></div><canvas width="1" height="1" role="img"></canvas><div class="sampleControls"><button type="button" id="samplePrevious" aria-label="Önceki örnek">←</button><button type="button" id="sampleNext" aria-label="Sonraki örnek">→</button><button type="button" id="samplePause">Durdur</button></div><p id="samplePlaybackStatus" class="sampleVisuallyHidden" role="status" aria-live="polite"></p>';
  const actions=doc.querySelector('.simplePrimary');if(actions)actions.before(preview);preview.before(panel);
  const canvas=panel.querySelector('canvas'),c=canvas.getContext('2d'),pause=doc.getElementById('samplePause'),playback=doc.getElementById('samplePlaybackStatus');
  function list(){return all.filter(s=>s.product===lastId).slice(0,5);}
  function render(){
   const entries=list(),s=entries[index];
   const missing=!s;canvas.hidden=missing;panel.querySelector('.sampleFaces').hidden=missing;
-  doc.getElementById('sampleTitle').textContent=s?s.title:'';
-  doc.getElementById('sampleFront').textContent=s?.id==='asmali-vom'?'Asmalı yüzü':'Ön yüz';doc.getElementById('sampleBack').textContent=s?.id==='asmali-vom'?'VOM yüzü':'Arka yüz';
   for(const f of ['front','back'])doc.getElementById(f==='front'?'sampleFront':'sampleBack').setAttribute('aria-pressed',String(face===f));
-  canvas.setAttribute('aria-label',s?s.title+' · '+root.ProductCatalog.get(lastId).label+' · '+(face==='front'?'ön yüz':'arka yüz'):'');
+  canvas.setAttribute('aria-label',s?'Tasarım örneği '+(index+1)+' · '+root.ProductCatalog.get(lastId).label+' · '+(face==='front'?'ön yüz':'arka yüz'):'');
   if(!s||!image){releaseCanvas();return;}const r=s[face],box=canvas.getBoundingClientRect?.()||{width:321,height:321*610/1000},p=root.HijyenLabGalleryRaster?.plan(box.width,box.height,root.devicePixelRatio,r);
   if(!p){releaseCanvas();return;}if(canvas.width!==p.width)canvas.width=p.width;if(canvas.height!==p.height)canvas.height=p.height;
   c.clearRect(0,0,canvas.width,canvas.height);c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';

@@ -33,4 +33,4 @@ assert(!/fragranceCard|fragranceSummaryBadge|--fragrance-/.test(theme.replace(/\
 console.log('PASS fragrance colors: flower pink/leaf green, four distinct palettes, text contrast, selected radio/border, keyboard focus and logo-theme isolation.');
 
 for(const id of [...ids,'other'])assert(css.includes('.fragranceSummaryBadge[data-fragrance='+id+']'),'summary badge keeps '+id+' identity');
-assert.match(css,/#fragrancePanel\[data-fragrance\].*background:var\(--fragrance-tint\)/);
+assert.match(css,/#fragrancePanel>\.subtitle\{background:#f5f7fa;border:1px solid #e4eaf1/);

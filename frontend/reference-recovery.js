@@ -15,7 +15,7 @@ root.ReferenceRecovery=api;
 // A reference is a source display, never an extracted logo or a print approval.
 const style=document.createElement('style');style.textContent='body.referenceRecoveryActive #uploadRecovery,body.referenceRecoveryActive #designError,body.referenceRecoveryActive .workspace{display:none}#referenceRecovery img{display:block;max-width:100%;max-height:440px;object-fit:contain;margin:12px auto}';document.head.append(style);
 const box=document.createElement('section');box.id='referenceRecovery';box.className='notice light';box.hidden=true;
-box.innerHTML='<h2>Görsel ürüne yerleştirilemedi.</h2><p>Özgün görseliniz korundu.</p><img id="recoverySource" alt="Özgün görsel; ürüne uygulanmadı"><button id="recoveryStart" type="button" class="outline full">Yalnız ön fiyatı gör</button><p class="hint">Tasarım onayı değildir. Klişe bilinmiyorsa fiyata dahil edilmez.</p>';
+box.innerHTML='<h2>Görsel ürüne yerleştirilemedi.</h2><p>Özgün görseliniz korundu.</p><img id="recoverySource" alt="Özgün görsel; ürüne uygulanmadı"><button id="recoveryStart" type="button" class="outline full">Görseli değiştir</button><p class="hint">Bu görselden ambalaj tasarımı oluşturulamadı.</p>';
 document.querySelector('.workspace').before(box);
 let source=null,referenceSource=null,referenceIdentity=null,accepting=false;
 function hide(){box.hidden=true;document.body.classList.remove('referenceRecoveryActive');}
@@ -73,7 +73,7 @@ async function accept(openPricing=true){
  }catch(error){if(ticket===loading&&data===state.sourcePhoto)status(error.message||'Referans açılamadı. Görseli yeniden seçin.');return false;}finally{if(ticket===loading){accepting=false;sync();}}
 }
 function continuePrice(){if(!current()){showDesignIssue();return false;}if(typeof printPolicyError==='function'&&printPolicyError()){status(printPolicyError());return false;}const advanced=showFragrance();sync();return advanced;}
-$('recoveryStart').onclick=()=>current()?continuePrice():accept();
+$('recoveryStart').onclick=()=>$('unifiedUpload').click();
 api.showSourcePreview=()=>accept(false);
 const beforeGo=go;go=function(){const result=beforeGo.apply(this,arguments);sync();return result;};
 api.continuePrice=continuePrice;api.sync=sync;api.clear=clear;api.current=current;api.accept=accept;sync();

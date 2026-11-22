@@ -2,7 +2,25 @@
  * Multiple filled control-like panels on a light portrait page require source-region selection.
  * No brand name, caption, hue, device, or source coordinate is assumed. */
 (function(root){'use strict';
+function phoneControls(data,w,h){
+ if(!data||data.length!==w*h*4||w<80||h/w<1.5||w*h>400000)return null;
+ const dark=(x,y)=>{const i=(y*w+x)*4;return data[i+3]>240&&Math.max(data[i],data[i+1],data[i+2])<85;};
+ let home=false;
+ for(let y=Math.floor(h*.94);y<h-1&&!home;y++){
+  let left=Math.floor(w*.2),right=Math.ceil(w*.8),start=-1;
+  for(let x=left;x<right;x++){
+   if(dark(x,y)&&start<0)start=x;
+   if((!dark(x,y)||x===right-1)&&start>=0){const end=x,length=end-start,center=(start+end)/2;if(length>=w*.22&&length<=w*.55&&Math.abs(center-w/2)<w*.06&&length>4){const pad=Math.max(2,Math.ceil(w*.02));if(y-pad>=0&&y+pad<h&&!dark(Math.floor(center),y-pad)&&!dark(Math.floor(center),y+pad))home=true;}start=-1;}
+  }
+ }
+ if(!home)return null;
+ // Independent controls in both top corners corroborate the bottom home bar.
+ let left=0,right=0,center=0;for(let y=0;y<Math.ceil(h*.1);y++)for(let x=0;x<w;x++)if(dark(x,y)){if(x<w*.28)left++;else if(x>w*.68)right++;else center++;}
+ if(left<w*h*.0004||right<w*h*.0004||center>(left+right)*2)return null;
+ return {needsSelection:true,evidence:'phone-controls-and-home-bar',reason:'Telefon ekranı marka değildir; marka alanı ayrılmadan tasarıma uygulanamaz.',panels:[]};
+}
 function inspect(data,w,h){
+ const controls=phoneControls(data,w,h);if(controls)return controls;
  if(!data||data.length!==w*h*4||w<80||h<120||h/w<1.2||w*h>400000)return null;
  const mask=new Uint8Array(w*h);let light=0,opaque=0;
  for(let i=0;i<w*h;i++){const j=i*4;if(data[j+3]<245)continue;opaque++;const lo=Math.min(data[j],data[j+1],data[j+2]),hi=Math.max(data[j],data[j+1],data[j+2]);if(lo>230)light++;if((lo+hi)/2<210)mask[i]=1;}
@@ -17,5 +35,5 @@ function inspect(data,w,h){
 }
 function inspectImage(img,options={}){const w=img.naturalWidth||img.width,h=img.naturalHeight||img.height,scale=Math.min(1,600/Math.max(w,h)),make=options.createCanvas||((w,h)=>{const c=root.document.createElement('canvas');c.width=w;c.height=h;return c;}),c=make(Math.max(1,Math.round(w*scale)),Math.max(1,Math.round(h*scale)));try{const cx=c.getContext('2d');cx.drawImage(img,0,0,c.width,c.height);return inspect(cx.getImageData(0,0,c.width,c.height).data,c.width,c.height);}finally{c.width=c.height=1;}}
 function assertRegion(img,options={}){const result=inspectImage(img,options);if(result){const error=Error(result.reason);error.code='SOURCE_REGION_REQUIRED';error.sourceContext=result;throw error;}}
-const api={inspect,inspectImage,assertRegion};if(typeof module!=='undefined')module.exports=api;else root.SourceContext=api;
+const api={inspect,inspectImage,assertRegion,phoneControls};if(typeof module!=='undefined')module.exports=api;else root.SourceContext=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

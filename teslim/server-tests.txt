@@ -1,0 +1,47 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> hijyenlab-tasarim-atolyesi@0.1.0 test:server
+> node --test tests/fragrance-server.test.mjs tests/lead-server.test.mjs tests/tcmb-rate-server.test.mjs
+
+✔ immutable seed is towels-only 63/19/11/7 without exposing counts or IDs (27.452103ms)
+✔ new, retry, refresh and changed choice count one UUID once (9.453558ms)
+✔ parallel independent IDs and duplicate retries retain all votes (67.87609ms)
+✔ new handler/redeployment does not recreate seed or reset votes (3.977654ms)
+✔ invalid family, fields, enum, UUID and injection do not write (2.31908ms)
+✔ same-origin, content-type and bounded raw bodies are enforced (3.455155ms)
+✔ database failures never claim seed is live shared data or expose internals (1.506204ms)
+✔ failed atomic batch rolls back and percentages sum100 (6.104253ms)
+✔ late and duplicated older revisions cannot overwrite the newer preference (3.060509ms)
+✔ migration DML guard rejects real writes but allows foreign-key actions (0.719926ms)
+✔ capabilities fail closed without explicit owner, flags and retention (10.890927ms)
+✔ all private reads and writes deny anonymous/non-owner before database access (8.550445ms)
+✔ explicit complete/partial consent, nullable unknowns, product quantity rules and exact schemas (1.330278ms)
+✔ lead retries are idempotent, changed payload conflicts, owner lists only metadata (17.456127ms)
+✔ disabled intake, origin, oversized/malformed and extra field rejection never write (4.490918ms)
+✔ status CAS revision and audit are atomic; rejected edits do not create audit rows (4.36635ms)
+✔ analytics exact consent-only schema, stage dedup and unique session counts (4.566392ms)
+✔ expired private data is excluded and purge removes leads, audit and analytics without touching fragrance (6.611468ms)
+✔ rate limits are bounded and failures never expose request or database data (13.101489ms)
+✔ admin shells never embed records and safely escape caller identity (0.730283ms)
+✔ flags never confer admin access and public methods cannot list leads (3.326641ms)
+✔ invalid admin pagination, status origins and atomic database failures remain safe (5.818391ms)
+✔ explicit unprinted mode accepts only blank carton-multiple requests with normal consent/contact/fragrance (8.108939ms)
+✔ print mode migration preserves existing printed lead, audit and fragrance inside transaction (2.321895ms)
+✔ BM21 validation uses wet-wipe carton, printed minimum and fixed unprinted green tea (0.193311ms)
+✔ BM11 and BM13 accept confirmed printed minimum and unprinted full cartons only (0.226652ms)
+✔ selects USD ForexSelling, not banknote/buying/EUR; preserves holiday publication date (16.827814ms)
+✔ Istanbul calendar, same-day and before-publication semantics (1.082584ms)
+✔ invalid, future, too-old dates, malformed/ambiguous values and entities fail closed (2.723261ms)
+✔ short cache and in-flight dedup use fixed HTTPS URL without sending visitor data (7.720582ms)
+✔ expired cache never becomes offline fallback; retry can recover (2.839685ms)
+✔ cache invalidates at Istanbul midnight and 15:30 publication boundary (2.891915ms)
+✔ network, status, redirect, oversize and timeout failures return honest 503 with no price (19.818999ms)
+✔ handler returns snapshot, refuses mutations and ignores no arbitrary query (2.539513ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 308.329989

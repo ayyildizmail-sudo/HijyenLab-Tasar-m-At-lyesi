@@ -1,0 +1,63 @@
+PASS actual logo handler/prepareLogo/feedback, preserved frame, stale flag, metadata cache, scale failure, missing evidence fallback, white exterior masks, preserved inverse/local ground and explicit-only colored package pricing
+✔ tests/flat-ground-app.test.cjs (1096.325122ms)
+PASS flat-ground routing: framed planes, native thin strokes, wide inverse, gradients, textures, scale disagreement
+✔ tests/flat-ground-routing.test.cjs (2025.506566ms)
+✔ paths preserve all disconnected marks, holes and source pixels after SVG rendering (12.565601ms)
+✔ photographic palettes, empty art, oversized frames and excessive paths decline (0.368656ms)
+✔ actual upload lifecycle starts supplementary search for small artwork and revokes its token on reset (22.882459ms)
+✔ content safety failures never start a source lookup (8.615795ms)
+✔ source-bound package ground becomes a layer without recoloring or losing white marks (19.609274ms)
+✔ smooth digital colored field with white marks gets an appearance proposal, dark competing marks decline (91.916085ms)
+✔ phone status corners plus home indicator cannot enter the native artwork route (17.394236ms)
+✔ white native artwork keeps shaded internal colors; edge-touching scenes do not qualify (91.947797ms)
+PASS 288 transformed placements plus runtime gate/normalization regressions
+PASS actual approval rejects overflow and accepts contained design
+✔ tests/placement-v28.test.cjs (592.138401ms)
+[
+  {
+    name: 'Real reset with multi-logo wrapper removes recovery source and cannot resurrect it',
+    status: 'PASS'
+  },
+  {
+    name: 'Retry before reset and fresh upload after reset both still work',
+    status: 'PASS'
+  },
+  {
+    name: 'Reset invalidates in-flight decode and its finally cannot restore source or design',
+    status: 'PASS'
+  },
+  {
+    name: 'Programmatic reset uses same boundary; ordinary cancel retains retry source',
+    status: 'PASS'
+  }
+]
+✔ tests/reset-source-lifecycle.test.cjs (110.191324ms)
+✔ bounded tiny ground 35,31,32 176x56 all rotations (272.978728ms)
+✔ bounded tiny ground 35,31,32 120x40 all rotations (89.902995ms)
+✔ bounded tiny ground 35,31,32 190x63 all rotations (178.729337ms)
+✔ bounded tiny ground 25,25,25 176x56 all rotations (200.183782ms)
+✔ bounded tiny ground 25,25,25 120x40 all rotations (129.805372ms)
+✔ bounded tiny ground 25,25,25 190x63 all rotations (128.783706ms)
+✔ bounded tiny ground 40,52,65 176x56 all rotations (96.295664ms)
+✔ bounded tiny ground 40,52,65 120x40 all rotations (49.727965ms)
+✔ bounded tiny ground 40,52,65 190x63 all rotations (259.344191ms)
+✔ thick, two-edge, large, tiny, transparent and local panel negatives (62.441137ms)
+✔ scene, stale identity, manual ground and forged small-ground metadata do not bypass scope (53.876854ms)
+✔ mandatory actual original Ülfet: original and rotations propose exact dark ground, no physical claim or pixel edit (473.428056ms)
+PASS source-ground integration: actual upload/prepareLogo helpers, manual choice, sourcechange, undo/product refresh, legacy draft recovery, photo/table and selected-panel route guards
+PASS proposed-ground change control opens live compact color panel
+✔ tests/source-ground-integration.test.cjs (109.344786ms)
+PASS source-bound material matching: identical ground transfer, similar foreground and white detail preserved, no alpha/source/palette edits; local/manual/stale guards
+✔ tests/source-ground-material.test.cjs (149.951429ms)
+PASS source ground scope: local panels/scene vs source-bound product; explicit choice; no alpha deletion;3 original inks + white OPP zero
+✔ tests/source-ground-scope.test.cjs (169.975579ms)
+PASS source package ground: 49 cases; proposals vs product-layout evidence, local panels, source/page binding, unchanged pixels and ink deduplication; 3 SHA-verified actual private sources included
+✔ tests/source-package-ground.test.cjs (4012.758514ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4602.817197

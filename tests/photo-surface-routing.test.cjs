@@ -34,6 +34,14 @@ function flat(color,texture=false){const c=make(320,240),ctx=c.getContext('2d');
  const explicitFile=new File([texture.toBuffer('image/jpeg',85)],'textured-artwork.jpeg',{type:'image/jpeg'});route=null;await context.routeImageCandidate(explicitFile);assert.equal(route,'photo');
  await context.routeImageCandidate(explicitFile,'logo');assert.equal(route,'logo','texture-only hint must retain explicit artwork override');
  assert(!B.inspectSurface(new Uint8ClampedArray(4),1,1,{kind:'white',rgb:[255,255,255]}).photoLike);
+ // A non-flat opaque panel is physical-photo evidence even on explicit logo retry.
+ const originalCandidates=context.PhotoReference,originalBackground=context.BackgroundAnalysis;
+ context.PhotoReference={candidates:(_,w,h)=>[{score:.5,box:[.1,.1,.9,.9],region:{data:new Uint8Array(w*h).fill(1)}}]};
+ context.BackgroundAnalysis={...B,inspectFlatGraphic:()=>({flatGraphic:false})};
+ try{
+  route=null;await context.routeImageCandidate(explicitFile,'logo');
+  assert.equal(route,'photo','an embedded photographed panel cannot be approved as a native logo');
+ }finally{context.PhotoReference=originalCandidates;context.BackgroundAnalysis=originalBackground;}
  // Routing to a physical-photo proposal is not permission to commit a white ground.
  assert(app.includes('if(extracted?.whiteCarrier){if(await applyAutomaticWhiteCarrier(extracted,data))return;if(ticket!==loading)return;extracted=null;}'),'only independently evidenced automatic artwork can commit; ambiguous proposals fall through honestly');
  assert(app.indexOf('if(extracted?.needsRegionSelection)')<app.indexOf('if(extracted?.whiteCarrier){if(await applyAutomaticWhiteCarrier'),'completeness rejection precedes automatic proposal acceptance');

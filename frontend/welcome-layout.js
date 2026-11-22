@@ -16,7 +16,7 @@
     intro.append(eyebrow, title, description); picker.before(intro);
     const upload = doc.querySelector('.simplePrimary label'), originalUploadText = upload?.textContent;
     const hint = doc.createElement('p'); hint.id = 'welcomeUploadHint'; hint.textContent = 'Görseliniz yoksa renk sayısını belirterek ilerleyin.';
-    const privacy = doc.createElement('small'); privacy.textContent = 'Görseliniz cihazınızda kalır.'; hint.append(privacy);
+    const privacy = doc.createElement('small'); privacy.textContent = 'Gerekirse daha net logo kaynağı aranır.'; hint.append(privacy);
     doc.querySelector('.simplePrimary')?.after(hint);
     const draft = doc.getElementById('draftPanel'); let draftOptions = null, draftSummary = null, previousDraftAttention = '';
     if (draft) {

@@ -16,9 +16,9 @@ function harness(nativeMicrotasks=false){
  const request=(token='source:1')=>api.request({token,current:()=>valid,render:()=>{renders++;api.beforeDraw();api.capture(data);}});
  return {api,doc,env,canvas,media,data,animations,events,request,setValid:v=>valid=v,flush(){while(queued.length)queued.shift()();},event(t,e={target:{tagName:"INPUT",type:"text"}}){for(const f of events[t]||[])f(e);},copies:()=>copies,created:()=>created,renders:()=>renders,overlay:()=>body.children.find(n=>n.className==='logoSettlePreview')};
 }
-test('one slower, clearly staged logo-only shrink/grow/settle; actual package geometry untouched; repeat does not replay',()=>{
+test('one short, clearly staged logo-only shrink/grow/settle; actual package geometry untouched; repeat does not replay',()=>{
  const h=harness();assert(h.request());assert.equal(h.created(),0,'no allocations before committed response');h.flush();
- const a=h.animations[0];assert.equal(a.options.duration,DURATION);assert.equal(DURATION,1400);assert.equal(a.options.iterations,1);assert.equal(a.options.fill,undefined);assert.deepEqual(a.frames.map(f=>f.transform),['scale(1)','scale(.88)','scale(1.035)','scale(1)']);assert.deepEqual(a.frames.map(f=>f.offset),[0,.28,.72,1]);assert.equal(a.options.easing,'linear');assert.ok(a.frames.slice(0,-1).every(f=>f.easing==='cubic-bezier(.4,0,.2,1)'),'each visible phase eases gently without changing its allotted duration');assert.ok(a.frames.slice(1).every((f,i)=>(f.offset-a.frames[i].offset)*DURATION>=390),'shrink, grow and settle are individually perceivable, not a fast bounce');assert.notEqual(a.node,h.canvas);assert.equal(h.canvas.style.transform,undefined);assert.equal(h.canvas.style.opacity,'0');assert.equal(h.copies(),2);
+ const a=h.animations[0];assert.equal(a.options.duration,DURATION);assert.equal(DURATION,520);assert.equal(a.options.iterations,1);assert.equal(a.options.fill,undefined);assert.deepEqual(a.frames.map(f=>f.transform),['scale(1)','scale(.97)','scale(1.035)','scale(1)']);assert.deepEqual(a.frames.map(f=>f.offset),[0,.28,.72,1]);assert.equal(a.options.easing,'linear');assert.ok(a.frames.slice(0,-1).every(f=>f.easing==='cubic-bezier(.4,0,.2,1)'),'each visible phase eases gently without changing its allotted duration');assert.ok(a.frames.slice(1).every((f,i)=>(f.offset-a.frames[i].offset)*DURATION>=140),'shrink, grow and settle are individually perceivable, not a fast bounce');assert.notEqual(a.node,h.canvas);assert.equal(h.canvas.style.transform,undefined);assert.equal(h.canvas.style.opacity,'0');assert.equal(h.copies(),2);
  const overlay=h.overlay();assert.equal(overlay.attrs['aria-hidden'],'true');assert.equal(overlay.style.pointerEvents,'none');assert.equal(overlay.style.width,'800px');assert.equal(overlay.style.height,'425px');
  a.onfinish();assert.equal(h.canvas.style.opacity,'');assert.equal(h.overlay(),undefined);assert.equal(h.request(),false);h.api.capture(h.data);h.api.beforeDraw();assert.equal(h.copies(),2);assert.equal(h.renders(),1);
 });
@@ -26,14 +26,14 @@ test('largest-fit, rotated and asymmetrically anchored complete marks never grow
  for(const rotation of [0,15,90,135,180])for(const offset of [0,70]){
   const radians=rotation*Math.PI/180,c=Math.abs(Math.cos(radians)),s=Math.abs(Math.sin(radians)),scale=Math.min(1040/(600*c+220*s),430/(600*s+220*c));
   const p={rotation,drawRect:{x:-300*scale+offset,y:-110*scale,width:600*scale,height:220*scale}},x=800-offset*Math.cos(radians),y=425-offset*Math.sin(radians),g=geometry(p,x,y,area);assert(g);
-  for(const factor of [1,.88,g.peak,1])for(const [side,center]of [['left',g.center.x],['right',g.center.x],['top',g.center.y],['bottom',g.center.y]]){const v=center+(g.bounds[side]-center)*factor;assert(side==='left'||side==='top'?v>=area[side]-1e-6:v<=area[side]+1e-6);}
+  for(const factor of [1,.97,g.peak,1])for(const [side,center]of [['left',g.center.x],['right',g.center.x],['top',g.center.y],['bottom',g.center.y]]){const v=center+(g.bounds[side]-center)*factor;assert(side==='left'||side==='top'?v>=area[side]-1e-6:v<=area[side]+1e-6);}
   assert(Math.abs(g.peak-1)<1e-6,'largest fit caps overshoot instead of clipping letters');
  }
  assert.equal(geometry(plan,200,425,area),null,'unsafe geometry skips rather than clipping logo');
 });
 test('a largest-fit logo still visibly shrinks and grows without an unsafe overshoot or extra bounce',()=>{
  const h=harness();h.data.plan={rotation:0,drawRect:{x:-520,y:-215,width:1040,height:430}};h.request();h.flush();
- const animation=h.animations[0];assert.deepEqual(animation.frames.map(f=>f.transform),['scale(1)','scale(.88)','scale(1)','scale(1)']);assert.equal(animation.options.duration,1400);assert.equal(animation.options.iterations,1);
+ const animation=h.animations[0];assert.deepEqual(animation.frames.map(f=>f.transform),['scale(1)','scale(.97)','scale(1)','scale(1)']);assert.equal(animation.options.duration,520);assert.equal(animation.options.iterations,1);
  animation.onfinish();assert.equal(h.canvas.style.opacity,'');assert.equal(h.overlay(),undefined);
 });
 test('aspect-fit overlay follows constrained desktop/mobile canvas without stretching material',()=>{
@@ -121,7 +121,7 @@ test('actual successful source commit waits for section focus and smooth-scroll 
   const h=navigationHarness(native);h.apply();assert.equal(h.session.getState().status,'ready');assert.equal(h.animations.length,0,'must not start in source commit microtask before navigation frame');assert.equal(h.copies(),0);
   h.frame();assert.equal(h.scrolled(),1);assert.equal(h.animations.length,0,'programmatic heading focus starts no overlay');
   for(const y of [80,200,360,438]){h.scroll(y);h.frame();assert.equal(h.animations.length,0,'moving viewport has no fixed overlay');if(native&&y===200){h.end();h.frame();assert.equal(h.animations.length,0,'a stale prior scrollend cannot release the moving viewport');}}
-  if(native){h.end();assert.equal(h.animations.length,0,'native end awaits observed stable position');}h.settle();assert.equal(h.animations.length,1,'first successful upload visibly settles only after its section move');assert.equal(h.animations[0].options.duration,1400);assert.equal(h.canvas.style.opacity,'0');
+  if(native){h.end();assert.equal(h.animations.length,0,'native end awaits observed stable position');}h.settle();assert.equal(h.animations.length,1,'first successful upload visibly settles only after its section move');assert.equal(h.animations[0].options.duration,520);assert.equal(h.canvas.style.opacity,'0');
   h.animations[0].onfinish();assert.equal(h.canvas.style.opacity,'');h.browser.HijyenLabResponsiveJourney.enter('design');h.browser.draw();h.settle();assert.equal(h.animations.length,1,'same-step redraw never repeats');assert.equal(h.pending(),0,'settlement leaves no frame loop');
  }
 });
@@ -130,7 +130,7 @@ test('user work or newer navigation while awaiting section settlement prevents d
  const h=navigationHarness();h.apply();h.frame();h.doc.getElementById('design').hidden=true;h.doc.getElementById('pricing').hidden=false;h.browser.step=2;h.browser.HijyenLabResponsiveJourney.enter('pricing');h.scroll(438);h.end();h.settle();assert.equal(h.animations.length,0);assert.equal(h.canvas.style.opacity,'');
 });
 
-test('real photographed independent-emblem upload triggers the longer animation while normal approval remains pending',async()=>{
+test('real photographed independent-emblem upload triggers the short animation while normal approval remains pending',async()=>{
  // Reuse the actual public-upload fixture harness, not a stub logo or a static SVG.
  // Its image decoding, local-emblem algorithm, adapter, PNG verification and
  // source-bound processing commit all run unchanged; DOM timing is modeled here.
@@ -144,7 +144,7 @@ test('real photographed independent-emblem upload triggers the longer animation 
  await fixture.fixtureUpload(c,new File([bytes],'customer-package-photo.jpg',{type:'image/jpeg'}));
  const live=c.processingSession.getState();assert.equal(live.status,'ready',c.lastStatus);assert.equal(live.result.method,'source-independent-emblem-proposal-v2');assert(c.state.extractionApprovalRequired);assert(c.state.nativeContentReviewRequired);assert.equal(c.processingSession.isApproved(c.designFingerprint()),false);assert.equal(requests.length,1);assert(requests[0].current(),'pending ordinary appearance approval must not suppress presentation of an applied logo');assert.equal(h.animations.length,1,'native microtask runs after route finally clears processing, without manually delaying the response');
  const stateBefore=JSON.stringify(c.state),recordBefore=JSON.stringify(live),pixelsBefore=c.state.logo;
- h.flush();assert.equal(h.animations.length,1);assert.equal(h.animations[0].options.duration,1400);assert.deepEqual(h.animations[0].frames.map(f=>f.transform),['scale(1)','scale(.88)','scale(1.035)','scale(1)']);h.animations[0].onfinish();
+ h.flush();assert.equal(h.animations.length,1);assert.equal(h.animations[0].options.duration,520);assert.deepEqual(h.animations[0].frames.map(f=>f.transform),['scale(1)','scale(.97)','scale(1.035)','scale(1)']);h.animations[0].onfinish();
  assert.equal(c.state.logo,pixelsBefore);assert.equal(JSON.stringify(c.state),stateBefore);assert.equal(JSON.stringify(c.processingSession.getState()),recordBefore);assert.equal(c.processingSession.isApproved(c.designFingerprint()),false);
  c.draw();c.presentAppliedLogo(c.state.processingResult);h.flush();assert.equal(h.animations.length,1,'neither redraw nor a repeated committed record replays the sequence');
 });

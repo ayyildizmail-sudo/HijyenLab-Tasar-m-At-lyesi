@@ -1,0 +1,1391 @@
+From 947f57f6823c7630efeba9727d8e2cc251c132a7 Mon Sep 17 00:00:00 2001
+From: Codex <codex@local>
+Date: Thu, 5 Nov 2026 10:17:20 +0300
+Subject: [PATCH] Connect bounded source discovery and enforce readable
+ backgrounds and placement margins
+
+---
+ app/api/logo-source-search/route.ts    |   7 +
+ frontend/app.js                        |  10 +-
+ frontend/index.html                    |   2 +-
+ frontend/logo-source-discovery.js      |  43 +++
+ frontend/processing-lifecycle.js       |  27 +-
+ frontend/rear-contrast.js              |   2 +-
+ frontend/welcome-layout.js             |   2 +-
+ scripts/check-logo-regressions.mjs     |   5 +
+ teslim/OKUYUN.txt                      |  33 ++
+ teslim/asset-versions.txt              |   1 +
+ teslim/extended-tests.txt              |  53 +++
+ teslim/full-gate.txt                   | 288 ++++++++++++++++
+ teslim/lifecycle-tests.txt             |  10 +
+ teslim/lint.txt                        | 444 +++++++++++++++++++++++++
+ teslim/server-tests.txt                |  47 +++
+ teslim/typecheck.txt                   |   1 +
+ teslim/verification.txt                |  76 +++++
+ tests/logo-ground-readability.test.cjs |  11 +
+ tests/logo-safe-margin.test.cjs        |  14 +
+ tests/logo-source-discovery.test.cjs   |  37 +++
+ tests/logo-source-lifecycle.test.cjs   |  20 ++
+ tests/source-ground-placement.test.cjs |   4 +-
+ 22 files changed, 1125 insertions(+), 12 deletions(-)
+ create mode 100644 frontend/logo-source-discovery.js
+ create mode 100644 teslim/OKUYUN.txt
+ create mode 100644 teslim/asset-versions.txt
+ create mode 100644 teslim/extended-tests.txt
+ create mode 100644 teslim/full-gate.txt
+ create mode 100644 teslim/lifecycle-tests.txt
+ create mode 100644 teslim/lint.txt
+ create mode 100644 teslim/server-tests.txt
+ create mode 100644 teslim/typecheck.txt
+ create mode 100644 teslim/verification.txt
+ create mode 100644 tests/logo-ground-readability.test.cjs
+ create mode 100644 tests/logo-safe-margin.test.cjs
+ create mode 100644 tests/logo-source-discovery.test.cjs
+ create mode 100644 tests/logo-source-lifecycle.test.cjs
+
+diff --git a/app/api/logo-source-search/route.ts b/app/api/logo-source-search/route.ts
+index 4a1f28c..d3723b3 100644
+--- a/app/api/logo-source-search/route.ts
++++ b/app/api/logo-source-search/route.ts
+@@ -13,3 +13,10 @@ export async function POST(request: Request) {
+   }
+   return searchLogoSources(request, env.LOGO_VISION_API_KEY);
+ }
++
++// Static previews return 404 here; clients never upload an image without this check.
++export async function GET() {
++  const user = await getChatGPTUser();
++  const enabled = !!user && adminIds(env).includes(user.userId) && !!env.LOGO_VISION_API_KEY;
++  return Response.json({ enabled }, { headers: { 'cache-control': 'private, no-store' } });
++}
+diff --git a/frontend/app.js b/frontend/app.js
+index 2cff25f..71e7dfb 100644
+--- a/frontend/app.js
++++ b/frontend/app.js
+@@ -97,7 +97,7 @@ globalThis.addEventListener?.('hijyenlab:opening-preview-visible',()=>draw());
+ function refresh(){reconcileSourceGroundScope();containLogoPlacement();syncQuantity();globalThis.HijyenLabJourneyMotion?.hideColorPreview();syncSimpleUI();for(const [id,key] of [['size','size'],['rotation','rotation'],['text','text'],['font','font'],['textSize','textSize']])$(id).value=state[key];$('sizeValue').textContent='%'+Math.round(state.size);$('rotationValue').textContent=state.rotation+'°';$('filename').textContent=state.removed?'Henüz logo yok':state.logoName;$('remove').disabled=state.removed;$('bgPantone').value=state.bgPantone;$('textPantone').value=state.textPantone;$('previewCaption').textContent=(palette.find(p=>p[0]===state.bg)?.[1]||'Seçili renk')+' ambalaj'+(state.removed?' · Logonuzla başlayın':' · Görsel önizleme');$('bgName').textContent=palette.find(p=>p[0]===state.bg)?.[1]||state.bg.toUpperCase();$('bgCustom').value=state.bg;$('textCustom').value=state.textColor;$('removeWhite').checked=state.removeWhite;$('removeWhite').disabled=state.removed;$('undo').disabled=!history.length;$('recolorHint').textContent=state.recolor?'Orijinal renkler korunur. Tek renkli SVG üzerinde isterseniz paletten yeni bir renk seçebilirsiniz.':'Bu dosyada renk değiştirme kapalıdır. Renkli veya raster logonuzu istediğiniz renkte yükleyin.';document.querySelectorAll('[data-color-key]').forEach(b=>{b.classList.toggle('selected',state[b.dataset.colorKey]===b.dataset.color);b.disabled=b.dataset.colorKey==='color'&&!state.recolor;});const isPhoto=!!state.photoLayout;$('photoModeNote').hidden=!isPhoto;if(isPhoto)$('photoModeNote').firstChild.textContent=state.sourceKind==='photo'?'Ürün fotoğrafı yalnız referanstır; yeni grafik değildir. Ambalaj tasarımı için logo veya temiz grafik yükleyin. ':'Grafik önizlemesi baskı dosyası değildir; renkler ve yerleşim teknik olarak kontrol edilir. ';$('editPhotoRegion').hidden=true;$('logoPanel').hidden=isPhoto;$('bgPanel').hidden=isPhoto;$('photoPriceNote').hidden=!isPhoto;$('photoQuoteBgLabel').hidden=!isPhoto;document.querySelector('.previewTip').textContent=isPhoto?'Yalnız ayrıca eklediğiniz yazıyı sürükleyebilirsiniz; fotoğraftaki yazılar ayrı katman değildir.':'Logo ve yazıyı önizleme üzerinde sürükleyebilirsiniz.';if(isPhoto){$('originalReference').src=state.sourcePhoto;$('previewCaption').textContent=state.photoQuoteBg==='unknown'?'Görsel önizlemesi · Ambalaj zemini net ayırt edilemedi':(state.photoQuoteBg==='white'?'Beyaz zemin':'Renkli zemin')+' · '+Number($('qty').value).toLocaleString('tr-TR')+' adet';}$('photoQuoteBg').value=state.photoQuoteBg;backgroundFeedback();renderSuggestions();renderPantoneLookup('bgPantone');renderPantoneLookup('textPantone');draw();showContentSafetyBlock('front');globalThis.ReferenceRecovery?.sync();}
+ for(const [id,key,items] of [['backgrounds','bg',palette.slice(0,5)],['logoColors','color',palette],['textColors','textColor',palette.slice(0,5)]])for(const [color,name] of items){const b=document.createElement('button');b.style.background=color;b.title=name;b.setAttribute('aria-label',name);b.dataset.colorKey=key;b.dataset.color=color;b.onclick=()=>{if(key==='bg'){chooseBackground(color);return;}if(key==='textColor'&&typeof textColorAllowed==='function'&&!textColorAllowed(color,'front')){status(PrintPolicy.CONTACT_MESSAGE);return;}remember();state[key]=color;if(key==='color')state.recolorApplied=true;refresh();};$(id).appendChild(b);}
+ for(const [id,key,numeric] of [['size','size',true],['rotation','rotation',true],['text','text',false],['font','font',false],['textSize','textSize',true]]){$(id).addEventListener('focus',()=>remember());$(id).oninput=()=>{state[key]=numeric?Number($(id).value):$(id).value;if(state.text.trim()&&(!state.textPlaced||state.textPending))placeInitialText();refresh();if(showContentSafetyBlock('front'))return;if(state.textPending)status('Yazıya yer açmak için logoyu biraz küçültün veya yukarı taşıyın. Yazınız korunuyor.');};}
+-$('upload').onchange=async e=>{const f=e.target.files[0];if(!f)return;const ticket=++loading;try{if(f.size>8*1024*1024)throw Error('Dosya en fazla 8 MB olmalı.');if(!/\.(png|jpe?g|svg)$/i.test(f.name))throw Error('Yalnızca PNG, JPG veya SVG yükleyin.');let data,recolor=false;if(/\.svg$/i.test(f.name)){({data,recolor}=svgSafe(await f.text()));}else{data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});if(!/^data:image\/(png|jpeg);/.test(data))throw Error('Dosya türü desteklenmiyor.');}const img=await loadImage(data);if(ticket!==loading)return;recordDecodedFrame(img);remember();state.photoLayout=null;state.sourcePhoto=null;state.sourceKind=null;photoImg=null;state.logo=data;state.designBlocked=false;state.extractionApprovalRequired=false;state.extractionApproximate=false;state.extractionSourceLimited=false;state.regionBgSuggestedWhite=false;state.screenCropApplied=false;state.screenSelectionRequired=false;state.technicalFrameProposed=false;state.whiteCarrierWhiteOnly=false;state.photoPlacementProfile=null;state.sourceGroundPlacement=null;state.logoName=f.name;state.recolor=recolor;state.recolorApplied=false;state.bgDetection=analyzeLogo(img);applySourceGroundScope('native-artwork');if(state.bgSource!=='manual')state.bgPantone='';state.removed=false;processedLogo=null;processedKey=null;state.rotation=0;state.size=100;const placementArea=typeof currentPrintArea==='function'?currentPrintArea():{left:280,right:1320,top:210,bottom:640};state.x=(placementArea.left+placementArea.right)/2;state.y=(placementArea.top+placementArea.bottom)/2;logoImg=img;markProcessingOutput();refresh();go(1);status('Logo cihazınızda yüklendi; sunucuya gönderilmedi.');}catch(err){if(ticket===loading)status(err.message||'Dosya okunamadı.');}e.target.value='';};
++$('upload').onchange=async e=>{const f=e.target.files[0];if(!f)return;const ticket=++loading;try{if(f.size>8*1024*1024)throw Error('Dosya en fazla 8 MB olmalı.');if(!/\.(png|jpe?g|svg)$/i.test(f.name))throw Error('Yalnızca PNG, JPG veya SVG yükleyin.');let data,recolor=false;if(/\.svg$/i.test(f.name)){({data,recolor}=svgSafe(await f.text()));}else{data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});if(!/^data:image\/(png|jpeg);/.test(data))throw Error('Dosya türü desteklenmiyor.');}const img=await loadImage(data);if(ticket!==loading)return;recordDecodedFrame(img);remember();state.photoLayout=null;state.sourcePhoto=null;state.sourceKind=null;photoImg=null;state.logo=data;state.designBlocked=false;state.extractionApprovalRequired=false;state.extractionApproximate=false;state.extractionSourceLimited=false;state.regionBgSuggestedWhite=false;state.screenCropApplied=false;state.screenSelectionRequired=false;state.technicalFrameProposed=false;state.whiteCarrierWhiteOnly=false;state.photoPlacementProfile=null;state.sourceGroundPlacement=null;state.logoName=f.name;state.recolor=recolor;state.recolorApplied=false;state.bgDetection=analyzeLogo(img);applySourceGroundScope('native-artwork');if(state.bgSource!=='manual')state.bgPantone='';state.removed=false;processedLogo=null;processedKey=null;state.rotation=0;state.size=100;const placementArea=typeof currentPrintArea==='function'?currentPrintArea():{left:280,right:1320,top:210,bottom:640};state.x=(placementArea.left+placementArea.right)/2;state.y=(placementArea.top+placementArea.bottom)/2;logoImg=img;markProcessingOutput();refresh();go(1);status('Logo yüklendi.');}catch(err){if(ticket===loading)status(err.message||'Dosya okunamadı.');}e.target.value='';};
+ $('remove').onclick=()=>{remember();loading++;state.removed=true;refresh();};$('addText').onclick=()=>{$('text').focus();$('text').select();};document.querySelectorAll('[data-align]').forEach(b=>b.onclick=()=>{remember();state.x={left:560,center:800,right:1040}[b.dataset.align];refresh();});
+ $('undo').onclick=async()=>{if(!history.length)return;cancelCurrentProcessing('undo');const ticket=++loading,target=history.pop();const img=target.logo?await loadImage(target.logo):null,photo=target.photoLayout?await loadImage(target.photoLayout):null;if(ticket!==loading)return;state=target;logoImg=img;photoImg=photo;restoreProcessingResult(target.processingResult);refresh();status('Son düzenleme geri alındı.');};function resetDesign(){globalThis.HijyenLabJourneyMotion?.reset();if(typeof resetFragrance==='function')resetFragrance();if(typeof resetRearPreview==='function')resetRearPreview();remember();cancelCurrentProcessing('reset');resetRegionEditor();state={...initial};logoImg=null;photoImg=null;refresh();status('Beyaz ve yazısız başlangıca dönüldü.');}$('reset').onclick=resetDesign;
+ // Pointer coordinates belong to the displayed bitmap, not its letterboxed CSS box.
+@@ -305,9 +305,9 @@ function syncLogoGroundSuggestions(){
+   return scorer.score(samples.map(sample=>({...sample,rgb:sample.rgb.map((v,i)=>v*(sample.alpha??1)+rgb[i]*(1-(sample.alpha??1)))})),color);
+  };
+  const ranked=palette.slice(0,5).map(([color,label])=>({color,label,score:scoreGround(color)}))
+-  .filter(({score})=>score&&score.lowFraction<=.1&&score.average>=3)
++  .filter(({score})=>score&&score.lowFraction<=.02&&score.weakFraction<=.1&&score.average>=3)
+   .sort((a,b)=>b.score.average-a.score.average).slice(0,2);
+- const current=scoreGround(state.bg),warning=current&&(current.average<3||current.lowFraction>.2);
++ const current=scoreGround(state.bg),warning=current&&(current.average<3||current.lowFraction>.02||current.weakFraction>.1);
+  const message=(warning?'Seçili zeminde logo zor okunabilir. ':'')+(ranked.length?'Logonuz için önerilen: '+ranked.map(c=>c.label).join(', ')+'.':'');
+  for(const button of choices.querySelectorAll?.('button[data-color]')||[]){
+   const recommended=ranked.some(item=>item.color===button.dataset.color);
+@@ -324,7 +324,7 @@ function syncSimpleUI(){if(!simpleReady)return;syncLogoGroundSuggestions();$('si
+  const action=document.createElement('div');action.className='simplePrimary';action.append(document.querySelector('.unifiedUpload>label'),$('next'));visual.insertBefore(action,preview.nextSibling);$('next').textContent='Onayla ve arka yüze geç →';
+  const tools=document.createElement('div');tools.id='simpleTools';tools.className='simpleTools';tools.hidden=true;
+  for(const [id,label]of [['simpleColor','Rengi değiştir'],['simpleText','Yazı ekle'],['simpleChange','Görseli değiştir']]){const b=document.createElement('button');b.id=id;b.className='outline';b.textContent=label;tools.append(b);}visual.insertBefore(tools,action.nextSibling);
+- const more=document.createElement('details');more.id='simpleDetails';more.className='simpleDetails';const summary=document.createElement('summary');summary.textContent='Detaylar';more.append(summary);const p=document.createElement('p');p.className='hint';p.textContent='Bu bir görsel önizlemedir; baskı dosyası ayrıca hazırlanır. Dosyanız cihazınızda kalır.';more.append(p,document.querySelector('.actions'),$('photoModeNote'),$('inputOverride'));const advanced=document.createElement('button');advanced.className='textButton';advanced.textContent='Görsel boyutu ve konumu';advanced.onclick=()=>openSimplePanel(0);more.append(advanced);visual.append(more);
++ const more=document.createElement('details');more.id='simpleDetails';more.className='simpleDetails';const summary=document.createElement('summary');summary.textContent='Detaylar';more.append(summary);const p=document.createElement('p');p.className='hint';p.textContent='Bu bir görsel önizlemedir; baskı dosyası ayrıca hazırlanır. Gerekirse daha net logo kaynağı aranır.';more.append(p,document.querySelector('.actions'),$('photoModeNote'),$('inputOverride'));const advanced=document.createElement('button');advanced.className='textButton';advanced.textContent='Görsel boyutu ve konumu';advanced.onclick=()=>openSimplePanel(0);more.append(advanced);visual.append(more);
+  const editorPanels=[...side.querySelectorAll('.editPanel')];
+  for(const panel of editorPanels){
+   const close=document.createElement('button');close.type='button';close.className='simpleClose outline';close.textContent='Tamam';
+@@ -389,7 +389,7 @@ function visibleLogoPlan(img){
+  const evidence=visibleLogoMeasurement(img),area=currentPrintArea(),proposal=state.bgDetection?.packageGroundProposal||state.sourceGroundPlacement,bounds=proposal?.foregroundBounds;
+  const groundAnchor=typeof sourceGroundMaterialResponse==='function'&&sourceGroundMaterialResponse()&&proposal?.sourceIdentity===state.groundScope?.sourceIdentity&&bounds&&proposal.width>0&&proposal.height>0?{left:bounds.left*evidence.measured.width/proposal.width,top:bounds.top*evidence.measured.height/proposal.height,right:bounds.right*evidence.measured.width/proposal.width,bottom:bounds.bottom*evidence.measured.height/proposal.height}:null;
+  const measured=groundAnchor?{...evidence.measured,bounds:groundAnchor,basis:'source-ground-foreground-placement'}:evidence.measured,base=VisibleArtwork.plan(measured,area,{rotation:state.rotation,anchorBounds:groundAnchor?undefined:evidence.anchorBounds||undefined,anchorTrusted:!groundAnchor&&!!evidence.anchorBounds});if(!base)return null;
+- const factor=state.size/100*(state.sourceKind==='verified-package-artwork'?.92:state.photoPlacementProfile==='photo-business-block'?.84:groundAnchor?.9:1),scaleRect=rect=>Object.fromEntries(Object.entries(rect).map(([k,v])=>[k,v*factor])),placementRect=scaleRect(base.drawRect),drawRect=groundAnchor?scaleRect(base.fullSourceRect):placementRect;
++ const factor=state.size/100*(state.photoPlacementProfile==='photo-business-block'?.84:groundAnchor?.9:.92),scaleRect=rect=>Object.fromEntries(Object.entries(rect).map(([k,v])=>[k,v*factor])),placementRect=scaleRect(base.drawRect),drawRect=groundAnchor?scaleRect(base.fullSourceRect):placementRect;
+  return {...base,sourceRect:groundAnchor?{x:0,y:0,width:measured.width,height:measured.height}:base.sourceRect,scale:base.scale*factor,placementRect,drawRect,width:placementRect.width,height:placementRect.height};
+ }
+ function drawVisibleLogo(ctx,img,plan){const s=plan.sourceRect,d=plan.drawRect,display=globalThis.NativeFlatPreviewUI?.forDisplay(img)||img;ctx.drawImage(display,s.x,s.y,s.width,s.height,d.x,d.y,d.width,d.height);}
+diff --git a/frontend/index.html b/frontend/index.html
+index 1614830..ca3d549 100644
+--- a/frontend/index.html
++++ b/frontend/index.html
+@@ -1 +1 @@
+-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="app-release" content="DENEME"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HijyenLab | Tasarım Atölyesi</title><link rel="stylesheet" href="style.css?v=09bf7490a190"><link rel="stylesheet" href="contact-help.css?v=7d28ab691d74"><script src="oshibori-fx.js?v=22e610fcf3a9" defer></script><script src="product-catalog.js?v=5aec18d9f2b9" defer></script><script src="declared-quote.js?v=cd149ff72fa7" defer></script><script src="product-geometry.js?v=ed3465c5c716" defer></script><script src="background.js?v=4a3254c10805" defer></script><script src="pantone-data.js?v=7c4a626898fd" defer></script><script src="pantone.js?v=b6bb9bbde00f" defer></script><script src="photo.js?v=f8e07cfbf8cf" defer></script><script src="quote-basis.js?v=4bcd763711b5" defer></script><script src="upload-format.js?v=50bf1b2cfedf" defer></script><script src="ink-extraction.js?v=b9a9a7bb5c20" defer></script><script src="white-carrier.js?v=6abd4917ea0a" defer></script><script src="flat-artwork.js?v=a39fb057f217" defer></script><script src="flexo-policy.js?v=ece58f5c3721" defer></script><script src="flexo-design-proposal.js?v=cfe1f80b1ddf" defer></script><script src="flexo-preview-adapter.js?v=02273404e526" defer></script><script src="print-inks.js?v=06230a178ade" defer></script><script src="native-flat-preview.js?v=35c1b7ba0d2f"></script><script src="screenshot-artwork.js?v=9f3cee885183" defer></script><script src="technical-frame.js?v=ef169023c2d9" defer></script><script src="processing-session.js?v=03a0cf6f25e3" defer></script><script src="photo-fidelity.js?v=252efc17b656" defer></script><script src="print-renderer.js?v=7a384e112826" defer></script><script src="mark-orientation.js?v=7a37c710a137" defer></script><script src="light-surface.js?v=fe148abb4c53" defer></script><script src="colored-fidelity.js?v=33913793930b" defer></script><script src="placement.js?v=69a64a78b503" defer></script><script defer src="visible-artwork.js?v=7e5bb0dd5a00"></script><script defer src="flat-placement-evidence.js?v=12239ccdca3d"></script><script src="quote-layout.js?v=c615f863461b" defer></script><script src="combined-inks.js?v=b6eb5ce4f823" defer></script><script src="shipping-location.js?v=fccc6bb2c49f" defer></script><script src="unprinted-flow.js?v=4306b008d7b1" defer></script><script src="source-context.js?v=76279c311986" defer></script><script src="kraft-photo.js?v=ec0294dff55b" defer></script><script src="photo-candidate-quality.js?v=1c90a095aba5" defer></script><script src="standard-photo.js?v=2968f9639545" defer></script><script src="print-policy.js?v=e2449c9c2e2b" defer></script><link rel="stylesheet" href="journey-motion.css?v=60dfe74dafb1"><script src="logo-settle.js?v=3f4d7e16b44c" defer></script><script src="journey-motion.js?v=a2e67c6586ff" defer></script><script src="content-safety.js?v=deb1143d6f0e" defer></script><script src="source-package-ground.js?v=0ff7869e5a1d" defer></script><script src="source-ground-scope.js?v=ce3eae53b04d"></script><script src="logo-design.js?v=9a9427cd10f9" defer></script><script src="text-design.js?v=51681d902df5" defer></script><script src="app.js?v=a086ff796da7" defer></script><script src="brand-region.js?v=184b6bbb5365" defer></script><script src="brand-region-ui.js?v=531ebf5fc8a6" defer></script><script src="print-inks-ui.js?v=07da413426d3" defer></script><script src="photo-flat-proposal.js?v=3ab990167168" defer></script><script src="white-carrier-ui.js?v=0e067620913f" defer></script><script src="processing-lifecycle.js?v=f463902eb7d7" defer></script><script src="native-flat-preview-ui.js?v=4604c9642ead"></script><script src="vendor/qrcodegen-v1.8.0.js?v=6a1116192ed1" defer></script><script src="qr-preview.js?v=7889a1a790b4" defer></script><script src="rear-layout.js?v=bd0310be1a62" defer></script><script src="rear-logo.js?v=6a479b575c40" defer></script><script src="rear-photo.js?v=46f2e188f526" defer></script><script src="rear-contrast.js?v=169087e10817" defer></script><script src="rear-preview.js?v=6a382ef74dff" defer></script><script src="print-policy-ui.js?v=305418e25c26" defer></script><script src="fragrance.js?v=51a58d66fea1" defer></script><script src="fragrance-ui.js?v=b4cb9d8c4719" defer></script><script src="product-advisor-config.js?v=ee1fd6f96401" defer></script><script src="product-advisor.js?v=1e53414d48ad" defer></script><script src="product-ui.js?v=1135178c9b09" defer></script><link rel="stylesheet" href="unprinted-ui.css?v=7b9776ae9f77"><script src="oshibori-fx-ui.js?v=c95d47726261" defer></script><script src="unprinted-ui.js?v=213f7331719a" defer></script><script src="contact-help.js?v=7697de682ce6" defer></script><link rel="stylesheet" href="product-advisor.css?v=6f40c172c33c"><link rel="stylesheet" href="draft-ui.css?v=378ea27cb37a"><link rel="stylesheet" href="experience-ui.css?v=c447f48600c4"><link rel="stylesheet" href="multi-logo.css?v=f86c7546c8c9"><script src="logo-row.js?v=a667b7189d47" defer></script><script src="multi-logo-model.js?v=9a5d0a1009c7" defer></script><script src="multi-logo-ui.js?v=3ba18faf47af" defer></script><script src="text-design-ui.js?v=f3c84b4314de" defer></script><script src="logo-design-ui.js?v=04acaf222065" defer></script><script src="draft-store.js?v=4698cd9cffc6" defer></script><script src="draft-ui.js?v=3063e0ed9845" defer></script><script src="experience-ui.js?v=568ea84539f3" defer></script><link rel="stylesheet" href="visitor-requests.css?v=22d21025843b"><script src="visitor-requests.js?v=47310cf08506" defer></script><link rel="stylesheet" href="customer-focus.css?v=844915cbbe94"><script src="customer-focus.js?v=c86b0c32ebd4" defer></script><link rel="stylesheet" href="welcome-layout.css?v=346cbea321d8"><script src="welcome-layout.js?v=48314b3eab22" defer></script><link rel="stylesheet" href="persona-ux.css?v=2948913567f2"><script src="persona-ux.js?v=071f0160e5ba" defer></script><script src="reference-recovery.js?v=73d532d6b2dc" defer></script><script src="experimental-colored-packet.js?v=a9acdf62df6b" defer></script><script src="experimental-packet-grouping.js?v=ceaeed80abd0" defer></script><script src="adapted-photo-proposal.js?v=18571fcf3102" defer></script><script src="adapted-photo-ui.js?v=314955aebeb5" defer></script><script src="local-emblem.js?v=e40b7c0d53be" defer></script><script src="independent-emblem-ui.js?v=2c6252883192" defer></script><script src="lowres-wordmark.js?v=60fdaab0570f" defer></script><script src="lowres-wordmark-ui.js?v=cfa8744c11e8" defer></script><script src="flexo-design-ui.js?v=a46797bab463" defer></script><link rel="stylesheet" href="customer-theme.css?v=cdd6c5019032"><script src="customer-theme.js?v=4c9fc2cbb34c" defer></script><link rel="stylesheet" href="responsive-journey.css?v=11a3d1863dde"><script src="responsive-journey.js?v=b7ab7aad80b6" defer></script><link rel="stylesheet" href="focus-guidance.css?v=34eb14061b9d"><script src="focus-guidance.js?v=4a71f2b88e93" defer></script><link rel="stylesheet" href="text-design.css?v=24bde8140f0b"><link rel="stylesheet" href="logo-design-ui.css?v=c2c3d386aeaf"><link rel="stylesheet" href="opening-examples.css?v=75d7441bd3c8"><script src="preview-sources.js?v=13b6b0238445" defer></script><script src="gallery-raster.js?v=d33d89b7cb7a" defer></script><script src="opening-examples.js?v=7a7e839d5dbf" defer></script><link rel="stylesheet" href="first-viewport.css?v=f54c46610b23"><script src="first-viewport.js?v=b14928bc8975" defer></script></head><body><noscript>Bu görsel tasarım demosu için JavaScript etkin olmalıdır.</noscript><main><header class="companyHeader"><div class="companyIdentity"><img id="companyLogo" src="assets/hijyenlab-logo.png" alt="HijyenLab logosu" width="3334" height="1272"><div class="companyInformation"><strong>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.</strong><p><a href="mailto:info@hijyenlab.com">info@hijyenlab.com</a><a href="https://www.hijyenlab.com" target="_blank" rel="noopener">www.hijyenlab.com</a></p><p id="companyLogoError" role="alert" hidden>Logo yüklenemedi. <button id="retryCompanyLogo" type="button">Yeniden dene</button></p></div></div><small id="releaseBadge">DENEME</small></header><nav aria-label="Adımlar"><button data-journey="0"><i>1</i><span>Yükle</span></button><em></em><button data-journey="1"><i>2</i><span>Tasarımını gör</span></button><em></em><button data-journey="2"><i>3</i><span>Fiyat / teklif</span></button></nav><section id="uploadStart" hidden></section><div class="unifiedUpload"><label class="primary" for="unifiedUpload">Görsel yükle</label><input id="unifiedUpload" type="file" accept="image/png,image/jpeg,image/svg+xml,application/pdf" hidden><input id="photoUpload" type="file" accept="image/png,image/jpeg,application/pdf" hidden><p class="hint">Logo, hazır grafik veya ürün fotoğrafı · PNG, JPG, SVG, PDF · Dosyanız cihazınızda kalır.</p><details id="inputOverride" hidden><summary>Görsel farklı yorumlandıysa</summary><p class="hint">Otomatik yorum kesin değildir. Aynı dosyayı farklı biçimde açabilirsiniz.</p><button id="asLogo" class="outline">Logo olarak</button><button id="asArtwork" class="outline">Hazır grafik olarak</button><button id="asPhoto" class="outline">Ürün fotoğrafı olarak</button></details></div><section id="pdfPicker" hidden><h1>Hangi PDF sayfası?</h1><p class="subtitle">Doğru tasarım sayfasını seçin. Sayfalar birleştirilmez.</p><div id="pdfPages" class="pdfPages"></div><button id="cancelPdf" class="back">← Başka dosya seç</button></section><section id="photoEditor" hidden><h1>Hangi tasarımı kullanalım?</h1><p id="photoGuidance" class="subtitle"></p><div class="photoCompare"><div><h2>Orijinal görsel</h2><canvas id="photoCanvas" width="900" height="600" aria-label="Ürün alanı seçimi"></canvas><div id="photoCandidates" class="photoCandidates"></div><button id="adjustPhoto" class="outline">Alanı düzelt</button><button id="rotatePhoto" class="outline">180° çevir</button><p class="hint" id="photoAdjustHint">Önerilen alanı kontrol edin. Gerekirse köşeleri sürükleyin veya yeni bir alan çizin.</p></div><div><h2>Seçilen ön yüz</h2><img id="photoCropPreview" alt="Seçilen görünür tasarım"><p class="notice light">Yalnız seçtiğiniz görünür baskı alanı aktarılır; otomatik temiz grafik yeniden oluşturulmaz. Okunmayan yazılar, gizli alanlar ve hasarlı baskılar tamamlanmaz. Logo/yazı ayrı vektörlere dönüştürülmez.</p></div></div><button id="confirmPhoto" class="primary full">Bu tasarımı kullan →</button><button id="cancelPhoto" class="back">← Başka dosya seç</button></section><section id="design" hidden><h1>Size özel ambalaj</h1><p class="subtitle" data-product-label>25 × 30 cm rulo ıslak havlu</p><div id="photoModeNote" class="notice light" hidden>Fotoğraf/grafik referansından taslak: seçilen alanın özgün renkleri ve içeriği korunur. Zemin önizlemesi seçilen alanın kenar renklerinden yaklaşık alınır; fotoğraf ışığı/gölgesi kalabilir. Renkleri kontrol edin; temiz baskı grafiği için teknik çalışma gerekir. İçindeki logo/yazı ayrı düzenlenemez. <button id="editPhotoRegion" class="textButton">Alanı yeniden seç</button><div class="referenceThumb"><img id="originalReference" alt="Orijinal kaynak görsel"><span>Orijinal referans</span></div></div><div class="workspace"><div class="visualSide"><div class="preview"><canvas id="package" width="1600" height="850" aria-label="Ambalaj önizlemesi"></canvas><p id="previewCaption">Beyaz ambalaj · Logonuzla başlayın</p></div><div class="actions"><button id="undo">↶ Geri al</button><button id="reset">⟳ Sıfırla</button><button id="download">↓ Görsel indir</button></div><p class="hint previewTip">Logo ve yazıyı önizleme üzerinde sürükleyebilirsiniz.</p></div><div class="editSide"><details class="editPanel" id="logoPanel" open><summary><span class="number">1</span><span>Logonuzu ekleyin<small>Logonuz özgün renkleriyle korunur</small></span><b>＋</b></summary><div class="panelBody"><div class="upload"><input id="upload" type="file" accept="image/png,image/jpeg,image/svg+xml" hidden><span id="filename">Henüz logo yok</span><button id="remove" aria-label="Logoyu kaldır">×</button></div><p class="hint">Ambalajın zeminini önizlemede kontrol edin; isterseniz rengini değiştirebilirsiniz. PNG, JPG, SVG · En fazla 8 MB.</p><p id="backgroundResult" class="backgroundResult" role="status" hidden></p><div id="backgroundChoice" class="backgroundChoice" hidden><p>Görselde tek bir zemin rengi belirlenemedi. Nasıl devam edelim?</p><button id="chooseWhite" class="outline">Beyaz ambalaj</button><button id="chooseColor" class="outline">Rengi ben seçeyim</button></div><details id="colorSuggestions" class="colorSuggestions" hidden><summary>Yaklaşık Pantone adayları</summary><div id="suggestionRows"></div><p class="hint">893 renklik topluluk kaynaklı Coated (C) ekran referansı arasında ΔE76 ile yakın adaylar. Resmî Pantone eşlemesi veya baskı onayı değildir; U serisi desteklenmez. Renk sayısı üretim için otomatik belirlenmez. Metalik/floresan renkler önerilmez. <a href="licenses/CHROMONYM-NOTICE.md" target="_blank" rel="noopener">Kaynak</a></p></details><label class="checkline"><input type="checkbox" id="removeWhite"> <span id="mergeLabel">Logo zeminini ambalajla birleştir</span></label><p class="hint" id="removeWhiteHint">Düz logo zemini ambalajla bütünleşir. Orijinal dosyanız değiştirilmez; bu seçimi kapatarak geri alabilirsiniz.</p><label class="line">Boyut <input id="size" type="range" min="20" max="170" value="100"><output id="sizeValue">%100</output></label><details class="advanced"><summary>Konum ve renk ayarları</summary><label class="line">Döndür <input id="rotation" type="range" min="-180" max="180" value="0"><output id="rotationValue">0°</output></label><div class="line">Hizalama <div class="align"><button data-align="left" aria-label="Sola hizala">☰</button><button data-align="center" aria-label="Ortala">≡</button><button data-align="right" aria-label="Sağa hizala">☰</button></div></div><h3>Logo rengini değiştir <small>İsteğe bağlı</small></h3><div id="logoColors" class="swatches"></div><button id="originalColors" class="textButton">Orijinal renkleri koru</button><p id="recolorHint" class="hint"></p></details><button class="outline panelNext" data-open-panel="1">Zemin rengini seç →</button></div></details><details class="editPanel" id="bgPanel"><summary><span class="number">2</span><span>Ambalaj zemini<small>Beyaz veya size özel bir renk</small></span><b>＋</b></summary><div class="panelBody"><div id="backgrounds" class="swatches large"></div><p id="logoGroundSuggestions" class="hint" role="status" hidden></p><p id="bgName" class="hint">Beyaz</p><label class="customColor">Başka bir renk seçin <input id="bgCustom" type="color" value="#ffffff" aria-label="Özel zemin rengi"></label><label class="pantoneLabel">Pantone kodunuz var mı? <small>İsteğe bağlı</small><input id="bgPantone" type="text" maxlength="32" placeholder="Örn. PANTONE 186 C" autocomplete="off"></label><div id="bgPantoneResult" class="pantoneLookup" aria-live="polite"></div><p class="hint pantoneNote">Kodunuz tasarım notuna eklenir. Kod bulunduğunda yaklaşık topluluk ekran rengi önerilir; siz uygulamadan görsel değişmez. Resmî Pantone eşlemesi değildir. Baskı rengi teknik ekipçe doğrulanır.</p><button class="outline panelNext" data-open-panel="2">İsterseniz yazı ekleyin →</button></div></details><details class="editPanel"><summary><span class="number">3</span><span>Yazı ekleyin<small>İsteğe bağlı · İsterseniz boş bırakın</small></span><b>＋</b></summary><div class="panelBody"><div class="textrow"><input id="text" value="" placeholder="İşletme adınız veya kısa mesajınız" maxlength="60" aria-label="Ambalaj yazısı"><button id="addText" class="outline">Yaz</button></div><div class="columns small"><label><h3>Yazı rengi</h3><div id="textColors" class="swatches compact"></div></label><label><h3>Yazı tipi</h3><select id="font"><option value="sans-serif">Sade</option><option value="serif">Klasik</option><option value="cursive">El yazısı</option></select></label></div><label class="line">Yazı boyutu <input id="textSize" type="range" min="24" max="100" value="60"></label><label class="customColor">Başka bir yazı rengi <input id="textCustom" type="color" value="#800d2e" aria-label="Özel yazı rengi"></label><label class="pantoneLabel">Yazı için Pantone kodu <small>İsteğe bağlı</small><input id="textPantone" type="text" maxlength="32" placeholder="Örn. PANTONE 186 C" autocomplete="off"></label><div id="textPantoneResult" class="pantoneLookup" aria-live="polite"></div><p class="hint pantoneNote">Kod ve ekran rengi yaklaşık referanstır; fiziksel baskı rengi teknik onay gerektirir.</p></div></details><div class="notice">Bu çalışma görsel önizlemedir. Baskıya hazır grafik dosyası ayrıca hazırlanıp onayınıza sunulur.</div><button class="primary full" id="next">Fiyatı gör →</button></div></div><p class="footnote" data-product-dimensions>25 × 30 cm havlu ölçüsüdür. Ekran ve baskı renkleri farklı görünebilir.</p></section><section id="pricing" hidden><h1>Fiyatınız</h1><div class="notice">ⓘ &nbsp; Seçtiğiniz adet ve güncel birim fiyatlarla hesaplanır. Klişe bedeli renk sayısına göre hesaplanır; kesin renk ayrımı teknik incelemede doğrulanır. Kesin teklif ve baskı onayı değildir.</div><article><h2>Tasarımınız ve adet bilgisi</h2><div class="priceSettings"><div><img id="mini" alt="Tasarladığınız temsili ambalaj"><h2 data-product-label>25 × 30 cm rulo ıslak havlu</h2><p class="hint">Görsel önizleme · Baskıya hazır değildir</p></div><div><div class="fields"><label>Adet (isterseniz artırın)<input id="qty" type="number" min="5200" max="1000000" step="1" value="5200"></label><label>Teslimat ili<select id="province" required></select></label><label id="districtField" hidden>İlçe<select id="district" disabled></select></label></div><p class="hint" id="minimumNote"></p><button id="useMinimum" class="outline" hidden></button><p class="hint" id="boxes"></p><div id="photoPriceNote" class="notice light" hidden>Fotoğraf renk/klişe sayısını kesinleştirmez. Aşağıdaki zemin seçimi fiyat varsayımıdır; üretim için teknik inceleme gerekir.</div><label id="photoQuoteBgLabel" hidden>Zemin fiyat varsayımı<select id="photoQuoteBg"><option value="unknown">Teknik incelemede</option><option value="white">Beyaz</option><option value="color">Renkli / bölgesel renkli</option></select></label><div class="fields two"><label>Tahmini baskı rengi sayısı (isterseniz düzeltin)<select id="inks"><option value="" selected>Teknik incelemede belirlenecek</option><option value="0">0 — beyaz dışında baskı yok</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label></div><p class="hint" id="inkEstimateNote">Görselden yaklaşık hesaplanır. Renkli zemin dahildir; beyaz sayılmaz. Kesin ayrım teknik incelemede doğrulanır.</p></div></div></article><article><h2>Fiyat dökümü <small>KDV HARİÇ</small></h2><div id="breakdown"></div><p id="deliveryNote" class="hint"></p><p class="hint" data-commercial-vat>Fiyatlara %20 KDV dahil değildir.</p></article><details class="priceNotes"><summary>Fiyat notları ve koşullar</summary><p data-commercial-prices>Birim fiyatlar: beyaz 2,90 TL/adet; renkli 3,30 TL/adet.</p><p data-commercial-quantities>Beyaz için en az 5.200, renkli için en az 10.000 adet. Koli başına 400 adet; kalan ürün için bir üst koli hesaplanır. Yeni klişe renk başına 1.000 TL.</p><p data-commercial-vat>Fiyatlara %20 KDV dahil değildir.</p><p>Teslim süresi 25 takvim günü (başlangıç ve teslim tarihi teyit edilir); onay/faturalama sonrası %50, kalan %50 üretim bitiminde ve sevkten önce. Bu demo sipariş veya ödeme almaz. Tüm tutarlar kesin teklif öncesi doğrulanır.</p><p>Pantone zemin kodu girildiğinde renkli zemin fiyatı baz alınır; kodun renk eşlemesi ve teknik uygunluğu ayrıca kontrol edilir.</p></details><div class="notice">Bu görsel, logonuzun ürün üzerinde nasıl görüneceğini gösterir. Baskıya hazırlık çalışması sipariş onayınızdan sonra ayrıca yapılır.</div><button id="review" class="primary full">Teklif önizlemesini oluştur →</button><p class="footnote">Yalnızca bu ekranda önizleme oluşturulur; hiçbir yere gönderilmez.</p><button id="back" class="back">← Tasarıma dön</button></section><section id="summary" hidden><h1>Tasarım ve teklif önizlemesi</h1><div class="notice">✓ Yerel önizleme hazır. Gönderim yapılmadı.</div><article><img id="finalImage" class="finalImage" alt="Son tasarım önizlemesi"><div id="finalDetails"></div><button id="downloadQuote" class="primary full">Teklif görselini indir (JPG)</button><div id="quoteDownloadPreview" hidden><p class="hint">İndirme başlamazsa görsele basılı tutup kaydedin. Cihazınıza kaydedildiğini bu demo doğrulayamaz.</p><a id="quoteOpen" target="_blank" rel="noopener">Görseli aç</a><img id="quoteImage" alt="Tek sayfalık ön teklif JPG görseli"></div></article><button id="summaryBack" class="primary full">← Tasarımı düzenlemeye dön</button></section><p id="status" role="status" aria-live="polite"></p><footer>Özel prototip · Hiçbir gerçek sipariş veya ödeme alınmaz.</footer></main></body></html>
++<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="app-release" content="DENEME"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HijyenLab | Tasarım Atölyesi</title><link rel="stylesheet" href="style.css?v=09bf7490a190"><link rel="stylesheet" href="contact-help.css?v=7d28ab691d74"><script src="oshibori-fx.js?v=22e610fcf3a9" defer></script><script src="product-catalog.js?v=5aec18d9f2b9" defer></script><script src="declared-quote.js?v=cd149ff72fa7" defer></script><script src="product-geometry.js?v=ed3465c5c716" defer></script><script src="background.js?v=4a3254c10805" defer></script><script src="pantone-data.js?v=7c4a626898fd" defer></script><script src="pantone.js?v=b6bb9bbde00f" defer></script><script src="photo.js?v=f8e07cfbf8cf" defer></script><script src="quote-basis.js?v=4bcd763711b5" defer></script><script src="upload-format.js?v=50bf1b2cfedf" defer></script><script src="ink-extraction.js?v=b9a9a7bb5c20" defer></script><script src="white-carrier.js?v=6abd4917ea0a" defer></script><script src="flat-artwork.js?v=a39fb057f217" defer></script><script src="flexo-policy.js?v=ece58f5c3721" defer></script><script src="flexo-design-proposal.js?v=cfe1f80b1ddf" defer></script><script src="flexo-preview-adapter.js?v=02273404e526" defer></script><script src="print-inks.js?v=06230a178ade" defer></script><script src="native-flat-preview.js?v=35c1b7ba0d2f"></script><script src="screenshot-artwork.js?v=9f3cee885183" defer></script><script src="technical-frame.js?v=ef169023c2d9" defer></script><script src="processing-session.js?v=03a0cf6f25e3" defer></script><script src="photo-fidelity.js?v=252efc17b656" defer></script><script src="print-renderer.js?v=7a384e112826" defer></script><script src="mark-orientation.js?v=7a37c710a137" defer></script><script src="light-surface.js?v=fe148abb4c53" defer></script><script src="colored-fidelity.js?v=33913793930b" defer></script><script src="placement.js?v=69a64a78b503" defer></script><script defer src="visible-artwork.js?v=7e5bb0dd5a00"></script><script defer src="flat-placement-evidence.js?v=12239ccdca3d"></script><script src="quote-layout.js?v=c615f863461b" defer></script><script src="combined-inks.js?v=b6eb5ce4f823" defer></script><script src="shipping-location.js?v=fccc6bb2c49f" defer></script><script src="unprinted-flow.js?v=4306b008d7b1" defer></script><script src="source-context.js?v=76279c311986" defer></script><script src="kraft-photo.js?v=ec0294dff55b" defer></script><script src="photo-candidate-quality.js?v=1c90a095aba5" defer></script><script src="standard-photo.js?v=2968f9639545" defer></script><script src="print-policy.js?v=e2449c9c2e2b" defer></script><link rel="stylesheet" href="journey-motion.css?v=60dfe74dafb1"><script src="logo-settle.js?v=3f4d7e16b44c" defer></script><script src="journey-motion.js?v=a2e67c6586ff" defer></script><script src="content-safety.js?v=deb1143d6f0e" defer></script><script src="source-package-ground.js?v=0ff7869e5a1d" defer></script><script src="source-ground-scope.js?v=ce3eae53b04d"></script><script src="logo-design.js?v=9a9427cd10f9" defer></script><script src="text-design.js?v=51681d902df5" defer></script><script src="app.js?v=6f9df291f5b1" defer></script><script src="brand-region.js?v=184b6bbb5365" defer></script><script src="brand-region-ui.js?v=531ebf5fc8a6" defer></script><script src="print-inks-ui.js?v=07da413426d3" defer></script><script src="photo-flat-proposal.js?v=3ab990167168" defer></script><script src="white-carrier-ui.js?v=0e067620913f" defer></script><script src="logo-source-discovery.js?v=bc55e3143d84" defer></script><script src="processing-lifecycle.js?v=42031e9c5140" defer></script><script src="native-flat-preview-ui.js?v=4604c9642ead"></script><script src="vendor/qrcodegen-v1.8.0.js?v=6a1116192ed1" defer></script><script src="qr-preview.js?v=7889a1a790b4" defer></script><script src="rear-layout.js?v=bd0310be1a62" defer></script><script src="rear-logo.js?v=6a479b575c40" defer></script><script src="rear-photo.js?v=46f2e188f526" defer></script><script src="rear-contrast.js?v=71eb1d6b177b" defer></script><script src="rear-preview.js?v=6a382ef74dff" defer></script><script src="print-policy-ui.js?v=305418e25c26" defer></script><script src="fragrance.js?v=51a58d66fea1" defer></script><script src="fragrance-ui.js?v=b4cb9d8c4719" defer></script><script src="product-advisor-config.js?v=ee1fd6f96401" defer></script><script src="product-advisor.js?v=1e53414d48ad" defer></script><script src="product-ui.js?v=1135178c9b09" defer></script><link rel="stylesheet" href="unprinted-ui.css?v=7b9776ae9f77"><script src="oshibori-fx-ui.js?v=c95d47726261" defer></script><script src="unprinted-ui.js?v=213f7331719a" defer></script><script src="contact-help.js?v=7697de682ce6" defer></script><link rel="stylesheet" href="product-advisor.css?v=6f40c172c33c"><link rel="stylesheet" href="draft-ui.css?v=378ea27cb37a"><link rel="stylesheet" href="experience-ui.css?v=c447f48600c4"><link rel="stylesheet" href="multi-logo.css?v=f86c7546c8c9"><script src="logo-row.js?v=a667b7189d47" defer></script><script src="multi-logo-model.js?v=9a5d0a1009c7" defer></script><script src="multi-logo-ui.js?v=3ba18faf47af" defer></script><script src="text-design-ui.js?v=f3c84b4314de" defer></script><script src="logo-design-ui.js?v=04acaf222065" defer></script><script src="draft-store.js?v=4698cd9cffc6" defer></script><script src="draft-ui.js?v=3063e0ed9845" defer></script><script src="experience-ui.js?v=568ea84539f3" defer></script><link rel="stylesheet" href="visitor-requests.css?v=22d21025843b"><script src="visitor-requests.js?v=47310cf08506" defer></script><link rel="stylesheet" href="customer-focus.css?v=844915cbbe94"><script src="customer-focus.js?v=c86b0c32ebd4" defer></script><link rel="stylesheet" href="welcome-layout.css?v=346cbea321d8"><script src="welcome-layout.js?v=86e3b8c72c23" defer></script><link rel="stylesheet" href="persona-ux.css?v=2948913567f2"><script src="persona-ux.js?v=071f0160e5ba" defer></script><script src="reference-recovery.js?v=73d532d6b2dc" defer></script><script src="experimental-colored-packet.js?v=a9acdf62df6b" defer></script><script src="experimental-packet-grouping.js?v=ceaeed80abd0" defer></script><script src="adapted-photo-proposal.js?v=18571fcf3102" defer></script><script src="adapted-photo-ui.js?v=314955aebeb5" defer></script><script src="local-emblem.js?v=e40b7c0d53be" defer></script><script src="independent-emblem-ui.js?v=2c6252883192" defer></script><script src="lowres-wordmark.js?v=60fdaab0570f" defer></script><script src="lowres-wordmark-ui.js?v=cfa8744c11e8" defer></script><script src="flexo-design-ui.js?v=a46797bab463" defer></script><link rel="stylesheet" href="customer-theme.css?v=cdd6c5019032"><script src="customer-theme.js?v=4c9fc2cbb34c" defer></script><link rel="stylesheet" href="responsive-journey.css?v=11a3d1863dde"><script src="responsive-journey.js?v=b7ab7aad80b6" defer></script><link rel="stylesheet" href="focus-guidance.css?v=34eb14061b9d"><script src="focus-guidance.js?v=4a71f2b88e93" defer></script><link rel="stylesheet" href="text-design.css?v=24bde8140f0b"><link rel="stylesheet" href="logo-design-ui.css?v=c2c3d386aeaf"><link rel="stylesheet" href="opening-examples.css?v=75d7441bd3c8"><script src="preview-sources.js?v=13b6b0238445" defer></script><script src="gallery-raster.js?v=d33d89b7cb7a" defer></script><script src="opening-examples.js?v=7a7e839d5dbf" defer></script><link rel="stylesheet" href="first-viewport.css?v=f54c46610b23"><script src="first-viewport.js?v=b14928bc8975" defer></script></head><body><noscript>Bu görsel tasarım demosu için JavaScript etkin olmalıdır.</noscript><main><header class="companyHeader"><div class="companyIdentity"><img id="companyLogo" src="assets/hijyenlab-logo.png" alt="HijyenLab logosu" width="3334" height="1272"><div class="companyInformation"><strong>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.</strong><p><a href="mailto:info@hijyenlab.com">info@hijyenlab.com</a><a href="https://www.hijyenlab.com" target="_blank" rel="noopener">www.hijyenlab.com</a></p><p id="companyLogoError" role="alert" hidden>Logo yüklenemedi. <button id="retryCompanyLogo" type="button">Yeniden dene</button></p></div></div><small id="releaseBadge">DENEME</small></header><nav aria-label="Adımlar"><button data-journey="0"><i>1</i><span>Yükle</span></button><em></em><button data-journey="1"><i>2</i><span>Tasarımını gör</span></button><em></em><button data-journey="2"><i>3</i><span>Fiyat / teklif</span></button></nav><section id="uploadStart" hidden></section><div class="unifiedUpload"><label class="primary" for="unifiedUpload">Görsel yükle</label><input id="unifiedUpload" type="file" accept="image/png,image/jpeg,image/svg+xml,application/pdf" hidden><input id="photoUpload" type="file" accept="image/png,image/jpeg,application/pdf" hidden><p class="hint">Logo, hazır grafik veya ürün fotoğrafı · PNG, JPG, SVG, PDF · Daha net logo kaynağı için otomatik arama desteklenir.</p><details id="inputOverride" hidden><summary>Görsel farklı yorumlandıysa</summary><p class="hint">Otomatik yorum kesin değildir. Aynı dosyayı farklı biçimde açabilirsiniz.</p><button id="asLogo" class="outline">Logo olarak</button><button id="asArtwork" class="outline">Hazır grafik olarak</button><button id="asPhoto" class="outline">Ürün fotoğrafı olarak</button></details></div><section id="pdfPicker" hidden><h1>Hangi PDF sayfası?</h1><p class="subtitle">Doğru tasarım sayfasını seçin. Sayfalar birleştirilmez.</p><div id="pdfPages" class="pdfPages"></div><button id="cancelPdf" class="back">← Başka dosya seç</button></section><section id="photoEditor" hidden><h1>Hangi tasarımı kullanalım?</h1><p id="photoGuidance" class="subtitle"></p><div class="photoCompare"><div><h2>Orijinal görsel</h2><canvas id="photoCanvas" width="900" height="600" aria-label="Ürün alanı seçimi"></canvas><div id="photoCandidates" class="photoCandidates"></div><button id="adjustPhoto" class="outline">Alanı düzelt</button><button id="rotatePhoto" class="outline">180° çevir</button><p class="hint" id="photoAdjustHint">Önerilen alanı kontrol edin. Gerekirse köşeleri sürükleyin veya yeni bir alan çizin.</p></div><div><h2>Seçilen ön yüz</h2><img id="photoCropPreview" alt="Seçilen görünür tasarım"><p class="notice light">Yalnız seçtiğiniz görünür baskı alanı aktarılır; otomatik temiz grafik yeniden oluşturulmaz. Okunmayan yazılar, gizli alanlar ve hasarlı baskılar tamamlanmaz. Logo/yazı ayrı vektörlere dönüştürülmez.</p></div></div><button id="confirmPhoto" class="primary full">Bu tasarımı kullan →</button><button id="cancelPhoto" class="back">← Başka dosya seç</button></section><section id="design" hidden><h1>Size özel ambalaj</h1><p class="subtitle" data-product-label>25 × 30 cm rulo ıslak havlu</p><div id="photoModeNote" class="notice light" hidden>Fotoğraf/grafik referansından taslak: seçilen alanın özgün renkleri ve içeriği korunur. Zemin önizlemesi seçilen alanın kenar renklerinden yaklaşık alınır; fotoğraf ışığı/gölgesi kalabilir. Renkleri kontrol edin; temiz baskı grafiği için teknik çalışma gerekir. İçindeki logo/yazı ayrı düzenlenemez. <button id="editPhotoRegion" class="textButton">Alanı yeniden seç</button><div class="referenceThumb"><img id="originalReference" alt="Orijinal kaynak görsel"><span>Orijinal referans</span></div></div><div class="workspace"><div class="visualSide"><div class="preview"><canvas id="package" width="1600" height="850" aria-label="Ambalaj önizlemesi"></canvas><p id="previewCaption">Beyaz ambalaj · Logonuzla başlayın</p></div><div class="actions"><button id="undo">↶ Geri al</button><button id="reset">⟳ Sıfırla</button><button id="download">↓ Görsel indir</button></div><p class="hint previewTip">Logo ve yazıyı önizleme üzerinde sürükleyebilirsiniz.</p></div><div class="editSide"><details class="editPanel" id="logoPanel" open><summary><span class="number">1</span><span>Logonuzu ekleyin<small>Logonuz özgün renkleriyle korunur</small></span><b>＋</b></summary><div class="panelBody"><div class="upload"><input id="upload" type="file" accept="image/png,image/jpeg,image/svg+xml" hidden><span id="filename">Henüz logo yok</span><button id="remove" aria-label="Logoyu kaldır">×</button></div><p class="hint">Ambalajın zeminini önizlemede kontrol edin; isterseniz rengini değiştirebilirsiniz. PNG, JPG, SVG · En fazla 8 MB.</p><p id="backgroundResult" class="backgroundResult" role="status" hidden></p><div id="backgroundChoice" class="backgroundChoice" hidden><p>Görselde tek bir zemin rengi belirlenemedi. Nasıl devam edelim?</p><button id="chooseWhite" class="outline">Beyaz ambalaj</button><button id="chooseColor" class="outline">Rengi ben seçeyim</button></div><details id="colorSuggestions" class="colorSuggestions" hidden><summary>Yaklaşık Pantone adayları</summary><div id="suggestionRows"></div><p class="hint">893 renklik topluluk kaynaklı Coated (C) ekran referansı arasında ΔE76 ile yakın adaylar. Resmî Pantone eşlemesi veya baskı onayı değildir; U serisi desteklenmez. Renk sayısı üretim için otomatik belirlenmez. Metalik/floresan renkler önerilmez. <a href="licenses/CHROMONYM-NOTICE.md" target="_blank" rel="noopener">Kaynak</a></p></details><label class="checkline"><input type="checkbox" id="removeWhite"> <span id="mergeLabel">Logo zeminini ambalajla birleştir</span></label><p class="hint" id="removeWhiteHint">Düz logo zemini ambalajla bütünleşir. Orijinal dosyanız değiştirilmez; bu seçimi kapatarak geri alabilirsiniz.</p><label class="line">Boyut <input id="size" type="range" min="20" max="170" value="100"><output id="sizeValue">%100</output></label><details class="advanced"><summary>Konum ve renk ayarları</summary><label class="line">Döndür <input id="rotation" type="range" min="-180" max="180" value="0"><output id="rotationValue">0°</output></label><div class="line">Hizalama <div class="align"><button data-align="left" aria-label="Sola hizala">☰</button><button data-align="center" aria-label="Ortala">≡</button><button data-align="right" aria-label="Sağa hizala">☰</button></div></div><h3>Logo rengini değiştir <small>İsteğe bağlı</small></h3><div id="logoColors" class="swatches"></div><button id="originalColors" class="textButton">Orijinal renkleri koru</button><p id="recolorHint" class="hint"></p></details><button class="outline panelNext" data-open-panel="1">Zemin rengini seç →</button></div></details><details class="editPanel" id="bgPanel"><summary><span class="number">2</span><span>Ambalaj zemini<small>Beyaz veya size özel bir renk</small></span><b>＋</b></summary><div class="panelBody"><div id="backgrounds" class="swatches large"></div><p id="logoGroundSuggestions" class="hint" role="status" hidden></p><p id="bgName" class="hint">Beyaz</p><label class="customColor">Başka bir renk seçin <input id="bgCustom" type="color" value="#ffffff" aria-label="Özel zemin rengi"></label><label class="pantoneLabel">Pantone kodunuz var mı? <small>İsteğe bağlı</small><input id="bgPantone" type="text" maxlength="32" placeholder="Örn. PANTONE 186 C" autocomplete="off"></label><div id="bgPantoneResult" class="pantoneLookup" aria-live="polite"></div><p class="hint pantoneNote">Kodunuz tasarım notuna eklenir. Kod bulunduğunda yaklaşık topluluk ekran rengi önerilir; siz uygulamadan görsel değişmez. Resmî Pantone eşlemesi değildir. Baskı rengi teknik ekipçe doğrulanır.</p><button class="outline panelNext" data-open-panel="2">İsterseniz yazı ekleyin →</button></div></details><details class="editPanel"><summary><span class="number">3</span><span>Yazı ekleyin<small>İsteğe bağlı · İsterseniz boş bırakın</small></span><b>＋</b></summary><div class="panelBody"><div class="textrow"><input id="text" value="" placeholder="İşletme adınız veya kısa mesajınız" maxlength="60" aria-label="Ambalaj yazısı"><button id="addText" class="outline">Yaz</button></div><div class="columns small"><label><h3>Yazı rengi</h3><div id="textColors" class="swatches compact"></div></label><label><h3>Yazı tipi</h3><select id="font"><option value="sans-serif">Sade</option><option value="serif">Klasik</option><option value="cursive">El yazısı</option></select></label></div><label class="line">Yazı boyutu <input id="textSize" type="range" min="24" max="100" value="60"></label><label class="customColor">Başka bir yazı rengi <input id="textCustom" type="color" value="#800d2e" aria-label="Özel yazı rengi"></label><label class="pantoneLabel">Yazı için Pantone kodu <small>İsteğe bağlı</small><input id="textPantone" type="text" maxlength="32" placeholder="Örn. PANTONE 186 C" autocomplete="off"></label><div id="textPantoneResult" class="pantoneLookup" aria-live="polite"></div><p class="hint pantoneNote">Kod ve ekran rengi yaklaşık referanstır; fiziksel baskı rengi teknik onay gerektirir.</p></div></details><div class="notice">Bu çalışma görsel önizlemedir. Baskıya hazır grafik dosyası ayrıca hazırlanıp onayınıza sunulur.</div><button class="primary full" id="next">Fiyatı gör →</button></div></div><p class="footnote" data-product-dimensions>25 × 30 cm havlu ölçüsüdür. Ekran ve baskı renkleri farklı görünebilir.</p></section><section id="pricing" hidden><h1>Fiyatınız</h1><div class="notice">ⓘ &nbsp; Seçtiğiniz adet ve güncel birim fiyatlarla hesaplanır. Klişe bedeli renk sayısına göre hesaplanır; kesin renk ayrımı teknik incelemede doğrulanır. Kesin teklif ve baskı onayı değildir.</div><article><h2>Tasarımınız ve adet bilgisi</h2><div class="priceSettings"><div><img id="mini" alt="Tasarladığınız temsili ambalaj"><h2 data-product-label>25 × 30 cm rulo ıslak havlu</h2><p class="hint">Görsel önizleme · Baskıya hazır değildir</p></div><div><div class="fields"><label>Adet (isterseniz artırın)<input id="qty" type="number" min="5200" max="1000000" step="1" value="5200"></label><label>Teslimat ili<select id="province" required></select></label><label id="districtField" hidden>İlçe<select id="district" disabled></select></label></div><p class="hint" id="minimumNote"></p><button id="useMinimum" class="outline" hidden></button><p class="hint" id="boxes"></p><div id="photoPriceNote" class="notice light" hidden>Fotoğraf renk/klişe sayısını kesinleştirmez. Aşağıdaki zemin seçimi fiyat varsayımıdır; üretim için teknik inceleme gerekir.</div><label id="photoQuoteBgLabel" hidden>Zemin fiyat varsayımı<select id="photoQuoteBg"><option value="unknown">Teknik incelemede</option><option value="white">Beyaz</option><option value="color">Renkli / bölgesel renkli</option></select></label><div class="fields two"><label>Tahmini baskı rengi sayısı (isterseniz düzeltin)<select id="inks"><option value="" selected>Teknik incelemede belirlenecek</option><option value="0">0 — beyaz dışında baskı yok</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label></div><p class="hint" id="inkEstimateNote">Görselden yaklaşık hesaplanır. Renkli zemin dahildir; beyaz sayılmaz. Kesin ayrım teknik incelemede doğrulanır.</p></div></div></article><article><h2>Fiyat dökümü <small>KDV HARİÇ</small></h2><div id="breakdown"></div><p id="deliveryNote" class="hint"></p><p class="hint" data-commercial-vat>Fiyatlara %20 KDV dahil değildir.</p></article><details class="priceNotes"><summary>Fiyat notları ve koşullar</summary><p data-commercial-prices>Birim fiyatlar: beyaz 2,90 TL/adet; renkli 3,30 TL/adet.</p><p data-commercial-quantities>Beyaz için en az 5.200, renkli için en az 10.000 adet. Koli başına 400 adet; kalan ürün için bir üst koli hesaplanır. Yeni klişe renk başına 1.000 TL.</p><p data-commercial-vat>Fiyatlara %20 KDV dahil değildir.</p><p>Teslim süresi 25 takvim günü (başlangıç ve teslim tarihi teyit edilir); onay/faturalama sonrası %50, kalan %50 üretim bitiminde ve sevkten önce. Bu demo sipariş veya ödeme almaz. Tüm tutarlar kesin teklif öncesi doğrulanır.</p><p>Pantone zemin kodu girildiğinde renkli zemin fiyatı baz alınır; kodun renk eşlemesi ve teknik uygunluğu ayrıca kontrol edilir.</p></details><div class="notice">Bu görsel, logonuzun ürün üzerinde nasıl görüneceğini gösterir. Baskıya hazırlık çalışması sipariş onayınızdan sonra ayrıca yapılır.</div><button id="review" class="primary full">Teklif önizlemesini oluştur →</button><p class="footnote">Yalnızca bu ekranda önizleme oluşturulur; hiçbir yere gönderilmez.</p><button id="back" class="back">← Tasarıma dön</button></section><section id="summary" hidden><h1>Tasarım ve teklif önizlemesi</h1><div class="notice">✓ Yerel önizleme hazır. Gönderim yapılmadı.</div><article><img id="finalImage" class="finalImage" alt="Son tasarım önizlemesi"><div id="finalDetails"></div><button id="downloadQuote" class="primary full">Teklif görselini indir (JPG)</button><div id="quoteDownloadPreview" hidden><p class="hint">İndirme başlamazsa görsele basılı tutup kaydedin. Cihazınıza kaydedildiğini bu demo doğrulayamaz.</p><a id="quoteOpen" target="_blank" rel="noopener">Görseli aç</a><img id="quoteImage" alt="Tek sayfalık ön teklif JPG görseli"></div></article><button id="summaryBack" class="primary full">← Tasarımı düzenlemeye dön</button></section><p id="status" role="status" aria-live="polite"></p><footer>Özel prototip · Hiçbir gerçek sipariş veya ödeme alınmaz.</footer></main></body></html>
+diff --git a/frontend/logo-source-discovery.js b/frontend/logo-source-discovery.js
+new file mode 100644
+index 0000000..1058539
+--- /dev/null
++++ b/frontend/logo-source-discovery.js
+@@ -0,0 +1,43 @@
++/* Discovery is supplementary evidence. A web match never grants artwork approval. */
++(function(root){'use strict';
++function create({fetcher,encode,notify=()=>{},timeout=12000}){
++ let active=null,capability=null;
++ const attempted=new Set();
++ function cancel(){active?.abort();active=null;}
++ async function discover({identity,file,current,needed}){
++  cancel();
++  if(!needed||!identity||!current()||attempted.has(identity))return null;
++  const controller=new AbortController();active=controller;
++  const timer=setTimeout(()=>controller.abort(),timeout);
++  const live=()=>active===controller&&!controller.signal.aborted&&current();
++  try{
++   if(capability===null){
++    const response=await fetcher('/api/logo-source-search',{credentials:'same-origin',cache:'no-store',signal:controller.signal});
++    if(!live())return null;
++    if(!response.ok)return {status:'unavailable'};
++    capability=(await response.json()).enabled===true;
++   }
++   if(!live())return null;
++   if(!capability)return {status:'unconfigured'};
++   const body=await encode(file);
++   if(!live()||!body||body.size>1024*1024)return null;
++   attempted.add(identity);
++   if(attempted.size>16)attempted.delete(attempted.values().next().value);
++   notify({status:'searching',identity});
++   const response=await fetcher('/api/logo-source-search',{method:'POST',credentials:'same-origin',cache:'no-store',headers:{'content-type':body.type},body,signal:controller.signal});
++   if(!live())return null;
++   if(!response.ok){notify({status:'unavailable',identity});return {status:'unavailable'};}
++   const data=await response.json();
++   if(!live())return null;
++   const https=value=>{try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password?u.href:null;}catch{return null;}};
++   const matches=(Array.isArray(data.matches)?data.matches:[]).slice(0,10).map(m=>({image:https(m.image),source:https(m.source)})).filter(m=>m.image&&m.source);
++   const result={status:matches.length?'candidates':'no_match',identity,verified:false,matches};
++   notify(result);return result;
++  }catch{if(active===controller&&current())notify({status:'unavailable',identity});return null;}
++  finally{clearTimeout(timer);if(active===controller)active=null;}
++ }
++ return {discover,cancel};
++}
++const api={create};
++if(typeof module!=='undefined')module.exports=api;else root.LogoSourceDiscovery=api;
++})(typeof globalThis!=='undefined'?globalThis:this);
+diff --git a/frontend/processing-lifecycle.js b/frontend/processing-lifecycle.js
+index fb3e870..c43e71d 100644
+--- a/frontend/processing-lifecycle.js
++++ b/frontend/processing-lifecycle.js
+@@ -2,6 +2,22 @@
+  * Legacy masking algorithms remain bounded and separately named in the result contract. */
+ const processingSession=ProcessingSession.create();globalThis.processingSession=processingSession;
+ let processingContext=null;const sourceIdentityCache=new WeakMap();
++globalThis.HijyenLabSourceDiscoveryClient=globalThis.LogoSourceDiscovery?.create({
++ fetcher:(...args)=>fetch(...args),
++ encode:async file=>{
++  if(!['image/png','image/jpeg'].includes(file.type))return null;
++  const bitmap=await createImageBitmap(file);
++  try{
++   UploadFormat.dimensions(bitmap.width,bitmap.height);
++   const canvas=document.createElement('canvas'),scale=Math.min(1,960/Math.max(bitmap.width,bitmap.height));
++   canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
++   const context=canvas.getContext('2d');context.fillStyle='#ffffff';context.fillRect(0,0,canvas.width,canvas.height);context.drawImage(bitmap,0,0,canvas.width,canvas.height);
++   return await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.88));
++  }finally{bitmap.close();}
++ },
++ notify:result=>{state.logoSourceDiscovery=result;if(result.status==='searching')status('Daha net logo kaynağı aranıyor; görselin küçük bir kopyası arama hizmetine gönderiliyor.');else if(result.status==='candidates')status('Alternatif logo kaynakları bulundu; marka eşleşmesi henüz doğrulanmadı.');else if(result.status==='no_match')status('Daha net bir logo kaynağı bulunamadı.');else if(result.status==='unavailable')status('Logo kaynağı araması tamamlanamadı.');}
++});
++
+ function frameOfContext(){return processingSession.getState().frame;}
+ function captureSourcePackageGround(img){
+  state.sourcePackageGroundEvidence=null;
+@@ -40,7 +56,7 @@ function clearResetUploadSource(){
+  $('pdfPages')?.replaceChildren();$('photoCandidates')?.replaceChildren();
+  for(const id of ['originalReference','whiteCarrierOriginal','whiteCarrierProposed','brandRegionOriginal','brandRegionExtracted'])$(id)?.removeAttribute?.('src');
+ }
+-function cancelCurrentProcessing(reason='cancel'){globalThis.HijyenLabJourneyMotion?.reset();globalThis.ReferenceRecovery?.clear();if(reason==='reset')clearResetUploadSource();loading++;if(globalThis.processingSession)processingSession.cancel();processingContext=null;state.designProcessing=false;state.extractionApprovalRequired=!!(state.logo||state.photoLayout);approvedDesignFingerprint=null;invalidateQuote();disposePdf();if(typeof printInkKey!=='undefined')printInkKey=null;}
++function cancelCurrentProcessing(reason='cancel'){globalThis.HijyenLabSourceDiscoveryClient?.cancel();state.logoSourceDiscovery=null;globalThis.HijyenLabJourneyMotion?.reset();globalThis.ReferenceRecovery?.clear();if(reason==='reset')clearResetUploadSource();loading++;if(globalThis.processingSession)processingSession.cancel();processingContext=null;state.designProcessing=false;state.extractionApprovalRequired=!!(state.logo||state.photoLayout);approvedDesignFingerprint=null;invalidateQuote();disposePdf();if(typeof printInkKey!=='undefined')printInkKey=null;}
+ async function sourceIdentity(file,bytes){if(!globalThis.crypto?.subtle)throw Error('Bu tarayıcıda güvenli dosya kontrolü kullanılamıyor. Uygulamayı HTTPS üzerinden açın.');if(sourceIdentityCache.has(file))return sourceIdentityCache.get(file);const digest=await crypto.subtle.digest('SHA-256',bytes),sha256=Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,'0')).join('');const identity={name:file.name,mime:file.type||'unknown',byteLength:file.size,sha256,identityBasis:'exact-uploaded-file-bytes; local-only'};sourceIdentityCache.set(file,identity);return identity;}
+ // Reviewed reference artwork keyed by exact input bytes, never by a guessed name.
+ const ghaliaReference={filename:'ghalia-reviewed-logo.png',version:'019d602ad28b',ground:'#742c40'};
+@@ -167,6 +183,7 @@ async function recoverVerifiedMenuLogo(identity,token,file){
+ }
+ async function routeUploadedFile(file,mode='auto'){
+  if(!file||(typeof isUnprinted==='function'&&isUnprinted()))return;
++ globalThis.HijyenLabSourceDiscoveryClient?.cancel();state.logoSourceDiscovery=null;
+  if(state.quoteSource==='source-reference'){
+   state.sourcePhoto=null;state.sourceKind=null;state.referenceInkDeclaration=null;photoImg=null;
+  }
+@@ -197,7 +214,13 @@ async function routeUploadedFile(file,mode='auto'){
+  finally{if(processingContext===context){state.designProcessing=false;printInkKey=null;syncPrintInks();refresh();if(state.designBlocked){
+   if(['auto','photo'].includes(mode)&&globalThis.ReferenceRecovery?.showSourcePreview&&!contentSafetyError())await globalThis.ReferenceRecovery.showSourcePreview();
+   if(processingContext===context&&state.designBlocked)showDesignIssue();
+- }}}
++ }
++ if(globalThis.HijyenLabSourceDiscoveryClient&&processingContext===context&&processingSession.isCurrent(token)&&!contentSafetyError()){
++  const live=processingSession.getState(),frame=live.frame;
++  const needed=!['verified-package-artwork','verified-menu-preview'].includes(state.sourceKind)&&(live.status==='needs-selection'||state.designBlocked||state.extractionSourceLimited||state.extractionApproximate||state.nativeContentReviewRequired||!!(frame&&Math.min(frame.width,frame.height)<256));
++  void globalThis.HijyenLabSourceDiscoveryClient?.discover({identity:live.source?.sha256,file,current:()=>processingContext===context&&processingSession.isCurrent(token),needed});
++ }
++ }}
+ }
+ function restoreProcessingResult(record){if(!record){state.processingResult=null;return;}const token=processingSession.begin(record.source);processingContext={token,pending:null,produced:true};processingSession.decoded(token,record.frame);processingContext.pending={...record};delete processingContext.pending.source;delete processingContext.pending.operation;delete processingContext.pending.approval;delete processingContext.pending.designRevision;state.processingResult=processingSession.commit(token,processingContext.pending);syncProcessingDesign();state.nativeContentReviewRequired=!!record.contentReviewRequired;state.extractionApprovalRequired=!!state.extractionApproximate||state.nativeContentReviewRequired;}
+ function recordManualRegionResult(result){const old=processingSession.getState(),identity=old.source;if(!identity?.sha256||!regionSource){state.processingResult=null;return;}const token=processingSession.begin(identity);processingContext={token,pending:null,produced:true};recordDecodedFrame(regionSource,selectedPdfLogoFile?'pdf-rendered-page':'browser-decoded');const quad=result.quad.map(p=>({x:p.x*regionSource.width,y:p.y*regionSource.height})),box=[Math.min(...quad.map(p=>p.x)),Math.min(...quad.map(p=>p.y)),Math.max(...quad.map(p=>p.x)),Math.max(...quad.map(p=>p.y))];stageProcessingResult('manual-perspective-region','v18',box,{maskBasis:result.localPanelPreserved?'Original rectified selected-region pixels; local colored field retained without alpha deletion.':'Rectified-region local coordinates; then alpha crop and six-pixel padding.',transforms:['browser-decode','user-selected-quad','homography-rectification',...(result.localPanelPreserved?['preserve-source-local-panel']:['local-background-mask','alpha-crop-plus-padding']),'aspect-safe-fit'],limitations:['User-selected region, not automatic semantic validation.'],extra:{sourceQuad:quad}});finalizeProcessingResult();}
+diff --git a/frontend/rear-contrast.js b/frontend/rear-contrast.js
+index d64aec0..785aacf 100644
+--- a/frontend/rear-contrast.js
++++ b/frontend/rear-contrast.js
+@@ -2,7 +2,7 @@
+ (function(root){'use strict';
+ const candidates=[['#ffffff','Beyaz'],['#f3eee3','Açık krem'],['#e6ebef','Açık gri'],['#17263b','Lacivert'],['#242424','Koyu gri']];
+ function luminance(rgb){return rgb.map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);}
+-function score(samples,hex){if(!/^#[0-9a-f]{6}$/i.test(hex||''))return null;const bg=luminance([1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)));let total=0,low=0,sum=0;for(const sample of samples||[]){if(!Array.isArray(sample.rgb)||sample.rgb.length!==3||!sample.rgb.every(v=>Number.isFinite(v)&&v>=0&&v<=255)||!Number.isFinite(sample.count)||sample.count<=0)continue;const fg=luminance(sample.rgb),ratio=(Math.max(bg,fg)+.05)/(Math.min(bg,fg)+.05);total+=sample.count;sum+=ratio*sample.count;if(ratio<2)low+=sample.count;}return total?{average:sum/total,lowFraction:low/total}:null;}
++function score(samples,hex){if(!/^#[0-9a-f]{6}$/i.test(hex||''))return null;const bg=luminance([1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)));let total=0,low=0,sum=0,weak=0;for(const sample of samples||[]){if(!Array.isArray(sample.rgb)||sample.rgb.length!==3||!sample.rgb.every(v=>Number.isFinite(v)&&v>=0&&v<=255)||!Number.isFinite(sample.count)||sample.count<=0)continue;const fg=luminance(sample.rgb),ratio=(Math.max(bg,fg)+.05)/(Math.min(bg,fg)+.05);total+=sample.count;sum+=ratio*sample.count;if(ratio<2)low+=sample.count;if(ratio<3)weak+=sample.count;}return total?{average:sum/total,lowFraction:low/total,weakFraction:weak/total}:null;}
+ function suggest(samples,current){const now=score(samples,current);if(!now||now.lowFraction<=.2)return [];return candidates.map(([color,label])=>({color,label,score:score(samples,color)})).filter(c=>c.color.toLowerCase()!==current.toLowerCase()&&c.score&&c.score.lowFraction<=.2&&c.score.average>now.average+1).sort((a,b)=>b.score.average-a.score.average).slice(0,3).map(({color,label})=>({color,label}));}
+ function singleInk(samples){const useful=(samples||[]).filter(s=>s.count>0&&Array.isArray(s.rgb));const total=useful.reduce((n,s)=>n+s.count,0);if(!total)return false;let reference=null;for(const sample of useful){if(sample.count/total<.02)continue;const [r,g,b]=sample.rgb,max=Math.max(r,g,b),min=Math.min(r,g,b),delta=max-min,saturation=delta/Math.max(1,max);let hue=delta<1?0:max===r?((g-b)/delta)%6:max===g?(b-r)/delta+2:(r-g)/delta+4;hue=(hue*60+360)%360;const tone={neutral:saturation<.18,hue};if(!reference)reference=tone;else if(tone.neutral!==reference.neutral||(!tone.neutral&&Math.min(Math.abs(tone.hue-reference.hue),360-Math.abs(tone.hue-reference.hue))>18))return false;}return !!reference;}
+ const api={score,suggest,singleInk};if(typeof module!=='undefined')module.exports=api;else root.RearContrast=api;
+diff --git a/frontend/welcome-layout.js b/frontend/welcome-layout.js
+index d511a22..3b15542 100644
+--- a/frontend/welcome-layout.js
++++ b/frontend/welcome-layout.js
+@@ -16,7 +16,7 @@
+     intro.append(eyebrow, title, description); picker.before(intro);
+     const upload = doc.querySelector('.simplePrimary label'), originalUploadText = upload?.textContent;
+     const hint = doc.createElement('p'); hint.id = 'welcomeUploadHint'; hint.textContent = 'Görseliniz yoksa renk sayısını belirterek ilerleyin.';
+-    const privacy = doc.createElement('small'); privacy.textContent = 'Görseliniz cihazınızda kalır.'; hint.append(privacy);
++    const privacy = doc.createElement('small'); privacy.textContent = 'Gerekirse daha net logo kaynağı aranır.'; hint.append(privacy);
+     doc.querySelector('.simplePrimary')?.after(hint);
+     const draft = doc.getElementById('draftPanel'); let draftOptions = null, draftSummary = null, previousDraftAttention = '';
+     if (draft) {
+diff --git a/scripts/check-logo-regressions.mjs b/scripts/check-logo-regressions.mjs
+index d071a07..f5ab7f4 100644
+--- a/scripts/check-logo-regressions.mjs
++++ b/scripts/check-logo-regressions.mjs
+@@ -13,6 +13,11 @@ const fixtures = [
+   'tests/fixtures/technical-frame/source.jpeg',
+ ];
+ const suites = [
++  'tests/logo-source-discovery.test.cjs',
++  'tests/logo-source-lifecycle.test.cjs',
++  'tests/logo-ground-readability.test.cjs',
++  'tests/logo-safe-margin.test.cjs',
++  'tests/logo-source-search.test.mjs',
+   'tests/first-viewport.test.cjs',
+   'tests/drag-geometry.test.cjs',
+   'tests/critical-gate-membership.test.cjs',
+diff --git a/teslim/OKUYUN.txt b/teslim/OKUYUN.txt
+new file mode 100644
+index 0000000..9db8e97
+--- /dev/null
++++ b/teslim/OKUYUN.txt
+@@ -0,0 +1,33 @@
++HijyenLab Tasarım Atölyesi — 5 Kasım 2026 çalışma paketi
++
++Bu paket, önceki 22 değişikliği ve bu oturumdaki ek kaynak kodunu birleştirir. Yayın yapılmadı. Paket kaynak koddur; önceki derlenmiş dist klasörü bilerek dağıtılmıyor. Yerel açılış: npm ci, npm run dev. Yayın derlemesi npm run build ile mevcut zorunlu regresyon kapısına tabidir.
++
++BU OTURUMDA EKLENENLER
++- Tüm yedi ürün ailesinde normal logo için %8 daha küçük başlangıç yerleşimi. Dikey/yatay/kare logolar ve 90 derece dönüş test edildi. Mevcut özel fotoğraf/zemin yerleşim payları korunur. Bu görsel güvenlik payıdır; fiziksel baskı ölçüsü sertifikası değildir.
++- Renk önerisi yalnız ortalama kontrasta dayanmaz. Logonun %2’den fazla kısmı çok düşük kontrastta veya %10’dan fazla kısmı yetersiz kontrastta kalıyorsa o zemin önerilmez. Marka rengi otomatik değiştirilmez.
++- Genel otomatik kaynak arama istemcisi yükleme akışına bağlandı. Küçük, yaklaşık, başarısız veya seçim bekleyen kaynaklarda ek arama denenir. Önceden doğrulanmış hazır kaynaklarda gereksiz arama yapılmaz.
++- Önce sunucu yeteneği kontrol edilir. Hizmet kapalıysa veya statik sitede uç nokta yoksa görsel gönderilmez. Etkinse en fazla 960 piksel uzun kenarlı, 1 MB sınırında JPEG kopyası gönderilir. Arama ve gönderim mesajı dürüstçe gösterilir.
++- Tekrar istek sınırı, 12 saniye zaman aşımı, sıfırlama/yeni yüklemede iptal, eski sonucun yeni kaynağa uygulanmasını engelleme, HTTPS aday süzme eklendi.
++- Arama sonuçları doğrulanmamış aday olarak tutulur; mevcut tasarımı, renkleri veya müşteri onayını değiştirmez.
++- Yeni testler zorunlu regresyon listesine eklendi; değişen dosyaların önbellek sürümleri güncellendi.
++
++ÖNCEKİ KOD PAKETİNDEN KORUNANLAR
++Flambau varsayılanı; ürününe göre koku önerisi; sade galeri başlıkları; Ghalia ve Mindel için kayıtlı kaynak kurtarma; zemin renginin ürün değişiminde taşınması; dik/yan yerleşim kontrolleri; havada kalan renk animasyonunun kaldırılması; renk seçici isteklerinin birleştirilmesi; panel içindeki Tamam düğmesi; kapalı panelde boş çerçevenin gizlenmesi; koku açıklamasındaki bordo şeridin kaldırılması; eski yükleme ve boş tasarımın onaylanmasını engelleyen kontroller. Kaynakta bunlar bulunur; tamamının bu oturumda gerçek tarayıcıda yeniden denendiği iddia edilmez.
++
++AÇIK İŞLER — TAMAMLANDI SAYILMAMALI
++1. Genel çevrim içi kaynak araması mevcut statik deneme sitesinde çalışmaz. Sunucu çalışma ortamı ve LOGO_VISION_API_KEY tanımı yoktur. Kod bunu etkinmiş gibi göstermemektedir. Uç nokta mevcut özel deneme sahibinin erişimiyle sınırlıdır.
++2. Bulunan adayın doğru markaya ait olduğunu, logonun tüm yazı/sembollerini içerdiğini ve mevcut kaynaktan daha iyi olduğunu doğrulayarak otomatik uygulama henüz yoktur. Bu nedenle tüm müşteriler için otomatik logo iyileştirme tamamlandı denemez.
++3. Kayıtlı Ghalia/Mindel örneklerinin başarısı genel marka tanıma veya her fotoğraftan kusursuz logo çıkarma kanıtı değildir.
++4. Eksiksiz yayın derlemesi ve mobil tarayıcı testi bu oturumda tamamlanmadı. Uzun genel regresyon koşusu tamamlanmadan kesildi; PASS kabul edilmedi. Ayrı hedefli sonuçlar test kayıtlarında bulunur.
++
++DOĞRULAMA
++- İlk hedefli grup: 14 test sonucu geçti.
++- Gerçek kaynak zemin/yerleşim, kontrast, sıfırlama ve önizleme grubu: 18 sonuç geçti.
++- Gerçek yükleme akışının aramayı çağırması ve içerik güvenliği: 2 test geçti.
++- Sunucu grubu: 34 test geçti.
++- TypeScript: npx tsc --noEmit geçti.
++- ESLint: 0 hata, 177 uyarı; uyarılar giderildi denmiyor.
++- Varlık sürüm kontrolü: 118 yerel başvuru geçti.
++- Hedefli testler toplamı: 68 başarılı sonuç. Bu, tüm uygulamada hata olmadığı anlamına gelmez.
++
++Test kayıtları teslim klasöründedir. Özel test görselleri dağıtıma yeni eklenmedi. Önceden kaynak arşivinde bulunan test fixture dosyaları korunur.
+diff --git a/teslim/asset-versions.txt b/teslim/asset-versions.txt
+new file mode 100644
+index 0000000..812a272
+--- /dev/null
++++ b/teslim/asset-versions.txt
+@@ -0,0 +1 @@
++[asset versions] PASS 118 local index references match frontend bytes
+diff --git a/teslim/extended-tests.txt b/teslim/extended-tests.txt
+new file mode 100644
+index 0000000..4e848e9
+--- /dev/null
++++ b/teslim/extended-tests.txt
+@@ -0,0 +1,53 @@
++PASS actual logo handler/prepareLogo/feedback, preserved frame, stale flag, metadata cache, scale failure, missing evidence fallback, white exterior masks, preserved inverse/local ground and explicit-only colored package pricing
++✔ tests/flat-ground-app.test.cjs (1021.299385ms)
++PASS contrast suggestions do not mutate until explicit choice, preserve logo, change shared background, invalidate/reapprove and restore prior background
++PASS explicit rear-only recolor preserves alpha/source and excludes multi-hue automatic flattening
++✔ tests/rear-contrast.test.cjs (498.51787ms)
++[
++  {
++    name: 'Real reset with multi-logo wrapper removes recovery source and cannot resurrect it',
++    status: 'PASS'
++  },
++  {
++    name: 'Retry before reset and fresh upload after reset both still work',
++    status: 'PASS'
++  },
++  {
++    name: 'Reset invalidates in-flight decode and its finally cannot restore source or design',
++    status: 'PASS'
++  },
++  {
++    name: 'Programmatic reset uses same boundary; ordinary cancel retains retry source',
++    status: 'PASS'
++  }
++]
++✔ tests/reset-source-lifecycle.test.cjs (157.621294ms)
++✔ bounded tiny ground 35,31,32 176x56 all rotations (240.243243ms)
++✔ bounded tiny ground 35,31,32 120x40 all rotations (73.617259ms)
++✔ bounded tiny ground 35,31,32 190x63 all rotations (176.592857ms)
++✔ bounded tiny ground 25,25,25 176x56 all rotations (116.456955ms)
++✔ bounded tiny ground 25,25,25 120x40 all rotations (63.921735ms)
++✔ bounded tiny ground 25,25,25 190x63 all rotations (125.541136ms)
++✔ bounded tiny ground 40,52,65 176x56 all rotations (99.150505ms)
++✔ bounded tiny ground 40,52,65 120x40 all rotations (44.301433ms)
++✔ bounded tiny ground 40,52,65 190x63 all rotations (104.028493ms)
++✔ thick, two-edge, large, tiny, transparent and local panel negatives (49.02408ms)
++✔ scene, stale identity, manual ground and forged small-ground metadata do not bypass scope (27.820959ms)
++✔ mandatory actual original Ülfet: original and rotations propose exact dark ground, no physical claim or pixel edit (456.437534ms)
++PASS same-ground foreground placement enlarges real mark with margin, original full source draw, centered foreground containment; local alternative keeps a modest safety margin
++PASS SHA-verified actual fullbleed mark placement: 702.3×387.0, full source retained
++✔ tests/source-ground-placement.test.cjs (815.005512ms)
++PASS source package ground: 49 cases; proposals vs product-layout evidence, local panels, source/page binding, unchanged pixels and ink deduplication; 3 SHA-verified actual private sources included
++✔ tests/source-package-ground.test.cjs (3689.855507ms)
++{"case":"existing alpha preparation","prepared":[176,56],"anchor":{"left":35,"top":6,"right":129,"bottom":52},"sourceRect":{"x":0,"y":0,"width":176,"height":56},"scale":5.089361702127661,"sourceUnchanged":true}
++{"case":"opaque maskAllowed=false","prepared":[176,56],"anchor":{"left":35,"top":6,"right":129,"bottom":52},"sourceRect":{"x":0,"y":0,"width":176,"height":56},"scale":5.089361702127661,"sourceUnchanged":true}
++PASS actual prepareLogo + visibleLogoPlan, both opaque/alpha routes; source immutable
++✔ tests/visible-artwork-app.test.cjs (666.594629ms)
++ℹ tests 18
++ℹ suites 0
++ℹ pass 18
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 3718.929266
+diff --git a/teslim/full-gate.txt b/teslim/full-gate.txt
+new file mode 100644
+index 0000000..b90525f
+--- /dev/null
++++ b/teslim/full-gate.txt
+@@ -0,0 +1,288 @@
++[logo release gate] tests/logo-source-discovery.test.cjs
++✔ unconfigured and static previews never encode or send an image (4.284063ms)
++✔ automatic discovery is bounded, keeps only HTTPS candidates and never approves (2.105236ms)
++✔ late search results cannot overwrite a replacement upload (2.938273ms)
++✔ oversized encoding and good artwork never start provider search (4.544176ms)
++✔ timeout releases processing and reports the unavailable search (10.372239ms)
++ℹ tests 5
++ℹ suites 0
++ℹ pass 5
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 29.715092
++[logo release gate] tests/logo-ground-readability.test.cjs
++✔ bright majority cannot conceal a disappearing minority detail (1.355926ms)
++✔ source gold is readable on navy and no recommendation invents a new logo color (0.35787ms)
++ℹ tests 2
++ℹ suites 0
++ℹ pass 2
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 8.581858
++[logo release gate] tests/logo-safe-margin.test.cjs
++✔ all seven products retain eight percent breathing room for vertical, horizontal and square logos (48.898653ms)
++ℹ tests 1
++ℹ suites 0
++ℹ pass 1
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 59.238394
++[logo release gate] tests/logo-source-search.test.mjs
++✔ missing configuration, cross-origin and oversized uploads do not reach the provider (18.081614ms)
++✔ returns candidate source pairs without approving an image or forwarding credentials to a source (2.851312ms)
++ℹ tests 2
++ℹ suites 0
++ℹ pass 2
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 32.225642
++[logo release gate] tests/first-viewport.test.cjs
++✔ viewport budget includes controls, fixed help and clearance with safe limits (1.279501ms)
++✔ mount moves original gallery once without canvas resizing or focus changes (2.839815ms)
++✔ resize and mutation callbacks converge, and respond to viewport changes (1.281153ms)
++✔ scroll does not inflate gallery; hidden, working and non-design views are untouched (1.388536ms)
++✔ static help spends no height; no source, price, focus, storage or control mutation (1.701908ms)
++ℹ tests 5
++ℹ suites 0
++ℹ pass 5
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 17.100854
++[logo release gate] tests/drag-geometry.test.cjs
++PASS desktop centered point and 100px delta
++PASS mobile content width delta
++PASS horizontal letterbox does not start drag/history/capture
++PASS letterbox ignored even with movable logo
++PASS vertical letterbox rejected
++PASS border and asymmetric padding excluded
++PASS short desktop letterbox scale is content scale
++PASS zero geometry safely ignored
++PASS captured movement outside bitmap retains existing text clamps
++PASS nonstandard product area clamps retained
++PASS pointer cancel stops movement and repeated drag resumes
++PASS rotation containment 0/30/90/180 degrees remains in print area
++PASS drag changes only placement fields and preserves design settings
++PASS non-contain canvas maps whole content box
++14 tests passed
++[logo release gate] tests/critical-gate-membership.test.cjs
++{
++  "check": "critical topical suite release-gate membership",
++  "source": "/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi",
++  "totalGated": 148,
++  "required": 24,
++  "missing": []
++}
++[logo release gate] tests/welcome-layout.test.cjs
++PASS welcome layout: opening/pending/error/back/reset, idempotent mount, original upload/restore nodes and handlers, unchanged storage consent, secondary draft controls, new restore/error reopening with manual collapse preserved.
++PASS welcome explicit unprinted/printed events preserve native upload and opt-in while hiding logo onboarding.
++[logo release gate] tests/rear-layout.test.cjs
++PASS rear safe strips, no seam overlap, sponsor ratio, optional fields, QR opaque quiet zone, contrast and explicit overflow refusal
++PASS V34 upper-only centered contacts, native icons, sponsor/web stack, QR center and explicit ink color
++PASS dense five-field vertical sponsor stack, compact contact row, native web/location icons and QR clearance
++PASS large simple text, compact phone/Instagram readability, dense adaptive fallback
++PASS anonymous representative natural-width proportions {"pairFraction":0.5130587066831163,"sloganFraction":0.3395584262566472}
++PASS V35 sponsor priority: logo 119.6 secondary text 62.400000000000006 font 24
++[logo release gate] tests/rear-layout-profiles.test.cjs
++PASS BM12 unchanged; BM15/BM545 profile-safe upper-only sponsor/contact layouts with actual independently decoded QR
++[logo release gate] tests/rear-contrast.test.cjs
++PASS contrast suggestions do not mutate until explicit choice, preserve logo, change shared background, invalidate/reapprove and restore prior background
++PASS explicit rear-only recolor preserves alpha/source and excludes multi-hue automatic flattening
++[logo release gate] tests/rear-text-ink.test.cjs
++✔ white ground reuses exact existing navy, not invented black (1.257458ms)
++✔ dark ground selects darkest readable existing light ink, not ground itself (0.382888ms)
++✔ white is substrate, not automatically invented as a text ink (0.224639ms)
++✔ no readable palette returns no automatic color (0.322937ms)
++✔ unknown or malformed palette/ground is rejected (0.187423ms)
++✔ selector is deterministic and does not mutate palette or choose a lighter eligible ink (0.836813ms)
++✔ explicit text choice is handled independently, never changed by selector (0.616781ms)
++✔ explicit rear contrast uses the same threshold including white knockout (0.47012ms)
++ℹ tests 8
++ℹ suites 0
++ℹ pass 8
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 17.706197
++[logo release gate] tests/rear-text-ink-ui.test.cjs
++✔ all eight navy logos, then website, then QR retain one plate and exact navy (171.330696ms)
++✔ all five optional contact roles reuse navy without an extra plate (317.259396ms)
++✔ sampled charcoal text keeps actual color without becoming a second explicit-gray plate (139.474412ms)
++✔ explicit rear color wins; explicit front color has priority over automatic palette (99.517105ms)
++✔ unknown palette does not invent text ink; validation and export are blocked (70.311906ms)
++✔ same navy ground cannot use itself as text; existing light ink resolves dark ground (74.101634ms)
++✔ all three actual product profiles render the same selected text ink recorded in snapshot (331.699221ms)
++✔ manual rear and inherited front colors cannot bypass current-ground contrast (126.733421ms)
++ℹ tests 8
++ℹ suites 0
++ℹ pass 8
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 1340.804731
++[logo release gate] tests/rear-qr-decode.test.cjs
++PASS: four actual rear layouts independently decoded; black/gold carriers, optional contact text, opaque quiet zone and oversized URL rejection
++PASS navy/burgundy/green QR independently decoded by both renderers; exact ink retained, missing/light colors rejected without fallback
++[logo release gate] tests/logo-release-gate.test.mjs
++PASS missing fixture and failed test stop before public mutation; passing gate copies frontend only.
++[logo release gate] tests/rear-layout-spacing-private.test.cjs
++✔ optional rear text labels have explicit separation and select top space (1.115013ms)
++✔ rear keyboard ring stays visible but inside the control (0.305942ms)
++✔ help moves into flow only with visible open rear editor (0.163316ms)
++✔ edited CSS parses and cache tokens match (34.693038ms)
++ℹ tests 4
++ℹ suites 0
++ℹ pass 4
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 43.71123
++[logo release gate] tests/startup-preview-performance.test.cjs
++✔ blank welcome skips 2 full raster reads and 1.36 million pixel shading without changing output (10610.087112ms)
++✔ logo, text, pending text, unprinted and declared output remains pixel-identical (6324.741517ms)
++✔ covered preview does zero canvas work; visible transition resumes latest product/artwork (105.186591ms)
++✔ gallery visibility event fires once after actual uncover, including upload cancel and draft/artwork (17.980002ms)
++✔ product-to-product galleries and background/foreground preserve deferral without stale reveal (2.650341ms)
++✔ stale gallery visibility never suppresses synchronous logo, text or quote-mode rendering (4502.098426ms)
++ℹ tests 6
++ℹ suites 0
++ℹ pass 6
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 21585.479979
++[logo release gate] tests/gallery-source-assets.test.cjs
++✔ 24 visible lossless crop PNGs replace all 12 full proof sheets (7.931812ms)
++✔ actual coverage stays honest without public missing-slot placeholders (0.366253ms)
++ℹ tests 2
++ℹ suites 0
++ℹ pass 2
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 14.751245
++[logo release gate] tests/gallery-raster.test.cjs
++✔ 12 exact sources, both faces, viewport and DPR matrix stays within source pixels and memory limits (6.751941ms)
++✔ mobile DPR follows physical pixels until actual source detail caps allocation (0.173663ms)
++✔ resize storms coalesce to one raster draw and DPR changes redraw once without image reload (1.655348ms)
++✔ 100 interrupted source changes cancel old loads, stale results and queued paints; dismissal releases canvas (2.996983ms)
++ℹ tests 4
++ℹ suites 0
++ℹ pass 4
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 18.486804
++[logo release gate] tests/opening-examples.test.cjs
++✔ five real BM12 samples autoplay, preserve crop ratios, and finish on blank (6.811821ms)
++✔ short galleries show only available real samples, then blank; empty products skip gallery (11.63387ms)
++✔ stale callbacks and front/back face changes never paint a mismatched crop (2.282345ms)
++✔ pause, upload cancellation and customer/quote isolation are preserved (2.775579ms)
++ℹ tests 4
++ℹ suites 0
++ℹ pass 4
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 32.93372
++[logo release gate] tests/opening-examples-accessibility.test.cjs
++✔ focus, hover and queued callbacks cannot advance or hide an engaged gallery (6.218456ms)
++✔ manual terminal focus transfer and reduced-motion manual controls remain correct (2.679284ms)
++✔ explicit pause survives hover, focus, visibility and motion preference changes (1.618843ms)
++✔ focus transfers within the gallery remain paused until the last focus leaves (2.594606ms)
++✔ fifth sample waits during hover and automatic completion is stable after hover leaves (2.150466ms)
++✔ reduced motion keeps both arrows and does not silently start a paused gallery (2.243697ms)
++✔ live motion setting returns to focused manual operation until focus leaves (1.877023ms)
++ℹ tests 7
++ℹ suites 0
++ℹ pass 7
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 26.855385
++[logo release gate] tests/opening-examples-mobile.test.cjs
++✔ touch boundary events and sticky CSS hover never stop decoded automatic samples (6.615666ms)
++✔ mouse hover pauses, leaves resume, and stale queued timers cannot double-advance (1.466564ms)
++✔ legacy mouse-only fallback is gated by a real hover capability (3.136574ms)
++✔ focus settlement after focusout resumes only after activeElement really leaves (1.629399ms)
++✔ explicit play permits its own focused button, but other focused controls keep protection (1.410219ms)
++✔ viewport and page visibility each require a fresh readable 2500 ms interval (2.369306ms)
++✔ no timer before image decode, including visibility and media changes during loading (1.443328ms)
++✔ failed sample advances to the next available source; all failures end at unchanged blank (3.00765ms)
++✔ all five visible samples take 12500 ms of readable time and leave the initial white mockup unchanged (2.911284ms)
++✔ count, ordinal and long explanatory copy is removed rather than replaced (2.289416ms)
++✔ reduced motion keeps manual controls and cannot be overridden by explicit play (1.248845ms)
++✔ existing customer design, upload, and product changes never get overwritten by the gallery (1.824714ms)
++✔ batched viewport changes use the newest canvas intersection state (1.347474ms)
++✔ a final-image failure never dismisses focused, paused, or reduced-motion inspection (4.010413ms)
++✔ manual navigation or face inspection revokes explicit-play focus exception (4.603459ms)
++ℹ tests 15
++ℹ suites 0
++ℹ pass 15
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 46.830585
++[logo release gate] tests/new-plate-only.test.cjs
++✔ BM12: legacy plate values price identically to new, no pending discount in either ground (1.898395ms)
++✔ BM11: legacy plate values price identically to new, no pending discount in either ground (0.256567ms)
++✔ BM13: legacy plate values price identically to new, no pending discount in either ground (0.135625ms)
++✔ BM15: legacy plate values price identically to new, no pending discount in either ground (0.113191ms)
++✔ BM21: legacy plate values price identically to new, no pending discount in either ground (0.2454ms)
++✔ BM545: legacy plate values price identically to new, no pending discount in either ground (0.180292ms)
++✔ OSHIBORI: legacy plate values price identically to new, no pending discount in either ground (11.070985ms)
++✔ customer controls and all frontend copy remove existing-plate alternative entirely (7.403115ms)
++✔ canonical snapshot ignores obsolete input and is always new/none by print mode (1.584281ms)
++✔ obsolete declared snapshots cannot produce or reuse a quote token (2.213701ms)
++✔ v4 legacy draft read normalizes only returned copy, retains bytes and durable source (7.601749ms)
++✔ v5 legacy draft read normalizes only returned copy, retains bytes and durable source (2.002333ms)
++✔ reference JPG header distinguishes source reference from a created design (0.142204ms)
++ℹ tests 13
++ℹ suites 0
++ℹ pass 13
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 41.373509
++[logo release gate] tests/logo-design.test.cjs
++✔ strict descriptor preserves name and optional values, owns color array (2.400043ms)
++✔ empty and unbreakable long names are recoverable layout errors, never truncated (12.698857ms)
++✔ all products, sectors, styles, variations render only actual selected flat inks (4597.318839ms)
++✔ one color has no hidden second ink, and three compositions differ (82.447777ms)
++✔ palette rejects unexpected opaque pixels, malformed buffers and empty art (0.286953ms)
++✔ limited short wish matching is honest, selected sector wins, no personal initials invented (14.200522ms)
++✔ canonical per-ink mask raster survives PNG decode across every product, sector, composition and variation (11186.908695ms)
++✔ mask RGB is irrelevant to exact recipe; arbitrary unexpected artwork RGB remains rejected (27.255227ms)
++✔ canonical raster fails closed for cross-ink mask overlap instead of creating or hiding a third ink (4.584169ms)
++ℹ tests 9
++ℹ suites 0
++ℹ pass 9
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 15943.678284
++[logo release gate] tests/logo-design-flow.test.cjs
++✔ local source is honest, SHA-bound, exact Turkish name, approval-gated and canonical palette priced (3398.505525ms)
++✔ only name required, optional sector unknown default, colors bounded at two, auto reset and three distinct card compositions (109.294351ms)
++✔ new/previous ideas preserve name and optional values, back before selection parks pending name (88.550842ms)
++✔ editing preserves caret and invalidates approval before raster; unsafe name and wish block all ideas (561.933527ms)
+diff --git a/teslim/lifecycle-tests.txt b/teslim/lifecycle-tests.txt
+new file mode 100644
+index 0000000..5cdb94a
+--- /dev/null
++++ b/teslim/lifecycle-tests.txt
+@@ -0,0 +1,10 @@
++✔ actual upload lifecycle starts supplementary search for small artwork and revokes its token on reset (19.816226ms)
++✔ content safety failures never start a source lookup (8.377751ms)
++ℹ tests 2
++ℹ suites 0
++ℹ pass 2
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 192.715101
+diff --git a/teslim/lint.txt b/teslim/lint.txt
+new file mode 100644
+index 0000000..9e1084d
+--- /dev/null
++++ b/teslim/lint.txt
+@@ -0,0 +1,444 @@
++npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
++
++> hijyenlab-tasarim-atolyesi@0.1.0 lint
++> eslint . --ignore-pattern dist --ignore-pattern .next
++
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/app.js
++   25:10   warning  'clearDeclaration' is defined but never used           @typescript-eslint/no-unused-vars
++   31:10   warning  'setDeclaration' is defined but never used             @typescript-eslint/no-unused-vars
++   69:10   warning  'restoreSourceGroundIntent' is defined but never used  @typescript-eslint/no-unused-vars
++  131:10   warning  'visualPreviewImageData' is defined but never used     @typescript-eslint/no-unused-vars
++  175:171  warning  'photoMatteRgb' is assigned a value but never used     @typescript-eslint/no-unused-vars
++  193:20   warning  'activePdfTask' is assigned a value but never used     @typescript-eslint/no-unused-vars
++  223:221  warning  'e' is defined but never used                          @typescript-eslint/no-unused-vars
++  243:16   warning  'routeImageCandidate' is defined but never used        @typescript-eslint/no-unused-vars
++  264:10   warning  'e' is defined but never used                          @typescript-eslint/no-unused-vars
++  323:8    warning  'design' is assigned a value but never used            @typescript-eslint/no-unused-vars
++  401:10   warning  'fitLogoToPrintArea' is defined but never used         @typescript-eslint/no-unused-vars
++  401:51   warning  'density' is assigned a value but never used           @typescript-eslint/no-unused-vars
++  409:10   warning  'inkCoverage' is defined but never used                @typescript-eslint/no-unused-vars
++  428:10   warning  'leadFingerprint' is defined but never used            @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/brand-region-ui.js
++  60:10  warning  'resetRegionEditor' is defined but never used                   @typescript-eslint/no-unused-vars
++  63:10  warning  'designFingerprint' is defined but never used                   @typescript-eslint/no-unused-vars
++  64:5   warning  'approvedDesignFingerprint' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/experience-ui.js
++  85:99  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/fragrance-ui.js
++   9:69   warning  'fragranceStats' is assigned a value but never used  @typescript-eslint/no-unused-vars
++  19:10   warning  'fragranceReady' is defined but never used           @typescript-eslint/no-unused-vars
++  20:10   warning  'restoreFragrance' is defined but never used         @typescript-eslint/no-unused-vars
++  27:393  warning  'e' is defined but never used                        @typescript-eslint/no-unused-vars
++  28:131  warning  'e' is defined but never used                        @typescript-eslint/no-unused-vars
++  32:86   warning  'e' is defined but never used                        @typescript-eslint/no-unused-vars
++  50:9    warning  'e' is defined but never used                        @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/local-emblem.js
++  11:527  warning  'outside' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/photo-fidelity.js
++  58:411  warning  'sharpBoundary' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/print-inks-ui.js
++    9:35  warning  'w' is defined but never used                         @typescript-eslint/no-unused-vars
++    9:37  warning  'h' is defined but never used                         @typescript-eslint/no-unused-vars
++  167:10  warning  'printPolicyError' is defined but never used          @typescript-eslint/no-unused-vars
++  183:10  warning  'visualPreviewPolicyError' is defined but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/processing-lifecycle.js
++   46:10  warning  'approveNativeDesignIfEligible' is defined but never used  @typescript-eslint/no-unused-vars
++   47:86  warning  'e' is defined but never used                              @typescript-eslint/no-unused-vars
++  226:10  warning  'recordManualRegionResult' is defined but never used       @typescript-eslint/no-unused-vars
++  227:10  warning  'makeQuoteSnapshot' is defined but never used              @typescript-eslint/no-unused-vars
++  231:10  warning  'recordPdfPageFrame' is defined but never used             @typescript-eslint/no-unused-vars
++  233:10  warning  'cancelRegionEditing' is defined but never used            @typescript-eslint/no-unused-vars
++  236:10  warning  'recordExplicitArtwork' is defined but never used          @typescript-eslint/no-unused-vars
++  238:10  warning  'sameProcessingSource' is defined but never used           @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/product-advisor.js
++  166:61  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/product-ui.js
++   6:10    warning  'drawAlternateProductArtwork' is defined but never used  @typescript-eslint/no-unused-vars
++  21:2213  warning  'error' is defined but never used                        @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/qr-preview.js
++  7:128  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/rear-logo.js
++  24:125  warning  'edge' is assigned a value but never used             @typescript-eslint/no-unused-vars
++  24:140  warning  'edgeTransparent' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/rear-preview.js
++  24:10  warning  'rearQuoteSnapshot' is defined but never used  @typescript-eslint/no-unused-vars
++  26:10  warning  'rearQuoteImage' is defined but never used     @typescript-eslint/no-unused-vars
++  41:10  warning  'resetRearPreview' is defined but never used   @typescript-eslint/no-unused-vars
++  86:32  warning  'ready' is assigned a value but never used     @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/standard-photo.js
++  13:226  warning  'area' is assigned a value but never used    @typescript-eslint/no-unused-vars
++  14:458  warning  'lum' is assigned a value but never used     @typescript-eslint/no-unused-vars
++  16:265  warning  'a' is assigned a value but never used       @typescript-eslint/no-unused-vars
++  19:176  warning  'pixels' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/visible-artwork.js
++  26:80   warning  'c' is assigned a value but never used  @typescript-eslint/no-unused-vars
++  26:110  warning  's' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/white-carrier-ui.js
++   7:10  warning  'showWhiteCarrierProposal' is defined but never used    @typescript-eslint/no-unused-vars
++  51:9   warning  'error' is defined but never used                       @typescript-eslint/no-unused-vars
++  72:16  warning  'applyAutomaticWhiteCarrier' is defined but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/frontend/white-carrier.js
++  60:8   warning  'y0' is assigned a value but never used  @typescript-eslint/no-unused-vars
++  60:48  warning  'y1' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/adapted-photo-proposal.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/approximate-preview-policy.test.cjs
++  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/company-branding.test.cjs
++  1:56  warning  'crypto' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/compressed-photo-geometry.test.cjs
++  2:111  warning  'R' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/contact-help.test.cjs
++   2:1   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++  36:66  warning  Expected an assignment or function call and instead saw an expression                                     @typescript-eslint/no-unused-expressions
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/content-safety-vm.test.cjs
++  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/critical-gate-membership.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/customer-focus.test.cjs
++  4:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/customer-ground-upload-independent.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/customer-journey-recovery.test.cjs
++  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/customer-no-manual-region.test.cjs
++  7:110  warning  'nodes' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/customer-theme.test.cjs
++  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/declared-quote-lifecycle.test.cjs
++  2:210  warning  'out' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/declared-quote.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/design-issue-script-chain.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/draft-resume-independent.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/draft-resume-ui-independent.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/draft-text-design.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/draft-v3.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/draft-v4.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/drag-geometry.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/experimental-packet-ui.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/experiments/colored-packet-diagnostic.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/experiments/colored-packet-diagnostic.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/experiments/packet-grouping.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/first-viewport.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-design-proposal.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-design-ui.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-jpeg-boundary-handler.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-jpeg-boundary.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-policy.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-preview-adapter.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-preview-browser.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-runtime.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-single-family-gradient.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/flexo-three-ink-rendered.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/fragrance-ui.test.cjs
++  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/front-approval-boundary.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/gallery-raster.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/gallery-source-assets.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/helpers/content-safety-vm.cjs
++  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/helpers/private-gallery-harness.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/helpers/single-family-gradient.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/independent-emblem-ui.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/interpretation-proposal-parity.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/journey-motion-independent.test.cjs
++  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/journey-motion-observers-independent.test.cjs
++  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/journey-motion.test.cjs
++  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/journey-next-step-copy.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/kraft-photo.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/lead-gate.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/lead-input-observers.test.cjs
++  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/lead-panel-ui.test.cjs
++  3:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/local-emblem.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/local-image-download.test.cjs
++  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/logo-design-flow.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/logo-design-integration.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/logo-design.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/logo-fit.test.cjs
++  1:181  warning  'end' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/logo-settle.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/lowres-wordmark.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/mobile-contact-layout.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/mobile-journey.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/multi-inks-ui.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/multi-inks.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/multi-logo-model.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/multi-logo-row.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/multi-logo-ui.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/native-content-review.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/native-flat-preview.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/navigation-scroll-stability.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/new-plate-only.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/opening-examples-accessibility.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/opening-examples-mobile.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/opening-examples.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/oshibori-fragrance-ui.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/oshibori-fx-ui.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/oshibori-pricing.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/oshibori-spec.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/oshibori-validation.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/paired-cta-order.test.cjs
++  3:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/partial-reference-inks.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/persona-ux.test.cjs
++  3:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/photo-angle-stress.cjs
++  2:51   warning  'assert' is assigned a value but never used  @typescript-eslint/no-unused-vars
++  3:111  warning  'R' is assigned a value but never used       @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/photo-candidate-quality.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/photo-candidate-routing.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/photo-derived-ink-evidence.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/private-photo-fixtures.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/private-raw-ink-palette.test.cjs
++  2:88  warning  'path' is assigned a value but never used      @typescript-eslint/no-unused-vars
++  3:69  warning  'B' is assigned a value but never used         @typescript-eslint/no-unused-vars
++  7:5   warning  'route' is assigned a value but never used     @typescript-eslint/no-unused-vars
++  7:16  warning  'proposal' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/product-ui.test.cjs
++  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/proposal-palette-pricing.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-background.test.cjs
++  4:261  warning  'rgb' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-canonical-proposal.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-input-responsiveness.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-layout-spacing-private.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-preview.test.cjs
++  3:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-text-ink-ui.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/rear-text-ink.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/reference-preview-flow.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/reference-recovery.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/reset-source-lifecycle.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/responsive-journey.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/source-ground-integration.test.cjs
++  5:26  warning  'elements' is assigned a value but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/startup-preview-performance.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/text-design-flow.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/unprinted-boundaries.test.cjs
++  2:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/unprinted-flow.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/unprinted-fragrance-catalog.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/unprinted-mode.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/v21-pricing-ui.test.cjs
++  8:161  warning  'id' is defined but never used  @typescript-eslint/no-unused-vars
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/viewer-chrome-family.test.cjs
++  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi/tests/welcome-layout.test.cjs
++  3:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-require-imports')
++
++✖ 177 problems (0 errors, 177 warnings)
++  0 errors and 102 warnings potentially fixable with the `--fix` option.
++
+diff --git a/teslim/server-tests.txt b/teslim/server-tests.txt
+new file mode 100644
+index 0000000..d409c7e
+--- /dev/null
++++ b/teslim/server-tests.txt
+@@ -0,0 +1,47 @@
++npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
++
++> hijyenlab-tasarim-atolyesi@0.1.0 test:server
++> node --test tests/fragrance-server.test.mjs tests/lead-server.test.mjs tests/tcmb-rate-server.test.mjs
++
++✔ immutable seed is towels-only 63/19/11/7 without exposing counts or IDs (27.452103ms)
++✔ new, retry, refresh and changed choice count one UUID once (9.453558ms)
++✔ parallel independent IDs and duplicate retries retain all votes (67.87609ms)
++✔ new handler/redeployment does not recreate seed or reset votes (3.977654ms)
++✔ invalid family, fields, enum, UUID and injection do not write (2.31908ms)
++✔ same-origin, content-type and bounded raw bodies are enforced (3.455155ms)
++✔ database failures never claim seed is live shared data or expose internals (1.506204ms)
++✔ failed atomic batch rolls back and percentages sum100 (6.104253ms)
++✔ late and duplicated older revisions cannot overwrite the newer preference (3.060509ms)
++✔ migration DML guard rejects real writes but allows foreign-key actions (0.719926ms)
++✔ capabilities fail closed without explicit owner, flags and retention (10.890927ms)
++✔ all private reads and writes deny anonymous/non-owner before database access (8.550445ms)
++✔ explicit complete/partial consent, nullable unknowns, product quantity rules and exact schemas (1.330278ms)
++✔ lead retries are idempotent, changed payload conflicts, owner lists only metadata (17.456127ms)
++✔ disabled intake, origin, oversized/malformed and extra field rejection never write (4.490918ms)
++✔ status CAS revision and audit are atomic; rejected edits do not create audit rows (4.36635ms)
++✔ analytics exact consent-only schema, stage dedup and unique session counts (4.566392ms)
++✔ expired private data is excluded and purge removes leads, audit and analytics without touching fragrance (6.611468ms)
++✔ rate limits are bounded and failures never expose request or database data (13.101489ms)
++✔ admin shells never embed records and safely escape caller identity (0.730283ms)
++✔ flags never confer admin access and public methods cannot list leads (3.326641ms)
++✔ invalid admin pagination, status origins and atomic database failures remain safe (5.818391ms)
++✔ explicit unprinted mode accepts only blank carton-multiple requests with normal consent/contact/fragrance (8.108939ms)
++✔ print mode migration preserves existing printed lead, audit and fragrance inside transaction (2.321895ms)
++✔ BM21 validation uses wet-wipe carton, printed minimum and fixed unprinted green tea (0.193311ms)
++✔ BM11 and BM13 accept confirmed printed minimum and unprinted full cartons only (0.226652ms)
++✔ selects USD ForexSelling, not banknote/buying/EUR; preserves holiday publication date (16.827814ms)
++✔ Istanbul calendar, same-day and before-publication semantics (1.082584ms)
++✔ invalid, future, too-old dates, malformed/ambiguous values and entities fail closed (2.723261ms)
++✔ short cache and in-flight dedup use fixed HTTPS URL without sending visitor data (7.720582ms)
++✔ expired cache never becomes offline fallback; retry can recover (2.839685ms)
++✔ cache invalidates at Istanbul midnight and 15:30 publication boundary (2.891915ms)
++✔ network, status, redirect, oversize and timeout failures return honest 503 with no price (19.818999ms)
++✔ handler returns snapshot, refuses mutations and ignores no arbitrary query (2.539513ms)
++ℹ tests 34
++ℹ suites 0
++ℹ pass 34
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 308.329989
+diff --git a/teslim/typecheck.txt b/teslim/typecheck.txt
+new file mode 100644
+index 0000000..83b5f9d
+--- /dev/null
++++ b/teslim/typecheck.txt
+@@ -0,0 +1 @@
++npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+diff --git a/teslim/verification.txt b/teslim/verification.txt
+new file mode 100644
+index 0000000..9f1fe04
+--- /dev/null
++++ b/teslim/verification.txt
+@@ -0,0 +1,76 @@
++PASS fragrance colors: flower pink/leaf green, four distinct palettes, text contrast, selected radio/border, keyboard focus and logo-theme isolation.
++✔ tests/fragrance-colors.test.cjs (149.991162ms)
++PASS fragrance UI: recommended Flambau first, all four selectable, no percentages or seed notes, immediate local confirmation, pending duplicate guard, revision ACK validation, GET/POST ordering, change/reset/navigation races, honest offline/storage failures
++✔ tests/fragrance-ui.test.cjs (180.616626ms)
++✔ bright majority cannot conceal a disappearing minority detail (2.579773ms)
++✔ source gold is readable on navy and no recommendation invents a new logo color (0.391531ms)
++✔ all seven products retain eight percent breathing room for vertical, horizontal and square logos (70.70119ms)
++✔ unconfigured and static previews never encode or send an image (6.014016ms)
++✔ automatic discovery is bounded, keeps only HTTPS candidates and never approves (2.818935ms)
++✔ late search results cannot overwrite a replacement upload (12.731308ms)
++✔ oversized encoding and good artwork never start provider search (4.103884ms)
++✔ timeout releases processing and reports the unavailable search (10.775813ms)
++✔ missing configuration, cross-origin and oversized uploads do not reach the provider (16.428468ms)
++✔ returns candidate source pairs without approving an image or forwarding credentials to a source (3.606062ms)
++PASS 288 transformed placements plus runtime gate/normalization regressions
++PASS actual approval rejects overflow and accepts contained design
++✔ tests/placement-v28.test.cjs (525.889985ms)
++[
++  {
++    "name": "Asymmetric transparent padding centers artwork rather than file",
++    "status": "PASS"
++  },
++  {
++    "name": "All dots, low-opacity pixels and descenders survive bounds",
++    "status": "PASS"
++  },
++  {
++    "name": "Disconnected multi-logo lockup retains relative spacing",
++    "status": "PASS"
++  },
++  {
++    "name": "True outer frame controls bounds; white internal badge remains source content",
++    "status": "PASS"
++  },
++  {
++    "name": "vertical uses same proportional safe-area fit",
++    "status": "PASS"
++  },
++  {
++    "name": "wide uses same proportional safe-area fit",
++    "status": "PASS"
++  },
++  {
++    "name": "square-circle-envelope uses same proportional safe-area fit",
++    "status": "PASS"
++  },
++  {
++    "name": "Actual circular alpha artwork preserves circumference and centers its envelope",
++    "status": "PASS"
++  },
++  {
++    "name": "Opaque flat reversed graphic requires trusted foreground mask, not polarity guessing",
++    "status": "PASS"
++  },
++  {
++    "name": "Unresolved photographs are not centered on guessed shadows even with transparent edges",
++    "status": "PASS"
++  },
++  {
++    "name": "Independent core anchor never clips faint pixels outside that anchor",
++    "status": "PASS"
++  },
++  {
++    "name": "Unsafe masks, oversize placement and empty sources fail closed",
++    "status": "PASS"
++  }
++]
++✔ tests/visible-artwork.test.cjs (143.773369ms)
++ℹ tests 14
++ℹ suites 0
++ℹ pass 14
++ℹ fail 0
++ℹ cancelled 0
++ℹ skipped 0
++ℹ todo 0
++ℹ duration_ms 559.408371
+diff --git a/tests/logo-ground-readability.test.cjs b/tests/logo-ground-readability.test.cjs
+new file mode 100644
+index 0000000..15e3dfe
+--- /dev/null
++++ b/tests/logo-ground-readability.test.cjs
+@@ -0,0 +1,11 @@
++const test=require('node:test'),assert=require('node:assert/strict');
++const C=require('../frontend/rear-contrast');
++test('bright majority cannot conceal a disappearing minority detail',()=>{
++ const score=C.score([{rgb:[255,255,255],count:95},{rgb:[16,47,89],count:5}],'#102f59');
++ assert(score.average>3);assert.equal(score.lowFraction,.05);assert.equal(score.weakFraction,.05);
++ const recommended=score.lowFraction<=.02&&score.weakFraction<=.1&&score.average>=3;assert.equal(recommended,false);
++});
++test('source gold is readable on navy and no recommendation invents a new logo color',()=>{
++ const source=[{rgb:[222,164,80],count:100}];const before=JSON.stringify(source),score=C.score(source,'#102f59');
++ assert(score.average>3);assert.equal(score.weakFraction,0);assert.equal(JSON.stringify(source),before);
++});
+diff --git a/tests/logo-safe-margin.test.cjs b/tests/logo-safe-margin.test.cjs
+new file mode 100644
+index 0000000..3d71708
+--- /dev/null
++++ b/tests/logo-safe-margin.test.cjs
+@@ -0,0 +1,14 @@
++const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
++const Geometry=require('../frontend/product-geometry'),Visible=require('../frontend/visible-artwork');
++const source=fs.readFileSync('frontend/app.js','utf8');
++const code=source.slice(source.indexOf('function visibleLogoPlan('),source.indexOf('function drawVisibleLogo('));
++test('all seven products retain eight percent breathing room for vertical, horizontal and square logos',()=>{
++ for(const product of ['BM12','BM11','BM13','BM15','BM21','BM545','OSHIBORI'])for(const [width,height] of [[100,400],[400,100],[300,300]])for(const rotation of [0,90]){
++  const area=Geometry.area(product),measured={width,height,empty:false,bounds:{left:0,top:0,right:width,bottom:height},basis:'source-alpha'};
++  const context={VisibleArtwork:Visible,state:{size:100,rotation},currentPrintArea:()=>area,visibleLogoMeasurement:()=>({measured})};vm.createContext(context);vm.runInContext(code,context);
++  const actual=context.visibleLogoPlan({}),base=Visible.plan(measured,area,{rotation});
++  assert(Math.abs(actual.width/base.width-.92)<1e-9);assert(Math.abs(actual.height/base.height-.92)<1e-9);
++  const rotatedWidth=rotation?actual.height:actual.width,rotatedHeight=rotation?actual.width:actual.height;
++  assert(rotatedWidth<=(area.right-area.left)*.92+1e-8);assert(rotatedHeight<=(area.bottom-area.top)*.92+1e-8);
++ }
++});
+diff --git a/tests/logo-source-discovery.test.cjs b/tests/logo-source-discovery.test.cjs
+new file mode 100644
+index 0000000..b800ca7
+--- /dev/null
++++ b/tests/logo-source-discovery.test.cjs
+@@ -0,0 +1,37 @@
++const test=require('node:test'),assert=require('node:assert/strict');
++const {create}=require('../frontend/logo-source-discovery');
++const blob=new Blob(['image'],{type:'image/jpeg'});
++test('unconfigured and static previews never encode or send an image',async()=>{
++ for(const response of [Response.json({enabled:false}),new Response('',{status:404})]){
++  let calls=0;
++  const client=create({fetcher:async(_url,options)=>{calls++;assert(!options.body);return response;},encode:()=>assert.fail('must stay local')});
++  await client.discover({identity:'a',file:blob,current:()=>true,needed:true});assert.equal(calls,1);
++ }
++});
++test('automatic discovery is bounded, keeps only HTTPS candidates and never approves',async()=>{
++ const events=[],calls=[];
++ const client=create({fetcher:async(url,options)=>{calls.push(options);return options.method?Response.json({matches:[{source:'https://brand.example/menu',image:'https://brand.example/logo.png'},{source:'https://brand.example',image:'http://bad.example/logo.png'}]}):Response.json({enabled:true});},encode:async()=>blob,notify:e=>events.push(e)});
++ const input={identity:'source-a',file:blob,current:()=>true,needed:true};
++ const output=await client.discover(input);assert.equal(output.verified,false);assert.equal(output.matches.length,1);assert.equal(calls[1].body,blob);assert.deepEqual(events.map(e=>e.status),['searching','candidates']);
++ assert.equal(await client.discover(input),null);assert.equal(calls.length,2);
++});
++test('late search results cannot overwrite a replacement upload',async()=>{
++ let resolve,live=true;const events=[];
++ const client=create({fetcher:async(_url,options)=>options.method?new Promise(r=>resolve=r):Response.json({enabled:true}),encode:async()=>blob,notify:e=>events.push(e.status)});
++ const pending=client.discover({identity:'old',file:blob,current:()=>live,needed:true});
++ while(!resolve)await new Promise(r=>setImmediate(r));
++ live=false;client.cancel();resolve(Response.json({matches:[{source:'https://old.example',image:'https://old.example/logo.png'}]}));
++ assert.equal(await pending,null);assert.deepEqual(events,['searching']);
++});
++test('oversized encoding and good artwork never start provider search',async()=>{
++ let posts=0;
++ const client=create({fetcher:async(_url,o)=>{if(o.method)posts++;return Response.json({enabled:true});},encode:async()=>new Blob([new Uint8Array(1024*1024+1)])});
++ await client.discover({identity:'large',current:()=>true,needed:true});
++ await client.discover({identity:'good',current:()=>true,needed:false});assert.equal(posts,0);
++});
++test('timeout releases processing and reports the unavailable search',async()=>{
++ const events=[];
++ const client=create({timeout:10,fetcher:async(_url,o)=>o.method?new Promise((_,reject)=>o.signal.addEventListener('abort',()=>reject(Error('timeout')))):Response.json({enabled:true}),encode:async()=>blob,notify:e=>events.push(e.status)});
++ assert.equal(await client.discover({identity:'slow',current:()=>true,needed:true}),null);
++ assert.deepEqual(events,['searching','unavailable']);
++});
+diff --git a/tests/logo-source-lifecycle.test.cjs b/tests/logo-source-lifecycle.test.cjs
+new file mode 100644
+index 0000000..fa5cf67
+--- /dev/null
++++ b/tests/logo-source-lifecycle.test.cjs
+@@ -0,0 +1,20 @@
++const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
++function harness(){
++ const source=fs.readFileSync('tests/reset-source-lifecycle.test.cjs','utf8'),scope={require,__dirname};
++ vm.runInNewContext(source.slice(0,source.indexOf('async function test('))+';globalThis.h=setup();',scope);
++ scope.h.c.logoImg={};scope.h.c.photoImg=null;return scope.h;
++}
++test('actual upload lifecycle starts supplementary search for small artwork and revokes its token on reset',async()=>{
++ const h=harness(),calls=[];let cancellations=0;
++ h.c.contentSafetyError=()=>null;
++ h.c.HijyenLabSourceDiscoveryClient={cancel:()=>cancellations++,discover:input=>{calls.push(input);return Promise.resolve(null);}};
++ await h.c.routeUploadedFile(h.file('small.png'));
++ assert.equal(calls.length,1);assert.equal(calls[0].needed,true);assert.equal(calls[0].current(),true);
++ assert.equal(h.c.state.logo,'small.png');assert.equal(h.c.state.extractionApprovalRequired,false);
++ h.c.cancelCurrentProcessing('reset');assert.equal(calls[0].current(),false);assert(cancellations>=2);
++});
++test('content safety failures never start a source lookup',async()=>{
++ const h=harness();h.c.contentSafetyError=()=>true;
++ h.c.HijyenLabSourceDiscoveryClient={cancel(){},discover(){assert.fail('unsafe source must not be sent');}};
++ await h.c.routeUploadedFile(h.file('unsafe.png'));
++});
+diff --git a/tests/source-ground-placement.test.cjs b/tests/source-ground-placement.test.cjs
+index 48ac522..34f6f04 100644
+--- a/tests/source-ground-placement.test.cjs
++++ b/tests/source-ground-placement.test.cjs
+@@ -5,8 +5,8 @@ const measured={width:1600,height:1600,bounds:{left:0,top:0,right:1600,bottom:16
+ let matched=true;const c={VisibleArtwork:V,state:{size:100,rotation:0,x:800,y:425,bgDetection:{packageGroundProposal:{width:320,height:320,foregroundBounds:{left:64,top:90,right:256,bottom:200}}}},sourceGroundMaterialResponse:()=>matched?()=>{}:null,currentPrintArea:()=>area,visibleLogoMeasurement:()=>({measured,anchorBounds:null})};vm.createContext(c);vm.runInContext(app.slice(start,end),c);vm.runInContext(app.slice(app.indexOf('function visibleLogoPlacement('),app.indexOf('function fitLogoToPrintArea(')),c);
+ const enlarged=c.visibleLogoPlan({});assert.equal(enlarged.sourceRect.width,1600);assert.equal(enlarged.sourceRect.height,1600,'Draw still references the entire original source');assert(enlarged.width>600&&enlarged.width<1040);assert(enlarged.height<=430*.9+1e-6);assert(enlarged.drawRect.width>enlarged.width);assert.equal(enlarged.placementRect.width,enlarged.width);
+ const placement=c.visibleLogoPlacement({},enlarged);assert.equal(placement.x,800);assert.equal(placement.y,425);assert.equal(placement.width,enlarged.width,'Containment follows foreground, not uniform source ground');
+-matched=false;const local=c.visibleLogoPlan({});assert.equal(local.width,430);assert.equal(local.drawRect.width,local.width,'White/local alternative keeps full panel bounds');
+-console.log('PASS same-ground foreground placement enlarges real mark with margin, original full source draw, centered foreground containment; local alternative stays unchanged');
++matched=false;const local=c.visibleLogoPlan({});assert.equal(local.width,430*.92);assert.equal(local.drawRect.width,local.width,'White/local alternative keeps full panel bounds');
++console.log('PASS same-ground foreground placement enlarges real mark with margin, original full source draw, centered foreground containment; local alternative keeps a modest safety margin');
+ (async()=>{
+  const root=process.env.SOURCE_GROUND_PRIVATE_ROOT;assert(root,'SOURCE_GROUND_PRIVATE_ROOT required for actual fullbleed placement regression');
+  const {createCanvas,loadImage}=require('@napi-rs/canvas'),B=require('../frontend/background.js'),P=require('../frontend/source-package-ground.js'),bytes=fs.readFileSync(require('path').join(root,'originals/a9cdf382-1b9f-4984-aed3-6c0dc14eafd2.jpeg'));
+-- 
+2.51.1
+

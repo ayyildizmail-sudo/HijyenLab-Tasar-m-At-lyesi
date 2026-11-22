@@ -1,0 +1,12 @@
+V91 kaynak kodu — 5 Kasım 2026
+
+Uygulamanın mevcut yükleme ve çizim akışına eklenenler:
+- Telefonun üst kontrol alanı ve alt ana ekran çizgisini birlikte denetleyen kaynak kontrolü.
+- Dışında geniş ve temiz beyaz alan bulunan, içi gölgeli hazır grafiklerin yalnız renk çeşitliliği yüzünden fotoğrafa yönlendirilmesini azaltan sınırlı kontrol.
+- Kaynağa bağlı ambalaj zemini kabul edilmiş düz renkli tasarımda yalnız dışa bağlı, tam aynı RGB zemin piksellerinin ayrı katmana alınması. Beyaz yazılar ve farklı renkli ayrıntılar korunur. Kaynak veya seçili zemin değişirse bu işlem uygulanmaz.
+- Dokulu fotoğraf, koyu rakip işaret veya çerçeve içermeyen açık yazılı dijital renkli alanlar için sınırlı zemin görünüm önerisi.
+- Tasarım onay düğmesinin gerçek işlem/yerleşim/onay kontrolünden geçmesi.
+- En fazla üç beyaz dışı tam renkli kaynaklar için raster gömülmeden SVG path üretimi. Delikler, ayrı parçalar ve alfa korunur; eğriler veya yeni ayrıntılar uydurulmaz. Bu piksel sınırlarından türetilen vektör önizlemesidir; yumuşatılmış üretim vektörü veya klişe dosyası değildir.
+- SVG indirmesinin yalnız aynı kaynak, aynı çıkarma sürümü ve aynı tasarımla eşleştiğinde görünmesi. Yeni yükleme ve sıfırlama eski vektörü siler.
+
+Doğrulama: ilgili grupta 28 sonuç geçti. Yeni vektör testi SVG'yi tekrar çizip kaynakla piksel karşılaştırması yapar. Varlık sürüm kontrolünde 119 başvuru eşleşti. Tam yayın derlemesi ve müşterinin bütün özgün görselleriyle tarayıcı testi tamamlanmadı. Bu paket, bütün görsel hataları çözüldü iddiası taşımaz. Genel internet araması ve her fotoğraftan otomatik marka çıkarma hâlâ tamamlanmış değildir. Yayın yapılmadı.

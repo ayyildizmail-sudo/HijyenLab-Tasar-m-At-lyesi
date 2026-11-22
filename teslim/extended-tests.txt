@@ -1,0 +1,53 @@
+PASS actual logo handler/prepareLogo/feedback, preserved frame, stale flag, metadata cache, scale failure, missing evidence fallback, white exterior masks, preserved inverse/local ground and explicit-only colored package pricing
+✔ tests/flat-ground-app.test.cjs (1021.299385ms)
+PASS contrast suggestions do not mutate until explicit choice, preserve logo, change shared background, invalidate/reapprove and restore prior background
+PASS explicit rear-only recolor preserves alpha/source and excludes multi-hue automatic flattening
+✔ tests/rear-contrast.test.cjs (498.51787ms)
+[
+  {
+    name: 'Real reset with multi-logo wrapper removes recovery source and cannot resurrect it',
+    status: 'PASS'
+  },
+  {
+    name: 'Retry before reset and fresh upload after reset both still work',
+    status: 'PASS'
+  },
+  {
+    name: 'Reset invalidates in-flight decode and its finally cannot restore source or design',
+    status: 'PASS'
+  },
+  {
+    name: 'Programmatic reset uses same boundary; ordinary cancel retains retry source',
+    status: 'PASS'
+  }
+]
+✔ tests/reset-source-lifecycle.test.cjs (157.621294ms)
+✔ bounded tiny ground 35,31,32 176x56 all rotations (240.243243ms)
+✔ bounded tiny ground 35,31,32 120x40 all rotations (73.617259ms)
+✔ bounded tiny ground 35,31,32 190x63 all rotations (176.592857ms)
+✔ bounded tiny ground 25,25,25 176x56 all rotations (116.456955ms)
+✔ bounded tiny ground 25,25,25 120x40 all rotations (63.921735ms)
+✔ bounded tiny ground 25,25,25 190x63 all rotations (125.541136ms)
+✔ bounded tiny ground 40,52,65 176x56 all rotations (99.150505ms)
+✔ bounded tiny ground 40,52,65 120x40 all rotations (44.301433ms)
+✔ bounded tiny ground 40,52,65 190x63 all rotations (104.028493ms)
+✔ thick, two-edge, large, tiny, transparent and local panel negatives (49.02408ms)
+✔ scene, stale identity, manual ground and forged small-ground metadata do not bypass scope (27.820959ms)
+✔ mandatory actual original Ülfet: original and rotations propose exact dark ground, no physical claim or pixel edit (456.437534ms)
+PASS same-ground foreground placement enlarges real mark with margin, original full source draw, centered foreground containment; local alternative keeps a modest safety margin
+PASS SHA-verified actual fullbleed mark placement: 702.3×387.0, full source retained
+✔ tests/source-ground-placement.test.cjs (815.005512ms)
+PASS source package ground: 49 cases; proposals vs product-layout evidence, local panels, source/page binding, unchanged pixels and ink deduplication; 3 SHA-verified actual private sources included
+✔ tests/source-package-ground.test.cjs (3689.855507ms)
+{"case":"existing alpha preparation","prepared":[176,56],"anchor":{"left":35,"top":6,"right":129,"bottom":52},"sourceRect":{"x":0,"y":0,"width":176,"height":56},"scale":5.089361702127661,"sourceUnchanged":true}
+{"case":"opaque maskAllowed=false","prepared":[176,56],"anchor":{"left":35,"top":6,"right":129,"bottom":52},"sourceRect":{"x":0,"y":0,"width":176,"height":56},"scale":5.089361702127661,"sourceUnchanged":true}
+PASS actual prepareLogo + visibleLogoPlan, both opaque/alpha routes; source immutable
+✔ tests/visible-artwork-app.test.cjs (666.594629ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3718.929266

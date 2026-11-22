@@ -1,0 +1,288 @@
+[logo release gate] tests/logo-source-discovery.test.cjs
+✔ unconfigured and static previews never encode or send an image (4.284063ms)
+✔ automatic discovery is bounded, keeps only HTTPS candidates and never approves (2.105236ms)
+✔ late search results cannot overwrite a replacement upload (2.938273ms)
+✔ oversized encoding and good artwork never start provider search (4.544176ms)
+✔ timeout releases processing and reports the unavailable search (10.372239ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29.715092
+[logo release gate] tests/logo-ground-readability.test.cjs
+✔ bright majority cannot conceal a disappearing minority detail (1.355926ms)
+✔ source gold is readable on navy and no recommendation invents a new logo color (0.35787ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8.581858
+[logo release gate] tests/logo-safe-margin.test.cjs
+✔ all seven products retain eight percent breathing room for vertical, horizontal and square logos (48.898653ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59.238394
+[logo release gate] tests/logo-source-search.test.mjs
+✔ missing configuration, cross-origin and oversized uploads do not reach the provider (18.081614ms)
+✔ returns candidate source pairs without approving an image or forwarding credentials to a source (2.851312ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 32.225642
+[logo release gate] tests/first-viewport.test.cjs
+✔ viewport budget includes controls, fixed help and clearance with safe limits (1.279501ms)
+✔ mount moves original gallery once without canvas resizing or focus changes (2.839815ms)
+✔ resize and mutation callbacks converge, and respond to viewport changes (1.281153ms)
+✔ scroll does not inflate gallery; hidden, working and non-design views are untouched (1.388536ms)
+✔ static help spends no height; no source, price, focus, storage or control mutation (1.701908ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17.100854
+[logo release gate] tests/drag-geometry.test.cjs
+PASS desktop centered point and 100px delta
+PASS mobile content width delta
+PASS horizontal letterbox does not start drag/history/capture
+PASS letterbox ignored even with movable logo
+PASS vertical letterbox rejected
+PASS border and asymmetric padding excluded
+PASS short desktop letterbox scale is content scale
+PASS zero geometry safely ignored
+PASS captured movement outside bitmap retains existing text clamps
+PASS nonstandard product area clamps retained
+PASS pointer cancel stops movement and repeated drag resumes
+PASS rotation containment 0/30/90/180 degrees remains in print area
+PASS drag changes only placement fields and preserves design settings
+PASS non-contain canvas maps whole content box
+14 tests passed
+[logo release gate] tests/critical-gate-membership.test.cjs
+{
+  "check": "critical topical suite release-gate membership",
+  "source": "/workspace/scratch/430c5196513d/recovery/source/HijyenLab_Tasarim_Atolyesi",
+  "totalGated": 148,
+  "required": 24,
+  "missing": []
+}
+[logo release gate] tests/welcome-layout.test.cjs
+PASS welcome layout: opening/pending/error/back/reset, idempotent mount, original upload/restore nodes and handlers, unchanged storage consent, secondary draft controls, new restore/error reopening with manual collapse preserved.
+PASS welcome explicit unprinted/printed events preserve native upload and opt-in while hiding logo onboarding.
+[logo release gate] tests/rear-layout.test.cjs
+PASS rear safe strips, no seam overlap, sponsor ratio, optional fields, QR opaque quiet zone, contrast and explicit overflow refusal
+PASS V34 upper-only centered contacts, native icons, sponsor/web stack, QR center and explicit ink color
+PASS dense five-field vertical sponsor stack, compact contact row, native web/location icons and QR clearance
+PASS large simple text, compact phone/Instagram readability, dense adaptive fallback
+PASS anonymous representative natural-width proportions {"pairFraction":0.5130587066831163,"sloganFraction":0.3395584262566472}
+PASS V35 sponsor priority: logo 119.6 secondary text 62.400000000000006 font 24
+[logo release gate] tests/rear-layout-profiles.test.cjs
+PASS BM12 unchanged; BM15/BM545 profile-safe upper-only sponsor/contact layouts with actual independently decoded QR
+[logo release gate] tests/rear-contrast.test.cjs
+PASS contrast suggestions do not mutate until explicit choice, preserve logo, change shared background, invalidate/reapprove and restore prior background
+PASS explicit rear-only recolor preserves alpha/source and excludes multi-hue automatic flattening
+[logo release gate] tests/rear-text-ink.test.cjs
+✔ white ground reuses exact existing navy, not invented black (1.257458ms)
+✔ dark ground selects darkest readable existing light ink, not ground itself (0.382888ms)
+✔ white is substrate, not automatically invented as a text ink (0.224639ms)
+✔ no readable palette returns no automatic color (0.322937ms)
+✔ unknown or malformed palette/ground is rejected (0.187423ms)
+✔ selector is deterministic and does not mutate palette or choose a lighter eligible ink (0.836813ms)
+✔ explicit text choice is handled independently, never changed by selector (0.616781ms)
+✔ explicit rear contrast uses the same threshold including white knockout (0.47012ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17.706197
+[logo release gate] tests/rear-text-ink-ui.test.cjs
+✔ all eight navy logos, then website, then QR retain one plate and exact navy (171.330696ms)
+✔ all five optional contact roles reuse navy without an extra plate (317.259396ms)
+✔ sampled charcoal text keeps actual color without becoming a second explicit-gray plate (139.474412ms)
+✔ explicit rear color wins; explicit front color has priority over automatic palette (99.517105ms)
+✔ unknown palette does not invent text ink; validation and export are blocked (70.311906ms)
+✔ same navy ground cannot use itself as text; existing light ink resolves dark ground (74.101634ms)
+✔ all three actual product profiles render the same selected text ink recorded in snapshot (331.699221ms)
+✔ manual rear and inherited front colors cannot bypass current-ground contrast (126.733421ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1340.804731
+[logo release gate] tests/rear-qr-decode.test.cjs
+PASS: four actual rear layouts independently decoded; black/gold carriers, optional contact text, opaque quiet zone and oversized URL rejection
+PASS navy/burgundy/green QR independently decoded by both renderers; exact ink retained, missing/light colors rejected without fallback
+[logo release gate] tests/logo-release-gate.test.mjs
+PASS missing fixture and failed test stop before public mutation; passing gate copies frontend only.
+[logo release gate] tests/rear-layout-spacing-private.test.cjs
+✔ optional rear text labels have explicit separation and select top space (1.115013ms)
+✔ rear keyboard ring stays visible but inside the control (0.305942ms)
+✔ help moves into flow only with visible open rear editor (0.163316ms)
+✔ edited CSS parses and cache tokens match (34.693038ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 43.71123
+[logo release gate] tests/startup-preview-performance.test.cjs
+✔ blank welcome skips 2 full raster reads and 1.36 million pixel shading without changing output (10610.087112ms)
+✔ logo, text, pending text, unprinted and declared output remains pixel-identical (6324.741517ms)
+✔ covered preview does zero canvas work; visible transition resumes latest product/artwork (105.186591ms)
+✔ gallery visibility event fires once after actual uncover, including upload cancel and draft/artwork (17.980002ms)
+✔ product-to-product galleries and background/foreground preserve deferral without stale reveal (2.650341ms)
+✔ stale gallery visibility never suppresses synchronous logo, text or quote-mode rendering (4502.098426ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 21585.479979
+[logo release gate] tests/gallery-source-assets.test.cjs
+✔ 24 visible lossless crop PNGs replace all 12 full proof sheets (7.931812ms)
+✔ actual coverage stays honest without public missing-slot placeholders (0.366253ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14.751245
+[logo release gate] tests/gallery-raster.test.cjs
+✔ 12 exact sources, both faces, viewport and DPR matrix stays within source pixels and memory limits (6.751941ms)
+✔ mobile DPR follows physical pixels until actual source detail caps allocation (0.173663ms)
+✔ resize storms coalesce to one raster draw and DPR changes redraw once without image reload (1.655348ms)
+✔ 100 interrupted source changes cancel old loads, stale results and queued paints; dismissal releases canvas (2.996983ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18.486804
+[logo release gate] tests/opening-examples.test.cjs
+✔ five real BM12 samples autoplay, preserve crop ratios, and finish on blank (6.811821ms)
+✔ short galleries show only available real samples, then blank; empty products skip gallery (11.63387ms)
+✔ stale callbacks and front/back face changes never paint a mismatched crop (2.282345ms)
+✔ pause, upload cancellation and customer/quote isolation are preserved (2.775579ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 32.93372
+[logo release gate] tests/opening-examples-accessibility.test.cjs
+✔ focus, hover and queued callbacks cannot advance or hide an engaged gallery (6.218456ms)
+✔ manual terminal focus transfer and reduced-motion manual controls remain correct (2.679284ms)
+✔ explicit pause survives hover, focus, visibility and motion preference changes (1.618843ms)
+✔ focus transfers within the gallery remain paused until the last focus leaves (2.594606ms)
+✔ fifth sample waits during hover and automatic completion is stable after hover leaves (2.150466ms)
+✔ reduced motion keeps both arrows and does not silently start a paused gallery (2.243697ms)
+✔ live motion setting returns to focused manual operation until focus leaves (1.877023ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 26.855385
+[logo release gate] tests/opening-examples-mobile.test.cjs
+✔ touch boundary events and sticky CSS hover never stop decoded automatic samples (6.615666ms)
+✔ mouse hover pauses, leaves resume, and stale queued timers cannot double-advance (1.466564ms)
+✔ legacy mouse-only fallback is gated by a real hover capability (3.136574ms)
+✔ focus settlement after focusout resumes only after activeElement really leaves (1.629399ms)
+✔ explicit play permits its own focused button, but other focused controls keep protection (1.410219ms)
+✔ viewport and page visibility each require a fresh readable 2500 ms interval (2.369306ms)
+✔ no timer before image decode, including visibility and media changes during loading (1.443328ms)
+✔ failed sample advances to the next available source; all failures end at unchanged blank (3.00765ms)
+✔ all five visible samples take 12500 ms of readable time and leave the initial white mockup unchanged (2.911284ms)
+✔ count, ordinal and long explanatory copy is removed rather than replaced (2.289416ms)
+✔ reduced motion keeps manual controls and cannot be overridden by explicit play (1.248845ms)
+✔ existing customer design, upload, and product changes never get overwritten by the gallery (1.824714ms)
+✔ batched viewport changes use the newest canvas intersection state (1.347474ms)
+✔ a final-image failure never dismisses focused, paused, or reduced-motion inspection (4.010413ms)
+✔ manual navigation or face inspection revokes explicit-play focus exception (4.603459ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.830585
+[logo release gate] tests/new-plate-only.test.cjs
+✔ BM12: legacy plate values price identically to new, no pending discount in either ground (1.898395ms)
+✔ BM11: legacy plate values price identically to new, no pending discount in either ground (0.256567ms)
+✔ BM13: legacy plate values price identically to new, no pending discount in either ground (0.135625ms)
+✔ BM15: legacy plate values price identically to new, no pending discount in either ground (0.113191ms)
+✔ BM21: legacy plate values price identically to new, no pending discount in either ground (0.2454ms)
+✔ BM545: legacy plate values price identically to new, no pending discount in either ground (0.180292ms)
+✔ OSHIBORI: legacy plate values price identically to new, no pending discount in either ground (11.070985ms)
+✔ customer controls and all frontend copy remove existing-plate alternative entirely (7.403115ms)
+✔ canonical snapshot ignores obsolete input and is always new/none by print mode (1.584281ms)
+✔ obsolete declared snapshots cannot produce or reuse a quote token (2.213701ms)
+✔ v4 legacy draft read normalizes only returned copy, retains bytes and durable source (7.601749ms)
+✔ v5 legacy draft read normalizes only returned copy, retains bytes and durable source (2.002333ms)
+✔ reference JPG header distinguishes source reference from a created design (0.142204ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41.373509
+[logo release gate] tests/logo-design.test.cjs
+✔ strict descriptor preserves name and optional values, owns color array (2.400043ms)
+✔ empty and unbreakable long names are recoverable layout errors, never truncated (12.698857ms)
+✔ all products, sectors, styles, variations render only actual selected flat inks (4597.318839ms)
+✔ one color has no hidden second ink, and three compositions differ (82.447777ms)
+✔ palette rejects unexpected opaque pixels, malformed buffers and empty art (0.286953ms)
+✔ limited short wish matching is honest, selected sector wins, no personal initials invented (14.200522ms)
+✔ canonical per-ink mask raster survives PNG decode across every product, sector, composition and variation (11186.908695ms)
+✔ mask RGB is irrelevant to exact recipe; arbitrary unexpected artwork RGB remains rejected (27.255227ms)
+✔ canonical raster fails closed for cross-ink mask overlap instead of creating or hiding a third ink (4.584169ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 15943.678284
+[logo release gate] tests/logo-design-flow.test.cjs
+✔ local source is honest, SHA-bound, exact Turkish name, approval-gated and canonical palette priced (3398.505525ms)
+✔ only name required, optional sector unknown default, colors bounded at two, auto reset and three distinct card compositions (109.294351ms)
+✔ new/previous ideas preserve name and optional values, back before selection parks pending name (88.550842ms)
+✔ editing preserves caret and invalidates approval before raster; unsafe name and wish block all ideas (561.933527ms)

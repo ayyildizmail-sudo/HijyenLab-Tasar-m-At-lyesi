@@ -1,0 +1,76 @@
+PASS fragrance colors: flower pink/leaf green, four distinct palettes, text contrast, selected radio/border, keyboard focus and logo-theme isolation.
+✔ tests/fragrance-colors.test.cjs (149.991162ms)
+PASS fragrance UI: recommended Flambau first, all four selectable, no percentages or seed notes, immediate local confirmation, pending duplicate guard, revision ACK validation, GET/POST ordering, change/reset/navigation races, honest offline/storage failures
+✔ tests/fragrance-ui.test.cjs (180.616626ms)
+✔ bright majority cannot conceal a disappearing minority detail (2.579773ms)
+✔ source gold is readable on navy and no recommendation invents a new logo color (0.391531ms)
+✔ all seven products retain eight percent breathing room for vertical, horizontal and square logos (70.70119ms)
+✔ unconfigured and static previews never encode or send an image (6.014016ms)
+✔ automatic discovery is bounded, keeps only HTTPS candidates and never approves (2.818935ms)
+✔ late search results cannot overwrite a replacement upload (12.731308ms)
+✔ oversized encoding and good artwork never start provider search (4.103884ms)
+✔ timeout releases processing and reports the unavailable search (10.775813ms)
+✔ missing configuration, cross-origin and oversized uploads do not reach the provider (16.428468ms)
+✔ returns candidate source pairs without approving an image or forwarding credentials to a source (3.606062ms)
+PASS 288 transformed placements plus runtime gate/normalization regressions
+PASS actual approval rejects overflow and accepts contained design
+✔ tests/placement-v28.test.cjs (525.889985ms)
+[
+  {
+    "name": "Asymmetric transparent padding centers artwork rather than file",
+    "status": "PASS"
+  },
+  {
+    "name": "All dots, low-opacity pixels and descenders survive bounds",
+    "status": "PASS"
+  },
+  {
+    "name": "Disconnected multi-logo lockup retains relative spacing",
+    "status": "PASS"
+  },
+  {
+    "name": "True outer frame controls bounds; white internal badge remains source content",
+    "status": "PASS"
+  },
+  {
+    "name": "vertical uses same proportional safe-area fit",
+    "status": "PASS"
+  },
+  {
+    "name": "wide uses same proportional safe-area fit",
+    "status": "PASS"
+  },
+  {
+    "name": "square-circle-envelope uses same proportional safe-area fit",
+    "status": "PASS"
+  },
+  {
+    "name": "Actual circular alpha artwork preserves circumference and centers its envelope",
+    "status": "PASS"
+  },
+  {
+    "name": "Opaque flat reversed graphic requires trusted foreground mask, not polarity guessing",
+    "status": "PASS"
+  },
+  {
+    "name": "Unresolved photographs are not centered on guessed shadows even with transparent edges",
+    "status": "PASS"
+  },
+  {
+    "name": "Independent core anchor never clips faint pixels outside that anchor",
+    "status": "PASS"
+  },
+  {
+    "name": "Unsafe masks, oversize placement and empty sources fail closed",
+    "status": "PASS"
+  }
+]
+✔ tests/visible-artwork.test.cjs (143.773369ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 559.408371
