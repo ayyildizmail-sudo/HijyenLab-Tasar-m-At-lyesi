@@ -278,6 +278,20 @@ Hakan Bey'in onayından sonra izlenecek adımlar:
    4. Çoklu logo JPG'si
    5. Özel koku tutarlılığı
 
+### I.1 Uygulanan durum (22.11.2026, kullanıcı onayıyla)
+
+Kullanıcı, deponun herkese açık kalmasını onayladı ve devam edilmesini istedi. Aşağıdaki dallar oluşturuldu. Hiçbir dal diğeriyle birleştirilmedi. Uygulama kodunda değişiklik yapılmadı. Ayrıntı `docs/SURUMLER.md` içinde.
+
+- **`main`:** V89 geçmişi, 92 commit.
+- **`v91-calisma-paketi`:** Paketle dosya düzeyinde 0 fark.
+- **`canli-onyuz-kurtarma`:** Bu dalda yapılan kontroller:
+  - Varlık sürüm kontrolü: 125/125 geçti.
+  - Sunucu testleri: 34/34 geçti.
+  - TypeScript kontrolü: geçti.
+  - `product-catalog`, `pricing`, `declared-quote` ve `draft-v4` testleri: geçti.
+  - `unprinted-boundaries` testi (kapı dışı): **kaldı.** Hata `processingSession is not defined`. Aynı test V89 ve V91'de geçiyor. Muhtemel neden: Canlı `app.js`, test düzeneğinin yüklemediği bir modüle bağlanmış, yani testler kodun gerisinde kalmış. Bu, uygulama hatası olarak **doğrulanmadı.**
+- **Etiketler (`yayin-v1…v89`, `v89-yayin`):** Oturumun Git erişimi etiket göndermeyi reddetti (HTTP 403). Atlatılmadı. Liste `docs/SURUMLER.md` içinde tutuluyor.
+
 ## J. HijyenLab.com entegrasyon önerisi (uygulanmayacak)
 
 hijyenlab.com'a ağ erişimi olmadığı için sitenin altyapısı incelenemedi.
@@ -305,6 +319,7 @@ DNS değişikliklerini kullanıcı yapar veya açıkça yetkilendirir. Entegrasy
 | Tarih | Dosya | Değişiklik |
 |---|---|---|
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | 1. ve 2. sürüm: arşivler henüz gelmemişken yazıldı |
+| 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md`, `docs/SURUMLER.md` | I.1 eklendi: `main`, `v91-calisma-paketi`, `canli-onyuz-kurtarma` dalları oluşturuldu. Sürüm haritası eklendi. |
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | D.1 eklendi: Canlı ön yüz (125 dosya) özet doğrulamasıyla kurtarıldı. Canlı sürüm V91'den yeni, selefon özelliği içeriyor. |
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | C.1 eklendi: ChatGPT V95 kaynağına erişemediğini bildirdi; V94 = `900dea6`, bundle'da yok. |
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | G.8 eklendi: 04.11 manifestosundaki 27 dosyanın teslim edilmediği tespit edildi. |
