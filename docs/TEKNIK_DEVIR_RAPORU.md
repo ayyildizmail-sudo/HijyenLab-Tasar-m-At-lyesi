@@ -94,6 +94,21 @@ Notlar:
 
 **Sonuç: `130f530` bulunamadı. Tam hash belirlenemedi.** Bunun nedeni tutarlı: bundle 04.11.2026 18:33'te alınmış, V95 ise 09.11 tarihli. ChatGPT tarafındaki git deposunun 09.11 sonrası hali ve yayın kaydı (`sites_versions` dışa aktarımı) teslim edilmedikçe V95 doğrulanamaz.
 
+### C.1 ChatGPT'nin 22.11.2026 yanıtı
+
+- ChatGPT, V95'in tam kaynağına, git deposuna, güncel yayın listesine, 8 özel test görseline ve 04.11 paketindeki 27 eksik dosyaya **erişemediğini** bildirdi. Yeni bundle oluşturulamadı.
+- Kayıtlarında olduğunu bildirdikleri:
+  - V95: 09.11.2026, kısa commit `130f530`.
+  - V94: kısa commit `900dea6`. Bu kimlik de elimizdeki bundle'da **yok** (0 eşleşme).
+  - V95 denetim notu: 38 hedefli test geçmiş.
+- Bildirilen V95 değişiklikleri (yalnızca not, kaynakla doğrulanmadı):
+  - mat/parlak selefon bağlantısının düzeltilmesi
+  - onay geçersizleştirme kurallarının iyileştirilmesi
+  - iletişim formunun güvenlik adaptörüne bağlanıp gizlenmesi
+- V90–V94'ün tek tek değişiklik listesi yok.
+- Fiyat: 23.10.2026 tarihli onaylı belge ChatGPT arşivinde mevcut. 29.10 düzeltmeleri denetim kayıtlarında var (25×30 renkli 3,30 TL ve 10.000 minimum; KDV hariç; koli katı). Bunlar katalogdaki V89 değerleriyle tutarlı. 01.11 onaylarını birleştiren bir belge bulunamadı.
+- **Kalan kurtarma yolu:** Ön yüz dosyaları canlı sitede derlenmeden, içerik özetli adlarla (`dosya.js?v=<özet>`) sunuluyor. Önizleme adresine yalnızca okuma erişimi verilirse V95'in ön yüz kodu (fiyat, selefon, onay ve kayıt mantığının bulunduğu `frontend/` dosyaları) neredeyse birebir geri alınabilir ve V89 ile dosya dosya karşılaştırılabilir. Sunucu tarafı (`server/`, `worker/`, migration) bu yolla alınamaz.
+
 ## D. Canlı önizleme ile kaynak eşleşmesi
 
 **Çalıştırılamadı.** Bu oturumun ağ ayarları önizleme adresine erişime izin vermiyor. Erişim izni önerisi reddedildi.
@@ -242,5 +257,6 @@ DNS değişikliklerini kullanıcı yapar veya açıkça yetkilendirir. Entegrasy
 | Tarih | Dosya | Değişiklik |
 |---|---|---|
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | 1. ve 2. sürüm: arşivler henüz gelmemişken yazıldı |
+| 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | C.1 eklendi: ChatGPT V95 kaynağına erişemediğini bildirdi; V94 = `900dea6`, bundle'da yok. |
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | G.8 eklendi: 04.11 manifestosundaki 27 dosyanın teslim edilmediği tespit edildi. |
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | 3. sürüm: 18 dosya doğrulandı; bundle, V89 ve V91 incelendi; testler çalıştırıldı. Uygulama kodu ve müşteri verisi eklenmedi. |
