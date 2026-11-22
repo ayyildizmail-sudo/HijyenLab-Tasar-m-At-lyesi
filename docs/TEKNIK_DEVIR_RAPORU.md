@@ -158,6 +158,11 @@ Tüm komutlar V89'un ayrı bir kopyasında, Node 22.23.5 ile gerçekten çalış
 6. **Yurtdışı fiyatlandırma:** Bilerek uygulanmamış. Hakan Bey'den maliyet varsayımlarının alınması gerekiyor (`FINAL_RELEASE_CHECKLIST.md`).
 7. **Canlı önizlemeye okuma erişimi:** D bölümü için gerekli.
 
+8. **04.11 devir paketinden 30 MB'lık paketlere alınmamış 27 dosya.** `HijyenLab_Devir/MANIFEST.json` 90 dosya listeliyor. Bunların 63'ü elimde ve checksum'ları eşleşiyor; 27'si teslim edilmedi:
+   - **8 çalışma kopyasının commit edilmemiş değişiklik yedekleri** (`worktrees/copy5…copy15/tracked.patch` ve `untracked.tar.gz`, 16 dosya). Açıklama dosyalarına göre hepsi 04.11 tarihli V85–V88 aday kopyaları, başlangıç commit'leri `18a1f9e`, `9b1e82c`, `c31c0db` ve `6c3c835`. Yani V89 öncesi ara çalışmalar, **V95 değil.** Önemi düşük, ama geçmişin tam olması için istenebilir.
+   - **Özel denemeler arşivi** `03_Ozel_Denemeler/DENEMELER.tar.gz` (79 MB, 30 MB sınırını aştığı için alınmamış olabilir) ve `historical_archive/hijyenlab_private_trials_code_archive_20261104.zip` (9 MB). Canlıya alınmamış deneme kodları. Kullanıcının logo temizleme denemeleri burada.
+   - **5 özgün müşteri görseli** (`original_inputs/`) ve **4 ekran görüntüsü** (`ONCE_BAKIN/`). Bilinen logo hatalarını yeniden üretmek için gerekli. Bunlar 8 özel test görselinden farklı dosyalar. Müşteri verisi oldukları için herkese açık depoya konmamalı.
+
 ### Katalogdaki ticari değerler (V89 = V91), hepsi DOĞRULANAMADI
 
 | Kod | Ürün | Beyaz birim | Renkli birim | Beyaz min. | Renkli min. | Koli |
@@ -237,4 +242,5 @@ DNS değişikliklerini kullanıcı yapar veya açıkça yetkilendirir. Entegrasy
 | Tarih | Dosya | Değişiklik |
 |---|---|---|
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | 1. ve 2. sürüm: arşivler henüz gelmemişken yazıldı |
+| 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | G.8 eklendi: 04.11 manifestosundaki 27 dosyanın teslim edilmediği tespit edildi. |
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | 3. sürüm: 18 dosya doğrulandı; bundle, V89 ve V91 incelendi; testler çalıştırıldı. Uygulama kodu ve müşteri verisi eklenmedi. |

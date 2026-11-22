@@ -40,6 +40,7 @@ Kısaca: **İş mantığı sağlam, ama kod tabanı bakım ve güvenilirlik aç�
 | 5 | 30×30 ve 30×35 ürün görselleri | Orta | Bu iki ürün 25×30'un görseliyle gösteriliyor |
 | 6 | E-posta, yönetici erişimi ve logo arama servisi ayarları | Orta | Müşteri talebi ekibe ulaşmıyor |
 | 7 | hijyenlab.com altyapı bilgisi | Orta | Entegrasyon planı kesinleşemiyor |
+| 8 | 04.11 paketinden aktarılmamış 27 dosya: 8 çalışma kopyasının yedekleri (V85–V88 ara çalışmaları), özel denemeler arşivi (79 MB + 9 MB), 5 özgün müşteri görseli, 4 ekran görüntüsü | Orta | Logo hatalarının yeniden üretilmesi ve deneme kodlarının incelenmesi için gerekli. V95'i içermiyor. |
 
 **V95 nasıl bulunabilir:** ChatGPT'de bu projenin çalıştığı ortamdan güncel bir git bundle istenmeli. Ayrıca yayın listesinin (`sites_versions`) bugünkü hali dışa aktarılmalı. Bunlar 04.11 paketinde yapılanla aynı yöntemle alınabilir.
 
