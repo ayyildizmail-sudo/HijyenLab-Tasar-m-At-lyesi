@@ -41,6 +41,14 @@ Yapılan arama: Yükleme klasörü, çalışma klasörü, geçici klasörler ve 
 
 Arşivler geldiğinde bu tablodaki beklenen checksum'lar kullanılarak doğrulama yapılacak.
 
+### A.2b Parça halinde gelen dosyalar
+
+| Dosya | Boyut | SHA-256 | Durum |
+|---|---|---|---|
+| `V89_SOURCE_TAR_PARCA_03_TOPLAM_03.bin` | 3.803.333 bayt | `0e16be70b4aece12c1da6fdae5291d8e17276c278d85094e841fe648ed437b97` | **çalıştırılamadı.** Üç parçalık bir dosyanın yalnızca 3. (son) parçası geldi. İçeriğin entropisi 7,998 bit/bayt. Düz tar başlığı (`ustar`) ve gzip başlangıcı yok, yani sıkıştırılmış bir akışın ortası ya da sonu. 1. ve 2. parça olmadan açılamaz, tek bir dosyası bile okunamaz. Parçaların karşılaştırılacağı bir checksum listesi de yok. |
+
+Not: Dosya adına göre bu, **v89** kaynak TAR'ına aittir. V95 değildir.
+
 ### A.3 `HijyenLab_Denetim_Kesiti_2026-11-05.json` içerik incelemesi
 
 - **Bu dosya tasarım uygulamasının denetimi değil.** HijyenLab'ın muhasebe/cari Excel çalışma kitabının (iç sürüm 802, önceki sürüm 799) salt okunur denetim kesitidir. İçinde müşteriler, yetkililer, faturalar, tahsilatlar, siparişler, maliyetler ve cari bakiyeler var. Kendi kaydına göre denetim kısmi kalmış: `run_status = PARTIAL_READ_ONLY_AUDIT; MAIN_WRITES_BLOCKED`, `full_historical_audit_completed = false`.
@@ -193,3 +201,4 @@ Dosyalar geldiğinde bu rapor gerçek bulgularla yeniden yazılacak. Hakan Bey o
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | 2. sürüm: A–J biçimine geçildi, yüklenen belge paketi doğrulandı. Uygulama kodu yok. |
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | Denetim kesiti JSON doğrulandı ve A.3 eklendi. Müşteri verisi eklenmedi. |
 | 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | Tam denetim metni incelendi (A.4). Müşteri verisi eklenmedi. |
+| 22.11.2026 | `docs/TEKNIK_DEVIR_RAPORU.md` | V89 TAR 3/3 parçası kaydedildi (A.2b). 1/3 ve 2/3 eksik. |
