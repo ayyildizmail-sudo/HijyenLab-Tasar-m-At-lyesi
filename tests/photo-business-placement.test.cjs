@@ -6,7 +6,8 @@ let area;const c={VisibleArtwork:V,state:{size:100,rotation:0},currentPrintArea:
 for(const id of ['BM12','BM11','BM13','BM15','BM545','BM21','OSHIBORI']){
  area=G.area(id);
  c.state.photoPlacementProfile=null;const normal=c.visibleLogoPlan({});c.state.photoPlacementProfile='photo-business-block';const inset=c.visibleLogoPlan({});
- assert(Math.abs(inset.width/normal.width-.84)<1e-10);assert(Math.abs(inset.height/normal.height-.84)<1e-10);assert(Math.abs(inset.width/inset.height-539/225)<1e-10);
+ // V91: normal logo payı 1 → .92 (%8 nefes payı); fotoğraf bloğu .84 kaldı. Oran artık .84/.92.
+ assert(Math.abs(inset.width/normal.width-.84/.92)<1e-10);assert(Math.abs(inset.height/normal.height-.84/.92)<1e-10);assert(Math.abs(inset.width/inset.height-539/225)<1e-10);
  assert.equal(inset.center.x,(area.left+area.right)/2);assert.equal(inset.center.y,(area.top+area.bottom)/2);assert(Math.abs(inset.drawRect.x+inset.width/2)<1e-10);assert(Math.abs(inset.drawRect.y+inset.height/2)<1e-10);
  assert(inset.width<=(area.right-area.left)*.84+1e-8);assert(inset.height<=(area.bottom-area.top)*.84+1e-8);
  assert.equal(c.visibleLogoPlan({}).width,inset.width,'Repeated render does not progressively shrink');

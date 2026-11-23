@@ -15,7 +15,7 @@ function fn(s,n){const start=s.indexOf('function '+n+'(');assert(start>=0);let i
   assert.deepEqual(p.towelDimensions,towel);assert.deepEqual(p.oppDimensions,[16,17]);assert.equal(r.whiteUnitKurus,white);assert.equal(r.coloredUnitKurus,colored);assert.equal(r.unitsPerBox,400);assert.deepEqual(r.minimum,{white:5200,colored:10000});
   assert.equal(U.pricing(400,'Muğla','Bodrum',r).subtotal,400*white);assert.equal(U.pricing(800,'İstanbul','',r).subtotal,800*white+40000);assert.throws(()=>U.pricing(401,'İstanbul','',r));
   const canvas=createCanvas(1600,850),scope={ProductGeometry:G,document:{createElement:()=>createCanvas(1,1)},selectedProductId:id,ctx:canvas.getContext('2d'),state:{bg:'#ffffff'},packageImage:front,isUnprinted:()=>true,rearTextInkError:()=>'',rearHasContent:()=>false};vm.createContext(scope);
-  vm.runInContext(['draw','drawPhotoMockup','materialColor','fitLogoToPrintArea','initialTextLayout'].map(n=>fn(app,n)).join('\n')+'\n'+['rearPackageClip','rearMaterialDataURL','tintRearPixels'].map(n=>fn(rear,n)).join('\n'),scope);
+  vm.runInContext(['draw','drawPhotoMockup','materialColor','fitLogoToPrintArea','initialTextLayout','isDeclaredQuote','canSelectFilmFinish','currentFilmFinish'].map(n=>fn(app,n)).join('\n')+'\n'+['rearPackageClip','rearMaterialDataURL','tintRearPixels'].map(n=>fn(rear,n)).join('\n'),scope);
   scope.draw(false);const blank=canvas.toBuffer('image/png');
   scope.drawPhotoMockup(scope.ctx,art,[[128,13,46]]);const photo=canvas.toBuffer('image/png');
   const rearWhite=scope.rearMaterialDataURL(back,'#ffffff'),rearColor=scope.rearMaterialDataURL(back,'#800d2e');
