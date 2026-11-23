@@ -120,3 +120,43 @@
 - CafeLife'ta hafif eğiklik.
 - Yeni modül için birim testi henüz yok.
 - Gerçek iPhone testi yapılmadı. Model yükü yaklaşık 12 MB; telefonda süre ölçülmedi.
+
+
+## Aşama 5b — Düzeltmeler (yön, temizlik, güven kademesi)
+
+**Değişiklikler (`frontend/product-photo.js`, `frontend/product-photo-ui.js`):**
+- **Yön:** Yazı satırları artık harf parçalarından kuruluyor (`glyphLines`). Yerel yön modeline yalnız gerçek yazı kesitleri gidiyor; tabak, bardak ve gölge kesitleri gitmiyor. Doğru yazıda modelin güveni 0,74–0,99'a çıktı.
+- **Kırıntı temizliği:** Ana yazıya göre soluk, ya da uzakta duran ve rengi yazıdan farklı içi dolu kümeler atılıyor. QR kodu ve amblem gibi belirgin grafikler korunuyor. Kars'taki kenar dokusu ve Gravas'taki bardak kırıntıları bununla gitti.
+- **Koyu zemin:** Parlaklık eşiği düşürüldü; neon harfleri daha eksiksiz çıkıyor.
+- **Güven kademesi:** Yön güveni ve harf oranı birlikte değerlendiriliyor:
+
+  | Kademe | Koşul |
+  |---|---|
+  | Otomatik | güven ≥ 0,6 ve harf oranı ≥ 0,45 |
+  | Müşteriye sor | güven ≥ 0,3 ve harf oranı ≥ 0,2 |
+  | Konmaz | diğer durumlar |
+
+- **Test:** `tests/product-photo.test.cjs` (7 test) eklendi ve sürüm kapısına alındı.
+
+**Gerçek fotoğraflar (tarayıcıda, uçtan uca):**
+
+| Durum | Görseller |
+|---|---|
+| Otomatik ve doğru | Arıbal, Çatalca, Cihangir, Kars, CafeLife |
+| Otomatik, büyük ölçüde doğru | Miz ("BAR /" kısmen eksik) |
+| Müşteriye sorulur | Gravas (yön doğru, sağda çember parçası kalıyor); Yeşiloğlu (logo doğru, yanında gölge lekeleri) |
+| Konmaz (özgün görsel) | Muhtar, Şerefe |
+
+- Yanlış sonuç kendiliğinden konmuyor.
+- Önceki turda kendiliğinden konan yanlış sonuçlar (Yeşiloğlu'nda gösterge, Muhtar'da lekeler, Şerefe'de parça) artık konmuyor.
+
+**Sentetik set:** 39 doğru, 19 kısmi, 44 yanlış, 10 sonuç yok. Grup 1 sonrasıyla birebir aynı; gerileme yok.
+- Kartvizit ve ambalaj sahnelerinin çoğunda uygulama fotoğrafın tamamını hazır logo sanıyor; bu yüzden yeni yol devreye girmiyor. "Fotoğraf logo sanıldı" durumuna bağlanması ayrı bir iş olarak duruyor.
+
+**Testler:** Tam paket 237 dosya, 213 geçti, 24 başarısız. 24'ün hepsi önceden de başarısızdı.
+
+**Açık konular:**
+- Yeşiloğlu'ndaki gölge lekeleri: yazıya renk ve karşıtlık olarak çok yakın oldukları için güvenli bir kuralla ayrılamadı.
+- Gravas'ta tarayıcı ile Node sonucu farklı: aday seçimi küçültme oranına duyarlı.
+- Miz'de "B" harfi eksik.
+- Gerçek iPhone'da süre ve bellek ölçülmedi.
