@@ -21,6 +21,9 @@ function unprintedQuote(snapshot){
  return !!units&&Number.isSafeInteger(quantity)&&quantity>=units&&quantity<=1000000&&quantity%units===0;
 }
 function declaredQuote(snapshot){const validator=typeof module!=='undefined'&&module.exports?require('./declared-quote.js'):root.DeclaredQuote;return !!validator?.snapshotValid(snapshot);}
+// Tasarım parmak izindeki ürün kodu. multi-logo-ui.js ön yüzde ek logo varken parmak izini
+// JSON.stringify([taban,ekLogolar]) biçiminde sarar; ürün kodu taban parmak izinin ilk öğesidir.
+function fingerprintProduct(value){let item=JSON.parse(value);for(let depth=0;depth<4&&Array.isArray(item)&&typeof item[0]==='string'&&item[0].startsWith('[');depth++)item=JSON.parse(item[0]);return Array.isArray(item)&&typeof item[0]==='string'?item[0]:null;}
 function create({bindQuoteDesign=false}={}){
  const quoteTokens=new WeakSet();
  let quoteJobSequence=0;
@@ -45,7 +48,7 @@ function create({bindQuoteDesign=false}={}){
  const matchesDesign=snapshot=>{
   if(!bindQuoteDesign)return true;
   if(!snapshot||!/^[a-f0-9]{64}$/i.test(source?.sha256||'')||snapshot.design!==fingerprint||snapshot.sourceSHA256!==source?.sha256||snapshot.designRevision!==designRevision)return false;
-  try{return JSON.parse(fingerprint)[0]===snapshot.product;}catch{return false;}
+  try{return fingerprintProduct(fingerprint)===snapshot.product;}catch{return false;}
  };
  const nextRevision=()=>{if(designRevision>=Number.MAX_SAFE_INTEGER){revoke();throw new RangeError("design revision exhausted");}return ++designRevision;};
  const api={
