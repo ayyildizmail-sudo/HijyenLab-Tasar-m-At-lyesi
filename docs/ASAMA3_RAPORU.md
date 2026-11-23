@@ -81,7 +81,20 @@ Testlerde tabelalar, şablonlardan **farklı** bir yazı tipiyle (DejaVu Sans Bo
   - ağ ve depolama kullanılmadığı
   - **42 tabelada sıfır yanlış sonuç kapısı**
 - Bu test ve önceki düzeltmelerin testleri (`draft-multitab`, `lead-product-catalog`, `multi-logo-quote-token`) sürüm kapısına ve kritik üyelik listesine eklendi.
-- Tam paket sonucu: çalıştırılıyor; bitince bu satır güncellenecek.
+- **Tam paket (234 test dosyası):** 210 geçti, 24 başarısız. Canlı ön yüzle karşılaştırma (230 dosya: 202 geçti, 28 başarısız):
+  - 4 yeni dosya eklendi, hepsi geçiyor.
+  - Kapı testlerinin 4'ü düzeldi.
+  - **Yeni başarısız olan test yok.** Kalan 24 başarısızlığın hepsi canlı ön yüzde de aynı.
+- **Sürüm kapısı (dosya bazında):** 14 kapı dosyası başarısız; liste canlı ön yüzle birebir aynı.
+  - 7'si pakette olmayan özel müşteri görsellerini istiyor: `adapted-photo-proposal`, `customer-ground-upload-independent`, `flexo-jpeg-boundary-handler`, `kraft-photo`, `local-emblem`, `lowres-wordmark`, `photo-candidate-quality`.
+  - 7'si eski koda göre yazılmış ve canlı koda uymuyor:
+    - `flat-jpeg-ink-palette`, `flexo-three-ink-rendered` (renk sayımı)
+    - `logo-safe-margin` (%8 kenar payı)
+    - `logo-settle` (logo animasyonu)
+    - `small-native-ground`, `source-ground-placement`, `source-package-ground`
+  - Kapı betiği ilk başarısız dosyada durduğu için `node scripts/check-logo-regressions.mjs` şu an `logo-safe-margin`'de duruyor; canlı ön yüzde de durum aynı.
+- **Düzeltme:** Aşama 2 raporunda `logo-safe-margin` "kapı dışı" diye yazılmıştı; doğrusu kapı listesinde olduğu. "130/143" sayısı alt test sayımıydı. Dosya bazındaki doğru tablo yukarıdadır.
+- Varlık sürüm kontrolü: 127/127.
 
 ## Sınırlar ve kalan riskler
 
@@ -93,3 +106,4 @@ Testlerde tabelalar, şablonlardan **farklı** bir yazı tipiyle (DejaVu Sans Bo
   - tek harf ya da iki harfli kısaltmalar (en az 3 harf gerekir)
 - Harfler Inter yazı tipiyle yeniden çizilir. Tabeladaki özgün yazı tipi birebir korunmaz; kalınlık ve renk korunur.
 - Gerçek iPhone Safari testi kullanıcı tarafından yapılmalı (önizleme üzerinden).
+- Kapıdaki 7 eski test, ayrı bir işte canlı koda uyarlanmalı ya da kapsamı yeniden değerlendirilmeli.
