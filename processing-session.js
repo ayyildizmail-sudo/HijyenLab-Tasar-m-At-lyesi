@@ -1,0 +1,75 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- Dual browser/CommonJS module. */
+/* One local operation/revision authority. No UI, network, persistence or image heuristics. */
+(function(root){'use strict';
+const clone=value=>value===undefined?undefined:JSON.parse(JSON.stringify(value));
+function stable(value){if(value===undefined)return 'undefined';if(typeof value==='number'&&!Number.isFinite(value))return 'number:'+String(value);if(value===null||typeof value!=='object')return JSON.stringify(value);if(Array.isArray(value))return '['+value.map(stable).join(',')+']';return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+stable(value[k])).join(',')+'}';}
+function text(value,name){if(typeof value!=='string'||!value.trim())throw new TypeError(name+' must be a nonempty string');return value;}
+function validateBox(box,frame,name='box'){if(!Array.isArray(box)||box.length!==4||box.some(n=>!Number.isFinite(n))||box[0]<0||box[1]<0||box[2]<=box[0]||box[3]<=box[1]||box[2]>frame.width||box[3]>frame.height)throw new TypeError(name+' must be a nonempty [x0,y0,x1,y1] inside the browser-decoded frame');return box;}
+function validateCandidate(value,frame,allowUnknown=false){if(!value||typeof value!=='object')throw new TypeError('candidate must be an object');text(value.method,'method');text(value.methodVersion,'methodVersion');if(value.sourceCoordinates!==frame.coordinateFrame)throw new TypeError('candidate coordinate frame mismatch');if(value.box!==null||!allowUnknown)validateBox(value.box,frame);return value;}
+function validateRegions(values,frame,name){if(!Array.isArray(values))throw new TypeError(name+' must be an explicit array');for(const region of values){if(!region||typeof region!=='object')throw new TypeError(name+' entry must be an object');validateBox(region.box,frame,name);text(region.reason,'region reason');}return values;}
+function validateResult(value,frame,source){validateCandidate(value,frame,true);if(!/^[a-f0-9]{64}$/i.test(source.sha256||''))throw new TypeError('source SHA256 must be established before commit');if(!Array.isArray(value.candidates))throw new TypeError('candidates must be an explicit array');for(const candidate of value.candidates)validateCandidate(candidate,frame);validateRegions(value.preservedRegions,frame,'preservedRegions');validateRegions(value.excludedRegions,frame,'excludedRegions');if(value.box!==null&&value.preservedRegions.length===0)throw new TypeError('at least one preserved region is required for known bounds');text(value.maskBasis,'maskBasis');for(const name of ['transformOrder','limitations']){if(!Array.isArray(value[name]))throw new TypeError(name+' must be an explicit array');value[name].forEach(v=>text(v,name));}if(value.box===null&&(!value.limitations.length||value.coordinateStatus!=='unrecorded'))throw new TypeError('unknown source bounds need coordinateStatus unrecorded and explicit limitations');if(value.status!==undefined&&!['ready','needs-selection'].includes(value.status))throw new TypeError('unsupported result status');if(value.transformOrder.length===0)throw new TypeError('transformOrder must describe the processing order');if(Object.prototype.hasOwnProperty.call(value,'confidence')&&typeof value.confidence==='number')throw new TypeError('uncalibrated numeric confidence is not accepted');return value;}
+// FX-derived prices must retain their canonical source/date snapshot on every quote path.
+function productQuoteRulesValid(snapshot){
+ if(snapshot?.product!=='OSHIBORI')return true;
+ const catalog=typeof module!=='undefined'&&module.exports?require('./product-catalog.js'):root.ProductCatalog;
+ return !!catalog?.validRules?.(snapshot.rules)&&snapshot.rules.product==='OSHIBORI'&&snapshot.ruleVersion===snapshot.rules.revision&&snapshot.price?.ruleRevision===snapshot.ruleVersion&&JSON.stringify(snapshot.price.rules)===JSON.stringify(snapshot.rules);
+}
+// A blank catalog product is not artwork and must never manufacture an approval.
+function unprintedQuote(snapshot){
+ if(!snapshot||snapshot.printMode!=='unprinted'||snapshot.design!==null||snapshot.rear!==null||String(snapshot.inkCount)!=='0'||snapshot.cliche!=='none'||(snapshot.product==='OSHIBORI'?!['flambau','green_tea','bodrum_mandarin','lemon'].includes(snapshot.fragrance?.id):snapshot.fragrance?.id!==(snapshot.product==='BM21'?'green_tea':'flambau')))return false;
+ const units={BM12:400,BM11:400,BM13:400,BM15:500,BM545:625,BM21:1000,OSHIBORI:250}[snapshot.product],quantity=Number(snapshot.quantity);
+ return !!units&&Number.isSafeInteger(quantity)&&quantity>=units&&quantity<=1000000&&quantity%units===0;
+}
+function declaredQuote(snapshot){const validator=typeof module!=='undefined'&&module.exports?require('./declared-quote.js'):root.DeclaredQuote;return !!validator?.snapshotValid(snapshot);}
+// Tasarım parmak izindeki ürün kodu. multi-logo-ui.js ön yüzde ek logo varken parmak izini
+// JSON.stringify([taban,ekLogolar]) biçiminde sarar; ürün kodu taban parmak izinin ilk öğesidir.
+function fingerprintProduct(value){let item=JSON.parse(value);for(let depth=0;depth<4&&Array.isArray(item)&&typeof item[0]==='string'&&item[0].startsWith('[');depth++)item=JSON.parse(item[0]);return Array.isArray(item)&&typeof item[0]==='string'?item[0]:null;}
+function create({bindQuoteDesign=false}={}){
+ const quoteTokens=new WeakSet();
+ let quoteJobSequence=0;
+ let operationId=0,activeToken=null,status='idle',source=null,frame=null,result=null,pendingCandidates=[],designRevision=0,fingerprint=null,approval=null,error=null;
+ const revoke=()=>{quoteJobSequence++;approval=null;if(result)result.approval={required:true,approvedRevision:null};};
+ const current=token=>token===activeToken&&token!==null&&!['cancelled','failed','idle'].includes(status);
+ const writable=token=>current(token)&&['loading','decoded','proposed','needs-selection'].includes(status);
+ const referenceQuote=snapshot=>status==='ready'&&!error&&result?.method==='source-reference'&&snapshot?.quoteSource==='source-reference'&&snapshot.designApproval===false&&snapshot.rear===null&&snapshot.reference?.artworkApplied===false&&snapshot.reference.sourceSHA256===source?.sha256&&snapshot.reference.operationId===operationId&&snapshot.reference.extractionRevision===result.extractionRevision&&snapshot.design===fingerprint;
+ const logoQuote=snapshot=>{
+  const method='locally-created-logo-artwork',relevant=result?.method===method||snapshot?.quoteSource===method||snapshot?.logoDesign;
+  if(!relevant)return true;
+  const model=typeof module!=='undefined'&&module.exports?require('./logo-design.js'):root.LogoDesign;
+  try{const descriptor=model.validate(snapshot?.logoDesign),art=result?.logoArtwork;
+   return status==='ready'&&!error&&!!descriptor.name.trim()&&result?.method===method&&result.methodVersion===model.VERSION&&snapshot.quoteSource===method&&snapshot.printMode==='printed'&&snapshot.textDesign==null&&descriptor.productId===snapshot.product&&source?.provenance==='customer-created-logo'&&source?.identityBasis==='locally-created-logo-and-raster-bytes'&&stable(descriptor)===stable(source.logoDesign)&&stable(descriptor)===stable(art?.descriptor)&&art?.renderedPixelsVerified===true&&/^[a-f0-9]{64}$/i.test(art.outputPixelSHA256||'')&&Array.isArray(art.palette)&&art.palette.length>=1&&art.palette.length<=2&&art.palette.every(c=>/^#[a-f0-9]{6}$/i.test(c)&&model.colorsFor(descriptor).includes(c))&&art.width===frame?.width&&art.height===frame?.height;
+  }catch{return false;}
+ };
+ const adaptedPhotoQuote=snapshot=>{
+  const method='source-grouped-photo-proposal-v1',p=result?.flatPrintProposal,a=snapshot?.artworkAdaptation;
+  if(result?.method!==method&&a?.adaptationMethod!==method)return true;
+  return status==='ready'&&!error&&result?.method===method&&p?.adaptationMethod===method&&p.whiteKnockout===true&&p.renderedPixelsVerified===true&&p.sourceSHA256===source?.sha256&&snapshot.quoteSource==='uploaded-artwork'&&snapshot.printMode==='printed'&&snapshot.design===fingerprint&&a?.method==='source-flat-flexo-proposal-v1'&&a.adaptationMethod===method&&a.physicalInksConfirmed===false&&a.sourceSHA256===source?.sha256&&a.outputPixelSHA256===p.outputPixelSHA256&&/^[a-f0-9]{64}$/i.test(p.outputPixelSHA256||'')&&Array.isArray(a.proposedPalette)&&a.proposedPalette.length===0&&/^#[a-f0-9]{6}$/i.test(a.groundRgb||'');
+ };
+ const matchesDesign=snapshot=>{
+  if(!bindQuoteDesign)return true;
+  if(!snapshot||!/^[a-f0-9]{64}$/i.test(source?.sha256||'')||snapshot.design!==fingerprint||snapshot.sourceSHA256!==source?.sha256||snapshot.designRevision!==designRevision)return false;
+  try{return fingerprintProduct(fingerprint)===snapshot.product;}catch{return false;}
+ };
+ const nextRevision=()=>{if(designRevision>=Number.MAX_SAFE_INTEGER){revoke();throw new RangeError("design revision exhausted");}return ++designRevision;};
+ const api={
+  begin(metadata={}){operationId++;activeToken=Object.freeze({operationId});status='loading';source=clone(metadata)||{};frame=null;result=null;pendingCandidates=[];fingerprint=null;error=null;revoke();return activeToken;},
+  isCurrent:current,
+  setSource(token,metadata){if(!writable(token))return false;if(!metadata||typeof metadata!=='object')throw new TypeError('source metadata must be an object');source={...source,...clone(metadata)};return true;},
+  decoded(token,value){if(!writable(token))return false;if(!value||!Number.isInteger(value.width)||!Number.isInteger(value.height)||value.width<1||value.height<1||!['browser-decoded','pdf-rendered-page'].includes(value.coordinateFrame))throw new TypeError('decoded frame needs positive integer dimensions and browser-decoded or pdf-rendered-page coordinates');frame={width:value.width,height:value.height,coordinateFrame:value.coordinateFrame};status='decoded';pendingCandidates=[];result=null;fingerprint=null;revoke();return true;},
+  candidate(token,value){if(!writable(token))return false;if(!frame)throw new TypeError('decode before proposing a candidate');validateCandidate(value,frame);pendingCandidates.push(clone(value));status='proposed';return true;},
+  commit(token,value){if(!writable(token))return false;if(!frame)throw new TypeError('decode before commit');validateResult(value,frame,source);nextRevision();fingerprint=null;approval=null;result={...clone(value),schemaVersion:1,source:clone(source),operation:{operationId},frame:clone(frame),extractionRevision:designRevision,designRevision,approval:{required:true,approvedRevision:null}};status=value.status||'ready';error=null;return clone(result);},
+  pendingSelection(token,reason){if(!writable(token))return false;status='needs-selection';result=null;fingerprint=null;error=typeof reason==='string'?reason:null;revoke();return true;},
+  fail(token,reason){if(!current(token))return false;error=typeof reason==='string'?reason:String(reason||'Processing failed');status='failed';result=null;revoke();return true;},
+  cancel(){operationId++;activeToken=null;status='cancelled';result=null;pendingCandidates=[];fingerprint=null;revoke();return true;},
+  touchDesign(value){text(value,'design fingerprint');if(value!==fingerprint){nextRevision();fingerprint=value;if(result)result.designRevision=designRevision;revoke();}return designRevision;},
+  approve(value){if(status!=='ready'||!result||result.method==='source-reference'||typeof value!=='string'||value!==fingerprint)return false;approval={operationId,designRevision,fingerprint:value};result.approval={required:true,approvedRevision:designRevision};return true;},
+  isApproved(value){return status==='ready'&&!!approval&&approval.operationId===operationId&&approval.designRevision===designRevision&&approval.fingerprint===fingerprint&&value===fingerprint;},
+  invalidateQuotes(){quoteJobSequence++;return quoteJobSequence;},
+  quoteToken(snapshot){if(!snapshot||typeof snapshot!=='object'||Array.isArray(snapshot))return null;if(!logoQuote(snapshot)||!adaptedPhotoQuote(snapshot)||!productQuoteRulesValid(snapshot))return null;const blank=unprintedQuote(snapshot),declared=declaredQuote(snapshot),reference=referenceQuote(snapshot);if(snapshot?.quoteSource==='customer-declared'&&!declared)return null;if(snapshot?.quoteSource==='source-reference'&&!reference)return null;if(!blank&&!declared&&!reference&&(!matchesDesign(snapshot)||!api.isApproved(fingerprint)))return null;if(snapshot?.printMode==='unprinted'&&!blank)return null;quoteJobSequence++;const token=Object.freeze({operationId,designRevision,fingerprint,quoteJobSequence,unprinted:blank,declared,reference,snapshot:stable(snapshot)});quoteTokens.add(token);return token;},
+  isQuoteCurrent(token,snapshot){return logoQuote(snapshot)&&adaptedPhotoQuote(snapshot)&&productQuoteRulesValid(snapshot)&&!!token&&quoteTokens.has(token)&&token.quoteJobSequence===quoteJobSequence&&(token.reference?referenceQuote(snapshot):token.declared?declaredQuote(snapshot):token.unprinted?unprintedQuote(snapshot):matchesDesign(snapshot)&&api.isApproved(fingerprint))&&token.operationId===operationId&&token.designRevision===designRevision&&token.fingerprint===fingerprint&&token.snapshot===stable(snapshot);},
+  getState(){return clone({operationId,quoteJobSequence,status,source,frame,result,candidates:pendingCandidates,designRevision,fingerprint,approval,error});}
+ };
+ return api;
+}
+const api={create,validateBox,validateResult};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.ProcessingSession=api;
+})(typeof globalThis!=='undefined'?globalThis:this);

@@ -1,0 +1,55 @@
+/* Approved balanced focus: a crisp working card, gently secondary passive context.
+   No overlay, ancestor filter, layout movement, animation or hit-target changes. */
+@media screen {
+  main[data-focus-guidance] [data-focus-group] { border-radius: 14px; }
+  main[data-focus-guidance] [data-focus-active],
+  dialog[data-focus-group][data-focus-active][open] {
+    outline: 2px solid var(--focus-guidance-accent, var(--customer-decoration, #800d2a));
+    outline-offset: 4px;
+  }
+  /* Existing neutral card surfaces and fragrance semantics are untouched. A
+     pale source hue still has a visible neutral edge without inventing an ink. */
+  main[data-focus-guidance] [data-focus-active] {
+    box-shadow: 0 0 0 5px #ffffff, 0 0 0 6px #153b671f;
+  }
+  /* Only explicitly checked noninteractive context leaves may soften. Never main,
+     a section, a form, a dialog, a canvas or a group containing controls. */
+  main[data-focus-guidance] [data-focus-passive] {
+    filter: blur(.55px);
+    opacity: .78;
+  }
+  /* Darken only secondary copy before opacity is composited, retaining readable
+     contrast even on the existing logo-tinted product context card. */
+  main[data-focus-guidance] #journeyProductDescription[data-focus-passive],
+  main[data-focus-guidance] #journeyProductDescription[data-focus-passive] #journeyProductMode,
+  main[data-focus-guidance] #welcomeIntro[data-focus-passive] :is(.welcomeDescription, .welcomeEyebrow) {
+    color: #253c54;
+  }
+  main[data-focus-guidance] [data-focus-passive]:is(:hover, :focus-within),
+  main[data-focus-guidance] [data-focus-active] [data-focus-passive] {
+    filter: none;
+    opacity: 1;
+  }
+  /* Focus changes are instantaneous; the existing V73 finite motion is separate. */
+  main[data-focus-guidance] [data-focus-passive],
+  main[data-focus-guidance] [data-focus-active],
+  dialog[data-focus-group] { transition: none; }
+}
+/* An outline-only fallback respects requests for less motion/transparency and
+   stronger contrast. Existing browser/native control focus rings stay intact. */
+@media (prefers-reduced-motion: reduce), (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+  main[data-focus-guidance] [data-focus-passive] { filter: none; opacity: 1; transition: none; }
+  main[data-focus-guidance] [data-focus-active] { box-shadow: none; }
+}
+@media (forced-colors: active) {
+  main[data-focus-guidance] [data-focus-active], dialog[data-focus-group][data-focus-active][open] { outline-color: Highlight; }
+}
+@media (prefers-contrast: more) and (forced-colors: none) {
+  main[data-focus-guidance] [data-focus-active], dialog[data-focus-group][data-focus-active][open] { outline-color: var(--customer-accent, #142d49); outline-width: 3px; }
+}
+/* Export generation uses the untouched canvas pixels. Browser printing also
+   removes all screen-only attention treatment, including passive softening. */
+@media print {
+  [data-focus-passive] { filter: none !important; opacity: 1 !important; }
+  [data-focus-active], dialog[data-focus-group] { outline: none !important; box-shadow: none !important; }
+}

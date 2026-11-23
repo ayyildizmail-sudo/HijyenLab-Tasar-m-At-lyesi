@@ -1,0 +1,64 @@
+/* Reserved footer space + scroll clearance protect the primary action. */
+body.hasContactHelp { padding-bottom: calc(var(--contact-help-height, 60px) + 16px); }
+html:has(body.hasContactHelp) { scroll-padding-bottom: calc(var(--contact-help-height, 60px) + 20px); }
+body.hasContactHelp main :is(button, input, select, textarea, a, summary) { scroll-margin-bottom: calc(var(--contact-help-height, 60px) + 20px); }
+#contactHelp { position: fixed; inset: auto 0 0; z-index: 20; border-top: 1px solid #d8e2ed; background: #fff; color: #17324b; padding: 6px max(16px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); box-shadow: 0 -2px 12px #17324b0b; }
+#contactHelp .contactHelpInner { max-width: 912px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 6px 16px; flex-wrap: nowrap; }
+#contactHelp strong { font-size: 14px; }
+#contactHelp .contactHelpActions { display: flex; gap: 32px; flex: 0 0 auto; }
+#contactHelp :is(a, button) { display: inline-flex; justify-content: center; align-items: center; width: 48px; height: 48px; min-width: 48px; min-height: 44px; flex: 0 0 48px; box-sizing: border-box; padding: 10px; border: 1px solid transparent; border-radius: 12px; color: #fff; background: #1877f2; text-decoration: none; font-size: 15px; font-weight: 700; line-height: 1.35; }
+#contactHelp #contactWhatsApp { color: #fff; background: #25d366; }
+#contactHelp :is(a, button):hover { background: #0965d9; }
+#contactHelp :is(a, button):focus-visible { outline: 3px solid #075dc9; outline-offset: 3px; }
+#contactHelp svg { display: block; flex: none; pointer-events: none; }
+#contactHelpNote { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#contactHelp #contactWhatsApp:hover { background: #1ab957; }
+body.contactHelpEditing { padding-bottom: 0; }
+body.contactHelpEditing #contactHelp { position: static; }
+@media (max-width: 600px) {
+  #contactHelp .contactHelpInner { gap: 6px; }
+  #contactHelp strong { font-size: 13px; }
+}
+@media (max-height: 500px), (max-width: 320px) {
+  body.hasContactHelp { padding-bottom: 0; }
+  #contactHelp { position: static; }
+}
+@media print { #contactHelp { display: none; } body.hasContactHelp { padding-bottom: 0; } }
+
+#contactHelpDialog { box-sizing: border-box; width: min(560px, calc(100% - 24px)); max-height: calc(100dvh - 32px); margin: auto; overflow-y: auto; border: 1px solid #b9cadc; border-radius: 16px; padding: 22px; color: #17324b; background: white; }
+#contactHelpDialog::backdrop { background: #102f5966; }
+#contactHelpDialog h2 { margin: 0 0 12px; font-size: 22px; }
+#contactHelpDialog p { font-size: 14px; line-height: 1.5; }
+#contactHelpDialog label { display: block; margin: 16px 0 8px; font-weight: 700; }
+#contactHelpDialog textarea { box-sizing: border-box; display: block; width: 100%; min-height: 140px; max-height: 40dvh; resize: vertical; padding: 12px; font: 16px/1.5 Arial, sans-serif; color: #17324b; border: 1px solid #8298ae; border-radius: 8px; }
+#contactHelpDialog .contactDraftActions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+#contactHelpDialog :is(button, a) { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; box-sizing: border-box; padding: 10px 14px; border: 1px solid #8298ae; border-radius: 8px; font-size: 15px; color: #17324b; background: white; text-decoration: none; }
+#contactHelpDialog #contactProceed { color: white; background: #075b38; border-color: #075b38; }
+#contactHelpDialog #contactProceed[aria-disabled=true] { opacity: .55; }
+#contactHelpDialog :is(button, a, textarea):focus-visible { outline: 3px solid #075dc9; outline-offset: 3px; }
+@media (max-width: 600px) { #contactHelpDialog { padding: 18px; } }
+@media print { #contactHelpDialog { display: none; } }
+
+#institutionContactHelp { margin: 20px 0; }
+#institutionContactDraft { min-height: 44px; padding: 8px 0; border: 0; border-radius: 0; background: transparent; color: #435b73; font: inherit; font-size: 14px; line-height: 1.5; text-align: left; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+#institutionContactDraft:hover { color: #17324b; }
+#institutionContactDraft:focus-visible { outline: 3px solid #075dc9; outline-offset: 3px; }
+
+/* Short visual viewports must stay unobstructed, including keyboard/zoom resize. */
+body.contactHelpShortViewport { padding-bottom: 0; }
+body.contactHelpShortViewport #contactHelp { position: static; }
+html:has(body:is(.contactHelpEditing, .contactHelpShortViewport)) { scroll-padding-bottom: 16px; }
+body:is(.contactHelpEditing, .contactHelpShortViewport) main :is(button, input, select, textarea, a, summary) { scroll-margin-bottom: 16px; }
+@media (max-height: 600px) {
+  body.hasContactHelp { padding-bottom: 0; }
+  #contactHelp { position: static; }
+  html:has(body.hasContactHelp) { scroll-padding-bottom: 16px; }
+}
+
+/* The rear editor can show a multi-line validation message at any scroll
+   position. Keep help in document flow while it is open, so no warning or
+   corrective action can be painted underneath the footer. */
+body.hasContactHelp:has(#rearPreview:not([hidden]) #rearEditor[open]) { padding-bottom: 0; }
+body:has(#rearPreview:not([hidden]) #rearEditor[open]) #contactHelp { position: static; }
+html:has(#rearPreview:not([hidden]) #rearEditor[open]) { scroll-padding-bottom: 16px; }
+body:has(#rearPreview:not([hidden]) #rearEditor[open]) main :is(button, input, select, textarea, a, summary) { scroll-margin-bottom: 16px; }

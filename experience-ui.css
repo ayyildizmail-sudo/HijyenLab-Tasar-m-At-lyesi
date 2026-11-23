@@ -1,0 +1,17 @@
+#journeyProgress { margin: 14px 0 18px; }
+#journeyProgress ol { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; list-style: none; color: #526577; font-size: 14px; }
+#journeyProgress li { display: inline-flex; align-items: center; gap: 10px; }
+#journeyProgress li:not(:last-child)::after { content: '→'; font-weight: normal; color: #526577; }
+#journeyProgress li[aria-current=step] { color: #075dc9; font-weight: 800; text-decoration: underline; text-underline-offset: 5px; }
+#uploadRecovery { padding: 14px; margin: 14px 0; border: 1px solid #dfbc78; border-radius: 10px; background: #fff8eb; }
+#uploadRecovery[hidden] { display: none; }
+#uploadRecoveryText { margin: 0 0 12px; font-size: 16px; line-height: 1.5; }
+.uploadRecoveryActions { display: flex; flex-wrap: wrap; gap: 10px; }
+#uploadRecovery button { min-height: 44px; white-space: normal; padding: 10px 14px; font-size: 15px; }
+#uploadRecovery details { margin-top: 12px; font-size: 13px; line-height: 1.5; }
+#uploadRecovery summary { cursor: pointer; min-height: 28px; }
+#summaryDiscussion { margin: 18px 0; }
+#summaryDiscussionError { color: #9e2020; font-size: 14px; }
+@media print { #journeyProgress, #uploadRecovery, #summaryDiscussion { display: none; } }
+
+#journeyProgress li[hidden] { display: none; }

@@ -1,0 +1,38 @@
+/* Local logo ideas; scoped customer interface. */
+#logoDesignStart{flex:1;min-height:44px}
+#logoDesignPanel{max-width:1180px;margin:18px auto 24px;padding:24px;border:1px solid #d9e0e8;border-radius:20px;background:#fff}
+#logoDesignPanel h2{font-size:clamp(23px,3vw,30px);margin:0 0 20px}
+#logoDesignInputGroup label{display:block;font-size:18px;font-weight:650;margin-bottom:10px}
+#logoDesignInput{display:block;width:100%;min-height:52px;font-size:19px;box-sizing:border-box}
+#logoDesignMessage{min-height:24px;margin:10px 0 18px;color:#6b3042;font-size:15px}
+#logoDesignChoices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.logoDesignCard{min-width:0;overflow:hidden;padding:14px;border:1px solid #d9e0e8;border-radius:16px;background:#fafbfc}
+.logoDesignCard h3{margin:0 0 8px;font-size:18px;color:#26364c}
+.logoDesignCard canvas{display:block;width:100%;height:auto;aspect-ratio:1600/850;background:#fff;border-radius:10px}
+.logoDesignCard p{min-height:22px;margin:10px 0;font-size:13px;color:#526178}
+.logoDesignCard button{width:100%;min-height:48px;font-size:14px;line-height:1.35}
+#logoDesignCancel{margin-top:20px;min-height:44px}
+body.logoDesignEditing #design>.workspace,body.logoDesignEditing #design>.footnote,body.logoDesignEditing #design>h1,body.logoDesignEditing #design>.subtitle,body.logoDesignEditing #welcomeIntro,body.logoDesignEditing #personaNoLogo,body.logoDesignEditing #welcomeUploadHint,body.logoDesignEditing #productReview{display:none!important}
+body.logoDesignSource #simpleText,body.logoDesignSource #logoPanel,body.logoDesignSource #design .editPanel:nth-of-type(3),body.logoDesignSource [data-open-panel="2"],body.logoDesignSource #simpleDetails>button.textButton{display:none}
+body.logoDesignSource #logoDesignEdit{display:inline-flex}
+#logoDesignEdit[hidden],#logoDesignPanel[hidden]{display:none!important}
+@media(max-width:760px){#logoDesignPanel{padding:18px 14px;margin-top:12px}#logoDesignChoices{grid-template-columns:1fr;gap:14px}.logoDesignCard{display:grid;grid-template-columns:minmax(0,1fr);padding:14px}.logoDesignCard canvas{max-height:190px;object-fit:contain}.logoDesignCard button{font-size:16px}#logoDesignStart{width:100%}}
+#logoDesignPanel [hidden]{display:none!important}
+#logoDesignOptional{margin:16px 0;padding:12px 14px;border:1px solid #d9e0e8;border-radius:12px}
+#logoDesignOptional summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:650}
+#logoDesignOptional label{display:block;margin:16px 0 8px;font-weight:650}
+#logoDesignOptional input,#logoDesignOptional select{width:100%;min-height:48px;box-sizing:border-box;font-size:17px}
+#logoDesignColors{border:0;padding:0;margin:18px 0;display:flex;gap:10px;flex-wrap:wrap}
+#logoDesignColors legend{font-weight:650;margin-bottom:10px}
+#logoDesignColors .hint{flex-basis:100%;margin:0}
+.logoColorChoice{display:inline-flex;align-items:center;gap:9px;min-height:46px;border:1px solid #b9c5d2;border-radius:10px;background:#fff;padding:9px 12px;color:#26364c;font-size:16px}
+.logoColorSwatch{width:20px;height:20px;border-radius:50%;border:1px solid #0002}
+#logoDesignColors [aria-pressed=true]{outline:2px solid #102f59;outline-offset:2px;font-weight:700}
+#logoDesignColors [aria-pressed=true]::after{content:' ✓'}
+#logoDesignShow{min-height:48px;padding:12px 22px;font-size:17px}
+#logoDesignActions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+#logoDesignActions button{min-height:46px}
+#logoDesignDisclaimer{margin-top:16px;max-width:76ch;font-size:14px;line-height:1.5}
+#logoDesignPanel button:focus-visible,#logoDesignPanel input:focus-visible,#logoDesignPanel select:focus-visible,#logoDesignPanel summary:focus-visible{outline:3px solid #2877b8;outline-offset:3px}
+body.logoDesignEditing #textDesignStart,body.logoDesignEditing #logoDesignStart{display:none!important}
+@media(prefers-reduced-motion:reduce){#logoDesignPanel *{animation:none!important;transition:none!important}}

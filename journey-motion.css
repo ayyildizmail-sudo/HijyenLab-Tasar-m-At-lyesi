@@ -1,0 +1,24 @@
+/* Reserved adornments do not move fields, focus targets or exported artwork. */
+#leadFields .journeyField{position:relative}
+#leadFields .journeyField input{padding-right:2.5rem}
+.journeyFieldCheck{position:absolute;right:.75rem;bottom:.8rem;width:1.1rem;height:1.1rem;border-radius:50%;background:#e9f5ef;color:#267752;font-size:.8rem;line-height:1.1rem;text-align:center;opacity:0;pointer-events:none}
+.journeyFieldCheck.is-valid{opacity:1}
+.fragranceIcon{display:inline-block;transform-origin:50% 80%;margin-right:.35em}
+.rearFlipCard{transition-duration:360ms}
+#rearTitle::after{content:'✓';display:inline-block;margin-left:.55em;color:#267752;font-size:.7em}
+@media(prefers-reduced-motion:reduce){.rearFlipCard{transition:none}}
+
+.journeySurfaceSweep{pointer-events:none!important;contain:strict}
+#journeyQuoteFaces{display:grid;grid-template-columns:minmax(0,1fr);align-items:center;gap:12px}
+#journeyQuoteFaces.has-rear{grid-template-columns:repeat(2,minmax(0,1fr))}
+#journeyQuoteFaces img{width:100%;min-width:0;object-fit:contain}
+#journeyQuoteCosts{margin:12px 0}
+#journeyQuoteCosts:empty{display:none}
+
+#journeyColorPreview{display:block;width:100%;height:140px;object-fit:contain;margin:0 0 12px;pointer-events:none}
+#summary #journeyQuoteFaces #finalImage{display:block}
+#summary #journeyQuoteFaces[hidden],#summary #journeyQuoteCosts[hidden],#summary #journeyQuoteNote[hidden],#summary #journeyQuoteDescription[hidden],#summary #journeyQuoteJpeg[hidden]{display:none}
+#journeyQuoteFaces img[hidden]{display:none}
+#journeyQuoteCosts .priceRow.total{font-size:clamp(17px,4.5vw,23px);margin:10px 0 0}
+#journeyQuoteJpeg{margin:16px 0}
+#journeyQuoteJpeg>summary{cursor:pointer;min-height:44px;padding:12px 0;color:var(--blue)}

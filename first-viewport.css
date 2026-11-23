@@ -1,0 +1,6 @@
+/* Preview first. Changes only the opening gallery, never the working artwork canvas. */
+main.atelierLayout.welcomeEmpty > #openingExamples { width:100%; max-width:840px; margin:12px auto; }
+main.atelierLayout.welcomeEmpty > #openingExamples canvas {
+ max-height:var(--first-viewport-canvas-height, min(320px, max(100px, calc(100svh - 480px))));
+ object-fit:contain;
+}

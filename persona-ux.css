@@ -1,0 +1,112 @@
+/* Compact opening: one real upload action, then the real package preview. */
+.atelierLayout.welcomeEmpty #welcomeIntro { margin: 14px auto; }
+.atelierLayout.welcomeEmpty #welcomeTitle { font-size: clamp(27px, 3.2vw, 36px); }
+.atelierLayout.welcomeEmpty .welcomeEyebrow { display: none; }
+.atelierLayout.welcomeEmpty #welcomeIntro .welcomeDescription { margin-top: 8px; font-size: 14px; }
+.atelierLayout.welcomeEmpty .productPicker { margin: 12px auto; padding: 10px 16px; }
+.atelierLayout .productPicker > :is(#personaMinimum, #personaQuoteExpectation, #personaProductFacts) { grid-column: 1 / -1; margin: 5px 0 0; font-size: 12px; line-height: 1.5; }
+#personaMinimum { color: #183653; font-weight: 600; }
+#personaQuoteExpectation { color: #52677d; }
+#personaProductFacts summary, #personaNoLogo summary { cursor: pointer; min-height: 32px; padding: 6px 0; color: #315c87; }
+#personaProductFacts p { margin: 5px 0; }
+.atelierLayout.welcomeEmpty .simplePrimary { margin: 8px auto; }
+#personaNoLogo { font-size: 12px; max-width: 600px; margin: 0 auto 10px; color: #52677d; text-align: center; }
+#personaNoLogo p { margin: 4px 0; }
+#personaNoLogo button, #personaDraftPrompt button { min-height: 44px; }
+#personaDraftPrompt { max-width: 780px; margin: 14px auto; padding: 8px 12px; border-left: 3px solid #b8cde1; background: #f0f5fa; font-size: 13px; }
+#personaDraftPrompt p { margin: 4px 0; }
+#personaDraftPrompt button { margin-right: 12px; }
+#personaActionHome[hidden], #personaNoLogo[hidden], #personaDraftPrompt[hidden] { display: none !important; }
+.atelierLayout.welcomeEmpty #welcomeUploadHint { margin: 0 auto 2px; }
+@media (max-width: 600px) {
+  .atelierLayout.welcomeEmpty #welcomeIntro .welcomeDescription { display: none; }
+  .atelierLayout.welcomeEmpty .productPicker { padding: 8px 12px; }
+  .atelierLayout.welcomeEmpty .printModePicker { margin-top: 6px; padding-top: 6px; }
+  .atelierLayout.welcomeEmpty #journeyProgress { margin: 12px 0; }
+}
+@media print { #personaNoLogo, #personaDraftPrompt { display: none; } }
+
+/* Compact opening: preserve the native journey, place optional reading after the package. */
+.atelierLayout.welcomeEmpty #welcomeIntro { margin: 10px auto; }
+.atelierLayout.welcomeEmpty #welcomeTitle { font-size: clamp(25px, 3vw, 32px); }
+.atelierLayout.welcomeEmpty .simplePrimary { max-width: 360px; }
+.atelierLayout.welcomeEmpty #simpleDetails { display: none; }
+.atelierLayout.welcomeEmpty #personaProductFacts { max-width: 780px; margin: 4px auto 12px; font-size: 13px; color: #52677d; }
+.atelierLayout.welcomeEmpty #personaProductFacts > summary { text-align: center; min-height: 44px; padding: 12px 0; }
+.atelierLayout.welcomeEmpty #personaNoLogo { margin: 0 auto 2px; }
+.atelierLayout.welcomeEmpty #personaNoLogo > summary { min-height: 44px; padding: 12px 0; }
+.atelierLayout.welcomeEmpty #welcomeUploadHint { margin-bottom: 8px; }
+.atelierLayout.welcomeEmpty .preview { margin-bottom: 4px; }
+.atelierLayout.welcomeEmpty .printModePicker { grid-column: 1 / -1; padding: 4px 0 0; gap: 8px; }
+.atelierLayout.welcomeEmpty .printModePicker > label { min-height: 44px; padding: 8px 12px; font-size: 14px; }
+@media (max-width: 600px) {
+  main.atelierLayout { padding: 12px 16px 20px; }
+  .atelierLayout .companyHeader { padding-top: 0; padding-bottom: 8px; }
+  .atelierLayout .companyIdentity { gap: 5px; }
+  .atelierLayout #companyLogo { width: 132px; }
+  .atelierLayout .companyInformation strong { font-size: 11px; line-height: 1.4; }
+  .atelierLayout .companyInformation p { margin-top: 2px; line-height: 1.4; gap: 4px 14px; }
+  .atelierLayout.welcomeEmpty #journeyProgress { margin: 8px 0; }
+  .atelierLayout #journeyProgress ol { gap: 8px; font-size: 12px; }
+  .atelierLayout.welcomeEmpty #welcomeIntro { margin: 8px auto; }
+  .atelierLayout.welcomeEmpty #welcomeTitle { font-size: 25px; }
+  .atelierLayout.welcomeEmpty .productPicker { grid-template-columns: minmax(0, 1fr) auto; margin: 8px auto; padding: 6px 10px; }
+  .atelierLayout.welcomeEmpty .productPicker > label { grid-column: 1; grid-row: 1; margin: 0; }
+  .atelierLayout.welcomeEmpty #productAdvisorButton { grid-column: 2; grid-row: 1; min-height: 44px; padding: 6px 0 6px 8px; font-size: 12px; }
+  .atelierLayout.welcomeEmpty .productPicker select { grid-column: 1 / -1; grid-row: 2; min-height: 44px; font-size: 16px; padding: 8px 10px; }
+  .atelierLayout.welcomeEmpty .printModePicker { margin-top: 4px; padding-top: 0; }
+  .atelierLayout.welcomeEmpty .printModePicker legend { font-size: 12px; }
+  .atelierLayout.welcomeEmpty .productPicker > :is(#personaMinimum, #personaQuoteExpectation) { margin-top: 4px; font-size: 12px; line-height: 1.4; }
+  .atelierLayout.welcomeEmpty .simplePrimary { max-width: none; margin: 8px auto 4px; }
+  .atelierLayout.welcomeEmpty #focusUpload { min-height: 52px; font-size: 16px; }
+  .atelierLayout.welcomeEmpty .preview { padding: 6px; }
+  .atelierLayout.welcomeEmpty .preview canvas { min-height: 0; max-height: 190px; }
+}
+
+/* Wide first viewport: spend vertical space on the actual blank package, not card gaps. */
+@media (min-width: 601px) {
+  main.atelierLayout.welcomeEmpty { padding-top: 16px; }
+  .atelierLayout.welcomeEmpty .companyHeader { padding-bottom: 10px; }
+  .atelierLayout.welcomeEmpty #companyLogo { width: 150px; }
+  .atelierLayout.welcomeEmpty #journeyProgress { margin: 10px 0; }
+  .atelierLayout.welcomeEmpty #welcomeIntro { margin: 8px auto; }
+  .atelierLayout.welcomeEmpty #welcomeIntro .welcomeDescription { margin-top: 4px; line-height: 1.4; }
+  .atelierLayout.welcomeEmpty .productPicker { row-gap: 4px; margin: 8px auto; padding: 8px 16px; }
+  .atelierLayout.welcomeEmpty .printModePicker { padding-top: 0; }
+  .atelierLayout.welcomeEmpty .preview { padding: 6px 12px; }
+  .atelierLayout.welcomeEmpty .preview canvas { min-height: 0; max-height: 190px; }
+}
+
+/* Two compact explicit declarations; no default ink count. */
+.declarationPanel{padding:16px;background:#fff;border:1px solid #d8e3ef;border-radius:16px;margin-top:10px}
+.declarationPanel fieldset{border:0;margin:0 0 16px;padding:0;display:flex;gap:10px;min-width:0}
+.declarationPanel legend{font-weight:700;margin-bottom:10px;font-size:16px}
+.declarationChoice{flex:1;min-width:0;min-height:48px;padding:10px 6px;border:1px solid #cbd9e8;border-radius:10px;background:white;color:#234d78;font-size:16px}
+.declarationChoice[aria-pressed="true"]{background:#eaf1f8;border-color:#234d78;font-weight:700}
+.declarationHelp{display:flex;justify-content:space-between;gap:18px;margin:12px 0}.declarationHelp button{min-height:44px;padding:6px 0;font-size:14px}
+.declarationPanel .hint{line-height:1.6}.declarationPanel button:focus-visible{outline:3px solid #0780d8;outline-offset:3px}
+
+/* Approved two-path opening. Only the empty printed view promotes these actions;
+   native editor placement, product assets and declaration logic remain unchanged. */
+.atelierLayout.welcomeEmpty .simplePrimary {
+  width: 100%; max-width: none; margin: 8px 0 12px;
+}
+.atelierLayout.welcomeEmpty #focusUpload {
+  min-height: 56px; box-sizing: border-box; font-size: 16px;
+}
+.atelierLayout.welcomeEmpty #personaNoLogo {
+  width: 100%; max-width: none; margin: 0 0 12px;
+}
+.atelierLayout.welcomeEmpty #personaNoLogo > summary {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 56px; box-sizing: border-box; padding: 14px 12px;
+  border: 1px solid #8bb4dc; border-radius: 10px;
+  background: #e7f1fc; color: #153b67;
+  font-size: 16px; font-weight: 700; line-height: 1.5; list-style: none;
+}
+.atelierLayout.welcomeEmpty #personaNoLogo > summary::-webkit-details-marker { display: none; }
+.atelierLayout.welcomeEmpty #personaNoLogo > summary:hover { background: #dcebf9; }
+.atelierLayout.welcomeEmpty #personaNoLogo > summary:focus-visible {
+  outline: 3px solid #477fae; outline-offset: 3px;
+}
+.atelierLayout.welcomeEmpty #welcomeUploadHint { margin: 0 auto 16px; }

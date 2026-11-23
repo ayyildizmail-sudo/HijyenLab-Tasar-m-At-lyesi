@@ -1,0 +1,94 @@
+/* One calm visual language; processors, native controls and safety notices remain unchanged. */
+body:has(.atelierLayout) { background: #f5f7fa; color: #142d49; }
+main.atelierLayout { max-width: 1080px; padding: 28px 36px 36px; }
+.atelierLayout .companyHeader { padding-bottom: 22px; margin-bottom: 0; border-bottom: 1px solid #dce4ed; }
+.atelierLayout .companyInformation strong { color: #34485f; font-size: 13px; }
+.atelierLayout .companyInformation p { font-size: 12px; }
+.atelierLayout #releaseBadge { color: #52677d; background: #e9eef4; border-radius: 5px; letter-spacing: .08em; }
+.atelierLayout #journeyProgress { margin: 22px 0; }
+.atelierLayout #journeyProgress ol { gap: 18px; font-size: 13px; }
+.atelierLayout #journeyProgress li[aria-current=step] { color: #153b67; text-decoration: none; }
+.atelierLayout #journeyProgress li[aria-current=step]::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #075dc9; }
+#welcomeIntro { text-align: center; max-width: 740px; margin: 32px auto 28px; }
+#welcomeIntro .welcomeEyebrow { margin: 0 0 13px; color: #52677d; text-transform: uppercase; letter-spacing: .15em; font-size: 11px; font-weight: 700; }
+#welcomeTitle { margin: 0; font-size: clamp(29px, 4vw, 44px); letter-spacing: -.045em; line-height: 1.12; font-weight: 700; color: #102d4e; }
+#welcomeIntro .welcomeDescription { max-width: 570px; margin: 16px auto 0; color: #53687e; font-size: 16px; line-height: 1.6; }
+.atelierLayout .productPicker { max-width: 780px; margin: 22px auto; padding: 18px 22px; border: 1px solid #dbe3ec; border-radius: 14px; background: #fff; display: grid; grid-template-columns: 1fr auto; column-gap: 18px; align-items: center; }
+.atelierLayout .productPicker > label { grid-column: 1 / -1; margin: 0 0 9px; font-size: 12px; color: #52677d; font-weight: 700; }
+.atelierLayout .productPicker select { grid-column: 1; border: 0; background-color: #f5f7fa; min-height: 48px; border-radius: 8px; font-size: 16px; color: #183653; padding: 10px 14px; }
+.atelierLayout .productPicker > .hint { display: none; }
+.atelierLayout #productAdvisorButton { grid-column: 2; grid-row: 2; margin: 0; padding: 10px 4px; border: 0; background: none; color: #315c87; font-size: 13px; text-decoration: underline; text-underline-offset: 4px; }
+.atelierLayout #design > h1, .atelierLayout #rearPreview > h1, .atelierLayout #fragrancePanel > h1, .atelierLayout #pricing > h1, .atelierLayout #summary > h1 { font-size: clamp(25px, 3vw, 34px); letter-spacing: -.035em; line-height: 1.2; margin: 28px 0 12px; color: #102d4e; }
+.atelierLayout .subtitle { color: #53687e; font-size: 15px; line-height: 1.6; }
+.atelierLayout .workspace { max-width: 840px; }
+.atelierLayout .preview { border: 1px solid #e0e7ee; border-radius: 20px; padding: 24px 24px 12px; background: #fff; }
+.atelierLayout .preview canvas { display: block; width: 100%; max-height: 390px; object-fit: contain; }
+.atelierLayout .simplePrimary { gap: 12px; margin: 24px auto 14px; }
+.atelierLayout .simplePrimary > label, .atelierLayout .simplePrimary > button { min-height: 54px; font-size: 16px; font-weight: 700; border-radius: 10px; }
+.atelierLayout .focusPrimary, .atelierLayout .simplePrimary > .focusPrimary { background: #153b67; border-color: #153b67; color: #fff; box-shadow: 0 5px 14px #153b6712; }
+.atelierLayout .focusPrimary:hover, .atelierLayout .simplePrimary > .focusPrimary:hover { background: #102e50; border-color: #102e50; color: #fff; }
+.atelierLayout .focusSecondary, .atelierLayout .outline { border-radius: 9px; box-shadow: none; }
+.atelierLayout :is(button, label[role=button], summary, select, input, textarea, a):focus-visible { outline: 3px solid #477fae; outline-offset: 3px; }
+.atelierLayout .simpleDetails, #welcomeDraftOptions { max-width: 780px; margin: 18px auto; font-size: 13px; color: #52677d; }
+.atelierLayout .simpleDetails > summary, #welcomeDraftOptions > summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
+#welcomeDraftOptions { border-top: 1px solid #dce4ed; }
+#welcomeDraftOptions .draftPanel { margin: 4px 0 14px; background: #fff; }
+#welcomeUploadHint { text-align: center; margin: 0 auto 16px; color: #53687e; font-size: 12px; line-height: 1.7; }
+#welcomeUploadHint small { display: block; color: #64778b; font-size: 11px; }
+.atelierLayout.welcomeEmpty #design > h1, .atelierLayout.welcomeEmpty #design > .subtitle, .atelierLayout.welcomeEmpty #next { display: none; }
+.atelierLayout.welcomeEmpty .simplePrimary { max-width: 290px; }
+.atelierLayout.welcomeEmpty #focusUpload { min-height: 56px; background: #153b67; border-color: #153b67; color: #fff; }
+.atelierLayout.welcomeEmpty .simpleDetails { margin-top: 8px; }
+.atelierLayout :is(.rearEditor, .leadFields, .fragranceCard) { border-color: #dce4ed; border-radius: 14px; background: #fff; }
+.atelierLayout :is(#pricing, #summary, #fragrancePanel, #rearPreview) { max-width: 840px; margin-left: auto; margin-right: auto; }
+.atelierLayout .rearFlipScene { border-radius: 20px; overflow: hidden; }
+.atelierLayout .priceRow { padding-top: 14px; padding-bottom: 14px; }
+.atelierLayout .simpleTechnical { border-radius: 12px; }
+@media (max-width: 600px) {
+  main.atelierLayout { padding: 18px 18px 26px; }
+  .atelierLayout .companyHeader { padding-bottom: 16px; }
+  .atelierLayout .companyIdentity { gap: 9px; }
+  .atelierLayout #companyLogo { width: 145px; }
+  .atelierLayout .companyInformation strong { font-size: 11px; }
+  .atelierLayout .companyInformation p { font-size: 11px; }
+  .atelierLayout #journeyProgress { margin: 18px 0; }
+  #welcomeIntro { margin: 24px auto 22px; }
+  #welcomeIntro .welcomeEyebrow { font-size: 10px; margin-bottom: 12px; }
+  #welcomeTitle { font-size: 32px; max-width: 330px; margin: auto; }
+  #welcomeIntro .welcomeDescription { font-size: 14px; line-height: 1.5; margin-top: 13px; }
+  .atelierLayout .productPicker { padding: 14px; margin: 18px auto; grid-template-columns: minmax(0, 1fr); row-gap: 3px; }
+  .atelierLayout .productPicker > label { font-size: 11px; }
+  .atelierLayout .productPicker select { width: 100%; font-size: 15px; }
+  .atelierLayout #productAdvisorButton { grid-column: 1; grid-row: 3; justify-self: start; min-height: 36px; padding: 8px 0 0; }
+  .atelierLayout .preview { padding: 14px 6px 6px; border-radius: 15px; }
+  .atelierLayout .preview canvas { max-height: 290px; }
+  .atelierLayout .simplePrimary { margin-top: 18px; }
+  .atelierLayout .simplePrimary > label, .atelierLayout .simplePrimary > button { font-size: 15px; padding: 13px 10px; }
+  .atelierLayout.welcomeEmpty .simplePrimary { max-width: none; }
+  .atelierLayout :is(#rearPreview, #pricing, #summary, #fragrancePanel) > h1 { margin-top: 22px; }
+}
+@media print { #welcomeIntro, #welcomeUploadHint, #welcomeDraftOptions { display: none; } body:has(.atelierLayout) { background: white; } }
+/* Keep the package and upload action ahead of optional settings on the first viewport. */
+.atelierLayout.welcomeEmpty #journeyProgress { margin: 16px 0; }
+.atelierLayout.welcomeEmpty #welcomeIntro { margin: 22px auto; }
+.atelierLayout.welcomeEmpty .productPicker { grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; padding: 13px 18px; margin: 18px auto; }
+.atelierLayout.welcomeEmpty .productPicker > label { grid-column: 1; grid-row: 1; margin: 0; }
+.atelierLayout.welcomeEmpty .productPicker select { grid-column: 2; grid-row: 1; }
+.atelierLayout.welcomeEmpty #productAdvisorButton { grid-column: 3; grid-row: 1; }
+.atelierLayout.welcomeEmpty .preview canvas { max-height: 300px; }
+.atelierLayout.welcomeEmpty .preview { padding-top: 12px; }
+@media (max-width: 600px) {
+  .atelierLayout.welcomeEmpty #welcomeIntro { margin: 18px auto; }
+  .atelierLayout.welcomeEmpty #welcomeTitle { font-size: 29px; }
+  .atelierLayout.welcomeEmpty .welcomeEyebrow { display: none; }
+  .atelierLayout.welcomeEmpty .productPicker { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 12px 14px; margin: 16px auto; }
+  .atelierLayout.welcomeEmpty .productPicker > label { grid-column: 1; grid-row: 1; margin-bottom: 7px; }
+  .atelierLayout.welcomeEmpty .productPicker select { grid-column: 1; grid-row: 2; }
+  .atelierLayout.welcomeEmpty #productAdvisorButton { grid-column: 1; grid-row: 3; }
+  .atelierLayout.welcomeEmpty .preview canvas { max-height: 230px; }
+  .atelierLayout.welcomeEmpty .simplePrimary { margin: 14px auto 10px; }
+}
+
+/* Explicit unprinted mode has its own continuation; keep the original upload node for return. */
+.atelierLayout.unprintedMode #focusUpload { display: none; }
+.atelierLayout.unprintedMode #design :is(.editSide, #simpleTools, #simpleDetails, #photoModeNote, #backgroundChoice, #extractionApproval) { display: none; }

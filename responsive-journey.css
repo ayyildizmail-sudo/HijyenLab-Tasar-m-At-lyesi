@@ -1,0 +1,103 @@
+/* One responsive working surface, from narrow portrait to short landscape and desktop. */
+#journeyProductContext { max-width: 840px; margin: 12px auto; }
+#journeyProductSummary { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 10px 14px; border: 1px solid #dce4ed; border-left: 3px solid var(--customer-decoration, var(--customer-accent, #153b67)); border-radius: 10px; background: #fff; }
+#journeyProductDescription { min-width: 0; margin: 0; line-height: 1.4; text-align: left; }
+#journeyProductName { display: block; font-size: 14px; overflow-wrap: anywhere; }
+#journeyProductMode { display: block; margin-top: 2px; font-size: 12px; color: #52677d; }
+#journeyProductChange { flex: 0 0 auto; min-height: 44px; padding: 8px 12px; font-size: 13px; }
+#journeyProductSummary[hidden], #journeyProductControls[hidden] { display: none !important; }
+.atelierLayout #journeyProductContext > .productPicker { max-width: none; margin: 8px 0 0; }
+.atelierLayout.journeyStarted .companyHeader { padding-bottom: 8px; }
+.atelierLayout.journeyStarted #welcomeIntro { display: none; }
+/* After cancel/reset, the empty editor still needs a visible navigation heading. */
+.atelierLayout.journeyStarted.welcomeEmpty #design > h1 { display: block; }
+.atelierLayout.journeyStarted #companyLogo { width: 120px; }
+.atelierLayout.journeyStarted #journeyProgress { margin: 10px 0; }
+.atelierLayout.journeyStarted #journeyProgress ol { font-size: 12px; }
+.atelierLayout.journeyStarted #journeyProgress + #commercialChange:empty { margin: 0; }
+.atelierLayout.journeyStarted :is(#design, #rearPreview, #fragrancePanel, #pricing, #summary, #photoEditor, #pdfPicker, #whiteCarrierPanel) > h1 { margin-top: 16px; margin-bottom: 10px; }
+.atelierLayout :is(#design, #rearPreview, #fragrancePanel, #pricing, #summary, #photoEditor, #pdfPicker, #whiteCarrierPanel) > h1,
+#uploadRecovery, .editPanel { scroll-margin-top: 12px; }
+.atelierLayout.journeyStarted .subtitle, .atelierLayout.journeyStarted .simpleQuoteNote { margin-top: 8px; margin-bottom: 14px; }
+/* Natural image proportions, not a tall empty comparison cell. Never crop artwork. */
+.atelierLayout .photoCompare > div:nth-child(2) { min-height: 0; }
+.atelierLayout .photoCompare #photoCanvas, .atelierLayout .photoCompare #photoCropPreview { height: auto; object-fit: contain; max-height: min(390px, 52svh); }
+@media (max-width: 600px) {
+  .atelierLayout.journeyStarted .companyInformation strong { font-size: 10px; }
+  .atelierLayout.journeyStarted .companyInformation p { font-size: 10px; }
+  #journeyProductContext { margin: 10px auto; }
+  #journeyProductSummary { padding: 8px 10px; gap: 8px; }
+  #journeyProductName { font-size: 13px; }
+  #journeyProductChange { padding: 8px; }
+  .atelierLayout .photoCompare #photoCanvas, .atelierLayout .photoCompare #photoCropPreview { max-height: min(230px, 42svh); }
+}
+@media (max-height: 600px) {
+  main.atelierLayout { padding-top: 10px; }
+  .atelierLayout.journeyStarted .companyHeader { padding-bottom: 6px; }
+  .atelierLayout.journeyStarted #journeyProgress { margin: 8px 0; }
+  #journeyProductContext { margin-top: 8px; margin-bottom: 8px; }
+}
+@media print { #journeyProductContext { display: none; } }
+
+/* Entry choices share the available width. Flex min-content widths previously
+   squeezed upload to four lines and pushed the last choice beyond the phone. */
+main.atelierLayout .simplePrimary {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+}
+main.atelierLayout .simplePrimary > :is(label, button) {
+  width: 100%; min-width: 0; box-sizing: border-box; white-space: normal;
+  overflow-wrap: anywhere; min-height: 48px; padding: 10px 12px;
+  font-size: 15px; line-height: 1.35;
+}
+main.atelierLayout :is(#textDesignPanel, #logoDesignPanel) {
+  min-width: 0; padding: 18px; margin: 12px auto 20px;
+}
+main.atelierLayout :is(#textDesignPanel, #logoDesignPanel) h2 { font-size: 24px; margin-bottom: 14px; }
+main.atelierLayout :is(#textDesignInputGroup, #logoDesignInputGroup) label { font-size: 16px; margin-bottom: 8px; }
+main.atelierLayout :is(#textDesignInput, #logoDesignInput) { min-height: 48px; font-size: 17px; scroll-margin-block: 48px 64px; }
+/* Keep the approved gentle context focus, but do not stack a second heavy ring
+   around a field which already has its own accessible keyboard-focus outline. */
+main.atelierLayout[data-focus-guidance] :is(#textDesignInputGroup, #logoDesignInputGroup)[data-focus-active] {
+  outline-width: 1px; outline-offset: 6px; box-shadow: none;
+}
+main.atelierLayout :is(#textDesignInput, #logoDesignInput):focus-visible { outline-width: 2px; outline-offset: 1px; }
+main.atelierLayout :is(#textDesignMessage, #logoDesignMessage) { margin: 8px 0 12px; min-height: 0; }
+main.atelierLayout :is(.textDesignCard, .logoDesignCard) { padding: 10px; }
+@media (max-width: 600px) {
+
+  main.atelierLayout.welcomeEmpty .simplePrimary > #focusUpload { min-height: 48px; font-size: 15px; }
+  main.atelierLayout :is(#textDesignPanel, #logoDesignPanel) { padding: 16px 12px; }
+  main.atelierLayout :is(#textDesignPanel, #logoDesignPanel) h2 { font-size: 21px; margin-bottom: 12px; }
+  main.atelierLayout :is(.textDesignCard, .logoDesignCard) canvas { max-height: none; width: 100%; height: auto; }
+  main.atelierLayout :is(.textDesignCard, .logoDesignCard) button { min-height: 44px; font-size: 14px; padding: 10px; }
+}
+
+main.atelierLayout .simplePrimary > #focusUpload {
+  grid-column: 1 / -1; min-height: 52px; font-size: 16px;
+}
+main.atelierLayout .simplePrimary > :is(#textDesignStart, #logoDesignStart) {
+  min-height: 44px; padding: 9px 8px; font-size: 13px; font-weight: 600;
+  border-color: #cbd7e4; color: #315777; background: #fff;
+}
+main.atelierLayout.welcomeEmpty #personaNoLogo > summary {
+  min-height: 44px; padding: 9px 12px; font-size: 14px; font-weight: 600;
+  background: #f1f5fa; border-color: #cbd7e4;
+}
+/* A focused text field is already the active frame. Keep passive-context guidance
+   elsewhere, but never surround that field with a second coloured rectangle. */
+main.atelierLayout[data-focus-guidance] :is(#textDesignInputGroup, #logoDesignInputGroup)[data-focus-active]:focus-within {
+  outline: none; box-shadow: none;
+}
+
+/* Rear optional text controls need a real vertical gap between their labels.
+   An input-only margin left the following select flush with its label, and its
+   external keyboard-focus ring crossed the text. Keep one clear inside ring. */
+#rearEditor .rearOptional > label:has(> :is(#rearExtra, #rearInkColor)) {
+  min-width: 0; margin-top: 16px; line-height: 1.45;
+}
+#rearEditor :is(#rearExtra, #rearInkColor) {
+  display: block; min-width: 0; max-width: 100%; margin-top: 8px; font-size: 16px;
+}
+main.atelierLayout #rearEditor :is(input:not([type=checkbox]):not([type=file]), select):focus-visible {
+  outline: 3px solid #477fae; outline-offset: -3px;
+}

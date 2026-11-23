@@ -1,0 +1,19 @@
+/* Text-only front source; no changes to rear typography or product rendering. */
+#textDesignStart{flex:1;min-height:44px}
+#textDesignPanel{max-width:1180px;margin:18px auto 24px;padding:24px;border:1px solid #d9e0e8;border-radius:20px;background:#fff}
+#textDesignPanel h2{font-size:clamp(23px,3vw,30px);margin:0 0 20px}
+#textDesignInputGroup label{display:block;font-size:18px;font-weight:650;margin-bottom:10px}
+#textDesignInput{display:block;width:100%;min-height:52px;font-size:19px;box-sizing:border-box}
+#textDesignMessage{min-height:24px;margin:10px 0 18px;color:#6b3042;font-size:15px}
+#textDesignChoices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.textDesignCard{min-width:0;overflow:hidden;padding:14px;border:1px solid #d9e0e8;border-radius:16px;background:#fafbfc}
+.textDesignCard h3{margin:0 0 8px;font-size:18px;color:#26364c}
+.textDesignCard canvas{display:block;width:100%;height:auto;aspect-ratio:1600/850;background:#fff;border-radius:10px}
+.textDesignCard p{min-height:22px;margin:10px 0;font-size:13px;color:#526178}
+.textDesignCard button{width:100%;min-height:48px;font-size:14px;line-height:1.35}
+#textDesignCancel{margin-top:20px;min-height:44px}
+body.textDesignEditing #design>.workspace,body.textDesignEditing #design>.footnote,body.textDesignEditing #design>h1,body.textDesignEditing #design>.subtitle,body.textDesignEditing #welcomeIntro,body.textDesignEditing #personaNoLogo,body.textDesignEditing #welcomeUploadHint,body.textDesignEditing #productReview{display:none!important}
+body.textDesignSource #simpleText,body.textDesignSource #logoPanel,body.textDesignSource #design .editPanel:nth-of-type(3),body.textDesignSource [data-open-panel="2"],body.textDesignSource #simpleDetails>button.textButton{display:none}
+body.textDesignSource #textDesignEdit{display:inline-flex}
+#textDesignEdit[hidden],#textDesignPanel[hidden]{display:none!important}
+@media(max-width:760px){#textDesignPanel{padding:18px 14px;margin-top:12px}#textDesignChoices{grid-template-columns:1fr;gap:14px}.textDesignCard{display:grid;grid-template-columns:minmax(0,1fr);padding:14px}.textDesignCard canvas{max-height:190px;object-fit:contain}.textDesignCard button{font-size:16px}#textDesignStart{width:100%}}
