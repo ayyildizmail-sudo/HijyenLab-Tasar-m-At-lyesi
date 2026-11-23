@@ -14,7 +14,7 @@ const SNAPSHOT=()=>{const s=state,st=(document.getElementById('status')?.textCon
  const ref=typeof isReferencePreview==='function'&&isReferencePreview();let outcome='belirsiz';
  if(s.designProcessing)outcome='işleniyor';else if(s.designBlocked||s.screenSelectionRequired)outcome='yerleştirilemedi';else if(ref)outcome='özgün-görsel';else if(s.photoLayout)outcome='fotoğraf-yerleşimi';else if(typeof logoImg!=='undefined'&&logoImg&&!s.removed)outcome='logo';else if(s.removed)outcome='logo-yok';
  return {outcome,status:st.slice(0,160),designError:err.slice(0,160),sourceKind:s.sourceKind||null,quoteSource:s.quoteSource||null,method:s.processingResult?.method||null,approvalRequired:!!s.extractionApprovalRequired,approximate:!!s.extractionApproximate,sign:globalThis.HijyenLabSignLettering?.word||null,
-  processing:!!s.designProcessing,bg:s.bg,logoName:s.logoName||null,file:typeof lastUploadedFile!=='undefined'?lastUploadedFile?.name||null:null};};
+  processing:!!s.designProcessing,ppBusy:!!globalThis.HijyenLabProductPhotoUI?.busy(),productPhoto:!!globalThis.HijyenLabProductPhoto,bg:s.bg,logoName:s.logoName||null,file:typeof lastUploadedFile!=='undefined'?lastUploadedFile?.name||null:null};};
 
 async function runCase(browser,url,dir,out,c){
  const ctx=await browser.newContext({viewport:{width:1280,height:900}}),p=await ctx.newPage();const errors=[];p.on('pageerror',e=>errors.push(e.message.slice(0,200)));
@@ -24,7 +24,7 @@ async function runCase(browser,url,dir,out,c){
   await p.setInputFiles('#unifiedUpload',path.join(dir,c.file));
   // Durum 4 sn boyunca değişmeyene kadar bekle (en çok 45 sn)
   let last='',stableSince=Date.now();
-  while(Date.now()-t0<45000){await p.waitForTimeout(500);snap=await p.evaluate(SNAPSHOT);const key=JSON.stringify(snap);if(key!==last){last=key;stableSince=Date.now();}else if(!snap.processing&&Date.now()-stableSince>4000&&snap.outcome!=='belirsiz')break;}
+  while(Date.now()-t0<75000){await p.waitForTimeout(500);snap=await p.evaluate(SNAPSHOT);const key=JSON.stringify(snap);if(key!==last){last=key;stableSince=Date.now();}else if(!snap.processing&&!snap.ppBusy&&Date.now()-stableSince>5000&&snap.outcome!=="belirsiz")break;}
   snap.ms=Date.now()-t0;
   // Ambalaja konan logo (arka plan temizlenmiş hâli)
   const logo=await p.evaluate(()=>{try{const L=typeof prepareLogo==='function'?prepareLogo():null;if(!L||!L.width)return null;const c=document.createElement('canvas');c.width=L.width;c.height=L.height;c.getContext('2d').drawImage(L,0,0);return c.toDataURL('image/png');}catch(e){return 'ERR:'+e.message;}});
