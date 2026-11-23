@@ -104,7 +104,7 @@ function flatten(img,surface){ // yüzeydeki parlama/gölgeyi böl: hücre baş�
 function inkMaskLightOnDark(img){const {data,w,h}=img,G=Math.max(8,Math.round(Math.max(w,h)/30)),gw=Math.ceil(w/G),gh=Math.ceil(h/G),bg=new Float32Array(gw*gh),lum=new Float32Array(w*h);
  for(let i=0;i<w*h;i++){const j=i*4;lum[i]=.3*data[j]+.59*data[j+1]+.11*data[j+2];}
  for(let gy=0;gy<gh;gy++)for(let gx=0;gx<gw;gx++){const v=[];for(let y=gy*G;y<Math.min(h,(gy+1)*G);y++)for(let x=gx*G;x<Math.min(w,(gx+1)*G);x++)v.push(lum[y*w+x]);v.sort((a,b)=>a-b);bg[gy*gw+gx]=v[Math.floor(v.length*.25)];}
- const m=new Uint8Array(w*h);for(let y=0;y<h;y++)for(let x=0;x<w;x++){let b=1e9;const gx=Math.min(gw-1,Math.floor(x/G)),gy=Math.min(gh-1,Math.floor(y/G));for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=gx+dx,Y=gy+dy;if(X>=0&&Y>=0&&X<gw&&Y<gh)b=Math.min(b,bg[Y*gw+X]);}if(lum[y*w+x]>Math.max(b+70,b*2.2))m[y*w+x]=1;}
+ const m=new Uint8Array(w*h);for(let y=0;y<h;y++)for(let x=0;x<w;x++){let b=1e9;const gx=Math.min(gw-1,Math.floor(x/G)),gy=Math.min(gh-1,Math.floor(y/G));for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=gx+dx,Y=gy+dy;if(X>=0&&Y>=0&&X<gw&&Y<gh)b=Math.min(b,bg[Y*gw+X]);}if(lum[y*w+x]>Math.max(b+55,b*1.9))m[y*w+x]=1;}
  return m;}
 function inkMask(img,surface,threshold=22){const {data,w,h}=img,S=toLab(...surface),m=new Uint8Array(w*h);for(let i=0;i<w*h;i++){const j=i*4;if(d3(toLab(data[j],data[j+1],data[j+2]),S)>threshold)m[i]=1;}return m;}
 // ---------- 4) temizlik: kenar parçaları, kayıt işaretleri, gürültü ----------
@@ -163,6 +163,34 @@ function textLines(m,w,h){const row=new Float64Array(h);let tot=0;for(let y=0;y<
  const lines=[];for(const [y0,y1] of bands){const H=y1-y0,col=new Uint8Array(w);for(let x=0;x<w;x++)for(let y=y0;y<y1;y++)if(m[y*w+x]){col[x]=1;break;}let s2=-1,gap=0,last=-1;
   for(let x=0;x<=w;x++){if(x<w&&col[x]){if(s2<0)s2=x;last=x;gap=0;}else if(s2>=0){gap++;if(gap>H*1.2||x===w){if(last-s2>H*1.2)lines.push([s2,y0,last+1,y1]);s2=-1;gap=0;}}}}
  return lines;}
+// Harf parçalarından yazı satırları: benzer boyda, dikey olarak örtüşen ve yakın aralıklı en az 3 parça.
+// Yön sınıflandırıcısına yalnız gerçek yazı gider (tabak kenarı, bardak, gölge gibi parçalar satıra girmez).
+function glyphLines(m,w,h){const {comps}=components(m,w,h),md=Math.min(w,h);
+ const g=comps.filter(c=>{const bw=c.box[2]-c.box[0],bh=c.box[3]-c.box[1];return c.n>=10&&bh>=Math.max(w,h)*.008&&bh<=md*.92&&bw<=bh*3.5&&c.n/(bw*bh)>.08;}).map(c=>({x0:c.box[0],y0:c.box[1],x1:c.box[2],y1:c.box[3],h:c.box[3]-c.box[1]})).sort((a,b)=>a.x0-b.x0);
+ const used=new Uint8Array(g.length),lines=[];
+ for(let i=0;i<g.length;i++){if(used[i])continue;const line=[g[i]];used[i]=1;let last=g[i];
+  for(let j=i+1;j<g.length;j++){if(used[j])continue;const c=g[j],ov=Math.min(last.y1,c.y1)-Math.max(last.y0,c.y0),mh=Math.min(last.h,c.h),ratio=c.h/last.h,gap=c.x0-last.x1;
+   if(gap>Math.max(last.h,c.h)*1.6)break;if(ov>=mh*.5&&ratio>.45&&ratio<2.2){line.push(c);used[j]=1;last=c;}}
+  if(line.length>=3){const x0=Math.min(...line.map(c=>c.x0)),y0=Math.min(...line.map(c=>c.y0)),x1=Math.max(...line.map(c=>c.x1)),y1=Math.max(...line.map(c=>c.y1));lines.push({box:[x0,y0,x1,y1],count:line.length,height:y1-y0});}}
+ return lines.sort((a,b)=>b.count*b.height-a.count*a.height);}
+function inkContrast(img,surface){const S=toLab(...surface),c=new Float32Array(img.w*img.h);for(let i=0;i<c.length;i++){const j=i*4;c[i]=d3(toLab(img.data[j],img.data[j+1],img.data[j+2]),S);}return c;}
+// İçerik dışı kırıntılar: ışık dokusu/yansıma parçaları zemine göre soluktur. Ana yazıya göre soluk satırlar satır sayılmaz;
+// ana içeriğe uzak ve soluk ya da küçük kümeler atılır. QR/amblem gibi belirgin, büyük grafikler korunur.
+function dropOutliers(m,w,h,contrast,img){
+ const all=glyphLines(m,w,h);if(!all.length)return m;
+ const lineC=l=>{const [x0,y0,x1,y1]=l.box;let t=0,n=0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const i=y*w+x;if(m[i]){t+=contrast[i];n++;}}return n?t/n:0;};
+ for(const l of all)l.c=lineC(l);const ref=all.slice(0,3).reduce((a,l)=>Math.max(a,l.c),0),lines=all.filter(l=>l.c>=ref*.72);if(!lines.length)return m;
+ const gh=lines.map(l=>l.height).sort((a,b)=>a-b)[lines.length>>1],R=Math.max(2,Math.min(Math.round(gh*.22),Math.round(Math.min(w,h)*.012))),cl=components(boxDilate(m,w,h,R),w,h),inkPer=new Float64Array(cl.comps.length),cPer=new Float64Array(cl.comps.length);
+ for(let i=0;i<w*h;i++)if(m[i]&&cl.lab[i]>=0){inkPer[cl.lab[i]]++;cPer[cl.lab[i]]+=contrast[i];}
+ let lineInk=0;for(const l of lines){const [x0,y0,x1,y1]=l.box;let n=0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)n+=m[y*w+x];lineInk=Math.max(lineInk,n);}
+ const near=box=>lines.some(l=>{const [x0,y0,x1,y1]=l.box,pad=gh*.6;return !(box[2]<x0-pad||box[0]>x1+pad||box[3]<y0-pad||box[1]>y1+pad);});
+ const colOf=(box,test)=>{const [x0,y0,x1,y1]=box;let r=0,g=0,b=0,n=0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const i=y*w+x;if(!m[i]||!test(i))continue;const j=i*4;r+=img.data[j];g+=img.data[j+1];b+=img.data[j+2];n++;}return n?toLab(r/n,g/n,b/n):null;};
+ const lineCols=img?lines.slice(0,4).map(l=>colOf(l.box,()=>true)).filter(Boolean):[];
+ const keep=new Uint8Array(cl.comps.length);
+ for(const c of cl.comps){const ink=inkPer[c.id],meanC=cPer[c.id]/Math.max(1,ink),[x0,y0,x1,y1]=c.box,density=ink/Math.max(1,(x1-x0-2*R)*(y1-y0-2*R));
+  let far=false;if(img&&lineCols.length&&density>.5){const col=colOf(c.box,i=>cl.lab[i]===c.id);far=!!col&&lineCols.every(L=>d3(col,L)>35);}
+  keep[c.id]=(near(c.box)&&meanC>=ref*.5)||(ink>=lineInk*.25&&density>=.18&&meanC>=ref*.72&&!far)?1:0;}
+ const out=new Uint8Array(w*h);for(let i=0;i<w*h;i++)if(m[i]&&cl.lab[i]>=0&&keep[cl.lab[i]])out[i]=1;return out;}
 // PP-OCR yön sınıflandırıcısı girdisi: 3×48×192, BGR, [-1,1]
 function clsTensor(img,box){const [x0,y0,x1,y1]=box,pad=Math.round((y1-y0)*.15),X0=Math.max(0,x0-pad),Y0=Math.max(0,y0-pad),X1=Math.min(img.w,x1+pad),Y1=Math.min(img.h,y1+pad),cw=X1-X0,ch=Y1-Y0,W=Math.min(192,Math.ceil(48*cw/ch)),t=new Float32Array(3*48*192);
  for(let y=0;y<48;y++)for(let x=0;x<W;x++){const sx=X0+Math.min(cw-1,Math.floor(x*cw/W)),sy=Y0+Math.min(ch-1,Math.floor(y*ch/48)),j=(sy*img.w+sx)*4;t[y*192+x]=(img.data[j+2]/127.5)-1;t[48*192+y*192+x]=(img.data[j+1]/127.5)-1;t[2*48*192+y*192+x]=(img.data[j]/127.5)-1;}
@@ -206,22 +234,25 @@ async function extract(data,w,h,{classify=null,candidates=3}={}){
   const dark=lum<80,flat=dark?rect:flatten(rect,surface);const mask=cleanInk(dark?inkMaskLightOnDark(flat):inkMask(flat,surface),rect.w,rect.h);let ink=0;for(const v of mask)ink+=v;
   const inkFrac=ink/(rect.w*rect.h);if(inkFrac<.004||inkFrac>.6){tried.push({reason:'ink-out-of-range',inkFrac});continue;}
   const o=orientation(mask,rect.w,rect.h);let q=o.quarterTurns,source='geometry',confidence=0;
-  if(classify){const P=[];const turns=[o.base,o.base+2];for(const turn of turns){const img=rotateRGBA(flat,turn),mm=rotateMask(mask,rect.w,rect.h,turn).m,lines=textLines(mm,img.w,img.h).slice(0,8);if(!lines.length){P.push(null);continue;}
-    const items=lines.map(b=>clsTensor(img,b));const probs=await classify(items.map(i=>i.tensor));let s=0,wt=0;probs.forEach((p,i)=>{s+=p*items[i].weight;wt+=items[i].weight;});P.push(wt?s/wt:null);}
+  if(classify){const P=[];const turns=[o.base,o.base+2];for(const turn of turns){const img=rotateRGBA(flat,turn),mm=rotateMask(mask,rect.w,rect.h,turn).m,gl=glyphLines(mm,img.w,img.h).slice(0,8);if(!gl.length){P.push(null);continue;}
+    const items=gl.map(l=>({...clsTensor(img,l.box),weight:Math.max(.5,l.count-2)**1.5*l.height}));const probs=await classify(items.map(i=>i.tensor));let s=0,wt=0;probs.forEach((p,i)=>{s+=p*items[i].weight;wt+=items[i].weight;});P.push(wt?s/wt:null);}
    const valid=P.map((p,i)=>({p,t:turns[i]%4})).filter(v=>v.p!=null).sort((a,b)=>b.p-a.p);if(valid.length>=2){confidence=valid[0].p-valid[1].p;const opposite=valid.find(v=>(v.t+2)%4===valid[0].t);if(opposite)confidence=Math.min(confidence*2,valid[0].p-opposite.p);if(confidence>=.25){q=valid[0].t;source='local-orientation-model';}}}else confidence=.5;
   // Baskı kalitesi: yazı satırları var mı, tek parça büyük leke mi (ekran/harita), yön modeli ne kadar emin
   const {comps}=components(mask,rect.w,rect.h);const maxShare=comps.reduce((m,c)=>Math.max(m,c.n),0)/Math.max(1,ink);const lines=textLines(rotateMask(mask,rect.w,rect.h,q).m,q%2?rect.h:rect.w,q%2?rect.w:rect.h).length;
-  const quality=cand.score*(.5+.5*Math.min(lines,4)/4)*(1-.75*Math.min(1,maxShare))*(.6+.4*Math.min(1,confidence/.5));
-  tried.push({cand,rect,flat,mask,surface,q,source,inkFrac,quality,diag:{score:+cand.score.toFixed(3),lines,maxShare:+maxShare.toFixed(2),confidence:+confidence.toFixed(2),surface:surface.map(v=>v|0).join(',')}});
+  // Yazı oranı: mürekkebin ne kadarı harf satırlarındaki parçalara ait (gösterge, süs, efekt parçaları düşük çıkar)
+  const rm=rotateMask(mask,rect.w,rect.h,q),gls=glyphLines(rm.m,rm.w,rm.h);let glyphInk=0;{const inBox=new Uint8Array(rm.w*rm.h);for(const l of gls){const [x0,y0,x1,y1]=l.box;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)inBox[y*rm.w+x]=1;}for(let i=0;i<inBox.length;i++)if(inBox[i]&&rm.m[i])glyphInk++;}
+  const glyphFrac=glyphInk/Math.max(1,ink);
+  const quality=cand.score*(.5+.5*Math.min(lines,4)/4)*(1-.75*Math.min(1,maxShare))*(.35+.65*Math.min(1,confidence/.6));
+  tried.push({cand,rect,flat,mask,surface,q,source,inkFrac,quality,diag:{glyphFrac:+glyphFrac.toFixed(2),glyphLines:gls.length,score:+cand.score.toFixed(3),lines,maxShare:+maxShare.toFixed(2),confidence:+confidence.toFixed(2),surface:surface.map(v=>v|0).join(',')}});
  }
  const ok=tried.filter(t=>t.quality!=null).sort((a,b)=>b.quality-a.quality);if(!ok.length)return {ok:false,reason:'no-usable-surface',tried:tried.map(t=>t.reason)};
  {const {cand,rect,flat,mask,surface,q,source,inkFrac,quality}=ok[0];
-  const img=rotateRGBA(flat,q),mm=rotateMask(mask,rect.w,rect.h,q),core=boxErode(mm.m,mm.w,mm.h,1);let coreN=0;for(const v of core)coreN+=v;const pal=palette(img,coreN>200?core:mm.m);// Koyu zemin üzerindeki açık baskı (tabela, neon): yüzey rengi de tasarımın parçasıdır; düz, tam kaplayan zeminle çizilir
+  const img=rotateRGBA(flat,q),mm0=rotateMask(mask,rect.w,rect.h,q),mm={...mm0,m:dropOutliers(mm0.m,mm0.w,mm0.h,inkContrast(img,surface),img)},core=boxErode(mm.m,mm.w,mm.h,1);let coreN=0;for(const v of core)coreN+=v;const pal=palette(img,coreN>200?core:mm.m);// Koyu zemin üzerindeki açık baskı (tabela, neon): yüzey rengi de tasarımın parçasıdır; düz, tam kaplayan zeminle çizilir
   const lumS=.3*surface[0]+.59*surface[1]+.11*surface[2],lumInk=pal.length?Math.max(...pal.map(p=>p[0]))*2.55:0,lightOnDark=lumS<110&&lumInk>lumS+40;
   const out=renderClean(img,mm.m,surface.map(Math.round),pal,1200,lightOnDark);if(!out)return {ok:false,reason:'empty'};
-  return {ok:true,lightOnDark,confidence:ok[0].diag.confidence,quality,alternatives:ok.length-1,diagnostics:ok.map(t=>({...t.diag,quality:+t.quality.toFixed(4)})),image:out,palette:pal.map(labToRgb).map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('')),surface:'#'+surface.map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''),quad:cand.quad,quarterTurns:q,orientationSource:source,inkFraction:inkFrac,surfaceScore:cand.score,method:'local-product-photo-v1'};
+  return {ok:true,lightOnDark,confidence:ok[0].diag.confidence,glyphFraction:ok[0].diag.glyphFrac,quality,alternatives:ok.length-1,diagnostics:ok.map(t=>({...t.diag,quality:+t.quality.toFixed(4)})),image:out,palette:pal.map(labToRgb).map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('')),surface:'#'+surface.map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''),quad:cand.quad,quarterTurns:q,orientationSource:source,inkFraction:inkFrac,surfaceScore:cand.score,method:'local-product-photo-v1'};
  }
 }
-const api=Object.freeze({extract,findSurface,textLines,clsTensor,palette,renderClean,rectify,surfaceColor,flatten,inkMask,cleanInk,orientation,rotateRGBA,_internal:{homography,rotateMask,uprightEvidence,lineScore,downscale,kmeans,closeMask,components,fillHoles,hull,minAreaRect,bestQuad,toLab}});
+const api=Object.freeze({glyphLines,extract,findSurface,textLines,clsTensor,palette,renderClean,rectify,surfaceColor,flatten,inkMask,cleanInk,orientation,rotateRGBA,_internal:{homography,rotateMask,uprightEvidence,lineScore,downscale,kmeans,closeMask,components,fillHoles,hull,minAreaRect,bestQuad,toLab}});
 if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.ProductPhoto=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

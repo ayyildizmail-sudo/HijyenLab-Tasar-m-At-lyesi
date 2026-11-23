@@ -27,7 +27,7 @@ function orientationModel(){
  })().catch(error=>{lastError='orientation-model:'+String(error?.message||error);return null;});
  return modelPromise;
 }
-const AUTO_MIN_PLACE=.6,AUTO_MIN_ASK=.3;
+const AUTO_MIN_PLACE=.6,AUTO_MIN_ASK=.3,GLYPH_MIN_PLACE=.45,GLYPH_MIN_ASK=.2;
 // Kararsız sonuç: önizleme + "Bunu kullan / 180° çevir / Kullanma". Müşteri seçmeden ambalaja hiçbir şey konmaz.
 const card=document.createElement('div');card.id='productPhotoChoice';card.className='notice light';card.hidden=true;card.setAttribute('role','dialog');card.setAttribute('aria-label','Fotoğraftan ayrılan baskı');
 card.innerHTML='<p><strong>Fotoğraftaki baskıyı böyle ayırdık.</strong> Doğru görünüyorsa kullanın.</p><img alt="Fotoğraftan ayrılan baskı önizlemesi" style="display:block;max-width:100%;max-height:220px;margin:8px auto;background:repeating-conic-gradient(#eee 0 25%,#fff 0 50%) 0 0/16px 16px"><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button type="button" class="primary" data-act="use">Bunu kullan</button><button type="button" class="outline" data-act="rotate">180° çevir</button><button type="button" class="outline" data-act="no">Kullanma</button></div>';
@@ -50,8 +50,9 @@ async function attempt(){
   if(!result.ok||!same()||!placementFailed())return;
   let out=document.createElement('canvas');out.width=result.image.w;out.height=result.image.h;out.getContext('2d').putImageData(new ImageData(result.image.data,result.image.w,result.image.h),0,0);
   // Güven kademesi: emin → doğrudan; kararsız → müşteriye tek dokunuşla sor; emin değil → hiçbir şey koyma (mevcut davranış)
-  const confidence=result.confidence??0;if(confidence<AUTO_MIN_ASK)return;
-  if(confidence<AUTO_MIN_PLACE){const choice=await ask(out);if(!same()||!placementFailed())return;if(!choice)return;out=choice;}
+  // Harf oranı: mürekkebin yazı satırlarına ait kısmı (gösterge, süs, efekt parçalarında düşük)
+  const confidence=result.confidence??0,glyph=result.glyphFraction??0;if(confidence<AUTO_MIN_ASK||glyph<GLYPH_MIN_ASK)return;
+  if(confidence<AUTO_MIN_PLACE||glyph<GLYPH_MIN_PLACE){const choice=await ask(out);if(!same()||!placementFailed())return;if(!choice)return;out=choice;}
   const blob=await new Promise(resolve=>out.toBlob(resolve,'image/png'));if(!blob||!same())return;
   const generated=new File([blob],PREFIX+Date.now().toString(36)+'.png',{type:'image/png'});tried.add(generated);
   root.HijyenLabProductPhoto={source:'local-product-photo-v1',palette:result.palette,surface:result.surface,quarterTurns:result.quarterTurns,orientationSource:result.orientationSource};
