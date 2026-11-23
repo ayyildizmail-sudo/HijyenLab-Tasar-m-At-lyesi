@@ -116,10 +116,14 @@ Tüm test dosyaları tek tek çalıştırıldı (Node 22.23.5).
 | Dal | Geçti | Kaldı | Toplam |
 |---|---|---|---|
 | `canli-onyuz-kurtarma` (düzeltmesiz temel) | 202 | 28 | 230 |
-| `duzeltme/iki-sekme-kayit` | çalışıyor | çalışıyor | çalışıyor |
-| `duzeltme/talep-urun-kisiti` | çalışıyor | çalışıyor | çalışıyor |
+| `duzeltme/iki-sekme-kayit` | 203 | 28 | 231 |
+| `duzeltme/talep-urun-kisiti` | 203 | 28 | 231 |
 
-Bu tablo, iki düzeltme dalındaki tam paket çalışması bitince güncellenecek. Hedefli testler (bölüm 1 ve 2) tamamlandı ve geçti.
+**Gerileme yok.** Her düzeltme dalında temele göre tek fark, o dalın yeni testinin eklenmesi ve geçmesi:
+- `duzeltme/iki-sekme-kayit`: `draft-multitab` eklendi ve geçti.
+- `duzeltme/talep-urun-kisiti`: `lead-product-catalog` eklendi ve geçti.
+
+Temelde başarısız olan 28 dosyanın her biri, iki dalda da aynı şekilde başarısız. Bunlar düzeltmelerle ilgisiz, önceden var olan durumlar.
 
 ### Temel daldaki 28 başarısızlık (düzeltmelerden bağımsız, önceden var)
 
