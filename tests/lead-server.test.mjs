@@ -66,13 +66,15 @@ test('explicit unprinted mode accepts only blank carton-multiple requests with n
 test('print mode migration preserves existing printed lead, audit and fragrance inside transaction',()=>{
  const sql=new DatabaseSync(':memory:');sql.exec('PRAGMA foreign_keys=ON');
  const files=readdirSync(new URL('../drizzle/',import.meta.url)).filter(f=>f.endsWith('.sql')).sort();
- for(const file of files.filter(f=>!f.startsWith('0003')))sql.exec(readFileSync(new URL('../drizzle/'+file,import.meta.url),'utf8'));
+ for(const file of files.filter(f=>f<'0003'))sql.exec(readFileSync(new URL('../drizzle/'+file,import.meta.url),'utf8'));
  const id=randomUUID();
  sql.prepare("INSERT INTO leads (id,kind,created_at,expires_at,status,revision,product_id,quantity,fragrance,contact_json,design_json,phone_key,consent_version,payload_hash) VALUES (?,'complete',1,100,'contacted',1,'BM12',5200,'lemon','{}','{}','5550000000','lead-v1','fixture')").run(id);
  sql.prepare("INSERT INTO lead_status_audit (lead_id,actor_id,changed_at,from_status,to_status,from_revision) VALUES (?,'fixture-owner',2,'new','contacted',0)").run(id);
  sql.prepare('INSERT INTO fragrance_preferences VALUES (?,?,?,?)').run('towels',randomUUID(),'lemon',3);
  const fragrance=sql.prepare('SELECT * FROM fragrance_preferences').all(),audit=sql.prepare('SELECT * FROM lead_status_audit').all();
  sql.exec('BEGIN');for(const file of files.filter(f=>f.startsWith('0003')))sql.exec(readFileSync(new URL('../drizzle/'+file,import.meta.url),'utf8'));sql.exec('COMMIT');
+ // Sonraki migration'lar da (her biri kendi işleminde) aynı verileri korumalı.
+ for(const file of files.filter(f=>f>'0003')){sql.exec('BEGIN');sql.exec(readFileSync(new URL('../drizzle/'+file,import.meta.url),'utf8'));sql.exec('COMMIT');}
  assert.deepEqual(sql.prepare('SELECT * FROM fragrance_preferences').all(),fragrance);
  assert.deepEqual(sql.prepare('SELECT * FROM lead_status_audit').all(),audit);
  assert.equal(sql.prepare('SELECT print_mode FROM leads WHERE id=?').get(id).print_mode,'printed');
