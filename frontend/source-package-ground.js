@@ -35,7 +35,9 @@ function canonicalGroundPalette(data,w,h,estimate,background){
 // normal front-appearance approval and an alternative local-panel view remain
 // authoritative. Only an opaque, flat, edge-to-edge field is eligible.
 function nativeProposal(data,w,h,detection){
- if(!data||data.length!==w*h*4||w<32||h<32||w*h>160000||detection?.kind!=='color'||detection.maskAllowed===false||detection.connected<.65||!/^#[a-f0-9]{6}$/i.test(detection.color||''))return null;
+ // Halkayla bölünmüş rozet dış zemini "bağlı zemin" oranını düşürür; yalnız bu doğrulanmış durumda oran şartı aranmaz.
+ const badgeCandidate=data&&data.length===w*h*4&&detection?.kind==='color'&&detection.connected<.65&&root.FrameTrim?.badgeGround?root.FrameTrim.badgeGround(data,w,h):null;
+ if(!data||data.length!==w*h*4||w<32||h<32||w*h>160000||detection?.kind!=='color'||detection.maskAllowed===false||(detection.connected<.65&&!badgeCandidate)||!/^#[a-f0-9]{6}$/i.test(detection.color||''))return null;
  const flat=B.inspectFlatGraphic(data,w,h);if(!flat.flatGraphic)return null;
  const rgb=[1,3,5].map(i=>parseInt(detection.color.slice(i,i+2),16));let edge=0,matched=0;
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;if(data[i+3]<250)return null;if(x<2||y<2||x>=w-2||y>=h-2){edge++;if(distance([data[i],data[i+1],data[i+2]],rgb)<=24)matched++;}}
@@ -53,7 +55,11 @@ function nativeProposal(data,w,h,detection){
   // surface, frame, competing dark marks or arbitrary edge hue is promoted.
   smoothLightMark=edgeNear/Math.max(1,edgeTotal)>=.97&&foreground>=24&&lightMark/foreground>=.98&&foreground/(w*h)<.3;
  }
- if(!strict&&!smoothLightMark){
+ // Yuvarlak rozet düz renkli kare zeminin ortasında: kenara bağlı zemin rozeti tamamen çevreler (frame-trim.js).
+ // Ambalaj zemini olarak bu renk önerilir; rozet özgün renkleriyle korunur.
+ let badgeGround=false;
+ if(!strict&&!smoothLightMark&&root.FrameTrim?.badgeGround){const badge=badgeCandidate||root.FrameTrim.badgeGround(data,w,h);if(badge&&distance([1,3,5].map(i=>parseInt(badge.color.slice(i,i+2),16)),rgb)<=24){badgeGround=true;groundEvidence={basis:'badge-exterior-ground',badgeBox:badge.box};}}
+ if(!strict&&!smoothLightMark&&!badgeGround){
   // A separate bounded path for tiny native artwork, NOT a relaxed global
   // border threshold. Recompute evidence from this frame (not caller metadata).
   const measured=B.analyze(data,w,h);

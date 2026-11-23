@@ -189,12 +189,19 @@ function proposePixels(data,width,height){
   return chosen||dominant.color;
  }
  let flattenedGradientFamilies=0;
+ // Geçiş bağları zincirleme izlenir (mavi↔beyaz hale↔siyah). Hale/kenar kümesi köprü olup iki ayrı
+ // renk ailesini (ör. mavi ve siyah) tek mürekkepte birleştirmesin: belirgin çekirdekli kümelerin aileleri uyuşmalı.
+ const strongId=id=>groups[id].cores>=Math.max(12,corePixels*.02)&&distance(groups[id].color,[255,255,255])>=52;
+ const familiesAgree=(x,y)=>{const A=x.ids.filter(strongId),B=y.ids.filter(strongId);return A.every(i=>B.every(j=>sameFamily(groups[i].color,groups[j].color)));};
  for(const key of gradientLinks){
   const [a,b]=key.split(':').map(Number),i=clusters.findIndex(c=>c.ids.includes(a)),j=clusters.findIndex(c=>c.ids.includes(b));
-  if(i<0||j<0||i===j||conflicting(clusters[i],clusters[j]))continue;
+  if(i<0||j<0||i===j||conflicting(clusters[i],clusters[j])||!familiesAgree(clusters[i],clusters[j]))continue;
   const first=clusters[i],second=clusters[j],ids=first.ids.concat(second.ids);clusters[i]={ids,weight:first.weight+second.weight,color:dominantSourceColor(ids),gradient:true};clusters.splice(j,1);
  }
  flattenedGradientFamilies=clusters.filter(c=>c.gradient).length;
+ // Gölgeli, çok renkli resim (maskot/illüstrasyon): birden çok renk geçişi ailesini düzleştirmek tasarımı bozar.
+ // Öneri yapılmaz; görsel özgün renkleriyle kalır, baskı yöntemi teknik incelemede belirlenir.
+ if(flattenedGradientFamilies>=3||(substantial.length>=6&&stableIds.length>=9))return decline('full-color-illustration-preserved');
  // Preserve an already-two/three-color logo, but merge tonal variants of the
  // same family first when reduction is needed. This is real pixel remapping.
  while(clusters.length>3){

@@ -50,8 +50,23 @@ function mobilePreviewControls(data,w,h){
  }
  return pairedRows>h*.028;
 }
+// Baskı/teknik çizim sayfası: ince, pembe-macenta ölçü çizgileri hem yatay hem dikey eksende uzanır
+// (ör. "160 mm" / "140 mm" ölçüleri). Böyle bir sayfanın tamamı logo değildir; marka alanı ayrılmalıdır.
+function technicalSheet(data,w,h){
+ if(!data||data.length!==w*h*4||w<120||h<120||w*h>400000)return null;
+ const mag=new Uint8Array(w*h);let count=0;
+ for(let i=0;i<w*h;i++){const j=i*4,r=data[j],g=data[j+1],b=data[j+2];if(data[j+3]>200&&r>150&&b>80&&g<130&&r-g>70&&b-g>25&&r>=b){mag[i]=1;count++;}}
+ if(count<w*h*.0005||count>w*h*.04)return null;
+ const longestRun=(len,at)=>{let best=0,run=0,gap=0;for(let t=0;t<len;t++){if(at(t)){run+=gap+1;gap=0;best=Math.max(best,run);}else if(run&&gap<2)gap++;else{run=0;gap=0;}}return best;};
+ let hRow=-1,vCol=-1;
+ for(let y=0;y<h&&hRow<0;y++)if(longestRun(w,x=>mag[y*w+x])>=w*.18){let thick=0;for(let k=y;k<h&&longestRun(w,x=>mag[k*w+x])>=w*.18;k++)thick++;if(thick<=Math.max(2,h*.008))hRow=y;else y+=thick;}
+ for(let x=0;x<w&&vCol<0;x++)if(longestRun(h,y=>mag[y*w+x])>=h*.18){let thick=0;for(let k=x;k<w&&longestRun(h,y=>mag[y*w+k])>=h*.18;k++)thick++;if(thick<=Math.max(2,w*.008))vCol=x;else x+=thick;}
+ if(hRow<0||vCol<0)return null;
+ return {needsSelection:true,evidence:'technical-drawing-dimension-lines',reason:'Bu bir teknik çizim/baskı sayfası. Sayfanın tamamı logo değildir; yalnız marka alanını seçin.',panels:[]};
+}
 function inspect(data,w,h){
  const controls=phoneControls(data,w,h);if(controls)return controls;
+ const sheet=technicalSheet(data,w,h);if(sheet)return sheet;
  if(!data||data.length!==w*h*4||w<80||h<120||h/w<1.2||w*h>400000)return null;
  const mask=new Uint8Array(w*h);let light=0,opaque=0;
  for(let i=0;i<w*h;i++){const j=i*4;if(data[j+3]<245)continue;opaque++;const lo=Math.min(data[j],data[j+1],data[j+2]),hi=Math.max(data[j],data[j+1],data[j+2]);if(lo>230)light++;if((lo+hi)/2<210)mask[i]=1;}
@@ -70,5 +85,5 @@ function inspect(data,w,h){
 }
 function inspectImage(img,options={}){const w=img.naturalWidth||img.width,h=img.naturalHeight||img.height,scale=Math.min(1,600/Math.max(w,h)),make=options.createCanvas||((w,h)=>{const c=root.document.createElement('canvas');c.width=w;c.height=h;return c;}),c=make(Math.max(1,Math.round(w*scale)),Math.max(1,Math.round(h*scale)));try{const cx=c.getContext('2d');cx.drawImage(img,0,0,c.width,c.height);return inspect(cx.getImageData(0,0,c.width,c.height).data,c.width,c.height);}finally{c.width=c.height=1;}}
 function assertRegion(img,options={}){const result=inspectImage(img,options);if(result){const error=Error(result.reason);error.code='SOURCE_REGION_REQUIRED';error.sourceContext=result;throw error;}}
-const api={inspect,inspectImage,assertRegion,phoneControls};if(typeof module!=='undefined')module.exports=api;else root.SourceContext=api;
+const api={inspect,inspectImage,assertRegion,phoneControls,technicalSheet};if(typeof module!=='undefined')module.exports=api;else root.SourceContext=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
