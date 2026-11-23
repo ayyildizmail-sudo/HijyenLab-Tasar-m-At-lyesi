@@ -27,6 +27,15 @@ function orientationModel(){
  })().catch(error=>{lastError='orientation-model:'+String(error?.message||error);return null;});
  return modelPromise;
 }
+const AUTO_MIN_PLACE=.6,AUTO_MIN_ASK=.3;
+// Kararsız sonuç: önizleme + "Bunu kullan / 180° çevir / Kullanma". Müşteri seçmeden ambalaja hiçbir şey konmaz.
+const card=document.createElement('div');card.id='productPhotoChoice';card.className='notice light';card.hidden=true;card.setAttribute('role','dialog');card.setAttribute('aria-label','Fotoğraftan ayrılan baskı');
+card.innerHTML='<p><strong>Fotoğraftaki baskıyı böyle ayırdık.</strong> Doğru görünüyorsa kullanın.</p><img alt="Fotoğraftan ayrılan baskı önizlemesi" style="display:block;max-width:100%;max-height:220px;margin:8px auto;background:repeating-conic-gradient(#eee 0 25%,#fff 0 50%) 0 0/16px 16px"><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button type="button" class="primary" data-act="use">Bunu kullan</button><button type="button" class="outline" data-act="rotate">180° çevir</button><button type="button" class="outline" data-act="no">Kullanma</button></div>';
+card.style.cssText='position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:1000;width:min(92vw,460px);max-height:80vh;overflow:auto;box-shadow:0 8px 30px rgba(0,0,0,.25);background:#fff';document.body.append(card);
+function rotate180(c){const r=document.createElement('canvas');r.width=c.width;r.height=c.height;const g=r.getContext('2d');g.translate(c.width,c.height);g.rotate(Math.PI);g.drawImage(c,0,0);return r;}
+function ask(canvas){return new Promise(resolve=>{let current=canvas;const img=card.querySelector('img');const show=()=>{img.src=current.toDataURL('image/png');};show();card.hidden=false;
+ const done=v=>{card.hidden=true;card.onclick=null;resolve(v);};card.onclick=e=>{const act=e.target?.dataset?.act;if(act==='use')done(current);else if(act==='no')done(null);else if(act==='rotate'){current=rotate180(current);show();}};
+ card.scrollIntoView?.({block:'nearest'});});}
 function decode(file){if(typeof createImageBitmap==='function')return createImageBitmap(file);return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{URL.revokeObjectURL(url);resolve(img);};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('decode'));};img.src=url;});}
 async function attempt(){
  const file=currentFile();
@@ -39,7 +48,10 @@ async function attempt(){
   const classify=await orientationModel();if(!same()||!placementFailed())return;
   const result=await root.ProductPhoto.extract(g.getImageData(0,0,c.width,c.height).data,c.width,c.height,{classify});lastResult=result;
   if(!result.ok||!same()||!placementFailed())return;
-  const out=document.createElement('canvas');out.width=result.image.w;out.height=result.image.h;out.getContext('2d').putImageData(new ImageData(result.image.data,result.image.w,result.image.h),0,0);
+  let out=document.createElement('canvas');out.width=result.image.w;out.height=result.image.h;out.getContext('2d').putImageData(new ImageData(result.image.data,result.image.w,result.image.h),0,0);
+  // Güven kademesi: emin → doğrudan; kararsız → müşteriye tek dokunuşla sor; emin değil → hiçbir şey koyma (mevcut davranış)
+  const confidence=result.confidence??0;if(confidence<AUTO_MIN_ASK)return;
+  if(confidence<AUTO_MIN_PLACE){const choice=await ask(out);if(!same()||!placementFailed())return;if(!choice)return;out=choice;}
   const blob=await new Promise(resolve=>out.toBlob(resolve,'image/png'));if(!blob||!same())return;
   const generated=new File([blob],PREFIX+Date.now().toString(36)+'.png',{type:'image/png'});tried.add(generated);
   root.HijyenLabProductPhoto={source:'local-product-photo-v1',palette:result.palette,surface:result.surface,quarterTurns:result.quarterTurns,orientationSource:result.orientationSource};
@@ -52,5 +64,5 @@ async function attempt(){
 }
 const previous=showDesignIssue;showDesignIssue=function(...args){const out=previous.apply(this,args);setTimeout(attempt,0);return out;};
 if(typeof refresh==='function'){const previousRefresh=refresh;refresh=function(...args){const out=previousRefresh.apply(this,args);syncNote();const f=currentFile();if(!running&&f&&!tried.has(f)&&!isGenerated(f)&&placementFailed())setTimeout(attempt,0);return out;};}
-root.HijyenLabProductPhotoUI=Object.freeze({attempt,placementFailed,claims:f=>!!f&&claimed.has(f),busy:()=>running,lastError:()=>lastError,lastResult:()=>lastResult&&{ok:lastResult.ok,reason:lastResult.reason,diagnostics:lastResult.diagnostics}});
+root.HijyenLabProductPhotoUI=Object.freeze({asking:()=>!card.hidden,attempt,placementFailed,claims:f=>!!f&&claimed.has(f),busy:()=>running,lastError:()=>lastError,lastResult:()=>lastResult&&{ok:lastResult.ok,reason:lastResult.reason,diagnostics:lastResult.diagnostics}});
 })(globalThis);
