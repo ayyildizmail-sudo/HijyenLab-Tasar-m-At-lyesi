@@ -1,6 +1,6 @@
 /* Opt-in local draft persistence only. No network, prices or approval tokens. Contact inputs require explicit opt-in. */
 (function(root){'use strict';
-const DB_NAME='hijyenlab-local-design-draft-v1',STORE='drafts',KEY='active';
+const DB_NAME='hijyenlab-local-design-draft-v1',STORE='drafts',KEY='active',OWNER_KEY='active-owner';
 const TTL_MS=7*24*60*60*1000,MAX_FILE_BYTES=8*1024*1024,MAX_TOTAL_BYTES=16*1024*1024,MAX_METADATA_BYTES=65536;
 const TOP=['schemaVersion','productId','design','rear','fragrance','frontFile','rearFile','frontName','rearName'];
 const DESIGN=['bg','color','textColor','text','font','textSize','tx','ty','x','y','size','rotation','recolorApplied','bgPantone','textPantone','requestedQuantity'];
@@ -128,8 +128,12 @@ function fileMetadata(file){return file?{size:file.size,type:file.type}:null;}
 function metadata(record){const value={...record,frontFile:fileMetadata(record.frontFile),rearFile:fileMetadata(record.rearFile)};if(record.schemaVersion>=3)for(const side of ['front','rear'])value[side+'Extras']=record[side+'Extras'].map(item=>({...item,file:fileMetadata(item.file)}));return JSON.stringify(value);}
 async function equalSourceBytes(a,b){if(!await equalBytes(a.frontFile,b.frontFile)||!await equalBytes(a.rearFile,b.rearFile))return false;if(a.schemaVersion>=3)for(const side of ['front','rear']){const first=a[side+'Extras'],second=b[side+'Extras'];if(first.length!==second.length)return false;for(let i=0;i<first.length;i++)if(!await equalBytes(first[i].file,second[i].file))return false;}return true;}
 async function equalBytes(a,b){if(a===null||b===null)return a===b;const x=new Uint8Array(await a.arrayBuffer()),y=new Uint8Array(await b.arrayBuffer());if(x.length!==y.length)return false;for(let i=0;i<x.length;i++)if(x[i]!==y[i])return false;return true;}
+function newWriterId(){try{if(typeof root.crypto?.randomUUID==='function')return root.crypto.randomUUID();}catch{}return 'tab-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);}
+function validOwner(value){return value&&typeof value==='object'&&typeof value.writer==='string'&&Number.isSafeInteger(value.revision)&&value.revision>0?value:null;}
 function createStore(options={}){
  let idb;try{idb=options.indexedDB===undefined?root.indexedDB:options.indexedDB;}catch{idb=null;}const now=options.now||Date.now;let connection=null;
+ // Sekme kimliği ve bu sekmenin en son gördüğü taslak sürümü: başka sekmenin daha yeni taslağı sessizce ezilmez.
+ const writerId=typeof options.writerId==='string'&&options.writerId?options.writerId:newWriterId();let lastSeenRevision=0;
  const canCoordinate=idb&&(typeof idb==='object'||typeof idb==='function');let coordination=canCoordinate?coordinators.get(idb):null;if(!coordination){coordination={epoch:0,queue:Promise.resolve()};if(canCoordinate)coordinators.set(idb,coordination);}
  function serial(work){const next=coordination.queue.then(work,work).catch(error=>{throw mapped(error);});coordination.queue=next.catch(()=>{});return next;}
  function open(){if(!idb||typeof idb.open!=='function')return Promise.reject(new DraftError('UNAVAILABLE','Bu tarayıcı yerel taslak saklayamıyor.'));if(connection)return connection;
@@ -140,16 +144,16 @@ function createStore(options={}){
   });connection.catch(()=>{connection=null;});return connection;
  }
  async function transaction(mode,action){const db=await open();return new Promise((resolve,reject)=>{let tx,value;try{tx=db.transaction(STORE,mode);tx.oncomplete=()=>resolve(value);tx.onabort=()=>reject(mapped(tx.error));tx.onerror=()=>{};action(tx.objectStore(STORE),v=>{value=v;},tx);}catch(e){try{tx?.abort();}catch{}reject(mapped(e));}});}
- function save(payload){let clean;try{clean=validate(payload);}catch(e){return Promise.reject(mapped(e));}const ticket=coordination.epoch;
+ function save(payload,options={}){let clean;try{clean=validate(payload);}catch(e){return Promise.reject(mapped(e));}const ticket=coordination.epoch,force=options?.force===true;
   return serial(async()=>{if(ticket!==coordination.epoch)fail('STALE','Bekleyen taslak kaydı iptal edildi.');const savedAt=now();if(!Number.isSafeInteger(savedAt)||savedAt<0||!Number.isSafeInteger(savedAt+TTL_MS))fail('INVALID','Cihaz zamanı geçersiz.');const record={...clean,savedAt,expiresAt:savedAt+TTL_MS};
-   const stored=await transaction('readwrite',(store,result,tx)=>{if(ticket!==coordination.epoch){tx.abort();return;}store.put(record,KEY);const read=store.get(KEY);read.onsuccess=()=>result(read.result);}).catch(error=>{if(ticket!==coordination.epoch)fail('STALE','Bekleyen taslak kaydı iptal edildi.');throw error;});
-   if(ticket!==coordination.epoch)fail('STALE','Bekleyen taslak kaydı iptal edildi.');let checked;try{checked=envelope(stored);}catch{fail('VERIFY_FAILED','Taslak kaydı doğrulanamadı.');}
+   const outcome=await transaction('readwrite',(store,result,tx)=>{if(ticket!==coordination.epoch){tx.abort();return;}const ownerRead=store.get(OWNER_KEY);ownerRead.onsuccess=()=>{const owner=validOwner(ownerRead.result);if(owner&&owner.writer!==writerId&&owner.revision!==lastSeenRevision&&!force){result({conflict:true});return;}const revision=(owner?owner.revision:0)+1;store.put(record,KEY);store.put({writer:writerId,revision},OWNER_KEY);const read=store.get(KEY);read.onsuccess=()=>result({stored:read.result,revision});};}).catch(error=>{if(ticket!==coordination.epoch)fail('STALE','Bekleyen taslak kaydı iptal edildi.');throw error;});
+   if(ticket!==coordination.epoch)fail('STALE','Bekleyen taslak kaydı iptal edildi.');if(outcome?.conflict)fail('CONFLICT','Bu taslak başka bir sekmede değiştirildi.');const stored=outcome?.stored;let checked;try{checked=envelope(stored);}catch{fail('VERIFY_FAILED','Taslak kaydı doğrulanamadı.');}
    if(metadata(record)!==metadata(checked)||!await equalSourceBytes(record,checked))fail('VERIFY_FAILED','Taslak kaydı doğrulanamadı.');
-   if(ticket!==coordination.epoch)fail('STALE','Bekleyen taslak kaydı iptal edildi.');return checked;
+   if(ticket!==coordination.epoch)fail('STALE','Bekleyen taslak kaydı iptal edildi.');lastSeenRevision=outcome.revision;return checked;
   });
  }
- function load(){return serial(async()=>{const record=await transaction('readwrite',(store,result)=>{const request=store.get(KEY);request.onsuccess=()=>{const data=request.result;if(data===undefined||data===null){result(null);return;}try{const checked=envelope(data);if(checked.savedAt>now())fail('INVALID','Taslak cihaz zamanıyla uyuşmuyor.');if(checked.expiresAt<=now()){store.delete(KEY);result(null);}else result(checked);}catch(error){result({readError:error});}};});if(record===undefined||record===null)return null;if(record.readError)throw record.readError;const checked=envelope(record);if(checked.savedAt>now())fail('INVALID','Taslak cihaz zamanıyla uyuşmuyor.');return checked;});}
- function clear(){coordination.epoch++;return serial(async()=>{await transaction('readwrite',(store,result)=>{store.delete(KEY);const read=store.get(KEY);read.onsuccess=()=>result(read.result);}).then(value=>{if(value!==undefined)fail('VERIFY_FAILED','Taslağın silindiği doğrulanamadı.');});});}
+ function load(){return serial(async()=>{let seen=0;const record=await transaction('readwrite',(store,result)=>{const ownerRead=store.get(OWNER_KEY);ownerRead.onsuccess=()=>{seen=validOwner(ownerRead.result)?.revision||0;};const request=store.get(KEY);request.onsuccess=()=>{const data=request.result;if(data===undefined||data===null){result(null);return;}try{const checked=envelope(data);if(checked.savedAt>now())fail('INVALID','Taslak cihaz zamanıyla uyuşmuyor.');if(checked.expiresAt<=now()){store.delete(KEY);store.delete(OWNER_KEY);seen=0;result(null);}else result(checked);}catch(error){result({readError:error});}};});lastSeenRevision=seen;if(record===undefined||record===null)return null;if(record.readError)throw record.readError;const checked=envelope(record);if(checked.savedAt>now())fail('INVALID','Taslak cihaz zamanıyla uyuşmuyor.');return checked;});}
+ function clear(){coordination.epoch++;return serial(async()=>{await transaction('readwrite',(store,result)=>{store.delete(KEY);store.delete(OWNER_KEY);lastSeenRevision=0;const read=store.get(KEY);read.onsuccess=()=>result(read.result);}).then(value=>{if(value!==undefined)fail('VERIFY_FAILED','Taslağın silindiği doğrulanamadı.');});});}
  return Object.freeze({save,load,clear});
 }
 const api=Object.freeze({createStore,validate,DraftError,TTL_MS,MAX_FILE_BYTES,MAX_TOTAL_BYTES,DB_NAME});if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.LocalDesignDraft=api;
