@@ -312,7 +312,7 @@ async function routeUploadedFile(file,mode='auto'){
  if(state.quoteSource==='source-reference'){
   state.sourcePhoto=null;state.sourceKind=null;state.referenceInkDeclaration=null;photoImg=null;
  }
- if(typeof clearDeclaration==='function')clearDeclaration();globalThis.ReferenceRecovery?.clear();if($('designError')){$('designError').hidden=true;$('designError').textContent='';}if(state.designBlocked){state.sourcePhoto=null;state.sourceKind=null;}if(typeof resetFragrance==='function')resetFragrance();if(typeof resetRearPreview==='function')resetRearPreview();loading++;if(typeof clearWhiteCarrierProposal==='function')clearWhiteCarrierProposal();disposePdf();resetRegionEditor();$('pdfPicker').hidden=true;$('photoEditor').hidden=true;$('pdfPages').replaceChildren();photoRectified=null;photoTouched=false;approvedDesignFingerprint=null;invalidateQuote();state.extractionApprovalRequired=true;state.processingDiagnostics=[];state.groundScope=null;state.sourcePackageGroundEvidence=null;state.restoredGroundCandidate=null;state.designProcessing=true;state.designBlocked=false;state.extractionSourceLimited=false;state.nativeContentReviewRequired=false;state.flexoOriginalLogo=null;state.screenSelectionRequired=false;state.screenCropApplied=false;state.technicalFrameProposed=false;state.extractionApproximate=false;state.regionBgSuggestedWhite=false;printInkKey=null;printInkManual=false;
+ if(typeof clearDeclaration==='function')clearDeclaration();globalThis.ReferenceRecovery?.clear();if($('designError')){$('designError').hidden=true;$('designError').textContent='';}if(state.designBlocked){state.sourcePhoto=null;state.sourceKind=null;}if(typeof resetFragrance==='function')resetFragrance();if(typeof resetRearPreview==='function')resetRearPreview();loading++;if(typeof clearWhiteCarrierProposal==='function')clearWhiteCarrierProposal();disposePdf();resetRegionEditor();$('pdfPicker').hidden=true;$('photoEditor').hidden=true;$('pdfPages').replaceChildren();photoRectified=null;photoTouched=false;approvedDesignFingerprint=null;invalidateQuote();state.extractionApprovalRequired=true;state.processingDiagnostics=[];state.outerFrameTrim=null;state.technicalSheetDetected=false;state.groundScope=null;state.sourcePackageGroundEvidence=null;state.restoredGroundCandidate=null;state.designProcessing=true;state.designBlocked=false;state.extractionSourceLimited=false;state.nativeContentReviewRequired=false;state.flexoOriginalLogo=null;state.screenSelectionRequired=false;state.screenCropApplied=false;state.technicalFrameProposed=false;state.extractionApproximate=false;state.regionBgSuggestedWhite=false;printInkKey=null;printInkManual=false;
  const token=processingSession.begin({name:file.name,byteLength:file.size}),context={token,pending:null,produced:false};processingContext=context;
  try{
   if(file.size>UploadFormat.MAX_BYTES)throw Error('Dosya en fazla 8 MB olmalı.');
@@ -321,6 +321,15 @@ async function routeUploadedFile(file,mode='auto'){
   const identity=await sourceIdentity(file,bytes);if(!processingSession.isCurrent(token))return;processingSession.setSource(token,identity);
   let normalized;if(['pdf','svg','png','jpeg'].includes(info.type))normalized=new File([file],file.name.replace(/\.[^.]*$/,'')+'.'+(info.type==='jpeg'?'jpg':info.type),{type:info.mime});
   else{const bitmap=await createImageBitmap(new Blob([bytes],{type:info.mime}));try{UploadFormat.dimensions(bitmap.width,bitmap.height);if(!processingSession.isCurrent(token))return;const c=document.createElement('canvas');c.width=bitmap.width;c.height=bitmap.height;c.getContext('2d').drawImage(bitmap,0,0);const blob=await new Promise(resolve=>c.toBlob(resolve,'image/png'));if(!processingSession.isCurrent(token))return;if(!blob)throw Error('Görsel dönüştürülemedi.');normalized=new File([blob],file.name.replace(/\.[^.]*$/,'')+'.png',{type:'image/png'});}finally{bitmap.close();}}
+  // Dış kenar şeridi / ince çerçeve: logonun parçası değildir, ambalajda iz bırakır ve zemin tanımayı bozar (frame-trim.js).
+  if(globalThis.FrameTrim&&['png','jpeg'].includes(info.type)&&['auto','logo'].includes(mode)&&typeof createImageBitmap==='function'){
+   try{const bitmap=await createImageBitmap(normalized);try{if(bitmap.width*bitmap.height<=40e6){const c=document.createElement('canvas');c.width=bitmap.width;c.height=bitmap.height;const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(bitmap,0,0);const trim=FrameTrim.detect(g.getImageData(0,0,c.width,c.height).data,c.width,c.height);
+    if(trim){const o=document.createElement('canvas');o.width=trim.width;o.height=trim.height;o.getContext('2d').drawImage(c,trim.left,trim.top,trim.width,trim.height,0,0,trim.width,trim.height);const blob=await new Promise(resolve=>o.toBlob(resolve,'image/png'));
+     // Kayıpsız kesit: yeniden JPEG sıkıştırması kenarlarda leke üretir.
+     if(blob&&processingSession.isCurrent(token)){normalized=new File([blob],normalized.name.replace(/\.[^.]*$/,'')+'.png',{type:'image/png'});state.outerFrameTrim=trim;globalThis.recordProcessingDiagnostic?.('outer-frame-trim',JSON.stringify(trim));}}}}finally{bitmap.close();}}catch{/* Kırpma yapılamazsa özgün dosya aynen işlenir. */}
+   if(!processingSession.isCurrent(token))return;
+   if(!processingSession.isCurrent(token))return;
+  }
   sourceIdentityCache.set(normalized,identity);if(photoSourceFiles.has(file))photoSourceFiles.add(normalized);
   let recovered=false;
   const reviewedSource=!!verifiedLogoReferences.get(identity.sha256)?.assetSHA256;
@@ -337,7 +346,14 @@ async function routeUploadedFile(file,mode='auto'){
   if(reviewedSource){
    if(typeof lastUploadedFile!=='undefined')lastUploadedFile=file;
   }else if(!recovered){
-   if(['auto','photo','logo'].includes(mode)){
+   // Teknik çizim/baskı sayfası (pembe ölçü çizgileri): sayfanın tamamı ambalaja konmaz, marka alanı seçimi istenir.
+   if(globalThis.SourceContext?.technicalSheet&&['png','jpeg'].includes(info.type)&&typeof createImageBitmap==='function'){
+    let sheet=null;try{const bitmap=await createImageBitmap(normalized);try{const scale=Math.min(1,600/Math.max(bitmap.width,bitmap.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(bitmap.width*scale));c.height=Math.max(1,Math.round(bitmap.height*scale));const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(bitmap,0,0,c.width,c.height);sheet=SourceContext.technicalSheet(g.getImageData(0,0,c.width,c.height).data,c.width,c.height);}finally{bitmap.close();}}catch{sheet=null;}
+    if(!processingSession.isCurrent(token))return;
+    if(sheet){const data=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(normalized);});if(!processingSession.isCurrent(token))return;
+     if(typeof lastUploadedFile!=='undefined')lastUploadedFile=file;blockScreenshotSelection(data);state.technicalSheetDetected=true;$('designError').textContent=sheet.reason;status(sheet.reason);globalThis.recordProcessingDiagnostic?.('technical-sheet',sheet.evidence);recovered=true;}
+   }
+   if(!recovered&&['auto','photo','logo'].includes(mode)){
     recovered=await recoverIlluminatedSign(identity,token,normalized);
     if(!processingSession.isCurrent(token))return;
     if(!recovered)recovered=await recoverGeneratedLogo(identity,token,normalized);
@@ -348,7 +364,7 @@ async function routeUploadedFile(file,mode='auto'){
   if(!processingSession.isCurrent(token))return;
   // Interpretation labels are hints, not proposal eligibility. Only a verified
   // source-derived proposal may release this file's prior photo-routing lock.
-  if(!recovered&&globalThis.FlexoDesignUI){const ticket=loading;const proposed=await FlexoDesignUI.prepare(()=>processingContext===context&&processingSession.isCurrent(token)&&loading===ticket,{allowReferenceRecovery:['auto','photo','logo'].includes(mode),ingressMode:mode});if(!processingSession.isCurrent(token))return;if(proposed){photoSourceFiles.delete(file);photoSourceFiles.delete(normalized);}}
+  if(!recovered&&globalThis.FlexoDesignUI){const ticket=loading;const proposed=await FlexoDesignUI.prepare(()=>processingContext===context&&processingSession.isCurrent(token)&&loading===ticket,{allowReferenceRecovery:['auto','photo','logo'].includes(mode),ingressMode:mode});if(!processingSession.isCurrent(token))return;if(!proposed&&mode!=='logo'&&state.designBlocked&&FlexoDesignUI.lastReason?.()==='full-color-illustration-preserved'){/* Tam renkli resim: düz renge indirilmez; özgün renkleriyle logo olarak işlenir. */globalThis.recordProcessingDiagnostic?.('full-color-artwork','reroute-as-logo');await routeUploadedFile(file,'logo');return;}if(proposed){photoSourceFiles.delete(file);photoSourceFiles.delete(normalized);}}
   if(state.designBlocked){processingSession.fail(token,'No supported source-preserving extraction.');state.processingResult=null;}
   else if(context.produced&&(state.logo||state.photoLayout)){state.logoName=file.name;finalizeProcessingResult();}else processingSession.pendingSelection(token,'Decoded input awaiting explicit region or PDF page selection; no new design output.');
   if(info.type==='gif'||info.type==='webp')status('Görsel yüklendi; hareketli dosyalarda yalnız ilk kare kullanılır.');
