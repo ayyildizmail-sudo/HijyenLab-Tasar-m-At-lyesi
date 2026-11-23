@@ -64,3 +64,59 @@
 - **MEA'da müşteriye gösterilen mesaj genel kalıyor** ("Özgün görsel gösteriliyor"). Teknik çizime özel açıklama, sonraki genel akış tarafından eziliyor.
 - **İki dosyalık logolar** (renkli zemin + ince kenar): kırpma yalnız tek renkli, tüm kenar boyunca uzanan şeritlerde çalışır.
 - **Gerçek iPhone Safari testi yapılmadı.**
+
+---
+
+# Aşama 5 — Ürün/tabela fotoğrafından baskıyı ayırma (dal `ozellik/urun-fotografi`)
+
+**Amaç:** Müşteri daha önce yaptırdığı ürünün (ıslak mendil, rulo havlu) ya da tabelasının fotoğrafını gönderdiğinde baskıyı alıp ambalaja koymak.
+
+**Yeni dosyalar:**
+- `frontend/product-photo.js`
+- `frontend/product-photo-ui.js`
+- `frontend/vendor/onnxruntime-web-1.20.1/` (MIT)
+- `frontend/models/ppocr-mobile-v2-cls.onnx` (Apache-2.0, 585 KB)
+
+**Yöntem (tamamen tarayıcıda, hiçbir yere bağlanmadan):**
+1. **Yüzey bulma:** Baskılı yüzey adayları seçilir: büyük, dikdörtgene yakın ve içinde baskı olan düz renkli bölge. Ekran görüntüsünün içindeki fotoğraf için ikinci kez arama yapılır.
+2. **Düzleştirme:** Perspektif düzeltilir.
+3. **Işık dengeleme:** Parlama ve gölge temizlenir.
+4. **Mürekkep ayırma:** Koyu zeminde (tabela, neon) yerel parlaklığa bakılır.
+5. **Temizlik:** Kenar dikiş dokusu, köşe kayıt işaretleri ve "Buradan açınız" gibi üretici yazıları atılır.
+6. **Yön:** 90° kararı kelime şekli ve satır kapsamıyla verilir. Düz/ters (180°) kararını küçük yerel model (PP-OCR yön sınıflandırıcısı) verir.
+7. **Çizim:** Renkler en çok 4'e sadeleştirilir ve kenarları yumuşak, düz renkli bir çıktı üretilir. Koyu zeminde açık baskı varsa zemin de tasarıma dahil edilir, ambalaj o renge döner.
+
+**Güven kademesi:**
+- Model eminse sonuç doğrudan ambalaja konur.
+- Kararsızsa müşteriye tek dokunuşluk kart gösterilir: "Bunu kullan / 180° çevir / Kullanma".
+- Emin değilse hiçbir şey konmaz.
+- Model yalnız fotoğraf geldiğinde yüklenir. Yüklenemezse yön geometrik ölçüyle bulunur.
+- Güvenlik politikasında `script-src`'ye `'wasm-unsafe-eval'` eklendi. Bu, yalnız WebAssembly çalıştırmaya izin verir.
+
+**Gerçek fotoğraflar (10 görsel):**
+
+| Kademe | Görseller |
+|---|---|
+| Otomatik ve iyi | Arıbal, Çatalca, Cihangir (ambalaj tabelanın koyu yeşili, harfler krem) |
+| Otomatik, eksik | Miz (bazı neon harfleri kopuk) |
+| Müşteriye sorulur, kullanılabilir | Kars, CafeLife |
+| Müşteriye sorulur, "180° çevir" ile düzelir | Gravas (ters çıkıyor) |
+| Müşteriye sorulur, yanlış | Yeşiloğlu (araç göstergesi), Muhtar (anlamsız). Müşteri "Kullanma" der. |
+| Konmadı | Şerefe |
+
+**Sentetik set:**
+- 112 fotoğrafta 38 doğru, 21 kısmi, 53 yanlış, 0 sonuç yok.
+- Önceden "sonuç yok" olan 10 fotoğrafın 8'i "yanlış" sayıldı. Bunun bir kısmı tasarım gereği: paketteki baskının tamamı alınıyor, ölçüm ise yalnız logoyu doğru sayıyor.
+- 1 fotoğraf "doğru"dan "yanlış"a düştü (`005-wordmarkCaps-tabela`); incelenecek.
+- Sentetik kartvizit ve ambalajların çoğunda uygulama fotoğrafın tamamını hazır logo sanıyor, bu yüzden yeni yol devreye girmiyor. "Fotoğraf logo sanıldı" durumuna bağlanması sonraki iş.
+
+**Testler:** Tam paket 236 dosya, 212 geçti, 24 başarısız. 24'ün hepsi önceden de başarısızdı.
+
+**Açık konular:**
+- Yeşiloğlu'nda yanlış yüzey seçimi.
+- Gravas'ta ters yön.
+- Miz'de kopuk neon harfleri.
+- Kars'ta üst kenar dokusu.
+- CafeLife'ta hafif eğiklik.
+- Yeni modül için birim testi henüz yok.
+- Gerçek iPhone testi yapılmadı. Model yükü yaklaşık 12 MB; telefonda süre ölçülmedi.
