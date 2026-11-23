@@ -31,6 +31,8 @@ function decode(file){
 const makeCanvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
 
 async function attempt(){
+ // Ürün fotoğrafı yolu önce denenir; o sürerken bekle, başarısız olursa bu yol devreye girer.
+ if(root.HijyenLabProductPhotoUI?.busy()){setTimeout(attempt,400);return;}
  const file=currentFile();
  const failed=placementFailed(),misread=!failed&&photoTakenAsLogo(file);
  if(running||!file||tried.has(file)||isGenerated(file)||!/^image\/(jpeg|png|webp|heic|heif|bmp|gif|avif)$/i.test(file.type||'')||(!failed&&!misread))return;
