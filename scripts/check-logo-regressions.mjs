@@ -45,6 +45,8 @@ const suites = [
   'tests/lead-product-catalog.test.mjs',
   'tests/multi-logo-quote-token.test.cjs',
   'tests/sign-lettering.test.cjs',
+  'tests/frame-badge-sheet.test.cjs',
+  'tests/flexo-family-bridge.test.cjs',
   'tests/logo-design.test.cjs',
   'tests/logo-design-flow.test.cjs',
   'tests/logo-design-integration.test.cjs',

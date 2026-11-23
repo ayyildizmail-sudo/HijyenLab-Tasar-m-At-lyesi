@@ -6,7 +6,7 @@ const root=path.resolve(process.env.HIJYENLAB_SOURCE||process.cwd());
 const source=fs.readFileSync(path.join(root,'scripts/check-logo-regressions.mjs'),'utf8');
 const gated=new Set([...source.matchAll(/'(tests\/[^']+\.test\.(?:cjs|mjs))'/g)].map(m=>m[1]));
 const required=[
- 'tests/draft-multitab.test.cjs','tests/lead-product-catalog.test.mjs','tests/multi-logo-quote-token.test.cjs','tests/sign-lettering.test.cjs',
+ 'tests/draft-multitab.test.cjs','tests/lead-product-catalog.test.mjs','tests/multi-logo-quote-token.test.cjs','tests/sign-lettering.test.cjs','tests/frame-badge-sheet.test.cjs','tests/flexo-family-bridge.test.cjs',
  'tests/first-viewport.test.cjs', 'tests/drag-geometry.test.cjs', 'tests/startup-preview-performance.test.cjs','tests/rear-layout-spacing-private.test.cjs',
  'tests/welcome-layout.test.cjs','tests/opening-examples.test.cjs','tests/opening-examples-mobile.test.cjs','tests/opening-examples-accessibility.test.cjs',
  'tests/responsive-journey.test.cjs','tests/navigation-scroll-stability.test.cjs','tests/mobile-contact-layout.test.cjs','tests/contact-help.test.cjs',
