@@ -443,20 +443,33 @@ function palette(img,m,maxColors=4){const {data,w,h}=img,pts=[];for(let i=0;i<w*
  return best.cent;}
 function labToRgb([L,a,b]){let y=(L+16)/116,x=a/500+y,z=y-b/200;const f=t=>t**3>.008856?t**3:(t-16/116)/7.787;x=f(x)*.95047;y=f(y);z=f(z)*1.08883;let r=x*3.2406+y*-1.5372+z*-.4986,g=x*-.9689+y*1.8758+z*.0415,bb=x*.0557+y*-.204+z*1.057;const c=v=>Math.round(255*Math.max(0,Math.min(1,v>.0031308?1.055*v**(1/2.4)-.055:12.92*v)));return [c(r),c(g),c(bb)];}
 // Yumuşak alfa (mürekkep olasılığı) ile kenarları düzgün, düz renkli, şeffaf zeminli çıktı
-function renderClean(img,m,surface,pal,minLong=1200,opaqueGround=false){
+function renderClean(img,m,surface,pal,minLong=2000,opaqueGround=false){
  let x0=img.w,y0=img.h,x1=0,y1=0;for(let y=0;y<img.h;y++)for(let x=0;x<img.w;x++)if(m[y*img.w+x]){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
  if(x1<x0)return null;const pad=Math.round(Math.max(x1-x0,y1-y0)*.03);x0=Math.max(0,x0-pad);y0=Math.max(0,y0-pad);x1=Math.min(img.w-1,x1+pad);y1=Math.min(img.h-1,y1+pad);
  const cw=x1-x0+1,ch=y1-y0+1,scale=Math.max(1,minLong/Math.max(cw,ch)),W=Math.round(cw*scale),H=Math.round(ch*scale),S=toLab(...surface),rgbPal=pal.map(labToRgb);
  // kaynak çözünürlükte: alfa ve renk etiketi (yalnız temizlenmiş maskenin yakınında)
- const near=boxDilate(m,img.w,img.h,2),alpha=new Float32Array(cw*ch),label=new Uint8Array(cw*ch);
+ const near=boxDilate(closeMask(m,img.w,img.h,2),img.w,img.h,2),alpha=new Float32Array(cw*ch),label=new Uint8Array(cw*ch);
  for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){const i=(y+y0)*img.w+(x+x0),j=i*4;if(!near[i])continue;const c=toLab(img.data[j],img.data[j+1],img.data[j+2]),dS=d3(c,S);let b=0,bd=1e9;pal.forEach((p,k)=>{const d=d3(c,p);if(d<bd){bd=d;b=k;}});
-  alpha[y*cw+x]=Math.max(0,Math.min(1,(dS-12)/Math.max(8,d3(pal[b],S)-12)));label[y*cw+x]=b;}
- const out=new Uint8ClampedArray(W*H*4);
- for(let Y=0;Y<H;Y++)for(let X=0;X<W;X++){const fx=Math.min(cw-1.001,Math.max(0,(X+.5)/scale-.5)),fy=Math.min(ch-1.001,Math.max(0,(Y+.5)/scale-.5)),ix=Math.floor(fx),iy=Math.floor(fy),ax=fx-ix,ay=fy-iy;
-  const a=(alpha[iy*cw+ix]*(1-ax)+alpha[iy*cw+ix+1]*ax)*(1-ay)+(alpha[(iy+1)*cw+ix]*(1-ax)+alpha[(iy+1)*cw+ix+1]*ax)*ay;
-  const A=Math.max(0,Math.min(1,(a-.5)*3+.5)),o=(Y*W+X)*4;
-  if(opaqueGround){const c=A>0?rgbPal[label[Math.round(fy)*cw+Math.round(fx)]]:surface;for(let k=0;k<3;k++)out[o+k]=Math.round(surface[k]*(1-A)+c[k]*A);out[o+3]=255;continue;}
-  if(A<=0)continue;const nx=Math.round(fx),ny=Math.round(fy),c=rgbPal[label[ny*cw+nx]];out[o]=c[0];out[o+1]=c[1];out[o+2]=c[2];out[o+3]=Math.round(A*255);}
+  // renkli (ince altın çizgi gibi) mürekkepte daha erken tam opaklık: soluk ince çizgiler kopmasın
+  const chroma=Math.hypot(pal[b][1],pal[b][2])>12,lo=chroma?8:12,span=Math.max(8,d3(pal[b],S)-lo)*(chroma?.65:1);alpha[y*cw+x]=Math.max(0,Math.min(1,(dS-lo)/span));label[y*cw+x]=b;}
+ // Renk etiketi yalnız çekirdek (kenardan uzak) piksellerden alınır; kenar pikselleri en yakın çekirdeğin rengini alır.
+ // Böylece koyu harflerin kenarında ikinci renkten (ör. altın) hale oluşmaz.
+ {const core=new Uint8Array(cw*ch),q=new Int32Array(cw*ch);let head=0,tail=0;const lab2=new Int16Array(cw*ch).fill(-1);
+  for(let y=1;y<ch-1;y++)for(let x=1;x<cw-1;x++){const i=y*cw+x;if(alpha[i]<.85)continue;if(alpha[i-1]<.85||alpha[i+1]<.85||alpha[i-cw]<.85||alpha[i+cw]<.85)continue;const j=((y+y0)*img.w+(x+x0))*4,c=toLab(img.data[j],img.data[j+1],img.data[j+2]);let b=0,bd=1e9;pal.forEach((p,k)=>{const d=d3(c,p);if(d<bd){bd=d;b=k;}});lab2[i]=b;q[tail++]=i;}
+  if(tail){while(head<tail){const i=q[head++],x=i%cw,y=(i/cw)|0;for(const n of [x>0?i-1:-1,x<cw-1?i+1:-1,y>0?i-cw:-1,y<ch-1?i+cw:-1])if(n>=0&&lab2[n]<0&&alpha[n]>0){lab2[n]=lab2[i];q[tail++]=n;}}for(let i=0;i<cw*ch;i++)if(lab2[i]>=0)label[i]=lab2[i];}}
+ // Yüksek çözünürlükte keskin kenar: alfa bikübik büyütülür, hafif yumuşatılır (pürüz gider), dar geçişle eşiklenir
+ const cub=t=>{t=Math.abs(t);return t<1?1.5*t*t*t-2.5*t*t+1:t<2?-.5*t*t*t+2.5*t*t-4*t+2:0;};
+ const A=new Float32Array(W*H);
+ for(let Y=0;Y<H;Y++){const fy=(Y+.5)/scale-.5,iy=Math.floor(fy);for(let X=0;X<W;X++){const fx=(X+.5)/scale-.5,ix=Math.floor(fx);let v=0,ws=0;
+  for(let m=-1;m<=2;m++){const yy=Math.min(ch-1,Math.max(0,iy+m)),wy=cub(fy-(iy+m));for(let n=-1;n<=2;n++){const xx=Math.min(cw-1,Math.max(0,ix+n)),wx=cub(fx-(ix+n));v+=alpha[yy*cw+xx]*wx*wy;ws+=wx*wy;}}A[Y*W+X]=v/ws;}}
+ const r=Math.max(1,Math.round(scale*1.1)),tmp=new Float32Array(W*H),B=new Float32Array(W*H);
+ for(let Y=0;Y<H;Y++){let acc=0;for(let X=-r;X<W+r;X++){const add=X+r<W?A[Y*W+Math.min(W-1,X+r)]:0,sub=X-r-1>=0?A[Y*W+X-r-1]:0;acc+=add-sub;if(X>=0)tmp[Y*W+X]=acc/(2*r+1);}}
+ for(let X=0;X<W;X++){let acc=0;for(let Y=-r;Y<H+r;Y++){const add=Y+r<H?tmp[Math.min(H-1,Y+r)*W+X]:0,sub=Y-r-1>=0?tmp[(Y-r-1)*W+X]:0;acc+=add-sub;if(Y>=0)B[Y*W+X]=acc/(2*r+1);}}
+ const out=new Uint8ClampedArray(W*H*4),edge=.5/Math.max(1,r);
+ for(let Y=0;Y<H;Y++)for(let X=0;X<W;X++){const a=Math.max(B[Y*W+X],A[Y*W+X]*.72),Aa=Math.max(0,Math.min(1,(a-.5)/(edge*2)+.5)),o=(Y*W+X)*4;
+  const fx=Math.min(cw-1,Math.max(0,Math.round((X+.5)/scale-.5))),fy=Math.min(ch-1,Math.max(0,Math.round((Y+.5)/scale-.5)));
+  if(opaqueGround){const c=rgbPal[label[fy*cw+fx]]||surface;for(let k=0;k<3;k++)out[o+k]=Math.round(surface[k]*(1-Aa)+c[k]*Aa);out[o+3]=255;continue;}
+  if(Aa<=0)continue;const c=rgbPal[label[fy*cw+fx]]||rgbPal[0];out[o]=c[0];out[o+1]=c[1];out[o+2]=c[2];out[o+3]=Math.round(Aa*255);}
  return {data:out,w:W,h:H,box:[x0,y0,x1+1,y1+1]};}
 // ---------- tam akış ----------
 // classify: (tensorlar) → Promise<P(düz)[]> (isteğe bağlı yerel model). Verilmezse yalnız geometrik kanıt kullanılır.
@@ -497,7 +510,7 @@ async function extract(data,w,h,{classify=null,candidates=3}={}){
  {const {cand,rect,flat,mask,surface,q,source,inkFrac,quality}=ok[0];
   globalThis.__frontal=null;const img0=rotateRGBA(flat,q),mm0=rotateMask(mask,rect.w,rect.h,q),mmA={...mm0,m:brandGroup(dropOutliers(mm0.m,mm0.w,mm0.h,inkContrast(img0,surface),img0),mm0.w,mm0.h)},view0=frontalChoose(img0,mmA),view=await uprightView(view0,classify),img=view.img,mm=view.mask,core=boxErode(mm.m,mm.w,mm.h,1);let coreN=0;for(const v of core)coreN+=v;const pal=palette(img,coreN>200?core:mm.m);// Koyu zemin üzerindeki açık baskı (tabela, neon): yüzey rengi de tasarımın parçasıdır; düz, tam kaplayan zeminle çizilir
   const lumS=.3*surface[0]+.59*surface[1]+.11*surface[2],lumInk=pal.length?Math.max(...pal.map(p=>p[0]))*2.55:0,lightOnDark=lumS<110&&lumInk>lumS+40;
-  const out=renderClean(img,mm.m,surface.map(Math.round),pal,1200,lightOnDark);if(!out)return {ok:false,reason:'empty'};
+  const out=renderClean(img,mm.m,surface.map(Math.round),pal,2000,lightOnDark);if(!out)return {ok:false,reason:'empty'};
   // Temizlenmiş logodaki harf oranı (kendiliğinden yerleştirme kararı için)
   let finalInk=0,finalGlyph=0;{for(const v of mm.m)finalInk+=v;const inBox=new Uint8Array(mm.w*mm.h);for(const l of glyphLines(mm.m,mm.w,mm.h)){const [x0,y0,x1,y1]=l.box;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)inBox[y*mm.w+x]=1;}for(let i=0;i<inBox.length;i++)if(inBox[i]&&mm.m[i])finalGlyph++;}
   return {ok:true,lightOnDark,confidence:ok[0].diag.confidence,glyphFractionRaw:ok[0].diag.glyphFrac,glyphFraction:+(finalGlyph/Math.max(1,finalInk)).toFixed(2),quality,alternatives:ok.length-1,diagnostics:ok.map(t=>({...t.diag,quality:+t.quality.toFixed(4)})),image:out,palette:pal.map(labToRgb).map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('')),surface:'#'+surface.map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''),quad:cand.quad,quarterTurns:q,orientationSource:source,inkFraction:inkFrac,surfaceScore:cand.score,method:'local-product-photo-v1'};
