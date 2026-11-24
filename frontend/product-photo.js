@@ -448,15 +448,26 @@ function renderClean(img,m,surface,pal,minLong=2000,opaqueGround=false){
  if(x1<x0)return null;const pad=Math.round(Math.max(x1-x0,y1-y0)*.03);x0=Math.max(0,x0-pad);y0=Math.max(0,y0-pad);x1=Math.min(img.w-1,x1+pad);y1=Math.min(img.h-1,y1+pad);
  const cw=x1-x0+1,ch=y1-y0+1,scale=Math.max(1,minLong/Math.max(cw,ch)),W=Math.round(cw*scale),H=Math.round(ch*scale),S=toLab(...surface),rgbPal=pal.map(labToRgb);
  // kaynak çözünürlükte: alfa ve renk etiketi (yalnız temizlenmiş maskenin yakınında)
- const near=boxDilate(closeMask(m,img.w,img.h,2),img.w,img.h,2),alpha=new Float32Array(cw*ch),label=new Uint8Array(cw*ch);
+ const ownD=new Float32Array((x1-x0+1)*(y1-y0+1)).fill(1e9),cS=new Float32Array((x1-x0+1)*(y1-y0+1)),near=boxDilate(closeMask(m,img.w,img.h,2),img.w,img.h,2),alpha=new Float32Array(cw*ch),label=new Uint8Array(cw*ch);
  for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){const i=(y+y0)*img.w+(x+x0),j=i*4;if(!near[i])continue;const c=toLab(img.data[j],img.data[j+1],img.data[j+2]),dS=d3(c,S);let b=0,bd=1e9;pal.forEach((p,k)=>{const d=d3(c,p);if(d<bd){bd=d;b=k;}});
   // renkli (ince altın çizgi gibi) mürekkepte daha erken tam opaklık: soluk ince çizgiler kopmasın
-  const chroma=Math.hypot(pal[b][1],pal[b][2])>12,lo=chroma?8:12,span=Math.max(8,d3(pal[b],S)-lo)*(chroma?.65:1);alpha[y*cw+x]=Math.max(0,Math.min(1,(dS-lo)/span));label[y*cw+x]=b;}
+  ownD[y*cw+x]=bd;cS[y*cw+x]=dS;const chroma=Math.hypot(pal[b][1],pal[b][2])>12,lo=chroma?8:12,span=Math.max(8,d3(pal[b],S)-lo)*(chroma?.65:1);alpha[y*cw+x]=Math.max(0,Math.min(1,(dS-lo)/span));label[y*cw+x]=b;}
  // Renk etiketi yalnız çekirdek (kenardan uzak) piksellerden alınır; kenar pikselleri en yakın çekirdeğin rengini alır.
  // Böylece koyu harflerin kenarında ikinci renkten (ör. altın) hale oluşmaz.
  {const core=new Uint8Array(cw*ch),q=new Int32Array(cw*ch);let head=0,tail=0;const lab2=new Int16Array(cw*ch).fill(-1);
   for(let y=1;y<ch-1;y++)for(let x=1;x<cw-1;x++){const i=y*cw+x;if(alpha[i]<.85)continue;if(alpha[i-1]<.85||alpha[i+1]<.85||alpha[i-cw]<.85||alpha[i+cw]<.85)continue;const j=((y+y0)*img.w+(x+x0))*4,c=toLab(img.data[j],img.data[j+1],img.data[j+2]);let b=0,bd=1e9;pal.forEach((p,k)=>{const d=d3(c,p);if(d<bd){bd=d;b=k;}});lab2[i]=b;q[tail++]=i;}
   if(tail){while(head<tail){const i=q[head++],x=i%cw,y=(i/cw)|0;for(const n of [x>0?i-1:-1,x<cw-1?i+1:-1,y>0?i-cw:-1,y<ch-1?i+cw:-1])if(n>=0&&lab2[n]<0&&alpha[n]>0){lab2[n]=lab2[i];q[tail++]=n;}}for(let i=0;i<cw*ch;i++)if(lab2[i]>=0)label[i]=lab2[i];}}
+ // Vektörleştirme (vector-trace.js varsa): her renk katmanı izlenip düz çizgi/eğriye çevrilir ve bu eğrilerden çizilir
+ const VT=typeof module!=='undefined'&&module.exports?(()=>{try{return require('./vector-trace.js');}catch{return null;}})():root.VectorTrace;
+ if(VT){try{const f=2,fw=cw*f,fh=ch*f,cubv=t=>{t=Math.abs(t);return t<1?1.5*t*t*t-2.5*t*t+1:t<2?-.5*t*t*t+2.5*t*t-4*t+2:0;};const layers=[];
+   for(let k=0;k<pal.length;k++){const src=new Float32Array(cw*ch);let any=0;for(let i=0;i<cw*ch;i++)if(label[i]===k&&alpha[i]>0){src[i]=alpha[i];any++;}if(any<8)continue;
+    // kenar pikselleri komşu katmanla paylaşılır: alfa, bu katmanın etiketiyle sınırlanır
+    const F=new Float32Array(fw*fh);for(let Y=0;Y<fh;Y++){const fy=(Y+.5)/f-.5,iy=Math.floor(fy);for(let X=0;X<fw;X++){const fx=(X+.5)/f-.5,ix=Math.floor(fx);let v=0,ws=0;for(let m2=-1;m2<=2;m2++){const yy=Math.min(ch-1,Math.max(0,iy+m2)),wy=cubv(fy-(iy+m2));for(let n2=-1;n2<=2;n2++){const xx=Math.min(cw-1,Math.max(0,ix+n2)),wx=cubv(fx-(ix+n2));v+=src[yy*cw+xx]*wx*wy;ws+=wx*wy;}}F[Y*fw+X]=v/ws;}}
+    // hafif yumuşatma (3×3) — fotoğraf dokusundan gelen pürüzü alır
+    const G=new Float32Array(fw*fh);for(let Y=0;Y<fh;Y++)for(let X=0;X<fw;X++){let t=0,n=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const xx=X+dx,yy=Y+dy;if(xx>=0&&yy>=0&&xx<fw&&yy<fh){t+=F[yy*fw+xx];n++;}}G[Y*fw+X]=Math.max(t/n,F[Y*fw+X]*.75);}
+    layers.push({field:G,color:rgbPal[k]});}
+   const vr=VT.render(layers,fw,fh,W,H,{opaqueGround:opaqueGround?surface.map(Math.round):null,minArea:6,tol:1.2});
+   return {data:vr.data,w:W,h:H,box:[x0,y0,x1+1,y1+1],svg:vr.svg,vector:true};}catch(e){/* vektörleştirme başarısızsa raster yola devam */}}
  // Yüksek çözünürlükte keskin kenar: alfa bikübik büyütülür, hafif yumuşatılır (pürüz gider), dar geçişle eşiklenir
  const cub=t=>{t=Math.abs(t);return t<1?1.5*t*t*t-2.5*t*t+1:t<2?-.5*t*t*t+2.5*t*t-4*t+2:0;};
  const A=new Float32Array(W*H);
@@ -515,7 +526,7 @@ async function extract(data,w,h,{classify=null,candidates=3,recognize=null,creat
   let textRedraw=null;const TR=redrawText||(typeof root!=='undefined'&&root.TextRedraw);if(recognize&&createCanvas&&TR){try{textRedraw=await TR.redraw({img,mask:mm,out,palette:pal.map(labToRgb),surface,opaqueGround:lightOnDark,recognize,createCanvas});}catch(e){textRedraw={error:String(e&&e.message||e)};}}
   // Temizlenmiş logodaki harf oranı (kendiliğinden yerleştirme kararı için)
   let finalInk=0,finalGlyph=0;{for(const v of mm.m)finalInk+=v;const inBox=new Uint8Array(mm.w*mm.h);for(const l of glyphLines(mm.m,mm.w,mm.h)){const [x0,y0,x1,y1]=l.box;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)inBox[y*mm.w+x]=1;}for(let i=0;i<inBox.length;i++)if(inBox[i]&&mm.m[i])finalGlyph++;}
-  return {ok:true,textRedraw,lightOnDark,confidence:ok[0].diag.confidence,glyphFractionRaw:ok[0].diag.glyphFrac,glyphFraction:+(finalGlyph/Math.max(1,finalInk)).toFixed(2),quality,alternatives:ok.length-1,diagnostics:ok.map(t=>({...t.diag,quality:+t.quality.toFixed(4)})),image:out,palette:pal.map(labToRgb).map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('')),surface:'#'+surface.map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''),quad:cand.quad,quarterTurns:q,orientationSource:source,inkFraction:inkFrac,surfaceScore:cand.score,method:'local-product-photo-v1'};
+  return {ok:true,svg:out.svg||null,vector:!!out.vector,textRedraw,lightOnDark,confidence:ok[0].diag.confidence,glyphFractionRaw:ok[0].diag.glyphFrac,glyphFraction:+(finalGlyph/Math.max(1,finalInk)).toFixed(2),quality,alternatives:ok.length-1,diagnostics:ok.map(t=>({...t.diag,quality:+t.quality.toFixed(4)})),image:out,palette:pal.map(labToRgb).map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('')),surface:'#'+surface.map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''),quad:cand.quad,quarterTurns:q,orientationSource:source,inkFraction:inkFrac,surfaceScore:cand.score,method:'local-product-photo-v1'};
  }
 }
 const api=Object.freeze({_conic:conicRatio,frontalize,frontalMetrics,textGeometry,collectFeatures,frontalTransform,refineQuad,glyphLines,extract,findSurface,textLines,clsTensor,palette,renderClean,rectify,surfaceColor,flatten,inkMask,cleanInk,orientation,rotateRGBA,_internal:{homography,rotateMask,uprightEvidence,lineScore,downscale,kmeans,closeMask,components,fillHoles,hull,minAreaRect,bestQuad,toLab}});
