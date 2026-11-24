@@ -160,3 +160,37 @@
 - Gravas'ta tarayıcı ile Node sonucu farklı: aday seçimi küçültme oranına duyarlı.
 - Miz'de "B" harfi eksik.
 - Gerçek iPhone'da süre ve bellek ölçülmedi.
+
+## Aşama 5c — Logo sanılan fotoğraf, teknik çizim içi tasarım, sabit işlem boyutu
+
+**Değişiklikler:**
+- **Logo sanılan fotoğraf:** Uygulama bir kamera fotoğrafını ham logo olarak koyduysa (`native-logo`), ürün fotoğrafı yolu devreye girer. Koşul: görselin içinde belirgin, dikdörtgen ve görselden küçük bir baskılı yüzey bulunması (puan ≥ 0,2, dikdörtgenlik ≥ 0,8, alan ≤ %75).
+  - Ölçüm: düz logo dosyalarında ve 23 gerçek görselde yanlış tetikleme sıfır.
+  - Işıklı tabela gibi özel yolların sonuçlarına dokunulmaz.
+- **Teknik çizim (MEA):** Sayfanın içindeki açılmış paket tasarımı bulunur. Yön modeli ≥ 0,9 eminse sonuç müşteriye onay kartıyla gösterilir.
+- **İçerik bölgesi:** Bir küme, alanının en az %60'ı ana yazı bölgesindeyse içerik sayılır (Gravas'taki tabak kenarı gitti).
+- **Sabit işlem boyutu:** İşlem her zaman en çok 2048 pikselde yapılıyor; tarayıcı ve test aynı sonucu veriyor.
+
+**Gerçek görseller (23):**
+
+| Durum | Sayı | Görseller |
+|---|---|---|
+| Kendiliğinden yerleşen | 19 | Gravas artık bu grupta |
+| Müşteriye sorulan | 2 | Yeşiloğlu (gölge lekeleri), MEA (temiz paket tasarımı) |
+| Konmayan | 2 | Muhtar, Şerefe |
+
+Miz'de "B" harfi eksik; Sözenler'de kenarda hafif pürüz var.
+
+**Sentetik set:** 41 doğru, 22 kısmi, 47 yanlış, 2 sonuç yok (önceki: 39 doğru, 10 sonuç yok).
+- Kendiliğinden kötüleşen fotoğraf yok.
+- 22 fotoğrafta müşteriye onay kartı çıkıyor. "Bunu kullan" varsayımıyla bunların 2'si doğru, 6'sı kısmi, 14'ü yanlış; bunlarda müşterinin kartı reddetmesi beklenir.
+
+**Testler:** Tam paket 237 dosya, 213 geçti; yeni başarısız yok.
+
+**Çözülmeyenler:**
+- **Muhtar:** Şeffaf bardak ve kırmızı karalama.
+- **Şerefe:** Ekran görüntüsünün üzerinde "Düzenle" düğmesi var; efektli neon tasarım.
+- **Yeşiloğlu:** Gölge lekeleri; sonuç fotoğraf boyutuna göre değişiyor.
+- **Miz:** "B" harfi eksik.
+- Sentetik ekran görüntüsü ve kartvizitlerde hâlâ çok sayıda yanlış var.
+- Gerçek iPhone testi yapılmadı.
