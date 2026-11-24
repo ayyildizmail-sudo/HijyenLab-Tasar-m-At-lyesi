@@ -30,7 +30,8 @@ function orientationModel(){
 }
 const MISREAD_MIN_SCORE=.2;
 // Kamera fotoğrafı yanlışlıkla hazır logo sayılıp sahnenin tamamı ambalaja konduysa (yalnız JPEG/HEIC fotoğraflar)
-function photoTakenAsLogo(file){return !state.designProcessing&&!state.textDesign&&!state.logoDesign&&!!state.logo&&!state.photoLayout&&!state.technicalSheetDetected&&/^image\/(jpeg|heic|heif)$/i.test(file?.type||'')&&!isGenerated(file)&&!(typeof lastUploadedFile!=='undefined'&&isGenerated(lastUploadedFile));}
+// Yalnız uygulama fotoğrafın tamamını ham logo olarak koyduysa (native-logo); ışıklı tabela vb. özel yolların sonucuna dokunulmaz
+function photoTakenAsLogo(file){const method=state.processingResult?.method||'native-logo';return method==='native-logo'&&!state.designProcessing&&!state.textDesign&&!state.logoDesign&&!!state.logo&&!state.photoLayout&&!state.technicalSheetDetected&&/^image\/(jpeg|heic|heif)$/i.test(file?.type||'')&&!isGenerated(file)&&!(typeof lastUploadedFile!=='undefined'&&isGenerated(lastUploadedFile));}
 const AUTO_MIN_PLACE=.6,AUTO_MIN_ASK=.3,GLYPH_MIN_PLACE=.45,GLYPH_MIN_ASK=.2;
 // Kararsız sonuç: önizleme + "Bunu kullan / 180° çevir / Kullanma". Müşteri seçmeden ambalaja hiçbir şey konmaz.
 const card=document.createElement('div');card.id='productPhotoChoice';card.className='notice light';card.hidden=true;card.setAttribute('role','dialog');card.setAttribute('aria-label','Fotoğraftan ayrılan baskı');
