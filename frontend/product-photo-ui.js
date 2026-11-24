@@ -60,8 +60,9 @@ async function attempt(){
   let out=document.createElement('canvas');out.width=result.image.w;out.height=result.image.h;out.getContext('2d').putImageData(new ImageData(result.image.data,result.image.w,result.image.h),0,0);
   // Güven kademesi: emin → doğrudan; kararsız → müşteriye tek dokunuşla sor; emin değil → hiçbir şey koyma (mevcut davranış)
   // Harf oranı: mürekkebin yazı satırlarına ait kısmı (gösterge, süs, efekt parçalarında düşük)
-  const confidence=result.confidence??0,glyph=result.glyphFraction??0,sheet=!!state.technicalSheetDetected;
-  if(sheet?(confidence<.9||glyph<.1):(confidence<AUTO_MIN_ASK||glyph<GLYPH_MIN_ASK))return;
+  const confidence=result.confidence??0,raw=result.glyphFractionRaw??result.glyphFraction??0,glyph=result.glyphFraction??0,sheet=!!state.technicalSheetDetected;
+  // Ham oran (temizlik öncesi) düşükse içerik yazı değildir: reddet. Kendiliğinden yerleştirme temizlenmiş logodaki orana bakar.
+  if(sheet?(confidence<.9||raw<.1):(confidence<AUTO_MIN_ASK||raw<GLYPH_MIN_ASK))return;
   if(sheet||confidence<AUTO_MIN_PLACE||glyph<GLYPH_MIN_PLACE){const choice=await ask(out);if(!same()||!stillValid())return;if(!choice)return;out=choice;}
   const blob=await new Promise(resolve=>out.toBlob(resolve,'image/png'));if(!blob||!same())return;
   const generated=new File([blob],PREFIX+Date.now().toString(36)+'.png',{type:'image/png'});tried.add(generated);

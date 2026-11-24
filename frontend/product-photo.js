@@ -195,6 +195,59 @@ function dropOutliers(m,w,h,contrast,img){
   let far=false;if(img&&lineCols.length&&density>.5){const col=colOf(c.box,i=>cl.lab[i]===c.id);far=!!col&&lineCols.every(L=>d3(col,L)>35);}
   keep[c.id]=(near(c.box)&&meanC>=ref*.5)||(ink>=lineInk*.25&&density>=.18&&meanC>=ref*.72&&!far)?1:0;}
  const out=new Uint8Array(w*h);for(let i=0;i<w*h;i++)if(m[i]&&cl.lab[i]>=0&&keep[cl.lab[i]])out[i]=1;return out;}
+// Logo grubu: en belirgin yazı satırı (marka adı) + ona yakın, yeterince büyük satırlar + bu grubun kutusuna giren
+// simge/grafikler. Grubun dışındaki her şey (gölge, parmak, arka plan parçası, küçük adres/telefon satırları) atılır.
+function brandGroup(m,w,h){
+ const lines=glyphLines(m,w,h);if(!lines.length)return m;
+ const brand=lines.reduce((b,l)=>l.count*l.height*l.height>b.count*b.height*b.height?l:b,lines[0]),H=brand.height;
+ let box=brand.box.slice();const used=new Set([brand]);let grew=true;
+ while(grew){grew=false;for(const l of lines){if(used.has(l)||l.height<H*.3)continue;const [x0,y0,x1,y1]=l.box,vgap=Math.max(box[1]-y1,y0-box[3]),hov=Math.min(box[2],x1)-Math.max(box[0],x0);
+  const vov=Math.min(box[3],y1)-Math.max(box[1],y0),hgap=Math.max(box[0]-x1,x0-box[2]);
+  // alt/üst satır ya da aynı hizada yan yana duran ikinci marka/satır
+  if((vgap<=H*1.2&&hov>-H*.5)||(vov>0&&hgap<=H*2)){used.add(l);box=[Math.min(box[0],x0),Math.min(box[1],y0),Math.max(box[2],x1),Math.max(box[3],y1)];grew=true;}}}
+ // simge/grafik: kutuya bitişik ya da kutuyla örtüşen bileşenler (yanındaki simge, üstündeki amblem, çevresindeki çember)
+ const {lab,comps}=components(m,w,h),keep=new Uint8Array(comps.length);grew=true;
+ const touches=(b,c,pad)=>!(c[2]<b[0]-pad||c[0]>b[2]+pad||c[3]<b[1]-pad||c[1]>b[3]+pad);
+ while(grew){grew=false;for(const c of comps){if(keep[c.id]||c.n<6)continue;const cb=c.box,inside=cb[0]>=box[0]&&cb[1]>=box[1]&&cb[2]<=box[2]&&cb[3]<=box[3],big=Math.max(cb[2]-cb[0],cb[3]-cb[1])>=H*.5;
+  if(inside||(big&&touches(box,cb,H*.6))||touches(box,cb,H*.15)){keep[c.id]=1;if(!inside){box=[Math.min(box[0],cb[0]),Math.min(box[1],cb[1]),Math.max(box[2],cb[2]),Math.max(box[3],cb[3])];grew=true;}}}}
+ for(let pass=0;pass<2;pass++){let added=false;for(const l of lines){if(used.has(l)||l.height<H*.3)continue;const [x0,y0,x1,y1]=l.box,vgap=Math.max(box[1]-y1,y0-box[3]),hov=Math.min(box[2],x1)-Math.max(box[0],x0),vov=Math.min(box[3],y1)-Math.max(box[1],y0),hgap=Math.max(box[0]-x1,x0-box[2]);
+  if((vgap<=H*1.2&&hov>-H*.5)||(vov>0&&hgap<=H*2)){used.add(l);box=[Math.min(box[0],x0),Math.min(box[1],y0),Math.max(box[2],x1),Math.max(box[3],y1)];added=true;}}
+  if(!added)break;for(const c of comps){if(keep[c.id]||c.n<6)continue;const cb=c.box,inside=cb[0]>=box[0]&&cb[1]>=box[1]&&cb[2]<=box[2]&&cb[3]<=box[3],big=Math.max(cb[2]-cb[0],cb[3]-cb[1])>=H*.5;if(inside||(big&&touches(box,cb,H*.6))||touches(box,cb,H*.15))keep[c.id]=1;}}
+ const out=new Uint8Array(w*h);for(let i=0;i<w*h;i++)if(lab[i]>=0&&keep[lab[i]])out[i]=1;return out;}
+// Eğiklik: harf satırlarının taban çizgisi açısı (harf alt noktalarına dayanıklı doğru oturtma, satır ağırlıklı).
+// Logo bu açının tersine çevrilir; yazı karşıdan bakılıyormuş gibi yatay olur.
+function baselineAngle(m,w,h){
+ const {comps}=components(m,w,h),md=Math.min(w,h);let sum=0,wt=0;
+ for(const l of glyphLines(m,w,h)){if(l.count<4)continue;const [x0,y0,x1,y1]=l.box;
+  const pts=comps.filter(c=>{const b=c.box,bh=b[3]-b[1];return b[0]>=x0&&b[2]<=x1&&b[1]>=y0&&b[3]<=y1&&bh>=l.height*.45;}).map(c=>[(c.box[0]+c.box[2])/2,c.box[3]]);
+  if(pts.length<4)continue;const fit=P=>{const n=P.length,mx=P.reduce((a,p)=>a+p[0],0)/n,my=P.reduce((a,p)=>a+p[1],0)/n;let sxy=0,sxx=0;for(const [x,y] of P){sxy+=(x-mx)*(y-my);sxx+=(x-mx)**2;}const k=sxx?sxy/sxx:0;return {k,b:my-k*mx};};
+  let f=fit(pts);const res=pts.map(([x,y])=>Math.abs(y-(f.k*x+f.b))).sort((a,b)=>a-b),tol=Math.max(2,res[Math.floor(res.length*.6)]*1.5);const inl=pts.filter(([x,y])=>Math.abs(y-(f.k*x+f.b))<=tol);if(inl.length>=4)f=fit(inl);
+  const weight=l.count*l.height;sum+=Math.atan(f.k)*weight;wt+=weight;}
+ return wt?sum/wt:0;}
+// Genel doğrusal dönüşüm (2×2 matris M: kaynak→hedef), merkez korunur.
+function affineBy(img,mask,M){const {w,h}=img,det=M[0]*M[3]-M[1]*M[2];if(Math.abs(det)<1e-6)return {img,mask:{m:mask,w,h}};const I=[M[3]/det,-M[1]/det,-M[2]/det,M[0]/det];
+ const cs=[[0,0],[w,0],[0,h],[w,h]].map(([x,y])=>[M[0]*(x-w/2)+M[1]*(y-h/2),M[2]*(x-w/2)+M[3]*(y-h/2)]),W=Math.ceil(Math.max(...cs.map(p=>p[0]))-Math.min(...cs.map(p=>p[0]))),H=Math.ceil(Math.max(...cs.map(p=>p[1]))-Math.min(...cs.map(p=>p[1])));
+ const out=new Uint8ClampedArray(W*H*4),om=new Uint8Array(W*H),bg=[img.data[0],img.data[1],img.data[2]];
+ for(let Y=0;Y<H;Y++)for(let X=0;X<W;X++){const dx=X-W/2,dy=Y-H/2,x=I[0]*dx+I[1]*dy+w/2,y=I[2]*dx+I[3]*dy+h/2,o=(Y*W+X)*4;
+  if(x<0||y<0||x>w-1||y>h-1){out[o]=bg[0];out[o+1]=bg[1];out[o+2]=bg[2];out[o+3]=255;continue;}
+  const ix=Math.min(w-2,Math.floor(x)),iy=Math.min(h-2,Math.floor(y)),fx=x-ix,fy=y-iy;for(let k=0;k<3;k++){const i00=(iy*w+ix)*4+k;out[o+k]=(img.data[i00]*(1-fx)+img.data[i00+4]*fx)*(1-fy)+(img.data[i00+w*4]*(1-fx)+img.data[i00+w*4+4]*fx)*fy;}out[o+3]=255;om[Y*W+X]=mask[Math.round(y)*w+Math.round(x)];}
+ return {img:{data:out,w:W,h:H},mask:{m:om,w:W,h:H}};}
+// Açılı çekilmiş yuvarlak logo: en büyük halka bileşeni elips görünür. İkinci momentlerden elipsi bulup daireye çeviren dönüşüm.
+function ellipseToCircle(m,w,h){const {lab,comps}=components(m,w,h);let ink=0,x0=w,y0=h,x1=0,y1=0;for(let i=0;i<w*h;i++)if(m[i]){ink++;const x=i%w,y=(i/w)|0;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
+ const ring=comps.filter(c=>{const bw=c.box[2]-c.box[0],bh=c.box[3]-c.box[1];return bw>=(x1-x0)*.6&&bh>=(y1-y0)*.6&&c.n/(bw*bh)<.25;}).sort((a,b)=>b.n-a.n)[0];if(!ring)return null;
+ let n=0,mx=0,my=0;for(let i=0;i<w*h;i++)if(lab[i]===ring.id){mx+=i%w;my+=(i/w)|0;n++;}mx/=n;my/=n;let sxx=0,syy=0,sxy=0;for(let i=0;i<w*h;i++)if(lab[i]===ring.id){const dx=i%w-mx,dy=((i/w)|0)-my;sxx+=dx*dx;syy+=dy*dy;sxy+=dx*dy;}sxx/=n;syy/=n;sxy/=n;
+ const tr=sxx+syy,dt=sxx*syy-sxy*sxy,l1=tr/2+Math.sqrt(Math.max(0,tr*tr/4-dt)),l2=tr/2-Math.sqrt(Math.max(0,tr*tr/4-dt));if(l2<=0)return null;const ratio=Math.sqrt(l1/l2);if(ratio<1.04||ratio>1.8)return null;
+ const th=.5*Math.atan2(2*sxy,sxx-syy),c=Math.cos(th),s=Math.sin(th),k=ratio; // küçük ekseni k kat uzat
+ // M = R(th)·diag(1,k)·R(-th)
+ return [c*c+k*s*s,(1-k)*c*s,(1-k)*c*s,s*s+k*c*c];}
+function rotateBy(img,mask,angle){ // img: RGBA, mask: 0/1; açı radyan (pozitif: saat yönü düzeltmesi)
+ const {w,h}=img,c=Math.cos(angle),s=Math.sin(angle),W=Math.ceil(Math.abs(w*c)+Math.abs(h*s)),H=Math.ceil(Math.abs(w*s)+Math.abs(h*c)),cx=w/2,cy=h/2,CX=W/2,CY=H/2;
+ const out=new Uint8ClampedArray(W*H*4),om=new Uint8Array(W*H),bg=[img.data[0],img.data[1],img.data[2]];
+ for(let Y=0;Y<H;Y++)for(let X=0;X<W;X++){const dx=X-CX,dy=Y-CY,x=c*dx+s*dy+cx,y=-s*dx+c*dy+cy,o=(Y*W+X)*4;
+  if(x<0||y<0||x>w-1||y>h-1){out[o]=bg[0];out[o+1]=bg[1];out[o+2]=bg[2];out[o+3]=255;continue;}
+  const ix=Math.min(w-2,Math.floor(x)),iy=Math.min(h-2,Math.floor(y)),fx=x-ix,fy=y-iy;for(let k=0;k<3;k++){const i00=(iy*w+ix)*4+k;out[o+k]=(img.data[i00]*(1-fx)+img.data[i00+4]*fx)*(1-fy)+(img.data[i00+w*4]*(1-fx)+img.data[i00+w*4+4]*fx)*fy;}out[o+3]=255;
+  om[Y*W+X]=mask[Math.round(y)*w+Math.round(x)];}
+ return {img:{data:out,w:W,h:H},mask:{m:om,w:W,h:H}};}
 // PP-OCR yön sınıflandırıcısı girdisi: 3×48×192, BGR, [-1,1]
 function clsTensor(img,box){const [x0,y0,x1,y1]=box,pad=Math.round((y1-y0)*.15),X0=Math.max(0,x0-pad),Y0=Math.max(0,y0-pad),X1=Math.min(img.w,x1+pad),Y1=Math.min(img.h,y1+pad),cw=X1-X0,ch=Y1-Y0,W=Math.min(192,Math.ceil(48*cw/ch)),t=new Float32Array(3*48*192);
  for(let y=0;y<48;y++)for(let x=0;x<W;x++){const sx=X0+Math.min(cw-1,Math.floor(x*cw/W)),sy=Y0+Math.min(ch-1,Math.floor(y*ch/48)),j=(sy*img.w+sx)*4;t[y*192+x]=(img.data[j+2]/127.5)-1;t[48*192+y*192+x]=(img.data[j+1]/127.5)-1;t[2*48*192+y*192+x]=(img.data[j]/127.5)-1;}
@@ -253,10 +306,12 @@ async function extract(data,w,h,{classify=null,candidates=3}={}){
  }
  const ok=tried.filter(t=>t.quality!=null).sort((a,b)=>b.quality-a.quality);if(!ok.length)return {ok:false,reason:'no-usable-surface',tried:tried.map(t=>t.reason)};
  {const {cand,rect,flat,mask,surface,q,source,inkFrac,quality}=ok[0];
-  const img=rotateRGBA(flat,q),mm0=rotateMask(mask,rect.w,rect.h,q),mm={...mm0,m:dropOutliers(mm0.m,mm0.w,mm0.h,inkContrast(img,surface),img)},core=boxErode(mm.m,mm.w,mm.h,1);let coreN=0;for(const v of core)coreN+=v;const pal=palette(img,coreN>200?core:mm.m);// Koyu zemin üzerindeki açık baskı (tabela, neon): yüzey rengi de tasarımın parçasıdır; düz, tam kaplayan zeminle çizilir
+  const img0=rotateRGBA(flat,q),mm0=rotateMask(mask,rect.w,rect.h,q),mmA={...mm0,m:brandGroup(dropOutliers(mm0.m,mm0.w,mm0.h,inkContrast(img0,surface),img0),mm0.w,mm0.h)},E=ellipseToCircle(mmA.m,mmA.w,mmA.h),circ=E?affineBy(img0,mmA.m,E):{img:img0,mask:mmA},skew=baselineAngle(circ.mask.m,circ.mask.w,circ.mask.h),deskew=Math.abs(skew)>.006&&Math.abs(skew)<.35?rotateBy(circ.img,circ.mask.m,-skew):null,img=deskew?deskew.img:circ.img,mm=deskew?deskew.mask:circ.mask,core=boxErode(mm.m,mm.w,mm.h,1);let coreN=0;for(const v of core)coreN+=v;const pal=palette(img,coreN>200?core:mm.m);// Koyu zemin üzerindeki açık baskı (tabela, neon): yüzey rengi de tasarımın parçasıdır; düz, tam kaplayan zeminle çizilir
   const lumS=.3*surface[0]+.59*surface[1]+.11*surface[2],lumInk=pal.length?Math.max(...pal.map(p=>p[0]))*2.55:0,lightOnDark=lumS<110&&lumInk>lumS+40;
   const out=renderClean(img,mm.m,surface.map(Math.round),pal,1200,lightOnDark);if(!out)return {ok:false,reason:'empty'};
-  return {ok:true,lightOnDark,confidence:ok[0].diag.confidence,glyphFraction:ok[0].diag.glyphFrac,quality,alternatives:ok.length-1,diagnostics:ok.map(t=>({...t.diag,quality:+t.quality.toFixed(4)})),image:out,palette:pal.map(labToRgb).map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('')),surface:'#'+surface.map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''),quad:cand.quad,quarterTurns:q,orientationSource:source,inkFraction:inkFrac,surfaceScore:cand.score,method:'local-product-photo-v1'};
+  // Temizlenmiş logodaki harf oranı (kendiliğinden yerleştirme kararı için)
+  let finalInk=0,finalGlyph=0;{for(const v of mm.m)finalInk+=v;const inBox=new Uint8Array(mm.w*mm.h);for(const l of glyphLines(mm.m,mm.w,mm.h)){const [x0,y0,x1,y1]=l.box;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)inBox[y*mm.w+x]=1;}for(let i=0;i<inBox.length;i++)if(inBox[i]&&mm.m[i])finalGlyph++;}
+  return {ok:true,lightOnDark,confidence:ok[0].diag.confidence,glyphFractionRaw:ok[0].diag.glyphFrac,glyphFraction:+(finalGlyph/Math.max(1,finalInk)).toFixed(2),quality,alternatives:ok.length-1,diagnostics:ok.map(t=>({...t.diag,quality:+t.quality.toFixed(4)})),image:out,palette:pal.map(labToRgb).map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('')),surface:'#'+surface.map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''),quad:cand.quad,quarterTurns:q,orientationSource:source,inkFraction:inkFrac,surfaceScore:cand.score,method:'local-product-photo-v1'};
  }
 }
 const api=Object.freeze({glyphLines,extract,findSurface,textLines,clsTensor,palette,renderClean,rectify,surfaceColor,flatten,inkMask,cleanInk,orientation,rotateRGBA,_internal:{homography,rotateMask,uprightEvidence,lineScore,downscale,kmeans,closeMask,components,fillHoles,hull,minAreaRect,bestQuad,toLab}});
