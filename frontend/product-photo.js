@@ -452,11 +452,21 @@ function renderClean(img,m,surface,pal,minLong=2000,opaqueGround=false){
  for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){const i=(y+y0)*img.w+(x+x0),j=i*4;if(!near[i])continue;const c=toLab(img.data[j],img.data[j+1],img.data[j+2]),dS=d3(c,S);let b=0,bd=1e9;pal.forEach((p,k)=>{const d=d3(c,p);if(d<bd){bd=d;b=k;}});
   // renkli (ince altın çizgi gibi) mürekkepte daha erken tam opaklık: soluk ince çizgiler kopmasın
   ownD[y*cw+x]=bd;cS[y*cw+x]=dS;const chroma=Math.hypot(pal[b][1],pal[b][2])>12,lo=chroma?8:12,span=Math.max(8,d3(pal[b],S)-lo)*(chroma?.65:1);alpha[y*cw+x]=Math.max(0,Math.min(1,(dS-lo)/span));label[y*cw+x]=b;}
+ // İnce soluk çizgiler (altıgen çerçevesi gibi): karşıtlığın enine yerel tepe yaptığı orta hat pikselleri güçlendirilir.
+ // Kalın harflerin kenarı tepe değildir (karşıtlık içe doğru artar), bu yüzden harfler kalınlaşmaz.
+ const ridge=new Uint8Array(cw*ch);
+ for(let y=1;y<ch-1;y++)for(let x=1;x<cw-1;x++){const i=y*cw+x,c=cS[i];if(alpha[i]<.12||alpha[i]>=.7)continue;
+  const pk=(a,b)=>c>=cS[a]&&c>=cS[b]&&c>Math.max(cS[a],cS[b])*0+Math.min(cS[a],cS[b])+5;
+  if(pk(i-1,i+1)||pk(i-cw,i+cw)||pk(i-cw-1,i+cw+1)||pk(i-cw+1,i+cw-1)){ridge[i]=1;}}
+ for(let i=0;i<cw*ch;i++)if(ridge[i])alpha[i]=Math.max(alpha[i],.8);
  // Renk etiketi yalnız çekirdek (kenardan uzak) piksellerden alınır; kenar pikselleri en yakın çekirdeğin rengini alır.
  // Böylece koyu harflerin kenarında ikinci renkten (ör. altın) hale oluşmaz.
  {const core=new Uint8Array(cw*ch),q=new Int32Array(cw*ch);let head=0,tail=0;const lab2=new Int16Array(cw*ch).fill(-1);
   for(let y=1;y<ch-1;y++)for(let x=1;x<cw-1;x++){const i=y*cw+x;if(alpha[i]<.85)continue;if(alpha[i-1]<.85||alpha[i+1]<.85||alpha[i-cw]<.85||alpha[i+cw]<.85)continue;const j=((y+y0)*img.w+(x+x0))*4,c=toLab(img.data[j],img.data[j+1],img.data[j+2]);let b=0,bd=1e9;pal.forEach((p,k)=>{const d=d3(c,p);if(d<bd){bd=d;b=k;}});lab2[i]=b;q[tail++]=i;}
-  if(tail){while(head<tail){const i=q[head++],x=i%cw,y=(i/cw)|0;for(const n of [x>0?i-1:-1,x<cw-1?i+1:-1,y>0?i-cw:-1,y<ch-1?i+cw:-1])if(n>=0&&lab2[n]<0&&alpha[n]>0){lab2[n]=lab2[i];q[tail++]=n;}}for(let i=0;i<cw*ch;i++)if(lab2[i]>=0)label[i]=lab2[i];}}
+  if(tail){while(head<tail){const i=q[head++],x=i%cw,y=(i/cw)|0;for(const n of [x>0?i-1:-1,x<cw-1?i+1:-1,y>0?i-cw:-1,y<ch-1?i+cw:-1])if(n>=0&&lab2[n]<0&&alpha[n]>0){lab2[n]=lab2[i];q[tail++]=n;}}// ince koyu çizgiler (ör. altıgen çerçevesi) kendi rengini korur: pikselin kendi rengi en koyu mürekkepse ve ona çok yakınsa.
+  // Koyu harf kenarındaki karışık pikseller (açık renge benzeyen) yine çekirdekten renk alır; hale oluşmaz.
+  const darkest=pal.reduce((b,p,k)=>p[0]<pal[b][0]?k:b,0);
+  for(let i=0;i<cw*ch;i++)if(lab2[i]>=0&&!(label[i]===darkest&&((ownD[i]<16&&alpha[i]>=.5)||ridge[i])))label[i]=lab2[i];}}
  // Vektörleştirme (vector-trace.js varsa): her renk katmanı izlenip düz çizgi/eğriye çevrilir ve bu eğrilerden çizilir
  const VT=typeof module!=='undefined'&&module.exports?(()=>{try{return require('./vector-trace.js');}catch{return null;}})():root.VectorTrace;
  if(VT){try{const f=2,fw=cw*f,fh=ch*f,cubv=t=>{t=Math.abs(t);return t<1?1.5*t*t*t-2.5*t*t+1:t<2?-.5*t*t*t+2.5*t*t-4*t+2:0;};const layers=[];
