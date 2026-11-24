@@ -23,9 +23,9 @@ async function runCase(browser,url,dir,out,c){
   await p.goto(url,{waitUntil:'load'});await p.waitForFunction(()=>typeof routeUploadedFile==='function'&&document.getElementById('unifiedUpload'),null,{timeout:20000});await p.waitForTimeout(800);
   await p.setInputFiles('#unifiedUpload',path.join(dir,c.file));
   // Durum 4 sn boyunca değişmeyene kadar bekle (en çok 45 sn)
-  let last='',stableSince=Date.now();
-  while(Date.now()-t0<75000){await p.waitForTimeout(500);snap=await p.evaluate(SNAPSHOT);const key=JSON.stringify(snap);if(key!==last){last=key;stableSince=Date.now();}else if(!snap.processing&&!snap.ppBusy&&Date.now()-stableSince>5000&&snap.outcome!=="belirsiz")break;}
-  snap.ms=Date.now()-t0;
+  let last='',stableSince=Date.now(),asked=false;
+  while(Date.now()-t0<75000){await p.waitForTimeout(500);if(!asked&&await p.evaluate(()=>!!globalThis.HijyenLabProductPhotoUI?.asking?.())){asked=true;await p.click('#productPhotoChoice [data-act=use]');}snap=await p.evaluate(SNAPSHOT);const key=JSON.stringify(snap);if(key!==last){last=key;stableSince=Date.now();}else if(!snap.processing&&!snap.ppBusy&&Date.now()-stableSince>5000&&snap.outcome!=="belirsiz")break;}
+  snap.ms=Date.now()-t0;snap.asked=asked;
   // Ambalaja konan logo (arka plan temizlenmiş hâli)
   const logo=await p.evaluate(()=>{try{const L=typeof prepareLogo==='function'?prepareLogo():null;if(!L||!L.width)return null;const c=document.createElement('canvas');c.width=L.width;c.height=L.height;c.getContext('2d').drawImage(L,0,0);return c.toDataURL('image/png');}catch(e){return 'ERR:'+e.message;}});
   if(logo&&logo.startsWith('data:'))fs.writeFileSync(path.join(out,c.id+'.out.png'),Buffer.from(logo.split(',')[1],'base64'));else snap.logoError=logo;

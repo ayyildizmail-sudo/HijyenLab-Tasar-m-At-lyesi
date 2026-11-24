@@ -183,7 +183,11 @@ function dropOutliers(m,w,h,contrast,img){
  const gh=lines.map(l=>l.height).sort((a,b)=>a-b)[lines.length>>1],R=Math.max(2,Math.min(Math.round(gh*.22),Math.round(Math.min(w,h)*.012))),cl=components(boxDilate(m,w,h,R),w,h),inkPer=new Float64Array(cl.comps.length),cPer=new Float64Array(cl.comps.length);
  for(let i=0;i<w*h;i++)if(m[i]&&cl.lab[i]>=0){inkPer[cl.lab[i]]++;cPer[cl.lab[i]]+=contrast[i];}
  let lineInk=0;for(const l of lines){const [x0,y0,x1,y1]=l.box;let n=0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)n+=m[y*w+x];lineInk=Math.max(lineInk,n);}
- const near=box=>lines.some(l=>{const [x0,y0,x1,y1]=l.box,pad=gh*.6;return !(box[2]<x0-pad||box[0]>x1+pad||box[3]<y0-pad||box[1]>y1+pad);});
+ // Ana yazı bölgesi: güçlü satırların birleşik kutusu, en büyük satır yüksekliğinin 1,5 katı genişletilmiş.
+ // Bir küme alanının en az %60'ı bu bölgedeyse ve bir satıra yakınsa içeriktir (logo çemberi evet, tabak kenarı hayır).
+ const maxLH=Math.max(...lines.map(l=>l.height)),U=[Math.min(...lines.map(l=>l.box[0]))-maxLH*1.5,Math.min(...lines.map(l=>l.box[1]))-maxLH*1.5,Math.max(...lines.map(l=>l.box[2]))+maxLH*1.5,Math.max(...lines.map(l=>l.box[3]))+maxLH*1.5];
+ const inside=box=>{const ix=Math.max(0,Math.min(box[2],U[2])-Math.max(box[0],U[0])),iy=Math.max(0,Math.min(box[3],U[3])-Math.max(box[1],U[1]));return ix*iy/Math.max(1,(box[2]-box[0])*(box[3]-box[1]));};
+ const near=box=>inside(box)>=.6&&lines.some(l=>{const [x0,y0,x1,y1]=l.box,pad=gh*.6;return !(box[2]<x0-pad||box[0]>x1+pad||box[3]<y0-pad||box[1]>y1+pad);});
  const colOf=(box,test)=>{const [x0,y0,x1,y1]=box;let r=0,g=0,b=0,n=0;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const i=y*w+x;if(!m[i]||!test(i))continue;const j=i*4;r+=img.data[j];g+=img.data[j+1];b+=img.data[j+2];n++;}return n?toLab(r/n,g/n,b/n):null;};
  const lineCols=img?lines.slice(0,4).map(l=>colOf(l.box,()=>true)).filter(Boolean):[];
  const keep=new Uint8Array(cl.comps.length);
@@ -224,6 +228,8 @@ function renderClean(img,m,surface,pal,minLong=1200,opaqueGround=false){
 // ---------- tam akış ----------
 // classify: (tensorlar) → Promise<P(düz)[]> (isteğe bağlı yerel model). Verilmezse yalnız geometrik kanıt kullanılır.
 async function extract(data,w,h,{classify=null,candidates=3}={}){
+ // Sonuç girdi boyutuna bağlı olmasın: her zaman en uzun kenarı en çok 2048 piksel olan görüntüde çalış (tarayıcı = test)
+ {const d=downscale(data,w,h,2048);data=d.data;w=d.w;h=d.h;}
  const found=findSurface(data,w,h);if(!found.best)return {ok:false,reason:'surface-not-found'};
  const tried=[];let pool=found.candidates.slice(0,candidates);
  if(found.best&&found.best.area<.97){const top=found.best,inner=rectify(data,w,h,top.quad,1100),sub=findSurface(inner.data,inner.w,inner.h);

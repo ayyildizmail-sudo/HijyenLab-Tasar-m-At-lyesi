@@ -11,7 +11,8 @@ const note=document.createElement('p');note.id='productPhotoNote';note.className
 const currentFile=()=>typeof lastUploadedFile==='undefined'?null:lastUploadedFile;
 function syncNote(){if(!noteFor)return;const c=currentFile();if((c&&c.name!==noteFor)||state.removed){note.hidden=true;note.textContent='';noteFor=null;}}
 function placementFailed(){
- if(state.designProcessing||state.textDesign||state.logoDesign||state.technicalSheetDetected)return false;
+ if(state.designProcessing||state.textDesign||state.logoDesign)return false;
+ if(state.technicalSheetDetected)return !state.logo; // teknik çizim: sayfa konmaz, içindeki paket tasarımı aranır (yalnız müşteri onayıyla)
  if(typeof isReferencePreview==='function'&&isReferencePreview())return true;
  return !!state.designBlocked&&!state.logo&&!state.photoLayout&&!state.screenSelectionRequired;
 }
@@ -27,6 +28,9 @@ function orientationModel(){
  })().catch(error=>{lastError='orientation-model:'+String(error?.message||error);return null;});
  return modelPromise;
 }
+const MISREAD_MIN_SCORE=.2;
+// Kamera fotoğrafı yanlışlıkla hazır logo sayılıp sahnenin tamamı ambalaja konduysa (yalnız JPEG/HEIC fotoğraflar)
+function photoTakenAsLogo(file){return !state.designProcessing&&!state.textDesign&&!state.logoDesign&&!!state.logo&&!state.photoLayout&&!state.technicalSheetDetected&&/^image\/(jpeg|heic|heif)$/i.test(file?.type||'')&&!isGenerated(file)&&!(typeof lastUploadedFile!=='undefined'&&isGenerated(lastUploadedFile));}
 const AUTO_MIN_PLACE=.6,AUTO_MIN_ASK=.3,GLYPH_MIN_PLACE=.45,GLYPH_MIN_ASK=.2;
 // Kararsız sonuç: önizleme + "Bunu kullan / 180° çevir / Kullanma". Müşteri seçmeden ambalaja hiçbir şey konmaz.
 const card=document.createElement('div');card.id='productPhotoChoice';card.className='notice light';card.hidden=true;card.setAttribute('role','dialog');card.setAttribute('aria-label','Fotoğraftan ayrılan baskı');
@@ -39,20 +43,25 @@ function ask(canvas){return new Promise(resolve=>{let current=canvas;const img=c
 function decode(file){if(typeof createImageBitmap==='function')return createImageBitmap(file);return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{URL.revokeObjectURL(url);resolve(img);};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('decode'));};img.src=url;});}
 async function attempt(){
  const file=currentFile();
- if(running||!file||tried.has(file)||isGenerated(file)||!/^image\/(jpeg|png|webp|heic|heif|bmp|avif)$/i.test(file.type||'')||!placementFailed())return;
+ const failed=placementFailed(),misread=!failed&&photoTakenAsLogo(file);
+ if(running||!file||tried.has(file)||isGenerated(file)||!/^image\/(jpeg|png|webp|heic|heif|bmp|avif)$/i.test(file.type||'')||(!failed&&!misread))return;
+ const stillValid=()=>failed?placementFailed():photoTakenAsLogo(currentFile());
  tried.add(file);claimed.add(file);running=true;
  try{
-  const image=await decode(file),max=2000,s=Math.min(1,max/Math.max(image.width,image.height)),c=document.createElement('canvas');c.width=Math.round(image.width*s);c.height=Math.round(image.height*s);
+  const image=await decode(file),max=2048,s=Math.min(1,max/Math.max(image.width,image.height)),c=document.createElement('canvas');c.width=Math.round(image.width*s);c.height=Math.round(image.height*s);
   const g=c.getContext('2d',{willReadFrequently:true});g.drawImage(image,0,0,c.width,c.height);if(typeof image.close==='function')image.close();
-  const same=()=>{const x=currentFile();return !!x&&(x===file||(x.name===file.name&&x.size===file.size));};if(!same()||!placementFailed())return;
-  const classify=await orientationModel();if(!same()||!placementFailed())return;
+  const same=()=>{const x=currentFile();return !!x&&(x===file||(x.name===file.name&&x.size===file.size));};if(!same()||!stillValid())return;
+  // Logo sanılan fotoğraf: içinde belirgin, dikdörtgen, görselden küçük bir baskılı yüzey yoksa dokunma (düz logo dosyaları)
+  if(misread){const sf=root.ProductPhoto.findSurface(g.getImageData(0,0,c.width,c.height).data,c.width,c.height).best;if(!sf||sf.score<MISREAD_MIN_SCORE||sf.rectangularity<.8||sf.area>.75)return;}
+  const classify=await orientationModel();if(!same()||!stillValid())return;
   const result=await root.ProductPhoto.extract(g.getImageData(0,0,c.width,c.height).data,c.width,c.height,{classify});lastResult=result;
-  if(!result.ok||!same()||!placementFailed())return;
+  if(!result.ok||!same()||!stillValid())return;
   let out=document.createElement('canvas');out.width=result.image.w;out.height=result.image.h;out.getContext('2d').putImageData(new ImageData(result.image.data,result.image.w,result.image.h),0,0);
   // Güven kademesi: emin → doğrudan; kararsız → müşteriye tek dokunuşla sor; emin değil → hiçbir şey koyma (mevcut davranış)
   // Harf oranı: mürekkebin yazı satırlarına ait kısmı (gösterge, süs, efekt parçalarında düşük)
-  const confidence=result.confidence??0,glyph=result.glyphFraction??0;if(confidence<AUTO_MIN_ASK||glyph<GLYPH_MIN_ASK)return;
-  if(confidence<AUTO_MIN_PLACE||glyph<GLYPH_MIN_PLACE){const choice=await ask(out);if(!same()||!placementFailed())return;if(!choice)return;out=choice;}
+  const confidence=result.confidence??0,glyph=result.glyphFraction??0,sheet=!!state.technicalSheetDetected;
+  if(sheet?(confidence<.9||glyph<.1):(confidence<AUTO_MIN_ASK||glyph<GLYPH_MIN_ASK))return;
+  if(sheet||confidence<AUTO_MIN_PLACE||glyph<GLYPH_MIN_PLACE){const choice=await ask(out);if(!same()||!stillValid())return;if(!choice)return;out=choice;}
   const blob=await new Promise(resolve=>out.toBlob(resolve,'image/png'));if(!blob||!same())return;
   const generated=new File([blob],PREFIX+Date.now().toString(36)+'.png',{type:'image/png'});tried.add(generated);
   root.HijyenLabProductPhoto={source:'local-product-photo-v1',palette:result.palette,surface:result.surface,quarterTurns:result.quarterTurns,orientationSource:result.orientationSource};
@@ -64,6 +73,6 @@ async function attempt(){
  finally{running=false;}
 }
 const previous=showDesignIssue;showDesignIssue=function(...args){const out=previous.apply(this,args);setTimeout(attempt,0);return out;};
-if(typeof refresh==='function'){const previousRefresh=refresh;refresh=function(...args){const out=previousRefresh.apply(this,args);syncNote();const f=currentFile();if(!running&&f&&!tried.has(f)&&!isGenerated(f)&&placementFailed())setTimeout(attempt,0);return out;};}
+if(typeof refresh==='function'){const previousRefresh=refresh;refresh=function(...args){const out=previousRefresh.apply(this,args);syncNote();const f=currentFile();if(!running&&f&&!tried.has(f)&&!isGenerated(f)&&(placementFailed()||photoTakenAsLogo(f)))setTimeout(attempt,0);return out;};}
 root.HijyenLabProductPhotoUI=Object.freeze({asking:()=>!card.hidden,attempt,placementFailed,claims:f=>!!f&&claimed.has(f),busy:()=>running,lastError:()=>lastError,lastResult:()=>lastResult&&{ok:lastResult.ok,reason:lastResult.reason,diagnostics:lastResult.diagnostics}});
 })(globalThis);

@@ -33,7 +33,7 @@ function sample(px,m,b,W,H){ // kutuyu W×H ızgaraya örnekler: maske + renk
 function dilate(m,W,H,r){const o=new Uint8Array(W*H);for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(!m[y*W+x])continue;for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){const X=x+dx,Y=y+dy;if(X>=0&&Y>=0&&X<W&&Y<H)o[Y*W+X]=1;}}return o;}
 
 async function scoreCase(c,dir,out,run){
- const r=run[c.id]||{outcome:'koşucu-hatası'};const res={id:c.id,logo:c.logo,scene:c.scene,outcome:r.outcome,method:r.method,ms:r.ms};
+ const r=run[c.id]||{outcome:'koşucu-hatası'};const res={id:c.id,logo:c.logo,scene:c.scene,outcome:r.outcome,method:r.method,ms:r.ms,asked:!!r.asked};
  if(!['logo','fotoğraf-yerleşimi'].includes(r.outcome)||!fs.existsSync(path.join(out,c.id+'.out.png'))){res.verdict='sonuç yok';return res;}
  const gt=pixels(await loadImage(path.join(dir,c.gt))),ot=pixels(await loadImage(path.join(out,c.id+'.out.png')));
  const gm=inkMask(gt,{alphaOnly:true}),om=inkMask(ot);const gb=bbox(gm,gt.w,gt.h),ob=bbox(om,ot.w,ot.h);
@@ -62,6 +62,7 @@ async function main(){
  const all={doğru:0,kısmi:0,yanlış:0,'sonuç yok':0,n:rows.length};for(const r of rows)all[r.verdict]++;
  const lines=['TOPLAM',line('hepsi',all),'','SAHNE TÜRÜNE GÖRE',...Object.entries(tally('scene')).map(([k,t])=>line(k,t)),'','LOGO TÜRÜNE GÖRE',...Object.entries(tally('logo')).map(([k,t])=>line(k,t))];
  const reasons={};for(const r of rows)if(r.reason)for(const x of r.reason.split(', '))reasons[x]=(reasons[x]||0)+1;lines.push('','BAŞARISIZLIK NEDENLERİ',...Object.entries(reasons).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${k.padEnd(18)} ${v}`));
+ lines.push('','MÜŞTERİYE SORULAN (müşteri "Bunu kullan" dedi varsayımıyla puanlandı): '+rows.filter(r=>r.asked).length+' · bunların doğru/kısmi/yanlış: '+['doğru','kısmi','yanlış'].map(v=>rows.filter(r=>r.asked&&r.verdict===v).length).join('/'));
  const txt=lines.join('\n');fs.writeFileSync(path.join(out,'summary.txt'),txt);console.log(txt);
 }
 main().catch(e=>{console.error(e);process.exit(1);});
