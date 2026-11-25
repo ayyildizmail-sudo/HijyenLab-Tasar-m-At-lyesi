@@ -35,8 +35,10 @@ GERCEK = {
     "restoran": ["kazancilar", "sohret", "cotto", "seruven"],
     "otel": ["vom", "ajlan", "salonika", "meridian"],
     "kuafor": ["zehra_bora", "mehmet_yildirim", "nyek", "maderia"],
-    "toptanci": ["rotasa", "yaf", "orkun", "ulutas"],
+    "toptanci": ["michelin", "rotasa", "yaf", "orkun"],
 }
+
+BELGELER = [('ISO 9001', 'Kalite'), ('ISO 14001', 'Çevre'), ('ISO 22000', 'Gıda güvenliği'), ('OHSAS 18001', 'İş sağlığı'), ('GMP', 'İyi üretim'), ('CE', 'Uygunluk'), ('IFRA', 'Koku standardı')]
 
 SAYFALAR = {
     "restoran": dict(
@@ -111,8 +113,11 @@ h1{font-family:"Inter Display","Inter",sans-serif;font-size:24pt;line-height:1.1
 .cip{display:inline-block;background:#D9622B;color:#fff;font-size:7.5pt;font-weight:800;letter-spacing:.1em;border-radius:99px;padding:.6mm 2.5mm;margin-bottom:2mm}
 .cagri b{font-size:13pt;display:block;color:#fff;line-height:1.3}.cagri p{font-size:9pt;color:#cfe0f1;margin-top:1.5mm}
 .cagri .il{text-align:right;font-size:10pt;line-height:1.6;white-space:nowrap;color:#fff}
-.gr{margin-top:4mm}.gr h3{font-size:11pt;color:#0b3558;margin-bottom:2mm}.gr h3 span{font-weight:400;font-size:8.5pt;color:#4a5f7a}
+.gr{margin-top:3mm}.gr h3{font-size:11pt;color:#0b3558;margin-bottom:2mm}.gr h3 span{font-weight:400;font-size:8.5pt;color:#4a5f7a}
 .gr div{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm}.gr img{width:100%;aspect-ratio:2.55;object-fit:cover;border-radius:2mm;border:1px solid #c6d9ec}
+.bl{position:absolute;left:16mm;right:16mm;bottom:56.5mm;display:flex;gap:2mm}
+.bl span{flex:1;border:1.2px solid #29537B;border-radius:2mm;padding:1mm;text-align:center;background:#fff}
+.bl b{display:block;font-size:8pt;color:#0b3558;line-height:1.2}.bl i{display:block;font-style:normal;font-size:6.3pt;color:#4a5f7a}
 .alt{position:absolute;left:16mm;right:16mm;bottom:9mm;font-size:7.5pt;color:#4a5f7a;display:flex;justify-content:space-between;border-top:1px solid #c6d9ec;padding-top:2mm}"""
 
 
@@ -135,12 +140,14 @@ def sayfa(ad: str, s: dict) -> str:
     gercek = "".join(f'<img src="../varliklar/gercek/{g}.jpg" alt="">' for g in GERCEK.get(ad, []))
     if gercek:
         orta += f'<div class="gr"><h3>Bastıklarımızdan <span>· gerçek müşteri paketleri</span></h3><div>{gercek}</div></div>'
+    belgeler = "".join(f"<span><b>{a}</b><i>{b}</i></span>" for a, b in BELGELER)
     cagri = s.get("cagri", "Logonuzu gönderin, işletmenize özel görseli ücretsiz hazırlayalım.")
     return (f'<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>HijyenLab · {e(s["etiket"])}</title>'
             f'<style>{CSS}</style></head><body><section class="s">'
             f'<div class="bas"><div class="ust"><img src="../varliklar/hijyenlab_logo.svg" alt="HijyenLab"><div class="et">{e(s["etiket"])}</div></div>'
             f'<h1>{e(s["baslik"])}</h1><p class="giris">{e(s["giris"])}</p></div>'
             f'<div class="ic"><div class="urunler">{urunler}</div><div class="f">{faydalar}</div>{orta}</div>'
+            f'<div class="bl">{belgeler}</div>'
             f'<div class="cagri"><div><span class="cip">ÜCRETSİZ</span><b>{e(cagri)}</b><p>Kumaşı elinizde görün: ücretsiz numune, kargo bizden.</p></div>'
             f'<div class="il">0 (542) 569 98 69<br>info@hijyenlab.com<br>hijyenlab.com</div></div>'
             f'<div class="alt"><span>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.</span>'

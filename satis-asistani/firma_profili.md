@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-25n
+profil_surumu: 2026-11-25o
 fiyat_paylasilabilir: hayir
 ---
 
@@ -148,11 +148,19 @@ HijyenLab · İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.
 ## Üslup
 Samimi ama kurumsal, kısa (tanıtımda en fazla 120 kelime), "siz" diliyle. Abartılı reklam dili yok.
 
+## Belgeler
+- HijyenLab'ın belgeleri: ISO 9001 (kalite), ISO 14001 (çevre), ISO 22000 (gıda güvenliği), OHSAS 18001 (iş sağlığı
+  ve güvenliği), GMP (iyi üretim uygulamaları), CE. Kokularımız için IFRA sertifikası var (koku standartlarına uygunluk).
+- Kurumsal ve otel müşterilerine, satın alma birimlerine güven unsuru olarak anılabilir: "ISO 9001, ISO 14001 ve
+  ISO 22000 belgeli üretim; kokularımız IFRA sertifikalı." Belge kopyası istenirse insan onayıyla gönderilir.
+- Belgeler sağlık iddiası değildir: "steril", "antibakteriyel", "mikrop öldürür" gibi ifadelere dayanak yapılmaz.
+
 ## Gerçek baskı örnekleri (referanslar)
 - Katalogda ve sektör sayfalarında müşterilerimiz için basılmış gerçek paketlerin fotoğrafları var (restoran, otel,
   kuaför, kurumsal firmalar). Müşteri "daha önce ne bastınız?" diye sorarsa "gerçek baskı fotoğraflarımızı
   paylaşabiliriz" denir; fotoğraflar insan onayıyla eklenir.
-- Soğuk mailde ve tekliflerde müşteri adı referans olarak yazılmaz, rakam ("yüzlerce işletme" vb.) uydurulmaz.
+- Bütün müşterilerden referans izni alındı; yine de soğuk mailde müşteri adı sıralanmaz, rakam ("yüzlerce işletme" vb.)
+  uydurulmaz. Müşteri sorarsa sektöründen örnek isimler verilebilir.
 - Gerçek baskılarda görülen seçenekler anlatılabilir: beyaz zeminde 1–2 renk logo, arka yüzde telefon, web,
   Instagram veya adres; koyu renkli zemin; aynı pakette birden fazla marka (ortak promosyon).
 

@@ -124,13 +124,17 @@
   .adim4 .k { background: var(--acik); border:1px solid var(--cizgi); border-radius:3mm; padding:3.5mm; font-size:8.6pt; }
   .adim4 .no { width:8mm; height:8mm; border-radius:50%; background:var(--mavi); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; margin-bottom:2mm; }
   .adim4 b { display:block; color:var(--lacivert); font-size:9.5pt; margin-bottom:1mm; }
-  table.oneri td { font-size: 9pt; padding: 1.8mm 3mm; } table.oneri td:first-child { font-weight:700; color:var(--lacivert); width:58mm; }
+  table.oneri td { font-size: 9pt; padding: 1.3mm 3mm; } table.oneri td:first-child { font-weight:700; color:var(--lacivert); width:58mm; }
   .vurgu-kutu { background: var(--vurgu-acik); border-left: 2.5mm solid var(--vurgu); border-radius: 2mm; padding: 2.5mm 4mm; font-size: 9pt; color: var(--yazi); }
   .vurgu-kutu b { color: #A8441A; }
   .vurgu-adim .no { background: var(--vurgu) !important; }
   .kapak .serit span { flex: none; }
   .iletisim-satir { display:flex; justify-content:space-between; padding: 6mm 18mm 0; font-size: 12pt; font-weight: 700; color: var(--lacivert); }
   .iletisim-satir b { display:block; color: var(--mavi); font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; }
+  .belgeler { display:flex; gap:2mm; flex-wrap:nowrap; }
+  .rz { flex:1; border:1.2px solid var(--mavi); border-radius:2mm; padding:1.2mm 1mm; text-align:center; background:#fff; }
+  .rz b { display:block; font-size:8.5pt; color:var(--lacivert); line-height:1.2; letter-spacing:.02em; }
+  .rz i { display:block; font-style:normal; font-size:6.5pt; color:var(--soluk); }
   .galeri-gercek { display:grid; grid-template-columns: repeat(4,1fr); gap: 2.5mm; }
   .galeri-gercek img { width:100%; aspect-ratio: 2.55; object-fit: cover; border-radius: 2mm; border:1px solid var(--cizgi); }
 </style>
@@ -283,9 +287,9 @@
 
 <!-- 5. ARKA KAPAK -->
 <section class="sayfa arka">
-  <div class="bas" style="padding:16mm 18mm 9mm">
+  <div class="bas" style="padding:12mm 18mm 7mm">
     <img class="logo" src="varliklar/hijyenlab_logo.svg" alt="HijyenLab">
-    <h2 style="margin-top:6mm">Logonuzu gönderin,<br>ürününüzü size gösterelim.</h2>
+    <h2 style="margin-top:4mm">Logonuzu gönderin,<br>ürününüzü size gösterelim.</h2>
     <div class="vurgu-kutu" style="margin-top:5mm;font-size:11pt"><b>Ücretsiz:</b> logolu ürün görseli ve kumaş numunesi, kargo bizden.</div>
     <p style="font-size:11.5pt;color:#2a3f5c;max-width:155mm">Logonuzu ve ilgilendiğiniz ürünü iletin; ambalaj görselinizi ve size özel teklifinizi hazırlayalım.</p>
   </div>
@@ -293,9 +297,11 @@
   <div style="padding:5mm 18mm 0">
     <h3>Bastıklarımızdan</h3>
     <p class="kucuk soluk" style="margin-bottom:2mm">Restorandan otele, kuaförden kurumsal firmalara: müşterilerimiz için ürettiğimiz gerçek paketler.</p>
-    <div class="galeri-gercek"><img src="varliklar/gercek/kazancilar.jpg" alt=""><img src="varliklar/gercek/sohret.jpg" alt=""><img src="varliklar/gercek/cotto.jpg" alt=""><img src="varliklar/gercek/sarihan.jpg" alt=""><img src="varliklar/gercek/vom.jpg" alt=""><img src="varliklar/gercek/ajlan.jpg" alt=""><img src="varliklar/gercek/salonika.jpg" alt=""><img src="varliklar/gercek/zehra_bora.jpg" alt=""><img src="varliklar/gercek/maderia.jpg" alt=""><img src="varliklar/gercek/rotasa.jpg" alt=""><img src="varliklar/gercek/yaf.jpg" alt=""><img src="varliklar/gercek/ulutas.jpg" alt=""></div>
+    <div class="galeri-gercek"><img src="varliklar/gercek/kazancilar.jpg" alt=""><img src="varliklar/gercek/sohret.jpg" alt=""><img src="varliklar/gercek/cotto.jpg" alt=""><img src="varliklar/gercek/sarihan.jpg" alt=""><img src="varliklar/gercek/vom.jpg" alt=""><img src="varliklar/gercek/ajlan.jpg" alt=""><img src="varliklar/gercek/salonika.jpg" alt=""><img src="varliklar/gercek/zehra_bora.jpg" alt=""><img src="varliklar/gercek/maderia.jpg" alt=""><img src="varliklar/gercek/rotasa.jpg" alt=""><img src="varliklar/gercek/yaf.jpg" alt=""><img src="varliklar/gercek/michelin.jpg" alt=""></div>
   </div>
-  <div style="padding:5mm 18mm 0">
+  <div style="padding:4mm 18mm 0">
+    <h3>Belgelerimiz</h3>
+    <div class="belgeler" style="margin-bottom:4mm"><span class="rz"><b>ISO 9001</b><i>Kalite</i></span><span class="rz"><b>ISO 14001</b><i>Çevre</i></span><span class="rz"><b>ISO 22000</b><i>Gıda güvenliği</i></span><span class="rz"><b>OHSAS 18001</b><i>İş sağlığı</i></span><span class="rz"><b>GMP</b><i>İyi üretim</i></span><span class="rz"><b>CE</b><i>Uygunluk</i></span><span class="rz"><b>IFRA</b><i>Koku standardı</i></span></div>
     <h3>İşletmenize göre öneri</h3>
     <table class="oneri">
       <tr><td>Restoran, kebapçı, balıkçı</td><td>7×12 ıslak mendil · 25×30 rulo</td></tr>

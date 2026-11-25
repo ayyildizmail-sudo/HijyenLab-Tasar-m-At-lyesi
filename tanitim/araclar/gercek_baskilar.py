@@ -3,8 +3,8 @@
 Kullanım: python araclar/gercek_baskilar.py <fotoğraf_klasörü>
 Çıktı: varliklar/gercek/<ad>.jpg  (katalog ve sektör sayfaları kullanır)
 
-Kurallar (proje bilgisi): üçüncü taraf marka logosu taşıyan paketler (ör. otomobil markaları) ve
-HijyenLab sertifika rozetli arka yüzler kullanılmaz. Liste SECIM sözlüğündedir; bir müşteri izin
+Bütün müşterilerden referans izni alındı (kullanıcı teyidi). Paketin sahibi dışındaki üçüncü taraf
+marka logolarını taşıyan paketler (ör. otomobil markaları) kullanılmaz. Liste SECIM sözlüğündedir; bir müşteri izin
 vermezse satırını silip betiği yeniden çalıştırmak yeterli.
 """
 import sys
@@ -38,7 +38,7 @@ SECIM = {
     "alagoz": ("c79c1f5e", "tam"), "ekopack": ("f5a5deb9", "ust"), "kofapack": ("2ad8a236", "tam"),
     "prosatz": ("3bc1065a", "tam"), "monsfit": ("ae90a0e7", "tam"), "xovo": ("6b895ba1", "tam"),
     "bauen": ("73f93aec", "tam"), "deniz_ticaret": ("b19f8ef0", "tam"), "seneca": ("b23c6812", "tam"),
-    "dsd": ("c58a1921", "tam"),
+    "dsd": ("c58a1921", "tam"), "michelin": ("11d7a2ad", "tam"),
 }
 
 
