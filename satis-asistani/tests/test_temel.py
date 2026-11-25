@@ -92,7 +92,7 @@ def test_tanitim_akisi_limit_kara_liste_denetim(monkeypatch):
     with vt.baglanti() as con:
         taslaklar = con.execute("SELECT * FROM taslak ORDER BY id").fetchall()
     assert taslaklar[0]["kime"] == "info@isletme2.com"  # en yüksek puan önce
-    assert all(t["profil_surumu"] == "2026-11-25f" and t["bulgular"] == "[]" for t in taslaklar)
+    assert all(t["profil_surumu"] == "2026-11-25g" and t["bulgular"] == "[]" for t in taslaklar)
     ids = [t["id"] for t in taslaklar]
     assert "DENEME" in islemler.taslak_gonder(ids[0])
     assert "DENEME" in islemler.taslak_gonder(ids[1], konu="Düzenlenmiş konu")
@@ -101,7 +101,7 @@ def test_tanitim_akisi_limit_kara_liste_denetim(monkeypatch):
         giden = con.execute("SELECT * FROM mail WHERE yon='giden' ORDER BY id").fetchall()
         assert giden[1]["konu"] == "Düzenlenmiş konu" and "ÇIKAR" in giden[0]["metin"]
         d = con.execute("SELECT * FROM denetim ORDER BY id").fetchall()
-        assert len(d) == 2 and d[0]["olay"] == "gonderildi" and d[0]["profil_surumu"] == "2026-11-25f"
+        assert len(d) == 2 and d[0]["olay"] == "gonderildi" and d[0]["profil_surumu"] == "2026-11-25g"
         assert d[0]["ai_metni"].startswith("Merhaba")
 
 
@@ -263,3 +263,10 @@ def test_env_git_disinda():
     kok = Path(__file__).resolve().parents[1]
     r = subprocess.run(["git", "check-ignore", "-q", str(kok / ".env")], cwd=kok)
     assert r.returncode == 0, ".env git tarafından yok sayılmıyor!"
+
+
+def test_gramaj_uyarisi():
+    import guvenlik_kontrolu as gk
+    assert any(b.tur == "gramaj" for b in gk.denetle("Kumaşımız 60 g/m² nonwoven"))
+    assert any(b.tur == "gramaj" for b in gk.denetle("Gramajı yüksektir"))
+    assert not any(b.tur == "gramaj" for b in gk.denetle("Oshibori adet başına 15 g ağırlığındadır"))

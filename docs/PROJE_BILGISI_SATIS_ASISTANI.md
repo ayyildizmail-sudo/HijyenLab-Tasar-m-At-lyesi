@@ -42,7 +42,7 @@ Yanında bir **tanıtım kataloğu** (PDF) hazırlandı. Potansiyel müşteriler
 - **Klişe:** renk başına 1.000 TL, tek seferlik. Aynı tasarımla tekrar siparişte alınmaz. Özel CMYK klişe 10.000 TL.
 - **Kargo:** koli başına 200 TL. Bodrum teslimatlarında nakliye ücreti alınmaz.
 - **Mendil kokuları:** Flambau (standart), Limon, Bodrum Mandalinası, Yeşil Çay. Başka koku için en az 20.000 adet.
-- **Kumaş:** Dört rulo ölçüsü ve 20×25 katlı aynı kumaş: 60 g/m² nonwoven, noktalı doku. 7×12 mendil de nonwoven (gramaj bilinmiyor). Yalnız Oshibori %100 pamuk havlu; diğer ürünler için "pamuk" denmez. Rulo ürünler tekli ambalaj, 50 mikron OPP. Ölçüler iç kumaş ölçüsüdür; 30×30 ve 30×35, 25×30 ile aynı ambalajı (16×17 cm) kullanır.
+- **Kumaş:** Dört rulo ölçüsü ve 20×25 katlı aynı kumaş: noktalı dokulu nonwoven. 7×12 mendil de nonwoven. Nonwoven ürünlerde gramaj konuşulmaz ve teklif edilmez. Yalnız Oshibori %100 pamuk havlu; diğer ürünler için "pamuk" denmez. Rulo ürünler tekli ambalaj, 50 mikron OPP. Ölçüler iç kumaş ölçüsüdür; 30×30 ve 30×35, 25×30 ile aynı ambalajı (16×17 cm) kullanır.
 - **Klişe renk sayımı:** Beyaz dışındaki her renk ayrı klişedir, zemin dahil; beyaza klişe yapılmaz (siyah zemin + beyaz yazı = 1, lacivert zemin + altın yazı = 2). Ön ve arka yüzde aynı renkler klişe sayısını artırmaz.
 - **Selefon:** Renkli zeminde uygulanır, renkli birim fiyata dahildir. **Baskısız ürün:** klişe yok, beyaz fiyat, en az bir koli.
 - **Hedef üretim süresi:** grafik onayı ve ön ödemeden sonra yeni klişede ~25 gün, tekrar siparişte ~20 gün; kesin tarih sözü verilmez. **Teklifler 15 gün geçerlidir.**
@@ -183,7 +183,7 @@ Bir müşteri şu durumlardan birinde olur:
 ### Bekleyenler
 
 - [ ] **BM15 (25×25) bıçak izi PDF'i**: boş paket görseli ve güvenli alan şimdilik yaklaşık.
-- [ ] **Mendil (BM21) gramajı ve kumaş fotoğrafı** bekleniyor (kumaş türü: nonwoven). Katlı (BM545) rulo ile aynı kumaş (teyitli); kumaş yakın çekimi katalogda. Oshibori: %100 pamuk havlu, 22,5×24,5 cm, adet başına 15 g, tek kullanımlık tekli paket, logo ambalaja basılır (teyitli); kendi ürün fotoğrafı bekleniyor (internetteki referans görseller telif nedeniyle katalogda kullanılmıyor). Rulo ürünlerin dördünde aynı kumaş (60 g/m² nonwoven) kullanıldığı teyit edildi; açılmış 25×30 fotoğrafı katalogda.
+- [ ] Katlı (BM545) rulo ile aynı kumaş (teyitli); kumaş yakın çekimi katalogda. Oshibori: %100 pamuk havlu, 22,5×24,5 cm, adet başına 15 g, tek kullanımlık tekli paket, logo ambalaja basılır (teyitli); kendi ürün fotoğrafı bekleniyor (internetteki referans görseller telif nedeniyle katalogda kullanılmıyor). Rulo ve katlı ürünlerde aynı nonwoven kumaş kullanıldığı teyit edildi; katalogda doku çizimi var. 7×12 mendil boş mockup'ı düz beyaza çevrildi.
 - [ ] **Gerçek ürün fotoğrafları:** Mevcut mockup'lar yapay zekayla üretilmiş, düşük çözünürlüklü. 7×12 mendil mockup'ı kare görünüyor, gerçekte dikdörtgen.
 - [ ] **Kataloğa son onay:** metinler, sıralama, renkler.
 - [ ] **Mail ayarları** (en sona bırakıldı): sağlayıcı (Google / Microsoft / Yandex / hosting), IMAP ve SMTP sunucuları, uygulama şifresi.

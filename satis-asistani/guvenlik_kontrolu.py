@@ -38,6 +38,9 @@ FIYAT_KALIBI = re.compile(
 )
 
 
+GRAMAJ_KALIBI = re.compile(r"\d+\s*(g|gr|gram)\s*/\s*m\s*(²|2)|\bgsm\b|\bgramaj\w*", re.IGNORECASE)
+
+
 @dataclass
 class Bulgu:
     tur: str
@@ -68,6 +71,10 @@ def denetle(metin: str, *, fiyat_paylasilabilir: bool = False,
         m = re.search(k, s)
         if m:
             bulgular.append(Bulgu("vaat", "Teslim/indirim/garanti vaadi insana bırakılır", m.group(0)))
+
+    m = GRAMAJ_KALIBI.search(metin)
+    if m:
+        bulgular.append(Bulgu("gramaj", "Nonwoven ürünlerde gramaj yazılmaz (yalnız Oshibori: adet başına 15 g)", m.group(0)))
 
     if not fiyat_paylasilabilir:
         m = FIYAT_KALIBI.search(metin)
