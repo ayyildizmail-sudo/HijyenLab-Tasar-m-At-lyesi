@@ -29,6 +29,11 @@
   .izgara { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
   pre.kayit { background:#111827; color:#d1fae5; padding:12px; border-radius:8px; max-height:260px; overflow:auto; font-size:13px; white-space:pre-wrap; }
   details summary { cursor:pointer; color:var(--ana); }
+  .bulgu { background:#fef3f2; border:1px solid #fda29b; border-radius:8px; padding:10px 14px; margin:8px 0; }
+  .bulgu label { display:block; margin:4px 0; }
+  .rozet-kirmizi { background:var(--kirmizi); color:#fff; }
+  .rozet-sari { background:#f79009; color:#fff; }
+  pre.kart-metin { white-space:pre-wrap; background:#f8fafc; border:1px solid var(--cizgi); padding:10px; border-radius:8px; font-size:13px; }
 </style>
 </head>
 <body>
@@ -40,6 +45,7 @@
   <a href="{{ url_for('gelen') }}">Gelen mailler</a>
   <a href="{{ url_for('musteriler') }}">Müşteriler</a>
   <a href="{{ url_for('kara_liste') }}">Listeden çıkanlar</a>
+  <a href="{{ url_for('denetim') }}">Denetim izi</a>
   {% endif %}
 </header>
 <main>

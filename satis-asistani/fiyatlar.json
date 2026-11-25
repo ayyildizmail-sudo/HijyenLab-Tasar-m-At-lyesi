@@ -1,0 +1,84 @@
+{
+  "surum": "2026-11-25",
+  "para_birimi": "TL",
+  "kdv_orani": 0.2,
+  "kdv_dahil_degil": true,
+  "urunler": {
+    "BM12": {
+      "ad": "25×30 cm rulo ıslak havlu",
+      "koli_ici": 400,
+      "beyaz": 2.9,
+      "renkli": 3.3,
+      "min_beyaz": 5200,
+      "min_renkli": 10000
+    },
+    "BM15": {
+      "ad": "25×25 cm rulo ıslak havlu",
+      "koli_ici": 500,
+      "beyaz": 2.5,
+      "renkli": 3.0,
+      "min_beyaz": 5000,
+      "min_renkli": 10000
+    },
+    "BM11": {
+      "ad": "30×30 cm rulo ıslak havlu",
+      "koli_ici": 400,
+      "beyaz": 3.5,
+      "renkli": 4.0,
+      "min_beyaz": 5200,
+      "min_renkli": 10000
+    },
+    "BM13": {
+      "ad": "30×35 cm rulo ıslak havlu",
+      "koli_ici": 400,
+      "beyaz": 3.8,
+      "renkli": 4.3,
+      "min_beyaz": 5200,
+      "min_renkli": 10000
+    },
+    "BM545": {
+      "ad": "20×25 cm katlı ıslak havlu",
+      "koli_ici": 625,
+      "beyaz": 2.4,
+      "renkli": 2.8,
+      "min_beyaz": 5000,
+      "min_renkli": 10000
+    },
+    "BM21": {
+      "ad": "7×12 cm ıslak mendil",
+      "koli_ici": 1000,
+      "beyaz": 1.4,
+      "renkli": 1.4,
+      "min_beyaz": 10000,
+      "min_renkli": 10000
+    },
+    "OSHIBORI": {
+      "ad": "Oshibori ıslak havlu",
+      "koli_ici": 250,
+      "beyaz": null,
+      "renkli": null,
+      "min_beyaz": 3000,
+      "min_renkli": 3000,
+      "not": "Fiyat dolar bazlı, teklif ile"
+    }
+  },
+  "klise_renk_basi": 1000,
+  "klise_cmyk": 10000,
+  "kargo_koli_basi": 200,
+  "kargosuz_teslim_yerleri": [
+    "bodrum"
+  ],
+  "max_flekso_renk": 3,
+  "kokular": [
+    "Flambau",
+    "Yeşil Çay",
+    "Bodrum Mandalinası",
+    "Limon"
+  ],
+  "standart_koku": "Flambau",
+  "ozel_koku_min_adet": 20000,
+  "uretim_gun_yeni_klise": 25,
+  "uretim_gun_mevcut_klise": 20,
+  "teklif_gecerlilik_gun": 15,
+  "odeme": "%50 sipariş onayında, kalan %50 ürün fotoğrafları paylaşıldıktan sonra sevkten önce"
+}

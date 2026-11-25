@@ -4,3 +4,5 @@ requests>=2.31
 python-dotenv>=1.0
 pydantic>=2.6
 pytest>=8.0
+# İsteğe bağlı: gönderim öncesi alan adının MX kaydını kontrol eder
+dnspython>=2.6

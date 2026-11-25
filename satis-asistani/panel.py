@@ -1,4 +1,5 @@
 """Onay paneli: http://127.0.0.1:5000  (sadece bu bilgisayardan erişilir)."""
+import json
 import secrets
 import tempfile
 import threading
@@ -52,7 +53,7 @@ def giris_gerekli(f):
 @app.before_request
 def csrf_kontrol():
     session.setdefault("csrf", secrets.token_hex(16))
-    if request.method == "POST" and request.endpoint != "giris":
+    if request.method == "POST" and request.endpoint not in ("giris", "cik"):
         if request.form.get("csrf") != session["csrf"]:
             abort(400)
 
@@ -91,7 +92,7 @@ def ozet():
 def is_baslat(ad):
     f = request.form
     if ad == "gelen":
-        ok = arka_planda("Gelen kutusu kontrolü", islemler.gelen_kutusunu_isle, int(f.get("gun", 3)))
+        ok = arka_planda("Gelen kutusu kontrolü", islemler.gelen_kutusunu_isle)
     elif ad == "tanitim":
         ok = arka_planda("Tanıtım taslakları", islemler.tanitim_taslaklari_olustur, int(f.get("adet", 10)))
     elif ad == "hatirlatma":
@@ -114,20 +115,26 @@ def is_baslat(ad):
 def taslaklar():
     with vt.baglanti() as con:
         liste = con.execute(
-            "SELECT t.*, m.ad musteri_ad, m.tur musteri_tur, g.konu gelen_konu, g.metin gelen_metin, g.ozet gelen_ozet "
+            "SELECT t.*, m.ad musteri_ad, m.tur musteri_tur, g.konu gelen_konu, g.metin gelen_metin, g.ozet gelen_ozet, "
+            "g.teklif_karti, g.guven, g.insan_baksin, g.ekler gelen_ekler "
             "FROM taslak t LEFT JOIN musteri m ON m.id=t.musteri_id LEFT JOIN mail g ON g.id=t.gelen_mail_id "
             "WHERE t.durum='onay_bekliyor' ORDER BY (t.tur='cevap') DESC, t.id"
         ).fetchall()
-    return render_template("taslaklar.html", liste=liste)
+    liste = [dict(t) | {"bulgu_listesi": json.loads(t["bulgular"] or "[]")} for t in liste]
+    for t in liste:
+        for b in t["bulgu_listesi"]:
+            b["anahtar"] = islemler.bulgu_anahtari(b)
+    return render_template("taslaklar.html", liste=liste, turler=musteri_bul.TURLER)
 
 
 @app.post("/taslak/<int:tid>")
 @giris_gerekli
 def taslak_islem(tid):
     if request.form.get("islem") == "gonder":
-        flash(islemler.taslak_gonder(tid, request.form.get("konu"), request.form.get("metin")))
+        flash(islemler.taslak_gonder(tid, request.form.get("konu"), request.form.get("metin"),
+                                     request.form.getlist("gordum"), onaylayan=f"panel ({request.remote_addr})"))
     else:
-        islemler.taslak_reddet(tid)
+        islemler.taslak_reddet(tid, onaylayan=f"panel ({request.remote_addr})")
         flash("Taslak reddedildi.")
     return redirect(url_for("taslaklar"))
 
@@ -149,10 +156,11 @@ def musteriler():
     durum = request.args.get("durum", "")
     with vt.baglanti() as con:
         if durum:
-            liste = con.execute("SELECT * FROM musteri WHERE durum=? ORDER BY id DESC LIMIT 500", (durum,)).fetchall()
+            liste = con.execute("SELECT * FROM musteri WHERE durum=? ORDER BY puan DESC, id DESC LIMIT 500",
+                                (durum,)).fetchall()
         else:
-            liste = con.execute("SELECT * FROM musteri ORDER BY id DESC LIMIT 500").fetchall()
-    return render_template("musteriler.html", liste=liste, durum=durum)
+            liste = con.execute("SELECT * FROM musteri ORDER BY puan DESC, id DESC LIMIT 500").fetchall()
+    return render_template("musteriler.html", liste=liste, durum=durum, turler=musteri_bul.TURLER)
 
 
 @app.post("/musteri/ekle")
@@ -174,7 +182,9 @@ def musteri_csv():
         abort(400)
     with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as gecici:
         dosya.save(gecici.name)
-        flash(f"{musteri_bul.csv_ice_aktar(gecici.name)} işletme eklendi.")
+        mevcut = request.form.get("mevcut") == "1"
+        sayi = musteri_bul.csv_ice_aktar(gecici.name, mevcut_musteri=mevcut)
+        flash(f"{sayi} işletme {'mevcut müşteri olarak işaretlendi/eklendi' if mevcut else 'eklendi'}.")
     return redirect(url_for("musteriler"))
 
 
@@ -194,6 +204,28 @@ def kara_liste():
             vt.kara_listeye_ekle(con, request.form["eposta"], "elle eklendi")
         liste = con.execute("SELECT * FROM kara_liste ORDER BY tarih DESC").fetchall()
     return render_template("kara_liste.html", liste=liste)
+
+
+@app.route("/denetim")
+@giris_gerekli
+def denetim():
+    with vt.baglanti() as con:
+        liste = con.execute(
+            "SELECT d.*, t.kime, t.tur FROM denetim d LEFT JOIN taslak t ON t.id=d.taslak_id ORDER BY d.id DESC LIMIT 300"
+        ).fetchall()
+    return render_template("denetim.html", liste=liste)
+
+
+@app.route("/cik", methods=["GET", "POST"])
+def cik():
+    """Tek tık listeden çıkış (RFC 8058). Giriş gerektirmez; müşteriye özel token ile çalışır.
+    Yalnız panel internete açık bir adreste (CIKIS_URL_KOK) yayındaysa işe yarar."""
+    token = request.args.get("t", "")
+    if request.method == "POST":
+        ok = islemler.tek_tik_cikis(token)
+        return ("Adresiniz listemizden çıkarıldı. Bir daha tanıtım maili almayacaksınız." if ok
+                else "Bağlantı geçersiz. Lütfen maile ÇIKAR yazarak cevap verin."), (200 if ok else 400)
+    return render_template("cik.html", token=token)
 
 
 def calistir():

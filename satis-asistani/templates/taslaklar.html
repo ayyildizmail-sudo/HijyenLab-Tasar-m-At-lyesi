@@ -3,19 +3,55 @@
 <h2>Onay bekleyen taslaklar ({{ liste|length }})</h2>
 {% for t in liste %}
 <div class="kart">
-  <div><span class="etiket">{{ t.tur }}</span> <b>{{ t.musteri_ad or t.kime }}</b> {% if t.musteri_tur %}<span class="soluk">({{ t.musteri_tur }})</span>{% endif %} → {{ t.kime }}</div>
+  <div>
+    <span class="etiket">{{ t.tur }}</span>
+    {% if t.bulgu_listesi %}<span class="etiket rozet-kirmizi">{{ t.bulgu_listesi|length }} güvenlik bulgusu</span>{% endif %}
+    {% if t.insan_baksin %}<span class="etiket rozet-sari">insan baksın (güven {{ '%.2f'|format(t.guven or 0) }})</span>{% endif %}
+    <b>{{ t.musteri_ad or t.kime }}</b> {% if t.musteri_tur %}<span class="soluk">({{ turler.get(t.musteri_tur, t.musteri_tur) }})</span>{% endif %} → {{ t.kime }}
+    <span class="soluk">· profil {{ t.profil_surumu or '?' }}</span>
+  </div>
+
   {% if t.gelen_metin %}
   <details style="margin:8px 0"><summary>Gelen mail: {{ t.gelen_konu }}</summary>
-    <p class="soluk">{{ t.gelen_ozet }}</p><pre style="white-space:pre-wrap">{{ t.gelen_metin }}</pre></details>
+    <p class="soluk">{{ t.gelen_ozet }}</p>
+    {% if t.gelen_ekler %}<p class="soluk">Ekler: {{ t.gelen_ekler }}</p>{% endif %}
+    <pre style="white-space:pre-wrap">{{ t.gelen_metin }}</pre></details>
   {% endif %}
+
+  {% if t.teklif_karti %}
+  <div class="bilgi"><b>Teklif dosyası</b> <span class="soluk">(Claude projesine yapıştırın)</span>
+    <pre class="kart-metin" id="kart{{ t.id }}">{{ t.teklif_karti }}</pre>
+    <button type="button" class="ikincil" onclick="navigator.clipboard.writeText(document.getElementById('kart{{ t.id }}').innerText).then(()=>this.textContent='Kopyalandı')">Kopyala</button>
+  </div>
+  {% endif %}
+  {% if t.hesaplanan_teklif %}
+  <div class="bilgi"><b>Kodla hesaplanan teklif</b> (taslaktaki rakamlar buradan gelir)<pre class="kart-metin">{{ t.hesaplanan_teklif }}</pre></div>
+  {% endif %}
+
   <form method="post" action="{{ url_for('taslak_islem', tid=t.id) }}">
     <input type="hidden" name="csrf" value="{{ csrf }}">
     <p><input name="konu" value="{{ t.konu }}" style="width:100%"></p>
     <textarea name="metin">{{ t.metin }}</textarea>
-    {% if t.tur != 'cevap' %}<p class="soluk">Gönderilirken sonuna "listeden çıkma" notu otomatik eklenir.</p>{% endif %}
-    <p><button name="islem" value="gonder">Onayla ve gönder</button>
+    {% if t.tur != 'cevap' %}<p class="soluk">Gönderilirken sonuna "listeden çıkma" notu ve şirket bilgisi otomatik eklenir.</p>{% endif %}
+
+    {% if t.bulgu_listesi %}
+    <div class="bulgu"><b>Güvenlik kontrolü bulguları.</b> Göndermek için her birini okuyup işaretleyin
+      (gerekirse önce metni düzeltin; düzeltilen metin gönderirken yeniden kontrol edilir):
+      {% for b in t.bulgu_listesi %}
+      <label><input type="checkbox" name="gordum" value="{{ b.anahtar }}" class="gordum{{ t.id }}"
+        onchange="kilit({{ t.id }})"> <b>{{ b.aciklama }}</b>: “{{ b.parca }}”</label>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <p><button name="islem" value="gonder" id="gonder{{ t.id }}" {% if t.bulgu_listesi %}disabled{% endif %}>Onayla ve gönder</button>
        <button name="islem" value="reddet" class="ikincil">Reddet</button></p>
   </form>
 </div>
 {% else %}<div class="kart soluk">Onay bekleyen taslak yok.</div>{% endfor %}
+<script>
+function kilit(id){
+  const kutular=[...document.querySelectorAll('.gordum'+id)];
+  document.getElementById('gonder'+id).disabled = !kutular.every(k=>k.checked);
+}
+</script>
 {% endblock %}

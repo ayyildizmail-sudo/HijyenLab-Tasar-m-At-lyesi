@@ -23,18 +23,18 @@ Yanında bir **tanıtım kataloğu** (PDF) hazırlandı. Potansiyel müşteriler
 - **Marka:** HijyenLab
 - **Şirket:** İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.
 - **İletişim:** info@hijyenlab.com · 0 (542) 569 98 69 · hijyenlab.com
-- **İş:** İşletmelere özel logolu, tek tek paketli tek kullanımlık havlu ve ıslak mendil üretimi ve tedariki.
+- **İş:** İşletmelere özel logolu, tek tek paketli tek kullanımlık ıslak havlu ve ıslak mendil üretimi ve tedariki.
 - **Slogan:** "İşletmenizin markası, müşterinizin her temasında."
 
 ### Ürünler
 
 | Ürün | Kod | Koli içi | En az sipariş (beyaz / renkli) | Beyaz birim | Renkli birim |
 |---|---|---|---|---|---|
-| 25×30 cm rulo havlu | BM12 | 400 | 5.200 / 10.000 | 2,90 TL | 3,30 TL |
-| 25×25 cm rulo havlu | BM15 | 500 | 5.000 / 10.000 | 2,50 TL | 3,00 TL |
-| 30×30 cm rulo havlu | BM11 | 400 | 5.200 / 10.000 | 3,50 TL | 4,00 TL |
-| 30×35 cm rulo havlu | BM13 | 400 | 5.200 / 10.000 | 3,80 TL | 4,30 TL |
-| 20×25 cm katlı havlu | BM545 | 625 | 5.000 / 10.000 | 2,40 TL | 2,80 TL |
+| 25×30 cm rulo ıslak havlu | BM12 | 400 | 5.200 / 10.000 | 2,90 TL | 3,30 TL |
+| 25×25 cm rulo ıslak havlu | BM15 | 500 | 5.000 / 10.000 | 2,50 TL | 3,00 TL |
+| 30×30 cm rulo ıslak havlu | BM11 | 400 | 5.200 / 10.000 | 3,50 TL | 4,00 TL |
+| 30×35 cm rulo ıslak havlu | BM13 | 400 | 5.200 / 10.000 | 3,80 TL | 4,30 TL |
+| 20×25 cm katlı ıslak havlu | BM545 | 625 | 5.000 / 10.000 | 2,40 TL | 2,80 TL |
 | 7×12 cm ıslak mendil | BM21 | 1.000 | 10.000 | 1,40 TL | 1,40 TL |
 | Oshibori ıslak havlu | OSHIBORI | 250 | 3.000 | dolar bazlı, teklifle | |
 
@@ -42,11 +42,15 @@ Yanında bir **tanıtım kataloğu** (PDF) hazırlandı. Potansiyel müşteriler
 - **Klişe:** renk başına 1.000 TL, tek seferlik. Aynı tasarımla tekrar siparişte alınmaz. Özel CMYK klişe 10.000 TL.
 - **Kargo:** koli başına 200 TL. Bodrum teslimatlarında nakliye ücreti alınmaz.
 - **Mendil kokuları:** Flambau (standart), Limon, Bodrum Mandalinası, Yeşil Çay. Başka koku için en az 20.000 adet.
-- **25×30 (BM12) özellikleri:** 60 g/m² nonwoven, tekli ambalaj, 50 mikron OPP (16×17 cm).
+- **Rulo ürünler:** 60 g/m² nonwoven, tekli ambalaj, 50 mikron OPP. Ölçüler iç kumaş ölçüsüdür; 30×30 ve 30×35, 25×30 ile aynı ambalajı (16×17 cm) kullanır.
+- **Klişe renk sayımı:** Beyaz dışındaki her renk ayrı klişedir, zemin dahil; beyaza klişe yapılmaz (siyah zemin + beyaz yazı = 1, lacivert zemin + altın yazı = 2). Ön ve arka yüzde aynı renkler klişe sayısını artırmaz.
+- **Selefon:** Renkli zeminde uygulanır, renkli birim fiyata dahildir. **Baskısız ürün:** klişe yok, beyaz fiyat, en az bir koli.
+- **Hedef üretim süresi:** grafik onayı ve ön ödemeden sonra yeni klişede ~25 gün, tekrar siparişte ~20 gün; kesin tarih sözü verilmez. **Teklifler 15 gün geçerlidir.**
+- **İmza:** Hakan Ayyıldız · HijyenLab · İKA Kurumsal Tedarik Hizmetleri Ltd. Şti. · 0 (542) 569 98 69 · hijyenlab.com
 - **Baskı:** Flekso, standart olarak en fazla 3 renk, degrade yok. Renkli zeminde mat veya parlak selefon seçeneği var.
 - **Sipariş süreci:**
   1. Ürün seçimi
-  2. Tasarım
+  2. Müşterinin logosuyla ücretsiz görsel (mockup)
   3. Grafik onayı
   4. Fatura ve %50 ön ödeme
   5. Klişe ve üretim
@@ -101,7 +105,8 @@ Yanında bir **tanıtım kataloğu** (PDF) hazırlandı. Potansiyel müşteriler
   - `tanitim/`: katalog ve görseller
   - `docs/`: raporlar
 - **Dil:** Python 3.11+, Flask (panel), SQLite (veritabanı)
-- **Yapay zeka:** Claude API, model `claude-opus-5-5`. Sınıflandırma ve yazma için yapılandırılmış çıktı kullanılıyor.
+- **Yapay zeka:** Claude API. Sınıflandırma `claude-haiku-5-5` (hızlı, ucuz), yazım `claude-opus-5-5`; ikisi de `.env`'den değiştirilebilir. Çıktılar şemayla zorunlu yapılandırılmış JSON. Firma profili önbelleğe alınan sistem bloğu olarak gider.
+- **Rakamlar:** Fiyatlar yalnız `fiyatlar.json`'da. Yapay zeka rakam üretmez; fiyat paylaşımı açıkken tutarı `teklif_hesapla.py` hesaplar.
 - **Mail:** IMAP ile okuma, SMTP ile gönderme. Gelen kutusundaki mailler "okundu" olarak işaretlenmez.
 - **Müşteri kaynağı:** OpenStreetMap (ücretsiz, herkese açık) ve işletmelerin kendi web siteleri.
   Ayrıca CSV ile elle liste yüklenebilir.
@@ -110,12 +115,15 @@ Yanında bir **tanıtım kataloğu** (PDF) hazırlandı. Potansiyel müşteriler
 
 | Dosya | Görevi |
 |---|---|
-| `firma_profili.md` | Yapay zekanın kullandığı **tek bilgi kaynağı**: ürünler, fiyatlar, kurallar, sektöre göre anlatım, imza |
-| `yapay_zeka.py` | Gelen mail değerlendirme, cevap taslağı, tanıtım ve hatırlatma maili yazma |
-| `eposta.py` | IMAP okuma, SMTP gönderme, "listeden çık" notu ve başlığı |
-| `musteri_bul.py` | OpenStreetMap araması, web sitesinden e-posta bulma, CSV yükleme, telefon listesi |
+| `firma_profili.md` | Yapay zekanın kullandığı **tek bilgi kaynağı**: ürünler (tablo `fiyatlar.json`'dan fiyatsız üretilir), baskı/klişe kuralları, süreç, sektöre göre anlatım, imza. Başında `profil_surumu` ve `fiyat_paylasilabilir` var |
+| `fiyatlar.json` | Fiyat, koli, minimum adet, klişe, kargo: tek doğru kaynak |
+| `teklif_hesapla.py` | Fiyat / klişe (zemin dahil, beyaz hariç) / kargo (Bodrum ücretsiz) hesaplayıcı |
+| `guvenlik_kontrolu.py` | Taslak denetimi: yasak terimler, medikal iddia, vaat, fiyat kapalıyken rakam, başka müşteri adı, adres uyarısı |
+| `yapay_zeka.py` | Sınıflandırma (güven puanı, teklif bilgileri, eksikler), cevap taslağı, tanıtım/hatırlatma, teklif kartı |
+| `eposta.py` | IMAP (PEEK + UID/UIDVALIDITY), SMTP, zincir başlıkları, tek tık çıkış, Gönderilmiş klasörüne kopya, bounce ayrıştırma, gönderim penceresi, MX kontrolü |
+| `musteri_bul.py` | OpenStreetMap araması (kebapçı/balıkçı mutfak türünden ayrılır), nazik tarama (robots.txt, 2 sn bekleme), aday puanı, mevcut müşteri listesi, telefon listesi |
 | `islemler.py` | İş akışları: taslak üretme, gelen kutusunu işleme, onaylı gönderim |
-| `veritabani.py` | Müşteri, mail, taslak ve kara liste tabloları |
+| `veritabani.py` | Müşteri, mail, taslak, kara liste, IMAP durumu ve denetim izi tabloları |
 | `panel.py` + `templates/` | Tarayıcıdan açılan onay paneli (http://127.0.0.1:5000) |
 | `calistir.py` | Komut satırı: `panel`, `bul`, `gelen`, `tanitim`, `hatirlatma`, `otomatik` |
 | `.env.example` | Ayar şablonu: mail sunucusu, şifre, API anahtarı, limitler |
@@ -152,6 +160,9 @@ Bir müşteri şu durumlardan birinde olur:
   - Geri dönen (geçersiz) adresler
   - Cevap verenler (bunlara hatırlatma gitmez)
 - **Kurumsal adres kuralı:** Sadece işletmelerin herkese açık yayımladığı kurumsal adreslere yazılır. Kişisel adres tahmin edilmez.
+- **Güvenlik kontrolü:** Her taslak taranır; bulgu varsa panelde kırmızı rozet çıkar ve her bulgu "gördüm" diye işaretlenmeden gönder düğmesi açılmaz. Üretim partnerinin adı gibi terimler `.env` içindeki `YASAK_TERIMLER`'de tutulur, koda yazılmaz.
+- **Gönderim penceresi:** Tanıtım yalnız hafta içi 09:30–11:30 ve 14:00–16:30; aynı alan adına günde tek mail; MX kaydı olmayan alan adına gönderilmez.
+- **Denetim izi:** Her gönderim/ret için kim, ne zaman, profil sürümü, bulgular, yapay zekanın ilk metni ve gönderilen son metin kaydedilir.
 - **Fiyat paylaşımı:** Şimdilik kapalıdır (`FIYAT_PAYLASILABILIR: hayir`). Yapay zeka rakam yazmaz, "size özel teklif" der. İlk haftalarda taslaklar görülüp güven oluşunca açılması önerildi.
 - **Gelen mail içeriği:** Veri olarak işlenir. İçindeki talimatlar uygulanmaz (istem enjeksiyonu koruması).
 - **Şifreler:** Koda veya sohbete yazılmaz. Sadece bilgisayardaki `.env` dosyasında durur, git'e girmez. Normal şifre yerine sağlayıcının verdiği **uygulama şifresi** kullanılır.
@@ -167,16 +178,18 @@ Bir müşteri şu durumlardan birinde olur:
 - [x] Firma profili: bütün ürünler, teyitli fiyatlar, sektöre göre anlatım.
 - [x] Müşteri bulma şu sektörleri kapsıyor: restoran, fast food, kafe, otel, kuaför, güzellik, pastane, spa ve hamam, catering, araç kiralama.
 - [x] Tanıtım kataloğu taslağı: 9 sayfa A4 PDF (`tanitim/HijyenLab_Katalog.pdf`), fiyatsız, geçici yazı logosuyla.
+- [x] Claude Projeleri öneri raporu (25.11.2026) uygulandı: güvenlik kontrolü + onay kilidi, fiyat hesaplayıcı, iki model, UID takibi, Gönderilmiş klasörüne kopya, tek tık çıkış, bounce, gönderim penceresi, alan adı sınırı, MX kontrolü, teklif kartı, aday puanı, mevcut müşteri listesi, denetim izi. 27/27 test geçiyor.
 
 ### Bekleyenler
 
-- [ ] **HijyenLab logo dosyası:** Katalogda şimdilik yazı logosu kullanılıyor.
-- [ ] **Ürün tanımı:** Bütün rulo ürünler "ıslak" havlu mu? BM12 teklifinde "rulo ıslak havlu" yazıyor.
-- [ ] **Üretim süresi:** Teklifteki "grafik onayı ve ön ödemeden sonra 25 gün" mailde ve katalogda hedef süre olarak yazılsın mı?
+- [ ] **HijyenLab logo dosyası** (`hijyenlab logo.pdf`) ve gerçek boş paket görselleri (BM12, BM545 bıçak izinden; 7×12 için bıçak izi PDF): katalogda şimdilik yazı logosu ve yapay zeka mockup'ları var.
 - [ ] **Gerçek ürün fotoğrafları:** Mevcut mockup'lar yapay zekayla üretilmiş, düşük çözünürlüklü. 7×12 mendil mockup'ı kare görünüyor, gerçekte dikdörtgen.
 - [ ] **Kataloğa son onay:** metinler, sıralama, renkler.
 - [ ] **Mail ayarları** (en sona bırakıldı): sağlayıcı (Google / Microsoft / Yandex / hosting), IMAP ve SMTP sunucuları, uygulama şifresi.
 - [ ] **Claude API anahtarı** (console.anthropic.com).
+- [ ] **`YASAK_TERIMLER`**: üretim partnerinin adı `.env`'ye yazılacak.
+- [ ] **Mevcut müşteri listesi** (CSV) panele "mevcut müşterilerim" olarak yüklenecek.
+- [ ] **SPF/DKIM/DMARC**, adres ısındırma, İYS/KVKK teyidi: `DENEME_MODU=0` öncesi şart.
 - [ ] **Asistanın nerede çalışacağı:** kendi bilgisayar veya küçük bir sunucu.
 - [ ] **Deneme modunda birkaç gün test:** Sonra `DENEME_MODU=0`.
 
@@ -185,7 +198,11 @@ Bir müşteri şu durumlardan birinde olur:
 - Sektöre özel 1 sayfalık katalog sayfaları (otel, restoran, zincir, toptancı).
 - Toptancı ve ajanslar için ayrı tanıtım maili şablonu.
 - Gönderilen maillerin mail programındaki "Gönderilmiş" klasörüne de kopyalanması.
-- Tekrar sipariş hatırlatması: Müşterinin ürünü bitmeden yeniden sipariş önerisi.
+- Tekrar sipariş hatırlatması (ör. 5.200 adetten 60 gün, 10.000 adetten 90 gün sonra).
+- "Teklif gönderildi" / "sipariş" durumları ve "teklif gönderildi, 5 gün cevap yok" hatırlatması.
+- Telefon listesindeki işletmeler için kopyalanabilir WhatsApp metni.
+- Sabah özet maili ve haftalık huni ölçümü (gönderilen → cevap → teklif → sipariş).
+- Tanıtımlar için ayrı alt alan adı (ör. bilgi.hijyenlab.com).
 
 ---
 

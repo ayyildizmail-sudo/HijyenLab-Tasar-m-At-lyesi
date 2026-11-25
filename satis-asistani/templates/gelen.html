@@ -4,8 +4,10 @@
 <div class="kart tablo"><table>
 <tr><th>Tarih</th><th>Kimden</th><th>Konu</th><th>Kategori</th><th>Önem</th><th>Özet</th></tr>
 {% for g in liste %}
-<tr><td class="soluk">{{ g.tarih[:16] }}</td><td>{{ g.musteri_ad or g.kimden }}</td><td>{{ g.konu }}</td>
-<td><span class="etiket">{{ g.kategori }}</span></td><td>{{ g.onem or "" }}</td><td>{{ g.ozet }}</td></tr>
+<tr><td class="soluk">{{ g.tarih[:16] }}</td><td>{{ g.musteri_ad or g.kimden }}</td><td>{{ g.konu }}{% if g.ekler %}<br><span class="soluk">📎 {{ g.ekler }}</span>{% endif %}</td>
+<td><span class="etiket">{{ g.kategori }}</span>{% if g.insan_baksin %}<br><span class="etiket rozet-sari">insan baksın</span>{% endif %}</td>
+<td>{{ g.onem or "" }}</td>
+<td>{{ g.ozet }}{% if g.teklif_karti %}<details><summary>Teklif dosyası</summary><pre class="kart-metin">{{ g.teklif_karti }}</pre></details>{% endif %}</td></tr>
 {% else %}<tr><td colspan="6" class="soluk">Henüz işlenmiş mail yok.</td></tr>{% endfor %}
 </table></div>
 {% endblock %}

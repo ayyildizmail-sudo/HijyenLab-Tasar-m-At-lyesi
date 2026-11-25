@@ -6,7 +6,8 @@
     <h3>1. Gelen kutusu</h3>
     <p class="soluk">info@ adresine gelen mailleri okur, sınıflandırır, gerekenlere cevap taslağı hazırlar.</p>
     <form method="post" action="{{ url_for('is_baslat', ad='gelen') }}"><input type="hidden" name="csrf" value="{{ csrf }}">
-      Son <input name="gun" value="3" size="2"> gün <button>Kontrol et</button></form>
+      <button>Kontrol et</button></form>
+    <p class="soluk" style="margin-top:6px">Yalnız son kontrolden sonra gelen yeni mailler işlenir.</p>
   </div>
   <div class="kart">
     <h3>2. Müşteri bul</h3>

@@ -11,17 +11,19 @@
 <div class="kart"><h3>Listeden yükle (CSV)</h3>
 <p class="soluk">Sütunlar: ad, tur, sehir, ilce, telefon, eposta, web</p>
 <form method="post" action="{{ url_for('musteri_csv') }}" enctype="multipart/form-data"><input type="hidden" name="csrf" value="{{ csrf }}">
-  <input type="file" name="dosya" accept=".csv" required> <button>Yükle</button></form>
+  <input type="file" name="dosya" accept=".csv" required>
+  <label style="display:block;margin:6px 0"><input type="checkbox" name="mevcut" value="1"> Bunlar <b>mevcut müşterilerim</b> (tanıtım maili gitmesin)</label>
+  <button>Yükle</button></form>
 <h3>Telefon listesi</h3>
 <p class="soluk">E-postası olmayan işletmeleri telefon/WhatsApp ile aramak için indirin.</p>
 <a class="dugme" href="{{ url_for('telefon_listesi') }}">CSV indir</a></div>
 </div>
 <div class="kart tablo"><table>
-<tr><th>Ad</th><th>Tür</th><th>İlçe</th><th>E-posta</th><th>Telefon</th><th>Durum</th><th>Son temas</th></tr>
+<tr><th>Puan</th><th>Ad</th><th>Tür</th><th>İlçe</th><th>E-posta</th><th>Telefon</th><th>Durum</th><th>Son temas</th></tr>
 {% for m in liste %}
-<tr><td>{{ m.ad }}{% if m.web %}<br><a class="soluk" href="{{ m.web if m.web.startswith('http') else 'https://' ~ m.web }}" target="_blank" rel="noopener">{{ m.web[:40] }}</a>{% endif %}</td>
-<td>{{ m.tur or "" }}</td><td>{{ m.ilce or "" }}</td><td>{{ m.eposta or "" }}</td><td>{{ m.telefon or "" }}</td>
+<tr><td>{{ m.puan }}</td><td>{{ m.ad }}{% if m.marka %} <span class="etiket">zincir</span>{% endif %}{% if m.mevcut_musteri %} <span class="etiket">müşterimiz</span>{% endif %}{% if m.web %}<br><a class="soluk" href="{{ m.web if m.web.startswith('http') else 'https://' ~ m.web }}" target="_blank" rel="noopener">{{ m.web[:40] }}</a>{% endif %}</td>
+<td>{{ turler.get(m.tur, m.tur or "") }}</td><td>{{ m.ilce or "" }}</td><td>{{ m.eposta or "" }}{% if m.eposta_kaynak %}<br><span class="soluk">{{ m.eposta_kaynak }}</span>{% endif %}</td><td>{{ m.telefon or "" }}</td>
 <td><span class="etiket">{{ m.durum }}</span></td><td class="soluk">{{ (m.son_temas or "")[:16] }}</td></tr>
-{% else %}<tr><td colspan="7" class="soluk">Henüz müşteri yok. Özet sayfasından "Müşteri bul" ile başlayın.</td></tr>{% endfor %}
+{% else %}<tr><td colspan="8" class="soluk">Henüz müşteri yok. Özet sayfasından "Müşteri bul" ile başlayın.</td></tr>{% endfor %}
 </table></div>
 {% endblock %}

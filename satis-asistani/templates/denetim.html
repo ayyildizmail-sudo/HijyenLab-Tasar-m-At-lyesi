@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block icerik %}
+<h2>Denetim izi</h2>
+<p class="soluk">Her gönderim, ret ve hata: kim onayladı, ne zaman, hangi profil sürümüyle, hangi bulgular görüldü,
+yapay zekanın ilk metni ve gönderilen son metin.</p>
+<div class="kart tablo"><table>
+<tr><th>Zaman</th><th>Olay</th><th>Alıcı</th><th>Onaylayan</th><th>Profil</th><th>Bulgular</th><th>Metinler</th></tr>
+{% for d in liste %}
+<tr><td class="soluk">{{ d.zaman[:16] }}</td>
+<td><span class="etiket">{{ d.olay }}</span>{% if d.deneme %} <span class="soluk">(deneme)</span>{% endif %}</td>
+<td>{{ d.kime }}<br><span class="soluk">{{ d.tur }}</span></td><td>{{ d.onaylayan }}</td><td>{{ d.profil_surumu }}</td>
+<td class="soluk">{{ d.bulgular if d.bulgular and d.bulgular != '[]' else '—' }}</td>
+<td><details><summary>Göster</summary><b>Yapay zekanın ilk metni</b><pre class="kart-metin">{{ d.ai_metni or '' }}</pre>
+<b>Gönderilen</b><pre class="kart-metin">{{ d.gonderilen_konu or '' }}
+
+{{ d.gonderilen_metin or '' }}</pre></details></td></tr>
+{% else %}<tr><td colspan="7" class="soluk">Henüz kayıt yok.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}
