@@ -43,6 +43,8 @@ Yanında bir **tanıtım kataloğu** (PDF) hazırlandı. Potansiyel müşteriler
 - **Kargo:** koli başına 200 TL. Bodrum teslimatlarında nakliye ücreti alınmaz.
 - **Mendil kokuları:** Flambau (standart), Limon, Bodrum Mandalinası, Yeşil Çay. Başka koku için en az 20.000 adet.
 - **Kumaş:** Dört rulo ölçüsü ve 20×25 katlı aynı kumaş: noktalı dokulu nonwoven. 7×12 mendil de nonwoven. Nonwoven ürünlerde gramaj konuşulmaz ve teklif edilmez. Yalnız Oshibori %100 pamuk havlu; diğer ürünler için "pamuk" denmez. Rulo ürünler tekli ambalaj, 50 mikron OPP. Ölçüler iç kumaş ölçüsüdür; 30×30 ve 30×35, 25×30 ile aynı ambalajı (16×17 cm) kullanır.
+- **Kumaşı anlatma:** Teknik terim yerine sade dil: "Kağıt peçete değil; kumaş gibi yumuşak, tek tek paketli ıslak havlu." Onaylı özellikler (nonwoven): yırtılmaz, dağılmaz, tüy bırakmaz, sıkınca su damlamaz, ıslak ve kokulu. "Küçük paketten büyük havlu": 17 cm paket → 25×30 cm, 14 cm paket → 20×25 cm, 7×12 cm paket → 16×18 cm mendil. İlk tanıtımda kumaş için tek cümle; ayrıntı ilgilenen müşteriye.
+- **Numune:** Olumlu cevap veren, teklif isteyen ve A grubu müşterilere numune teklif edilir; adres, yetkili ve ürünler istenir; ücret ve tarih sözü verilmez. İlk soğuk mailde numune yok.
 - **Klişe renk sayımı:** Beyaz dışındaki her renk ayrı klişedir, zemin dahil; beyaza klişe yapılmaz (siyah zemin + beyaz yazı = 1, lacivert zemin + altın yazı = 2). Ön ve arka yüzde aynı renkler klişe sayısını artırmaz.
 - **Selefon:** Renkli zeminde uygulanır, renkli birim fiyata dahildir. **Baskısız ürün:** klişe yok, beyaz fiyat, en az bir koli.
 - **Hedef üretim süresi:** grafik onayı ve ön ödemeden sonra yeni klişede ~25 gün, tekrar siparişte ~20 gün; kesin tarih sözü verilmez. **Teklifler 15 gün geçerlidir.**
@@ -177,6 +179,7 @@ Bir müşteri şu durumlardan birinde olur:
 - [x] Satış asistanının ilk sürümü: gelen mail, müşteri bulma, tanıtım, hatırlatma, onay paneli, kara liste. 6/6 otomatik test geçiyor.
 - [x] Firma profili: bütün ürünler, teyitli fiyatlar, sektöre göre anlatım.
 - [x] Müşteri bulma şu sektörleri kapsıyor: restoran, fast food, kafe, otel, kuaför, güzellik, pastane, spa ve hamam, catering, araç kiralama.
+- [x] Katalogda "Kumaşı tanıyın" sayfası: paket ve açılmış havlunun gerçek ölçekte karşılaştırması (rulo, katlı, mendil), kağıt peçete / nonwoven / Oshibori fayda tablosu, numune çağrısı. Katalog 10 sayfa.
 - [x] Tanıtım kataloğu: 9 sayfa A4 PDF (`tanitim/HijyenLab_Katalog.pdf`), fiyatsız. Görseller **gerçek boş paketlerden** (bıçak izi PDF'leri ve grafik onay şablonları) `tanitim/araclar/katalog_gorselleri.py` ile üretiliyor; yapay zeka görselleri kaldırıldı. HijyenLab logosu vektörel (`tanitim/varliklar/hijyenlab_logo.svg/.pdf/.png`, logo rengi #29537B) ve teklif şablonunun renkleri kullanılıyor.
 - [x] Claude Projeleri öneri raporu (25.11.2026) uygulandı: güvenlik kontrolü + onay kilidi, fiyat hesaplayıcı, iki model, UID takibi, Gönderilmiş klasörüne kopya, tek tık çıkış, bounce, gönderim penceresi, alan adı sınırı, MX kontrolü, teklif kartı, aday puanı, mevcut müşteri listesi, denetim izi. 27/27 test geçiyor.
 
@@ -189,6 +192,8 @@ Bir müşteri şu durumlardan birinde olur:
 - [ ] **Mail ayarları** (en sona bırakıldı): sağlayıcı (Google / Microsoft / Yandex / hosting), IMAP ve SMTP sunucuları, uygulama şifresi.
 - [ ] **Claude API anahtarı** (console.anthropic.com).
 - [ ] **`YASAK_TERIMLER`**: üretim partnerinin adı `.env`'ye yazılacak.
+- [ ] **Ürün videosu** ("küçük paketten büyük havlu"): kullanıcı gönderecek; kısaltılıp yazı ve logo eklenecek, WhatsApp ve mail bağlantısı / katalog QR kodu olarak kullanılacak.
+- [ ] **Numune ücretli mi ücretsiz mi** ve hangi ürünlerle gönderileceği netleşecek.
 - [ ] **Mevcut müşteri listesi** (CSV) panele "mevcut müşterilerim" olarak yüklenecek.
 - [ ] **SPF/DKIM/DMARC**, adres ısındırma, İYS/KVKK teyidi: `DENEME_MODU=0` öncesi şart.
 - [ ] **Asistanın nerede çalışacağı:** kendi bilgisayar veya küçük bir sunucu.

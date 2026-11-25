@@ -152,6 +152,12 @@ def cevap_yaz(mail: dict, s: Siniflandirma, onceki_yazisma: str = "", hesaplanan
                   "görseli ücretsiz hazırlayacağımızı söyle.\n")
     elif s.kategori in (Kategori.teklif_talebi, Kategori.siparis):
         gorev += "Teklifi ekibimizin hazırlayıp göndereceğini söyle; gerekiyorsa logoyu iste.\n"
+    if s.numune_istiyor:
+        gorev += ("Müşteri numune istiyor: memnuniyetle göndereceğimizi söyle; teslim adresi, yetkili kişi ve "
+                  "ilgilendiği ürünleri iste. Ücret ve gönderim tarihi konusunda söz verme.\n")
+    elif s.kategori in (Kategori.tanitima_olumlu_cevap, Kategori.teklif_talebi, Kategori.soru):
+        gorev += ("Uygunsa, profildeki 'Numune' bölümüne göre kumaşı elinde görmesi için numune göndermeyi teklif et. "
+                  "Kumaşı anlatman gerekirse profildeki 'Kumaşı anlatma' ifadelerini kullan.\n")
     if s.kategori == Kategori.sikayet:
         gorev += "Bu bir şikâyet: özür dile, konuyu ekibin hemen inceleyeceğini söyle, hiçbir tazmin sözü verme.\n"
     if hesaplanan_teklif:
@@ -187,6 +193,8 @@ def tanitim_maili_yaz(musteri: dict, hatirlatma: bool = False, onceki: str = "")
             "Bu işletmeye ilk kez yazıyoruz. Kişiselleştirilmiş, en fazla 120 kelimelik bir tanıtım maili yaz. "
             "İşletmenin sektörünü belirle ve profildeki 'Sektöre göre anlatım' bölümüne göre bir somut kullanım "
             "anıyla faydayı anlat. O sektöre en uygun 1-2 ürünü öner; bütün ürün listesini sayma. "
+            "Kumaş için en fazla tek sade cümle kullan (profildeki 'Kumaşı anlatma'); teknik terim ve numune teklifi "
+            "ilk mailde yok. "
             "Zincirse bütün şubelere aynı tasarımla tedarik imkânını belirt. "
             "Tek çağrı: profildeki 'Çağrı' cümlesi. "
             "Konu satırı kısa olsun, işletme adını içersin; büyük harf, ünlem, 'reklam', 'fırsat', 'ücretsiz' "
@@ -210,6 +218,7 @@ def teklif_karti(s: Siniflandirma, gonderen: str, ekler: list[str]) -> str:
         f"Baskı renkleri: {', '.join(t.baski_renkleri) or '?'}",
         f"Koku: {t.koku or 'belirtilmedi'}",
         f"Tekrar sipariş: {'evet' if t.tekrar_siparis else 'hayır'}",
+        f"Numune istiyor: {'evet' if s.numune_istiyor else 'hayır'}",
         f"Logo eki: {'var' if s.logo_eki_var else 'yok'}" + (f" ({', '.join(ekler)})" if ekler else ""),
         f"Özet: {s.ozet}",
     ]

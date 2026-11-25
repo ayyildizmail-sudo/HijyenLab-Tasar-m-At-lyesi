@@ -68,6 +68,16 @@
   .ozellik { display: grid; grid-template-columns: auto 1fr; gap: .6mm 3mm; font-size: 8.8pt; margin-top: 2mm; }
   .ozellik dt { color: var(--soluk); } .ozellik dd { font-weight: 600; }
 
+  .olcu { border: 1px solid var(--cizgi); border-radius: 4mm; overflow: hidden; background: #fff; padding: 2mm 3mm 3mm; }
+  .olcu img { width: 100%; }
+  .olcu figcaption { font-size: 9pt; font-weight: 700; color: var(--lacivert); padding-top: 1mm; }
+  .olcu figcaption span { display: block; font-weight: 400; color: var(--soluk); font-size: 8pt; }
+  table.fayda th span { font-weight: 400; font-size: 8pt; }
+  table.fayda td:first-child { color: var(--soluk); font-weight: 600; width: 24mm; }
+  table.fayda td { font-size: 9pt; padding: 1.6mm 3mm; }
+  table.fayda th { padding: 2mm 3mm; }
+  .kumas-sayfa .izgara2 { gap: 4mm !important; }
+  .kumas-sayfa h2 { margin-bottom: 3mm; }
   .karsilastir { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
   .karsilastir figure { border: 1px solid var(--cizgi); border-radius: 4mm; overflow: hidden; background: #fff; padding: 2mm; }
   .karsilastir figcaption { text-align: center; font-size: 8.5pt; font-weight: 700; color: var(--lacivert); padding: 1mm 0 1mm; }
@@ -212,6 +222,35 @@
   <div class="alt"><span>Görsellerdeki "LOGONUZ" yerine sizin logonuz basılır. Nihai görünüm üretim öncesi grafik onayıyla kesinleşir.</span><span>5</span></div>
 </section>
 
+<!-- 5b. KUMAŞI TANIYIN -->
+<section class="sayfa kumas-sayfa">
+  <div class="ust-etiket">Kumaşı tanıyın</div>
+  <h2>Küçük paketten büyük havlu</h2>
+  <p class="giris" style="margin-bottom:4mm">Kağıt peçete değil: kumaş gibi yumuşak, tek tek paketli ıslak havlu. Paket ve açılmış havlu aynı ölçekte gösterilmiştir.</p>
+  <div class="izgara2" style="gap:5mm">
+    <figure class="olcu"><img src="gorseller/olcu_rulo.jpg" alt="25×30 rulo: kapalı paket ve açılmış havlu"><figcaption>Rulo ıslak havlu · 25×30 cm<span>25×25, 30×30 ve 30×35 cm seçenekleri de aynı kumaştan</span></figcaption></figure>
+    <figure class="olcu"><img src="gorseller/olcu_katli.jpg" alt="20×25 katlı: kapalı paket ve açılmış havlu"><figcaption>Katlı ıslak havlu · 20×25 cm</figcaption></figure>
+    <figure class="olcu"><img src="gorseller/olcu_mendil.jpg" alt="7×12 mendil: kapalı paket ve açılmış mendil"><figcaption>Islak mendil · paket 7×12 cm<span>Açılınca 16×18 cm</span></figcaption></figure>
+    <div class="kart" style="display:flex;gap:4mm;align-items:center">
+      <img src="gorseller/doku_pamuk_havlu.jpg" alt="" style="width:30mm;mix-blend-mode:multiply">
+      <div><h3>Oshibori</h3><p class="kucuk">%100 pamuk havlu, 22,5×24,5 cm, adet başına 15 g. Rulo halinde sarılı, gerçek havlu dokusu.</p></div>
+    </div>
+  </div>
+  <table class="fayda" style="margin-top:4mm">
+    <tr><th></th><th>Kağıt peçete</th><th>Nonwoven ıslak havlu<br><span>rulo, katlı, mendil</span></th><th>Oshibori<br><span>%100 pamuk</span></th></tr>
+    <tr><td>Dokunuş</td><td>Kağıt</td><td><b>Kumaş gibi yumuşak</b></td><td><b>Gerçek havlu</b></td></tr>
+    <tr><td>Kullanırken</td><td>Islanınca dağılır</td><td><b>Yırtılmaz, dağılmaz, tüy bırakmaz</b></td><td>Gerçek havlu dokusu</td></tr>
+    <tr><td>Islaklık</td><td>Kuru</td><td><b>Islak ve kokulu; sıkınca su damlamaz</b></td><td>Islak</td></tr>
+    <tr><td>Sunum</td><td>Açıkta durur</td><td><b>Tek tek paketli</b></td><td><b>Tek tek paketli</b></td></tr>
+    <tr><td>Marka</td><td>Genellikle yok</td><td><b>Ambalajda logonuz</b></td><td><b>Ambalajda logonuz</b></td></tr>
+  </table>
+  <div class="kart" style="margin-top:4mm;padding:4mm 6mm">
+    <h3 style="margin:0">Kumaşı elinizde görün</h3>
+    <p class="kucuk">İlgilendiğiniz ürünlerden numune gönderelim; kumaşı dokunarak inceleyin, işletmenizde deneyin.</p>
+  </div>
+  <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>6</span></div>
+</section>
+
 <!-- 6. MARKANIZA ÖZEL -->
 <section class="sayfa">
   <div class="ust-etiket">Markanıza özel tasarım</div>
@@ -253,7 +292,7 @@
     <figure><img src="gorseller/katli_20x25_logolu.jpg" alt=""><figcaption>Ön yüz</figcaption></figure>
     <figure><img src="gorseller/katli_20x25_arka.jpg" alt=""><figcaption>Arka yüz</figcaption></figure>
   </div>
-  <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>6</span></div>
+  <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>7</span></div>
 </section>
 
 <!-- 7. SEKTÖRLER -->
@@ -278,7 +317,7 @@
     <h3>Zincir işletmeler ve toptancılar</h3>
     <p class="kucuk">Birden fazla şubeniz varsa bütün şubelere aynı tasarımla düzenli tedarik planlıyoruz. Otel ve restoran malzemesi toptancıları ile reklam ajanslarıyla da çalışıyoruz.</p>
   </div>
-  <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>7</span></div>
+  <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>8</span></div>
 </section>
 
 <!-- 8. SİPARİŞ SÜRECİ -->
@@ -315,7 +354,7 @@
       </ul>
     </div>
   </div>
-  <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>8</span></div>
+  <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>9</span></div>
 </section>
 
 <!-- 9. ARKA KAPAK -->

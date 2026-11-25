@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-25g
+profil_surumu: 2026-11-25h
 fiyat_paylasilabilir: hayir
 ---
 
@@ -30,7 +30,7 @@ logosu ve renkleriyle hazırlar ve düzenli olarak tedarik eder.
 - Rulo ürünler (25×25, 25×30, 30×30, 30×35) ve 20×25 katlı ıslak havlu aynı kumaştan yapılır: noktalı (delikli) dokulu nonwoven.
 - Rulo ürünler: tekli ambalaj, 50 mikron OPP.
 - 20×25 katlı ıslak havlu: tekli ambalaj, 50 mikron OPP (14×19 cm).
-- 7×12 ıslak mendil: nonwoven kumaş; tek tek paketli, triplex ambalaj.
+- 7×12 ıslak mendil: nonwoven kumaş; tek tek paketli, triplex ambalaj. Paket 7×12 cm, açılınca mendil 16×18 cm.
 - Bütün ürünler beyaz veya renkli zeminle, logolu veya baskısız hazırlanabilir.
 - Oshibori: yemek öncesi veya sonrası misafire sunulan, rulo halinde sarılı ıslak havlu (fine dining, uzak doğu mutfağı, otel, beach club).
   Kumaşı %100 pamuk havlu (ilmekli havlu dokusu); ürün ailesindeki tek pamuklu ürün, bu yüzden en premium sunum.
@@ -87,6 +87,23 @@ Koli başına ücretlendirilir. Bodrum teslimatlarında kargo ücreti alınmaz.
 - Catering / organizasyon / etkinlik: yüksek adetli, etkinliğe özel tasarım.
 - Transfer / araç kiralama / tekne turu: misafire verilen markalı ıslak mendil.
 - Toptancı / reklam ajansı: kendi müşterilerine markalı ürün sunabilecekleri bir tedarikçi.
+
+## Kumaşı anlatma (müşterinin anlayacağı dille)
+Teknik terim yerine şu onaylı ifadeler kullanılır:
+- Nonwoven ürünler (rulo, katlı, mendil): "Kağıt peçete değil; kumaş gibi yumuşak, tek tek paketli ıslak havlu."
+  Onaylı özellikler: yırtılmaz, dağılmaz, tüy bırakmaz, sıkınca su damlamaz, ıslak ve hoş kokulu.
+- "Küçük paketten büyük havlu": 17 cm'lik paketten 25×30 cm havlu, 14 cm'lik paketten 20×25 cm katlı havlu,
+  7×12 cm'lik paketten 16×18 cm mendil çıkar.
+- Oshibori: "%100 pamuk, gerçek havlu dokusunda, rulo halinde sarılı ıslak havlu."
+- Kokunun ne kadar süre kalıcı olduğu konusunda süre verilmez.
+- İlk tanıtım mailinde kumaş için en fazla TEK sade cümle kullanılır; ayrıntı ilgilenen müşteriye verilir.
+
+## Numune
+- İlgilenen, olumlu cevap veren veya teklif isteyen müşteriye numune teklif edilir: "Kumaşı elinizde görmeniz için
+  numune gönderelim."
+- Numune isteyen müşteriden teslim adresi, yetkili kişi ve ilgilendiği ürünler istenir.
+- İlk soğuk tanıtım mailinde numune teklif edilmez (çağrı logo göndermektir).
+- Numunenin ücretli/ücretsiz olduğu ve gönderim tarihi konusunda söz verilmez; ekip teyit eder.
 
 ## Çağrı
 Her tanıtım mailinin tek çağrısı: "Logonuzu gönderin, işletmenize özel görseli ücretsiz hazırlayalım."
