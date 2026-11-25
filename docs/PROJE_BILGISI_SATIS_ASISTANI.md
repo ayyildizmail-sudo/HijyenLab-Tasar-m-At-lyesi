@@ -192,7 +192,7 @@ Bir müşteri şu durumlardan birinde olur:
 
 ### Bekleyenler
 
-- [ ] **BM15 (25×25) bıçak izi PDF'i**: boş paket görseli ve güvenli alan şimdilik yaklaşık.
+- [x] **BM15 (25×25) boş paketi**: Matbah 25×25 teklifindeki gerçek paketten; Hakan Bey'in onayıyla katalog ve tekliflerde kullanılıyor. Bıçak izi PDF'i gerekmiyor (baskı yerleşimi her işte grafik onayıyla kesinleşir).
 - [ ] Katlı (BM545) rulo ile aynı kumaş (teyitli); kumaş yakın çekimi katalogda. Oshibori: %100 pamuk havlu, 22,5×24,5 cm, adet başına 15 g, tek kullanımlık tekli paket, logo ambalaja basılır (teyitli); kendi ürün fotoğrafı bekleniyor (internetteki referans görseller telif nedeniyle katalogda kullanılmıyor). Rulo ve katlı ürünlerde aynı nonwoven kumaş kullanıldığı teyit edildi; katalogda doku çizimi var. 7×12 mendil boş mockup'ı düz beyaza çevrildi.
 - [ ] **Gerçek ürün fotoğrafları:** Mevcut mockup'lar yapay zekayla üretilmiş, düşük çözünürlüklü. 7×12 mendil mockup'ı kare görünüyor, gerçekte dikdörtgen.
 - [ ] **Kataloğa son onay:** metinler, sıralama, renkler.

@@ -13,7 +13,7 @@ KURALLAR (Hakan Bey'in kalıcı talimatları):
   BM12  : 1282 px ↔ 170 mm (15 mm kaynak şeritleri dahil) → ön yüz güvenli alan 140×60 mm
   BM545 : 1050 px ↔ 140 mm → ön yüz güvenli alan ≈ 110×70 mm
   BM21  : 725 px ↔ 120 mm (yüz) → güvenli alan 110×58 mm (bıçak izi iç çerçevesi)
-  BM15  : 1282 px ↔ ~170 mm → güvenli alan ≈ 140×40 mm (YAKLAŞIK)
+  BM15  : 1282 px ↔ ~170 mm → güvenli alan ≈ 140×40 mm (gerçek paketten, onaylı)
 """
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ PAKETLER = {
     "BM545": ("bm545-front.png", "bm545-back.png", 140, (110, 70), (95, 30), 0.30),
     # BM15: siluet ve oran Matbah HL-2026-1120-03 teklif görselindeki gerçek 25×25 paketten;
     # ışık/kırışık ve kaynak dişleri Hakan Bey'in onayıyla 25×30 boş paketinden aktarıldı.
-    # 1282 px ↔ ~170 mm. Güvenli alan YAKLAŞIK (≈140×40 mm); bıçak izi gelince doğrulanmalı.
+    # 1282 px ↔ ~170 mm, güvenli alan ≈140×40 mm (gerçek paketten ölçüldü; Hakan Bey onaylı).
     # BM21: Hakan Bey'in gönderdiği BM21 grafik onay şablonlarındaki gerçek paket fotoğrafından
     # (iki farklı müşteri şablonu üst üste konup yazılar temizlendi). Yüz 120×70 mm,
     # güvenli alan bıçak izindeki iç çerçeve: 110×58 mm. Ön ve arka yüz aynı paket.
