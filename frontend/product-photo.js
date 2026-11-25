@@ -526,6 +526,35 @@ function dewarpLines(img,mask){const curves=baselineCurves(mask.m,mask.w,mask.h)
 async function uprightView(v,classify){if(v.kind!=='frontal')return v;const flip={img:rotateRGBA(v.img,2),mask:rotateMask(v.mask.m,v.mask.w,v.mask.h,2),kind:v.kind+'+180'};
  const score=async c=>{const gl=glyphLines(c.mask.m,c.mask.w,c.mask.h).slice(0,6);if(!gl.length)return null;if(classify){const items=gl.map(l=>({...clsTensor(c.img,l.box),weight:l.count*l.height}));const P=await classify(items.map(i=>i.tensor));let s=0,w=0;P.forEach((p,i)=>{s+=p*items[i].weight;w+=items[i].weight;});return w?s/w:null;}return uprightEvidence(c.mask.m,c.mask.w,c.mask.h);};
  const a=await score(v),b=await score(flip);return a!=null&&b!=null&&b>a+(classify?.3:5)?flip:v;}
+// Dolgu + kenar çizgisi yapısındaki logolar (ör. turuncu harf, koyu çerçeve): parlamanın sildiği kenar çizgisi, sağlam kısımlardan
+// ölçülen kalınlıkla tamamlanır; harfin içindeki (çevresi dolgu olan) küçük parlama boşlukları dolguyla kapatılır.
+// Yapı yoksa (dolgunun kenarlarının çoğu koyu çizgiyle çevrili değilse) hiçbir şey değişmez.
+function restoreOutline(out,palRgb){const {data,w:W,h:H}=out;if(!palRgb||palRgb.length<2)return 0;const lum=p=>.3*p[0]+.59*p[1]+.11*p[2];
+ const N=W*H,lab=new Int8Array(N).fill(-1);for(let i=0;i<N;i++){if(data[i*4+3]<128)continue;let bi=0,bd=1e9;palRgb.forEach((p,q)=>{const d=(data[i*4]-p[0])**2+(data[i*4+1]-p[1])**2+(data[i*4+2]-p[2])**2;if(d<bd){bd=d;bi=q;}});lab[i]=bi;}
+ const cnt=palRgb.map(()=>0);for(const v of lab)if(v>=0)cnt[v]++;let O=0;palRgb.forEach((p,q)=>{if(lum(p)<lum(palRgb[O]))O=q;});let F=-1;cnt.forEach((n,q)=>{if(q!==O&&lum(palRgb[q])>lum(palRgb[O])+50&&(F<0||n>cnt[F]))F=q;});if(F<0||cnt[F]<500)return 0;
+ const nb4=i=>{const x=i%W,y=(i/W)|0,r=[];if(x>0)r.push(i-1);if(x<W-1)r.push(i+1);if(y>0)r.push(i-W);if(y<H-1)r.push(i+W);return r;};
+ // dolgu parçaları ayrı ayrı: kenarının çoğu koyu çizgiyle çevrili olanlar (çerçeveli harf) uygundur; çerçevesiz parçalara dokunulmaz
+ const fid=new Int32Array(N).fill(-1),fst=[];for(let s0=0;s0<N;s0++){if(lab[s0]!==F||fid[s0]>=0)continue;const id=fst.length,st={o:0,b:0,n:0,y0:1e9,y1:-1};fst.push(st);const qq=[s0];fid[s0]=id;
+  for(let h=0;h<qq.length;h++){const i=qq[h];st.n++;const yy=(i/W)|0;if(yy<st.y0)st.y0=yy;if(yy>st.y1)st.y1=yy;let o=false,b=false;for(const k of nb4(i)){if(lab[k]===F){if(fid[k]<0){fid[k]=id;qq.push(k);}}else if(lab[k]===O)o=true;else if(lab[k]<0)b=true;}if(o)st.o++;if(b)st.b++;}}
+ const good=fst.map(st=>st.n>=200&&st.o+st.b>0&&st.o/(st.o+st.b)>=.6),nGood=good.filter(Boolean).length;if(nGood<3)return 0;
+ // sağlam çerçeveli harflerle aynı satırdaki (dikeyde örtüşen) tüm büyük dolgu parçaları onarılır (hasarlı harf dahil)
+ const ok=fst.map((st,q)=>good[q]||(st.n>=200&&fst.some((g2,r)=>good[r]&&Math.min(st.y1,g2.y1)-Math.max(st.y0,g2.y0)>.5*Math.min(st.y1-st.y0,g2.y1-g2.y0))));
+ let tO=0,tB=0;fst.forEach((st,q)=>{if(ok[q]){tO+=st.o;tB+=st.b;}});
+if(tO<200||tB<20)return 0;
+ const isF=i=>lab[i]===F&&ok[fid[i]];
+ // kenar kalınlığı: dolgudan koyu bölge içine mesafe (BFS), uzak uçların %80'i
+ const dist=new Int32Array(N).fill(-1),qu=[];for(let i=0;i<N;i++)if(lab[i]===F){dist[i]=0;qu.push(i);}
+ for(let h=0;h<qu.length;h++){const i=qu[h];if(dist[i]>=80)continue;for(const k of nb4(i))if(dist[k]<0&&lab[k]===O){dist[k]=dist[i]+1;qu.push(k);}}
+ const ds=[];for(let i=0;i<N;i++)if(lab[i]===O&&dist[i]>0){let edge=false;for(const k of nb4(i))if(lab[k]<0)edge=true;if(edge)ds.push(dist[i]);}if(ds.length<50)return 0;ds.sort((a,b)=>a-b);const t=Math.max(2,Math.min(60,ds[Math.floor(ds.length*.5)]));
+ // 1) harf içindeki küçük boşluklar (zemin bileşeni, kenara değmeyen, çevresinin çoğu dolgu) → dolgu
+ const seen=new Uint8Array(N),cF=palRgb[F],cO=palRgb[O];let changed=0;const paint=(i,c)=>{data[i*4]=c[0];data[i*4+1]=c[1];data[i*4+2]=c[2];data[i*4+3]=255;changed++;};
+ for(let s0=0;s0<N;s0++){if(lab[s0]>=0||seen[s0])continue;const comp=[s0];seen[s0]=1;let border=false,nF=0,nAll=0,nOk=0;for(let h=0;h<comp.length;h++){const i=comp[h],x=i%W,y=(i/W)|0;if(x===0||y===0||x===W-1||y===H-1)border=true;for(const k of nb4(i)){if(lab[k]<0){if(!seen[k]){seen[k]=1;comp.push(k);}}else{nAll++;if(lab[k]===F){nF++;if(isF(k))nOk++;}}}if(comp.length>(t*5)**2){border=true;}}
+  if(!border&&comp.length<=(t*5)**2&&nF>=nAll*.7&&nOk>=nF*.8)for(const i of comp){paint(i,cF);lab[i]=F;}}
+ // 2) dolgunun doğrudan zemine değdiği yerlerde eksik kenar: zeminde t kalınlığında koyu çizgi
+ const d2=new Int32Array(N).fill(-1),q2=[];for(let i=0;i<N;i++){if(!isF(i))continue;let b=false;for(const k of nb4(i))if(lab[k]<0)b=true;if(b){d2[i]=0;q2.push(i);}}
+ for(let h=0;h<q2.length;h++){const i=q2[h],d=d2[i];if(d>=t)continue;const x=i%W,y=(i/W)|0;for(const [dx,dy] of (d%2?[[1,0],[-1,0],[0,1],[0,-1]]:[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]])){const X=x+dx,Y=y+dy;if(X<0||Y<0||X>=W||Y>=H)continue;const k=Y*W+X;if(d2[k]<0&&lab[k]<0){d2[k]=d+1;q2.push(k);}}}
+ for(let i=0;i<N;i++)if(d2[i]>0&&lab[i]<0)paint(i,cO);
+ return changed;}
 async function extract(data,w,h,{classify=null,candidates=3,recognize=null,createCanvas=null,redrawText=null}={}){
  // Sonuç girdi boyutuna bağlı olmasın: her zaman en uzun kenarı en çok 2048 piksel olan görüntüde çalış (tarayıcı = test)
  {const d=downscale(data,w,h,2048);data=d.data;w=d.w;h=d.h;}
@@ -579,6 +608,7 @@ async function extract(data,w,h,{classify=null,candidates=3,recognize=null,creat
    for(let i=0;i<mask.length;i++)if(lab[i]>=0&&drop[lab[i]]){mask[i]=0;solid[i]=0;}
    return {mask,solid};})();
   const out=renderClean(img,repair.mask,surface.map(Math.round),pal,2000,lightOnDark,repair.solid);if(!out)return {ok:false,reason:'empty'};
+  const outlineFixed=lightOnDark?0:restoreOutline(out,pal.map(labToRgb));
   // Yazıları okuyup temiz yazı tipiyle yeniden çiz (yerel metin tanıma modeli verilmişse)
   let textRedraw=null;const TR=redrawText||(typeof root!=='undefined'&&root.TextRedraw);if(recognize&&createCanvas&&TR){try{textRedraw=await TR.redraw({img,mask:{m:repair.mask,w:mm.w,h:mm.h},out,palette:pal.map(labToRgb),surface,opaqueGround:lightOnDark,recognize,createCanvas});}catch(e){textRedraw={error:String(e&&e.message||e)};}}
   // Temizlenmiş logodaki harf oranı (kendiliğinden yerleştirme kararı için)

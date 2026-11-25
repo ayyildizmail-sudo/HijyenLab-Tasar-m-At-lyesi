@@ -58,7 +58,7 @@ function iou(a,b,W,H){const da=dil(a,W,H),db=dil(b,W,H);let na=0,nb=0,ta=0,tb=0;
 // ana fonksiyon
 async function redraw({img,mask,out,palette,surface,opaqueGround,recognize,createCanvas,fonts=FONTS}){
  if(!recognize||!createCanvas||!out)return {replaced:0,lines:[]};
- const {w,h}=mask,m=mask.m,{lab,comps:allComps}=PP._internal.components(m,w,h),lines=PP.glyphLines(m,w,h).filter(l=>l.count>=2&&l.height>=10),report=[];
+ const {w,h}=mask,m=mask.m;let maxLineH=0;const {lab,comps:allComps}=PP._internal.components(m,w,h),lines=PP.glyphLines(m,w,h).filter(l=>l.count>=2&&l.height>=10),report=[];for(const l of lines)maxLineH=Math.max(maxLineH,l.height);
  const [bx0,by0,bx1,by1]=out.box,k=out.w/(bx1-bx0);
  const oc=createCanvas(out.w,out.h),og=oc.getContext('2d'),id=og.createImageData(out.w,out.h);id.data.set(out.data);og.putImageData(id,0,0);let replaced=0;
  const used=[],done=new Set();let domW=null;const run=async(lineList,fonts,needMin,dry)=>{
@@ -136,7 +136,8 @@ async function redraw({img,mask,out,palette,surface,opaqueGround,recognize,creat
   // Harf ve kelime aralıkları fotoğraftakiyle birebir olur; yazı tipi şekli temizdir.
   // Harf eşleşmesi kesinse Türkçe işaretler her harfin fotoğraftaki kendi şeklinden belirlenir (model değil):
   //  büyük harfte ortak üst çizginin belirgin üstüne çıkan mürekkep → Ö Ü İ Ğ; küçük harfte nokta/işaret; S/C'de taban altına inen çengel → Ş Ç
-  const geomText=(()=>{let base0=chars.filter(c=>c.ch!==' ').map(c=>plain(c.ch).replace('ı','i'));if(base0.length!==clusters.length)return null;
+  const geomText=(()=>{if(wasSplit&&/[SCGIOUscgouiı]/.test(text))return null; // bölünmüş harflerde işaret konumu güvenilmez; işaretsiz metinde sorun yok
+  let base0=chars.filter(c=>c.ch!==' ').map(c=>plain(c.ch).replace('ı','i'));if(base0.length!==clusters.length)return null;
    {const up=base0.filter(c=>/[A-Z]/.test(c)).length,lo=base0.filter(c=>/[a-z]/.test(c)).length;if(up>=2&&up>lo)base0=base0.map(c=>c==='i'?'I':c);} // büyük harfli satırda i → I
    const med=a=>{const q=a.slice().sort((x,y)=>x-y);return q.length?q[q.length>>1]:null;};
    const capRef=med(clusters.filter((c,q)=>/[A-HJ-NP-RT-Z0-9]/.test(base0[q])).map(c=>c.y0))??med(clusters.map(c=>c.y0)),xRef=med(clusters.filter((c,q)=>/[acemnrsvwxz]/.test(base0[q])).map(c=>c.y0)),baseRef=med(clusters.map(c=>c.y1));
@@ -160,9 +161,70 @@ async function redraw({img,mask,out,palette,surface,opaqueGround,recognize,creat
     return ch;})();res.push(r0);return r0;});})();
   // Türkçe işaret belirsizliği: harf eşleşmesi kesin değilse (ya da yazı işaretleri ayırt edemeyecek kadar küçükse),
   // işaret alabilecek harf içeren satır yeniden çizilmez — yanlış yazı, kirli yazıdan kötüdür.
+  // Harfler birbirine değdiğinde Türkçe işaretler: harflerin yeri yazı tipi ölçülerinden hesaplanır (kelime kelime, fotoğraftaki
+  // kelime sınırlarına oturtularak); her harfin tam üstünde ayrı küçük leke (nokta/şapka) ya da altında çengel aranır.
+  // Kanıt belirsizse (eşiğe çok yakınsa) satır için sonuç verilmez → satır yeniden çizilmez.
+  const LAY=(()=>{if(geomText||lh<22||lh>maxLineH*.6||!/[SCGIOUscgouiı]/.test(text))return null;const t=text.replace(/ı/g,'i');const words=t.split(' ').filter(Boolean);if(!words.length)return null;
+   const big=200,ff=fonts.find(f=>f.kind==='sans')||fonts[0],mc=createCanvas(10,10).getContext('2d');mc.font=`${big}px "${ff.family}"`;
+   const C=clusters0;if(C.length<2)return null;
+   // fotoğraftaki kelime aralıkları: model boşluk sayısı kadar en büyük küme aralığı
+   const g0=[];for(let q=1;q<C.length;q++)g0.push([C[q].x0-C[q-1].x1,q]);g0.sort((a,b)=>b[0]-a[0]);const cutsQ=g0.slice(0,words.length-1).map(v=>v[1]).sort((a,b)=>a-b);
+   // kelime sınırları: modelin boşluk konumları (yakında küme aralığı varsa onun ortası); sayı tutmazsa en büyük aralıklar
+   const colInkB=x=>{let n=0;for(let y=Math.max(0,Math.round(ly0));y<Math.min(h,Math.round(ly1));y++)n+=m[y*w+x];return n;};
+   const sp=chars.filter(c=>c.ch===' '&&c.x>0).map(c=>cropX0+c.x*cropW);let bnds;
+   
+   if(sp.length===words.length-1){bnds=sp.map(sx=>{let best=null,bg=-1;for(let q=1;q<C.length;q++){const mid=(C[q].x0+C[q-1].x1)/2,d=Math.abs(mid-sx),gw=C[q].x0-C[q-1].x1;if(d<lh*.6&&gw>=1&&gw-d*.05>bg){bg=gw-d*.05;best=mid;}}if(best!=null)return best;let bx=sx,bv=1e9;for(let x=Math.round(sx-lh*.3);x<=Math.round(sx+lh*.3);x++){const v=colInkB(x);if(v<bv){bv=v;bx=x;}}return bx;});}
+   else bnds=cutsQ.map(q=>(C[q].x0+C[q-1].x1)/2);
+   bnds=[C[0].x0-1,...bnds,C[C.length-1].x1+1];for(let k=1;k<bnds.length;k++)if(bnds[k]<=bnds[k-1])return null;
+   const segX=[];for(let k=0;k+1<bnds.length;k++){let a=-1,b=-1;for(let x=Math.max(0,Math.round(bnds[k]));x<Math.min(w,Math.round(bnds[k+1]));x++)if(colInkB(x)){if(a<0)a=x;b=x+1;}if(a<0)return null;segX.push([a,b]);}
+   if(segX.length!==words.length)return null;
+   {const gs=[];for(let q=1;q<C.length;q++)gs.push(C[q].x0-C[q-1].x1);const gm=gs.slice().sort((a,b)=>a-b)[gs.length>>1]||0,bigN=gs.filter(g=>g>=Math.max(gm*2.2,lh*.15)).length;if(bigN>words.length-1)return null;} // fotoğrafta modelin boşluklarından fazla belirgin boşluk varsa metin eksik
+   // her harfin x aralığı
+   // harf yerlerini, satırın sütun mürekkep dağılımına en iyi oturan yazı tipiyle ölç
+   const photoCol=(a,b)=>{const v=[];for(let x=a;x<b;x++)v.push(colInkB(x));return v;},corr=(p,q)=>{const n=Math.min(p.length,q.length);let mp=0,mq=0;for(let i=0;i<n;i++){mp+=p[i];mq+=q[i];}mp/=n;mq/=n;let sp=0,sq=0,sx=0;for(let i=0;i<n;i++){const a=p[i]-mp,b=q[i]-mq;sx+=a*b;sp+=a*a;sq+=b*b;}return sp&&sq?sx/Math.sqrt(sp*sq):0;};
+   const layoutWith=f=>{mc.font=`${big}px "${f.family}"`;const P=[];let score=0,tot=0;words.forEach((wd,k)=>{const xa=segX[k][0],xb=segX[k][1],mw=mc.measureText(wd),L=mw.actualBoundingBoxLeft,Wn=L+mw.actualBoundingBoxRight,sc=(xb-xa)/Math.max(1,Wn);
+     for(let j=0;j<wd.length;j++){const a0=mc.measureText(wd.slice(0,j)).width,a1=mc.measureText(wd.slice(0,j+1)).width;P.push({ch:wd[j],w:k,x0:xa+(L+a0)*sc,x1:xa+(L+a1)*sc});}
+     if(xb-xa>=4){const H=60,tm=maskOf(createCanvas,xb-xa,H,g=>{g.save();g.font=`${big}px "${f.family}"`;g.textBaseline='alphabetic';g.translate(L*sc,H*.8);g.scale(sc,H*.6/big*1.4);g.fillText(wd,0,0);g.restore();});
+      const rc=[];for(let x=0;x<xb-xa;x++){let n=0;for(let y=0;y<H;y++)n+=tm[y*(xb-xa)+x];rc.push(n);}score+=corr(rc,photoCol(xa,xb))*(xb-xa);tot+=xb-xa;}});return {P,score:tot?score/tot:0};};
+   let LB=null;for(const f of fonts.filter(f=>f.kind==='sans')){const r=layoutWith(f);if(!LB||r.score>LB.score)LB=r;}if(!LB)return null;const pos=LB.P;
+   const med=a=>{const q=a.slice().sort((x,y)=>x-y);return q.length?q[q.length>>1]:null;};
+   const clsOf=c=>{const cx=(c.x0+c.x1)/2,p=pos.filter(o=>o.x1>c.x0&&o.x0<c.x1);return p.map(o=>o.ch).join('');};
+   const capRef=med(C.filter(c=>{const s=clsOf(c);return s&&/^[A-HJ-NP-RT-Z0-9bdfhklt]+$/.test(s);}).map(c=>c.y0)),xRef=med(C.filter(c=>{const s=clsOf(c);return s&&/^[aemnrvwxz]+$/.test(s);}).map(c=>c.y0)),baseRef=med(C.filter(c=>{const s=clsOf(c);return s&&/^[A-Za-bd-fh-ik-or-xz0-9]+$/.test(s);}).map(c=>c.y1));
+   if(baseRef==null||(capRef==null&&xRef==null))return null;
+   const smalls=allComps.filter(c=>{const b=c.box;return b[3]-b[1]<lh*.32&&b[2]-b[0]<lh*.5&&c.n>=Math.max(3,(lh*.04)**2);});
+   const inkRect=(x0,y0,x1,y1)=>{let n=0;for(let y=Math.max(0,Math.round(y0));y<Math.min(h,Math.round(y1));y++)for(let x=Math.max(0,Math.round(x0));x<Math.min(w,Math.round(x1));x++)n+=m[y*w+x];return n;};
+   let unsure=false;
+   const upMark=(o,ref)=>{if(ref==null)return null;const a2=Math.round(o.x0+(o.x1-o.x0)*.15),b2=Math.round(o.x1-(o.x1-o.x0)*.15);if(b2<=a2)return null;
+    const row=y=>{let n=0;for(let x=a2;x<b2;x++)n+=m[y*w+x];return n;};
+    // harfin kendi sütununda gövdenin tepesi; üstünde boş satır(lar)dan sonra gelen mürekkep işarettir
+    let y=Math.round(baseRef-lh*.15),top=-1;const stop=Math.round(ref-lh*.55);for(;y>stop;y--){if(row(y)===0){top=y+1;break;}}
+    if(top>0){let n=0,yy=top-1;while(yy>top-lh*.08&&row(yy)===0)yy--;for(let k=yy;k>Math.max(0,top-lh*.5);k--)n+=row(k);const thr=(lh*.04)**2;
+     if(n>=thr)return true;let half=n>=thr*.15;
+     // ayrı leke yoksa: gövdenin tepesi beklenen yüksekliğin (x yüksekliği / büyük harf çizgisi) belirgin üstündeyse işaret gövdeye yapışıktır
+     const rise=ref-top;if(rise>=lh*.12)return true;if(rise>lh*.05||half)return null;return false;}
+    // gövde ile işaret birleşik: gövde büyük harf/x yüksekliğinin belirgin üstüne çıkıyorsa işaret var
+    const n=inkRect(a2,ref-lh*.42,b2,ref-lh*.09),thr=(lh*.05)**2;if(n>=thr*.5&&n<thr*1.5)return null;return n>=thr;};
+   const downMark=o=>{const a=o.x0+(o.x1-o.x0)*.25,b=o.x1-(o.x1-o.x0)*.25,n=inkRect(a,baseRef+lh*.05,b,baseRef+lh*.32),thr=(lh*.05)**2;if(n>=thr*.15&&n<thr*1.5)unsure=true;return n>=thr;};
+   const upperLine=words.join('').replace(/[^A-Za-z]/g,'');const mostlyUpper=upperLine&&upperLine.replace(/[^A-Z]/g,'').length>upperLine.length*.6;
+   // belirsiz işaret: kelimedeki önceki ünlüye göre ünlü uyumu (ince ünlüden sonra i/ü, kalından sonra ı/u); önceki ünlü yoksa karar verilmez
+   const outC=[];const prevVowel=j=>{for(let k=j-1;k>=0&&pos[k].w===pos[j].w;k--){const v=outC[k];if(/[aeıioöuüAEIİOÖUÜ]/.test(v))return v;}return null;};
+   const front=v=>/[eiöüEİÖÜ]/.test(v);
+   pos.forEach((o,j)=>{let ch=o.ch;const prev=pos[j-1]&&pos[j-1].w===o.w?pos[j-1].ch:'',next=pos[j+1]&&pos[j+1].w===o.w?pos[j+1].ch:'';
+    if(ch==='i'&&(mostlyUpper||(/[A-Z]/.test(prev)&&/[A-Z]/.test(next))))ch='I';
+    const dec=(res,yes,no,harm)=>{if(res===true)return yes;if(res===false)return no;const pv=prevVowel(j);if(harm&&pv){return front(pv)?yes:no;}unsure=true;return no;};
+    let r=ch;
+    if(/[OUG]/.test(ch))r=dec(upMark(o,capRef),{O:'Ö',U:'Ü',G:'Ğ'}[ch],ch,ch==='U');
+    else if(ch==='I')r=dec(upMark(o,capRef),'İ','I',true);
+    else if(ch==='u')r=dec(upMark(o,xRef),'ü','u',true);
+    else if(ch==='o')r=dec(upMark(o,xRef),'ö','o',false);
+    else if(ch==='g')r=dec(upMark(o,xRef),'ğ','g',false);
+    else if(ch==='i')r=dec(upMark(o,xRef),'i','ı',true);
+    else if(/[SCsc]/.test(ch))r=downMark(o)?{S:'Ş',C:'Ç',s:'ş',c:'ç'}[ch]:ch;
+    outC.push(r);});
+   if(unsure)return null;let r='',k=0;const outW=[];words.forEach((wd,i)=>{if(i)r+=' ';const ww=outC.slice(k,k+wd.length).join('');outW.push(ww);r+=ww;k+=wd.length;});return {text:r,words:outW,segX,capRef,xRef,baseRef};})(),layoutText=LAY&&LAY.text;
   const eligible=/[SCGIOUscgoui]/.test(plain(text)),markSafe=geomText&&lh>=28;
   const glyphCands=markSafe?[geomText.join('')]:(!eligible&&geomText?[geomText.join('')]:[]);
-  if(!markSafe&&eligible){cands.length=0;}
+  if(!markSafe&&eligible){cands.length=0;if(layoutText)cands.push(layoutText);}
   else if(markSafe){const g=geomText.join('');cands.length=0;const sp=[...spaceSet].sort((a,b)=>a-b);let t='',k=0;[...g].forEach((ch,q)=>{if(sp.includes(q))t+=' ';t+=ch;});cands.push(t);}
   for(const cand of glyphCands){const glyphs=[...cand];if(glyphs.length!==clusters.length||glyphs.length<2)continue;
    const big=200,base=(()=>{const b=clusters.map(c=>c.y1).sort((a,b)=>a-b);return b[b.length>>1];})(),capH=(()=>{const hs=clusters.filter((c,q)=>/[A-ZÇĞİÖŞÜ0-9bdfhklt]/.test(glyphs[q])).map(c=>c.y1-c.y0);hs.sort((a,b)=>a-b);return hs.length?hs[hs.length>>1]:lh;})();
@@ -196,21 +258,37 @@ async function redraw({img,mask,out,palette,surface,opaqueGround,recognize,creat
     const draw=(g,ox,oy,kk)=>{for(const {R,B} of parts)R.draw(g,ox+B[0]*kk,oy+B[1]*kk,R.sx*kk,R.sy*kk);};
     const tm=maskOf(createCanvas,LM.w,LM.h,g=>draw(g,0,0,1)),pen=inkPen(tm)+parts.reduce((a,p)=>a+Math.max(0,Math.abs(Math.log(p.R.sx/p.R.sy))-.2),0)/parts.length*.3,cdw=ccPen(tm),sc=iou(tm,LM.m,LM.w,LM.h)-pen-(cdw>1?1:cdw*.05);
     const markCount=(cand.match(/[ŞşÇçĞğÖöÜüİ]/g)||[]).length,adj=sc-markCount*.012;if(!best||adj>best.adj)best={s:sc,adj,f,text:cand,draw};}}
+  // kelime kelime, fotoğraftaki kelime sınırlarına ve taban/büyük harf çizgisine oturtma (harf işaretleri yukarıda kanıtlandı)
+  let bestLay=null;if(LAY){for(const f of fonts){const mc=createCanvas(10,10).getContext('2d'),big=200;mc.font=`${big}px "${f.family}"`;const H0=mc.measureText('H').actualBoundingBoxAscent,x0h=mc.measureText('x').actualBoundingBoxAscent;if(!(H0>0))continue;
+    const sv=LAY.capRef!=null?(LAY.baseRef-LAY.capRef)/H0:(LAY.baseRef-LAY.xRef)/x0h;if(!(sv>0))continue;let pen=0;const parts=[];
+    LAY.words.forEach((wd,k)=>{const [xa,xb]=LAY.segX[k],mw=mc.measureText(wd),L=mw.actualBoundingBoxLeft,Wn=L+mw.actualBoundingBoxRight,hx=(xb-xa)/Math.max(1,Wn*sv);pen+=Math.max(0,Math.abs(Math.log(hx))-.15);parts.push({wd,xa,L,hx});});
+    pen=pen/LAY.words.length*.4;
+    // kelime aralığı en az boşluk genişliği; satır merkezde kalır (uyum puanı fotoğraftaki konumlarla hesaplanır)
+    const fitParts=parts.map(P=>({...P}));{const hxs=parts.map(P=>P.hx).sort((a,b)=>a-b),minGap=mc.measureText(' ').width*sv*hxs[hxs.length>>1];
+     const wW=P=>{const mw=mc.measureText(P.wd);return (mw.actualBoundingBoxLeft+mw.actualBoundingBoxRight)*sv*P.hx;};const st=[parts[0].xa];for(let k=1;k<parts.length;k++)st.push(Math.max(parts[k].xa,st[k-1]+wW(parts[k-1])+minGap));
+     const L0=parts[parts.length-1],sh=((parts[0].xa+L0.xa+wW(L0))-(st[0]+st[st.length-1]+wW(L0)))/2;parts.forEach((P,k)=>{P.xa=st[k]+sh;});}
+    const drawP=PS=>(g,ox,oy,kk)=>{g.save();g.font=`${big}px "${f.family}"`;g.textBaseline='alphabetic';g.textAlign='left';for(const P of PS){g.save();g.translate(ox+(P.xa+P.L*sv*P.hx-ext[0])*kk,oy+(LAY.baseRef-ext[1])*kk);g.scale(sv*P.hx*kk,sv*kk);g.fillText(P.wd,0,0);g.restore();}g.restore();},draw=drawP(parts);
+    const tm=maskOf(createCanvas,LM.w,LM.h,g=>drawP(fitParts)(g,0,0,1)),sc=iou(tm,LM.m,LM.w,LM.h)-pen-inkPen(tm);if(!bestLay||sc>bestLay.s)bestLay={s:sc,adj:sc,f,text:LAY.text,draw,mode:'layout'};}
+   if(bestLay&&(!best||bestLay.s>=best.s-.03))best=bestLay;}
   if(lineModeOk)for(const cand of cands)for(const f of fonts){const R=renderText(createCanvas,f,cand,IW,IH);if(!R)continue;if(Math.abs(Math.log(R.sx/R.sy))>.7)continue;
    const tm=maskOf(createCanvas,LM.w,LM.h,g=>R.draw(g,ix0,iy0,R.sx,R.sy)),cdl=ccPen(tm);const s=iou(tm,LM.m,LM.w,LM.h)-inkPen(tm)-Math.max(0,Math.abs(Math.log(R.sx/R.sy))-.25)*.3-(cdl>1?1:cdl*.05)-.04;const adj2=s-((cand.match(/[ŞşÇçĞğÖöÜüİ]/g)||[]).length)*.004;if(!best||adj2>(best.adj??best.s))best={s,adj:adj2,f,R,text:cand,draw:(g,ox,oy,kk)=>R.draw(g,ox+ix0*kk,oy+iy0*kk,R.sx*kk,R.sy*kk)};}
   // harf eşleşmesi ve Türkçe işaretler kesinse (metin doğru), yazı tipi benzerliği için eşik biraz daha esnek
   // metin kesinse harf harf yerleştirme tercih edilir (aralıklar fotoğraftakiyle birebir)
   if(geomText&&bestGlyph&&(!best||best.s<MIN_IOU||(bestGlyph.s>=(needMin??.66)&&bestGlyph.s>=best.s-.08)))best=bestGlyph; // metin kesinse harf harf (kelime içi aralık yazı tipinden); belirgin daha kötü değilse
   // kısa kelime (≤3 harf, çoğu zaman markanın kendisi): az kanıt → yalnız çok yüksek örtüşmede yeniden çizilir
-  const need=Math.max((markSafe&&best&&best.mode==='glyph')?(needMin??.66):MIN_IOU,nonSpace<=3?.88:0,wasSplit?.9:0); // bölünmüş harflerde eşleşme daha az kesin
+  const need=best&&best.mode==='layout'?Math.max(.74,needMin??0):Math.max((markSafe&&best&&best.mode==='glyph')?(needMin??.66):MIN_IOU,nonSpace<=3?.88:0,wasSplit?.9:0); // bölünmüş harflerde eşleşme daha az kesin
   if(!best||best.s<need){report.push({text,bestFont:best&&best.f.family,conf:+conf.toFixed(2),iou:best?+best.s.toFixed(2):0,skip:'shape-mismatch'});continue;}
-  if(dry){used.push({fam:best.f.family.replace(/ (\d+|Regular|SemiBold|Bold|Black)$/,''),wt:best.f.weight,w:lh*(best.s)});continue;}
+  if(dry){used.push({fam:best.f.family.replace(/ (\d+|Regular|SemiBold|Bold|Black)$/,''),wt:best.f.weight,w:lh*(best.s)*(best.mode==='layout'?.5:1)});continue;}
   // renk: satır mürekkebindeki baskın palet rengi
   const cnt=palette.map(()=>0);for(let y=0;y<LM.h;y++)for(let x=0;x<LM.w;x++){if(!LM.m[y*LM.w+x])continue;const j=((y+ext[1])*img.w+(x+ext[0]))*4;let bi=0,bd=1e9;palette.forEach((p,q)=>{const d=(img.data[j]-p[0])**2+(img.data[j+1]-p[1])**2+(img.data[j+2]-p[2])**2;if(d<bd){bd=d;bi=q;}});cnt[bi]++;}
   const col=palette[cnt.indexOf(Math.max(...cnt))]||[0,0,0];
   // çıktıda eski satırı sil, yeni yazıyı çiz
   const OX=(ext[0]-bx0)*k,OY=(ext[1]-by0)*k;og.save();og.beginPath();
-  for(let y=0;y<LM.h;y++){let s=-1;for(let x=0;x<=LM.w;x++){const on=x<LM.w&&LM.m[y*LM.w+x];if(on&&s<0)s=x;if(!on&&s>=0){og.rect(OX+(s-1.5)*k,OY+(y-1.5)*k,(x-s+3)*k,3*k);s=-1;}}}
+  for(let y=0;y<LM.h;y++){let s=-1;for(let x=0;x<=LM.w;x++){const on=x<LM.w&&LM.m[y*LM.w+x];if(on&&s<0)s=x;if(!on&&s>=0){og.rect(OX+(s-2.5)*k,OY+(y-2.5)*k,(x-s+5)*k,5*k);s=-1;}}}
+  // satırın hemen altında/üstünde kalan, başka satıra ait olmayan küçük eski mürekkep lekeleri de silinir
+  for(const c of allComps){const b=c.box;if(c.n>(lh*.15)**2||b[0]<lx0-2||b[2]>lx1+2)continue;const cy=(b[1]+b[3])/2;if(!((cy>ly1&&cy<ly1+lh*.45)||(cy<ly0&&cy>ly0-lh*.7)))continue;
+   if(ids.has(c.id))continue;if(lines.some(L2=>L2!==line&&cy>=L2.box[1]-(L2.box[3]-L2.box[1])*.7&&cy<=L2.box[3]+(L2.box[3]-L2.box[1])*.45))continue;
+   og.rect((b[0]-bx0-1.5)*k,(b[1]-by0-1.5)*k,(b[2]-b[0]+3)*k,(b[3]-b[1]+3)*k);}
   og.clip();if(opaqueGround){og.fillStyle=`rgb(${surface.map(Math.round)})`;og.fillRect(0,0,out.w,out.h);}else og.clearRect(0,0,out.w,out.h);og.restore();
   og.fillStyle=`rgb(${col.map(Math.round)})`;best.draw(og,OX,OY,k);
   replaced++;done.add(line);report.push({text:best.text,mode:best.mode||'line',conf:+conf.toFixed(2),iou:+best.s.toFixed(2),font:best.f.family});}
