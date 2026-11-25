@@ -1,7 +1,7 @@
 // Kullanım: node sektor_pdf.js [önizleme_klasörü]  ->  sektor/HijyenLab_<Sektor>.pdf
 const { chromium } = require('playwright');
 const path = require('path');
-const ADLAR = { restoran: 'Restoran_Kebapci', otel: 'Otel', kuafor: 'Kuafor_Guzellik', toptanci: 'Toptanci_Ajans' };
+const ADLAR = { restoran: 'Restoran_Kebapci', otel: 'Otel', kuafor: 'Kuafor_Guzellik_Merkezi', toptanci: 'Toptanci_Ajans' };
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage();
   for (const [ad, dosya] of Object.entries(ADLAR)) {
