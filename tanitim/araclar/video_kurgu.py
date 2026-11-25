@@ -29,24 +29,46 @@ SIYAH_BEKLEME = 0.6 # kararmadan sonra kısa siyah ekran
 
 
 def bitis_karti(yol: Path):
-    can = Image.new("RGB", (W, H), (207, 224, 241))
+    """Canlı bitiş kartı: turkuaz→mavi geçişli zemin, beyaz logo, sarı numune etiketi."""
+    import numpy as np
+    from PIL import ImageFilter
+    yy = np.linspace(0, 1, H)[:, None, None]
+    ust, alt = np.array([42, 167, 201]), np.array([24, 78, 140])
+    zemin = (ust * (1 - yy) + alt * yy) * np.ones((1, W, 1))
+    can = Image.fromarray(zemin.astype("uint8")).convert("RGBA")
+    # yumuşak dekor daireler
+    dek = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    dd = ImageDraw.Draw(dek)
+    for cx, cy, r, op in [(80, 160, 210, 34), (660, 330, 150, 26), (620, 1150, 260, 30), (60, 1040, 120, 22)]:
+        dd.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(255, 255, 255, op))
+    can = Image.alpha_composite(can, dek.filter(ImageFilter.GaussianBlur(6)))
     d = ImageDraw.Draw(can)
+    # logo beyaz
     logo = Image.open(KOK / "varliklar" / "hijyenlab_logo.png").convert("RGBA")
-    lw = 440
+    lw = 430
     logo = logo.resize((lw, int(logo.height * lw / logo.width)), Image.LANCZOS)
-    can.paste(logo, ((W - lw) // 2, 330), logo)
+    beyaz = Image.new("RGBA", logo.size, (255, 255, 255, 255))
+    beyaz.putalpha(logo.split()[3])
+    can.alpha_composite(beyaz, ((W - lw) // 2, 290))
 
-    def orta(y, yazi, boyut, kal="SemiBold", renk=(11, 53, 88)):
-        f = ImageFont.truetype(FONT.format(kal), boyut)
+    def orta(y, yazi, boyut, kal="Bold", renk=(255, 255, 255), aile="Inter"):
+        yol_f = f"/usr/share/fonts/opentype/inter/{aile}-{kal}.otf"
+        f = ImageFont.truetype(yol_f, boyut)
         d.text(((W - d.textlength(yazi, font=f)) / 2, y), yazi, font=f, fill=renk)
+        return f
 
-    orta(600, "Logonuzla,", 50, "Bold")
-    orta(662, "işletmenize özel", 50, "Bold")
-    orta(760, "Ücretsiz numune · kargo bizden", 32, "Medium", (31, 95, 150))
-    d.line([(160, 850), (W - 160, 850)], fill=(31, 95, 150), width=3)
-    orta(890, "0 (542) 569 98 69", 38)
-    orta(944, "hijyenlab.com", 38)
-    can.save(yol)
+    orta(560, "Logonuzla,", 70, "ExtraBold", aile="InterDisplay")
+    orta(645, "işletmenize özel!", 70, "ExtraBold", aile="InterDisplay")
+    # sarı etiket
+    f = ImageFont.truetype("/usr/share/fonts/opentype/inter/Inter-Bold.otf", 34)
+    yazi = "Ücretsiz numune · kargo bizden"
+    tw = d.textlength(yazi, font=f)
+    x0, y0 = (W - tw) / 2 - 34, 785
+    d.rounded_rectangle((x0, y0, x0 + tw + 68, y0 + 76), 38, fill=(255, 200, 69))
+    d.text((x0 + 34, y0 + 18), yazi, font=f, fill=(11, 53, 88))
+    orta(935, "0 (542) 569 98 69", 44, "SemiBold")
+    orta(995, "hijyenlab.com", 40, "Medium", renk=(220, 240, 250))
+    can.convert("RGB").save(yol)
 
 
 def yazi_filtresi(metin, sure):
@@ -61,7 +83,7 @@ def main(ham: str):
     kart = OUT / "_bitis.png"
     bitis_karti(kart)
     son_bitis = SAHNELER[-1][1]
-    giris = ["-i", ham, "-loop", "1", "-t", str(BITIS_SN), "-i", str(kart)]
+    giris = ["-i", ham, "-i", str(kart)]
     parca, sureler = [], []
     for i, (a, b, yazi) in enumerate(SAHNELER):
         sure = b - a
@@ -70,7 +92,9 @@ def main(ham: str):
                      f"eq=brightness=0.02:saturation=1.05,fps=30,format=yuv420p,{yazi_filtresi(yazi, sure)}[s{i}]")
         parca.append(f"[0:a]atrim={a}:{b},asetpts=PTS-STARTPTS,aresample=44100[a{i}]")
     n = len(SAHNELER)
-    parca.append(f"[1:v]fps=30,format=yuv420p,setsar=1[s{n}]")
+    kare = int(BITIS_SN * 30)
+    parca.append(f"[1:v]scale={W * 2}:{H * 2},zoompan=z='1+0.06*on/{kare}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
+                 f"d={kare}:s={W}x{H}:fps=30,trim=duration={BITIS_SN},format=yuv420p,setsar=1[s{n}]")
     # bitiş kartının altında ortam sesi kesilmeden devam eder (kaynakta son sahneden sonraki ses)
     parca.append(f"[0:a]atrim={son_bitis}:{son_bitis + BITIS_SN},asetpts=PTS-STARTPTS,aresample=44100[a{n}]")
     sureler.append(BITIS_SN)
