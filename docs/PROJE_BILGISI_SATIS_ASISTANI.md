@@ -213,10 +213,11 @@ Bir müşteri şu durumlardan birinde olur:
 
 ## 7. Çalışma tercihleri
 
+- **Kendi kendine yeterlilik ilkesi:** Satış asistanı (ve HijyenLab'ın diğer yazılım projeleri) işini kendi içinde yapar. Kullanıcıyı veya müşteriyi başka bir programa ya da yapay zekaya yönlendirmez ("şunu Claude projesine yapıştırın", "Canva'da açın", "atölyeye yükleyin" gibi adımlar yoktur). Yapay zeka (Claude API) yalnız yazılımın içinde, arka planda bir bileşen olarak kullanılır. Teklif görseli de panelin içinde üretilecek (Faz 2).
 - **Satış asistanı ile HijyenLab Tasarım Atölyesi ayrı uygulamalardır.** Şu an aralarında bağlantı yok; satış asistanı müşteriyi atölyeye yönlendirmez. Müşteri logosunu mail veya WhatsApp ile gönderir, görseli HijyenLab hazırlar. Satış asistanı yalnızca bu oturumun bağlı olduğu depoda (`satis-asistani/` klasörü) duruyor.
 
 - **Canva kullanılmaz.** Tasarım ve belgeler Claude'da hazırlanır.
-- **Fiyat teklifleri** Claude Projeleri'nde hazırlanır.
+- **Fiyat teklifleri** şu an Claude Projeleri'nde hazırlanıyor; kendi kendine yeterlilik ilkesi gereği teklif motoru (mockup + hesap + JPG) panele entegre edilecek.
 - **ChatGPT'nin hazırladığı pazar değerlendirmesi** başlangıç taslağı olarak kullanılır. Nihai kararlar birlikte verilir.
 - **Bilgi kaynağı:** Sadece HijyenLab'ın verdiği bilgiler kullanılır. Doğrulanmamış bilgi "[KONTROL EDİN]" diye işaretlenir.
 - **Dil:** Türkçe, sade, kısa cümleler.

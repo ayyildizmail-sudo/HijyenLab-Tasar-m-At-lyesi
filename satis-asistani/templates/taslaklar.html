@@ -19,7 +19,7 @@
   {% endif %}
 
   {% if t.teklif_karti %}
-  <div class="bilgi"><b>Teklif dosyası</b> <span class="soluk">(Claude projesine yapıştırın)</span>
+  <div class="bilgi"><b>Teklif dosyası</b> <span class="soluk">(teklif için gereken bilgiler)</span>
     <pre class="kart-metin" id="kart{{ t.id }}">{{ t.teklif_karti }}</pre>
     <button type="button" class="ikincil" onclick="navigator.clipboard.writeText(document.getElementById('kart{{ t.id }}').innerText).then(()=>this.textContent='Kopyalandı')">Kopyala</button>
   </div>

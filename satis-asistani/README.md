@@ -37,7 +37,7 @@ info@hijyenlab.com için yapay zeka destekli satış asistanı:
 
 ## Teklif talepleri
 
-Teklif isteyen bir mail geldiğinde panelde bir **"Teklif dosyası"** kartı oluşur. Kartta firma, ürün, adet, şehir, zemin, baskı renkleri, koku ve logo eki olup olmadığı yazar. "Kopyala" düğmesiyle kartı Claude projesine yapıştırıp teklifi orada hazırlarsınız.
+Teklif isteyen bir mail geldiğinde panelde bir **"Teklif dosyası"** kartı oluşur. Kartta firma, ürün, adet, şehir, zemin, baskı renkleri, koku ve logo eki olup olmadığı yazar. Kart, teklifin hazırlanması için gereken bilgileri tek yerde toplar. (Sonraki sürümde teklif görseli doğrudan panelden üretilecek.)
 
 Bilgi eksikse, örneğin adet veya şehir yoksa, cevap taslağı yalnız eksikleri soran kısa bir mail olur.
 

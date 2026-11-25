@@ -204,7 +204,7 @@ def tanitim_maili_yaz(musteri: dict, hatirlatma: bool = False, onceki: str = "")
 
 
 def teklif_karti(s: Siniflandirma, gonderen: str, ekler: list[str]) -> str:
-    """Panelde 'Teklif dosyası' kartı: Claude projesine tek tıkla kopyalanır."""
+    """Panelde 'Teklif dosyası' kartı: teklif için gereken bilgileri tek yerde toplar."""
     t = s.teklif_bilgileri
     satirlar = [
         "FİYAT TEKLİFİ TALEBİ",
