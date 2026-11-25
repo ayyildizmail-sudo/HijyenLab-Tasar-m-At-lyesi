@@ -9,7 +9,7 @@ from pathlib import Path
 
 KOK = Path(__file__).resolve().parents[1]
 
-KURUM = [("hilton", "Hilton"), ("istanbul_valiligi", "T.C. İstanbul Valiliği"), ("tubitak_bilgem", "TÜBİTAK BİLGEM"), ("botas", "BOTAŞ"), ("iletisim_baskanligi", "Cumhurbaşkanlığı İletişim Başkanlığı"),
+KURUM = [("fourseasons", "Four Seasons"), ("hilton", "Hilton"), ("istanbul_valiligi", "T.C. İstanbul Valiliği"), ("tubitak_bilgem", "TÜBİTAK BİLGEM"), ("botas", "BOTAŞ"), ("iletisim_baskanligi", "Cumhurbaşkanlığı İletişim Başkanlığı"),
          ("jandarma", "Jandarma Eğitim Komutanlığı"), ("sosyal_hizmetler", "Sosyal Hizmetler Başkanlığı"),
          ("kars_emniyet", "Kars Emniyet Müdürlüğü"), ("kars_polisevi", "Kars Polisevi Şube Müdürlüğü"),
          ("bodrum_ozel_egitim", "Bodrum Özel Eğitim Merkezi Komutanlığı"), ("cevheri", "Cevheri")]
@@ -26,7 +26,7 @@ body{font-family:"Inter",sans-serif;color:#13294b;-webkit-print-color-adjust:exa
 .bas h1 span{display:block;font-size:10pt;font-weight:500;color:#29537B;margin-top:1mm}
 .ic{padding:5mm 16mm 0}h2{font-size:11.5pt;color:#0b3558;margin:3mm 0 2mm;display:flex;justify-content:space-between;align-items:baseline}
 h2 span{font-size:8.5pt;font-weight:400;color:#4a5f7a}
-.g3{display:grid;grid-template-columns:repeat(5,1fr);gap:2mm 3mm}.g3b{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm 8mm}.g3b img{aspect-ratio:1.75;object-fit:contain}
+.g3{display:grid;grid-template-columns:repeat(6,1fr);gap:1.5mm 2.5mm}.g3 figcaption{font-size:6.8pt}.g3b{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm 8mm}.g3b img{aspect-ratio:1.75;object-fit:contain}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:1mm 3mm}
 figure{text-align:center}figure img{width:100%;display:block}.g3 img{aspect-ratio:1.6;object-fit:cover}.g4 img{aspect-ratio:1.75;object-fit:contain}
 figcaption{font-size:7.6pt;font-weight:600;color:#0b3558;line-height:1.2;margin-top:.3mm}
