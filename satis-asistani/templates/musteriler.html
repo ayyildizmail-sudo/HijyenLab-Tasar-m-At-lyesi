@@ -15,8 +15,11 @@
   <label style="display:block;margin:6px 0"><input type="checkbox" name="mevcut" value="1"> Bunlar <b>mevcut müşterilerim</b> (tanıtım maili gitmesin)</label>
   <button>Yükle</button></form>
 <h3>Telefon listesi</h3>
-<p class="soluk">E-postası olmayan işletmeleri telefon/WhatsApp ile aramak için indirin.</p>
-<a class="dugme" href="{{ url_for('telefon_listesi') }}">CSV indir</a></div>
+<p class="soluk">E-postası olmayan işletmeler: hazır WhatsApp mesajı ve telefon notuyla.</p>
+<a class="dugme" href="{{ url_for('telefon') }}">Telefon / WhatsApp listesi</a> <a href="{{ url_for('telefon_listesi') }}">CSV indir</a>
+<h3>Mükerrer kayıtlar</h3>
+<p class="soluk">Yeni kayıtlarda aynı telefon, web sitesi veya aynı ilçede aynı ad otomatik engellenir. Eski kayıtları birleştirmek için:</p>
+<form method="post" action="{{ url_for('musteri_birlestir') }}"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="ikincil">Mükerrerleri birleştir</button></form></div>
 </div>
 <div class="kart tablo"><table>
 <tr><th>Puan</th><th>Ad</th><th>Tür</th><th>İlçe</th><th>E-posta</th><th>Telefon</th><th>Durum</th><th>Son temas</th></tr>

@@ -187,6 +187,7 @@ Bir müşteri şu durumlardan birinde olur:
 - [x] Claude Projeleri öneri raporu (25.11.2026) uygulandı: güvenlik kontrolü + onay kilidi, fiyat hesaplayıcı, iki model, UID takibi, Gönderilmiş klasörüne kopya, tek tık çıkış, bounce, gönderim penceresi, alan adı sınırı, MX kontrolü, teklif kartı, aday puanı, mevcut müşteri listesi, denetim izi. 27/27 test geçiyor.
 
 - [x] **Faz 2 – Teklifler panelde (25.11.2026):** Teklif görseli panelden üretiliyor (kalıcı teklif şablonu, gerçek boş paket mockup'ı, 1–3 seçenek, rakamlar yalnız `teklif_hesapla.py`'den). Gelen teklif talebinin kartından form otomatik doluyor. Teklif kaydı (HL-YYYY-AAGG-NN, 15 gün geçerlilik, durum), görsel ekli mail taslağı (metinde rakam yok, onaysız gitmez), WhatsApp için görsel indirme, 10. gün cevapsız teklife aynı yazışma zincirinde takip taslağı; müşteri cevap verince takip iptal, süresi dolana takip yok. Kabul/ret işaretleme. Teklif etiketlerinde gramaj yok, kumaş "nonwoven, çapraz doku". 38/38 test geçiyor.
+- [x] **Faz 2 ekleri:** gelen maildeki resim eki (logo) kaydedilip teklif formunda seçilebiliyor; e-postasız işletmeler için sektöre göre WhatsApp mesajı + telefon konuşma notu (wa.me bağlantısı, durum işaretleme, CSV); mükerrer kayıt engeli (telefon / web alanı / ilçe+ad) ve eski kayıtları birleştirme; günlük ZIP yedek (veritabanı + teklifler + ekler, son 30). Güvenlik kontrolündeki 'müşterilerinize' içinde 'steril' yanlış alarmı düzeltildi. 47/47 test.
 - [x] **Mevcut müşteri listesi istenmiyor:** Asistan yalnız yeni müşteriye odaklı; kara liste isteğe bağlı.
 
 ### Bekleyenler
@@ -211,7 +212,6 @@ Bir müşteri şu durumlardan birinde olur:
 - Toptancı ve ajanslar için ayrı tanıtım maili şablonu.
 - Gönderilen maillerin mail programındaki "Gönderilmiş" klasörüne de kopyalanması.
 - Tekrar sipariş hatırlatması (ör. 5.200 adetten 60 gün, 10.000 adetten 90 gün sonra).
-- Telefon listesindeki işletmeler için kopyalanabilir WhatsApp metni.
 - Sabah özet maili ve haftalık huni ölçümü (gönderilen → cevap → teklif → sipariş).
 - Tanıtımlar için ayrı alt alan adı (ör. bilgi.hijyenlab.com).
 

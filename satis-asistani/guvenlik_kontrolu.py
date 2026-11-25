@@ -64,7 +64,8 @@ def denetle(metin: str, *, fiyat_paylasilabilir: bool = False,
             bulgular.append(Bulgu("yasak_terim", "Müşteriye söylenmemesi gereken terim", t))
 
     for t in MEDIKAL_IDDIALAR:
-        if t in s:
+        # kelime başında ara: "müşterilerinize" içindeki "steril" yanlış alarm vermesin
+        if re.search(r"(?<![a-z0-9])" + re.escape(t), s):
             bulgular.append(Bulgu("medikal_iddia", "Belgelenmemiş sağlık/hijyen iddiası", t))
 
     for k in VAAT_KALIPLARI:

@@ -7,7 +7,9 @@
   python calistir.py hatirlatma            Cevap vermeyenlere hatırlatma taslağı yazar
   python calistir.py ice-aktar liste.csv   CSV'den işletme ekler
   python calistir.py teklif-takip          10 gün önce gönderilen, cevapsız tekliflere takip taslağı
-  python calistir.py otomatik              Gelen kutusu + hatırlatma + teklif takibi (zamanlanmış görev)
+  python calistir.py yedek                 Veritabanı + teklifler + ekler yedeği (yedekler/ klasörü)
+  python calistir.py birlestir             Eski mükerrer müşteri kayıtlarını birleştirir
+  python calistir.py otomatik              Gelen kutusu + hatırlatma + teklif takibi + günlük yedek
 
 Hiçbir komut mail GÖNDERMEZ; gönderim yalnızca panelden onayla yapılır.
 """
@@ -36,7 +38,15 @@ def main(arg: list[str]) -> None:
         print(musteri_bul.csv_ice_aktar(arg[1]), "işletme eklendi")
     elif komut == "teklif-takip":
         print(islemler.teklif_takip_taslaklari_olustur(), "teklif takibi hazır")
+    elif komut == "yedek":
+        import yedek
+        yedek.yedek_al()
+    elif komut == "birlestir":
+        with vt.baglanti() as con:
+            print(vt.mukerrerleri_birlestir(con), "mükerrer kayıt birleştirildi")
     elif komut == "otomatik":
+        import yedek
+        yedek.gunluk_yedek()
         print(islemler.gelen_kutusunu_isle())
         print(islemler.hatirlatma_taslaklari_olustur(), "hatırlatma hazır")
         print(islemler.teklif_takip_taslaklari_olustur(), "teklif takibi hazır")

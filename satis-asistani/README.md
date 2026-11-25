@@ -46,7 +46,14 @@ Teklifi panelden hazırlarsınız; başka bir programa veya yapay zekaya gerek y
 5. **10. gün takibi.** Gönderimden 10 gün sonra müşteriden cevap gelmemişse kibar bir takip maili aynı yazışma zincirinde onay bekleyenlere düşer (Özet → "10 gündür cevapsız tekliflere takip hazırla" veya `python calistir.py otomatik`). Müşteri cevap verirse takip iptal olur; süresi (15 gün) dolan teklife takip yazılmaz.
 6. Sonucu **Kabul edildi / Reddedildi** ile işaretleyin.
 
+Teklif isteyen mailde resim eki (logo) varsa asistan onu kaydeder; teklif formunda "Maildeki resimler" altında seçilir, ayrıca dosya yüklemeniz gerekmez.
+
 Teklif dosyaları `teklifler/` klasöründe durur. Görsel, bilgisayardaki Chrome veya Edge ile çizilir; bulunamazsa `.env` içinde `CHROME_YOLU` yazın. Oshibori fiyatı dolar bazlı olduğu için otomatik hesaplanmaz.
+
+## Mükerrer kayıt ve yedek
+
+- **Mükerrer kayıt:** Aynı telefon, aynı web sitesi veya aynı ilçede aynı ad ile gelen işletme yeniden eklenmez; eksik bilgileri (ör. sonradan bulunan e-posta) mevcut kayda eklenir. Eski kayıtlar için Müşteriler → **Mükerrerleri birleştir** (yazışması olan kayıt silinmez).
+- **Yedek:** Veritabanı, teklif görselleri ve mail ekleri günde bir kez `yedekler/` klasörüne ZIP olarak alınır (son 30 yedek). Özet sayfasından **Şimdi yedek al** ve indir. Şifreler (.env) yedeğe konmaz. Geri yüklemek için paneli kapatıp ZIP'teki `satis.db` dosyasını asistan klasörüne koyun. Yedekleri ara sıra bilgisayar dışına (USB, bulut) kopyalayın.
 
 ## Kurulum (bir kez)
 
@@ -93,7 +100,7 @@ Tarayıcıda **http://127.0.0.1:5000** adresini açın ve panel şifrenizle giri
 2. **Müşteri bul:** Bir ilçe yazın, örneğin Bodrum, Marmaris veya Fethiye. Bulunan işletmeler öncelik puanına göre sıralanır. Puanı sektör, Bodrum'da olması, zincir olması ve e-postası bulunması belirler.
 3. **Tanıtım taslakları → Taslak yaz:** Önce 5–10 işletmeyle başlayın.
 4. **Onay bekleyenler:** Taslakları okuyun, gerekirse düzeltin, gönderin.
-5. **Müşteriler → Telefon listesi:** E-postası olmayan işletmeleri (çoğu kebapçı ve fast food böyledir) telefon veya WhatsApp ile aramak için indirin.
+5. **Telefon / WhatsApp:** E-postası olmayan işletmeler (çoğu kebapçı ve fast food böyledir) sektörüne göre hazır WhatsApp mesajı ve telefon konuşma notuyla listelenir. "WhatsApp'ta aç" mesajı hazır açar, göndermeyi siz yaparsınız; sonra Arandı / WhatsApp yazıldı / İlgileniyor olarak işaretlersiniz. Aynı liste CSV olarak da indirilir.
 
 Deneme modunda birkaç gün kullanıp taslakları beğendiğinizde `.env` içinde `DENEME_MODU=0` yapın.
 

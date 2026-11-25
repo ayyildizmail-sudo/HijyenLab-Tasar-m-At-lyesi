@@ -256,8 +256,12 @@ def telefon_listesi_csv(dosya: str) -> int:
             "SELECT ad, tur, ilce, telefon, web FROM musteri WHERE (eposta IS NULL OR eposta='') "
             "AND telefon IS NOT NULL AND telefon!='' AND mevcut_musteri=0 ORDER BY puan DESC, ad"
         ).fetchall()
+    import iletisim_metinleri as im
     with open(dosya, "w", newline="", encoding="utf-8-sig") as f:
         w = csv.writer(f)
-        w.writerow(["ad", "tur", "ilce", "telefon", "web"])
-        w.writerows([(s["ad"], TURLER.get(s["tur"], s["tur"]), s["ilce"], s["telefon"], s["web"]) for s in satirlar])
+        w.writerow(["ad", "tur", "ilce", "telefon", "web", "whatsapp_metni", "whatsapp_baglantisi"])
+        for s in satirlar:
+            metin = im.whatsapp_metni(dict(s))
+            w.writerow((s["ad"], TURLER.get(s["tur"], s["tur"]), s["ilce"], s["telefon"], s["web"], metin,
+                        im.whatsapp_baglantisi(s["telefon"], metin) or ""))
     return len(satirlar)

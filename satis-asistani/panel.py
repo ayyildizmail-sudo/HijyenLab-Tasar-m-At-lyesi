@@ -8,10 +8,12 @@ from pathlib import Path
 
 from flask import Flask, abort, flash, redirect, render_template, request, send_file, session, url_for
 
+import iletisim_metinleri as im
 import islemler
 import musteri_bul
 import teklif_gorseli as tg
 import veritabani as vt
+import yedek
 from ayarlar import fiyatlar
 from ayarlar import AYAR
 
@@ -87,7 +89,8 @@ def ozet():
         bugun = vt.bugun_giden_tanitim_sayisi(con)
         epostali = con.execute("SELECT COUNT(*) FROM musteri WHERE durum='yeni' AND eposta!=''").fetchone()[0]
     return render_template("ozet.html", durumlar=durumlar, bekleyen=bekleyen, bugun=bugun,
-                           limit=AYAR.gunluk_tanitim_limiti, epostali=epostali, turler=musteri_bul.TURLER)
+                           limit=AYAR.gunluk_tanitim_limiti, epostali=epostali, turler=musteri_bul.TURLER,
+                           yedekler=yedek.yedekleri_listele()[:5])
 
 
 @app.post("/is/<ad>")
@@ -195,12 +198,75 @@ def musteri_csv():
     return redirect(url_for("musteriler"))
 
 
+@app.post("/musteri/birlestir")
+@giris_gerekli
+def musteri_birlestir():
+    with vt.baglanti() as con:
+        n = vt.mukerrerleri_birlestir(con)
+    flash(f"{n} mükerrer kayıt birleştirildi." if n else "Mükerrer kayıt bulunamadı.")
+    return redirect(url_for("musteriler"))
+
+
+@app.post("/yedek")
+@giris_gerekli
+def yedek_al():
+    y = yedek.yedek_al(ilerleme=lambda s: None)
+    flash(f"Yedek alındı: {y.name}")
+    return redirect(url_for("ozet"))
+
+
+@app.route("/yedek/<ad>")
+@giris_gerekli
+def yedek_indir(ad):
+    for y in yedek.yedekleri_listele():
+        if y.name == ad:
+            return send_file(y, as_attachment=True, download_name=y.name)
+    abort(404)
+
+
 @app.route("/telefon-listesi.csv")
 @giris_gerekli
 def telefon_listesi():
     yol = tempfile.NamedTemporaryFile(suffix=".csv", delete=False).name
     musteri_bul.telefon_listesi_csv(yol)
     return send_file(yol, as_attachment=True, download_name="telefon_listesi.csv")
+
+
+TELEFON_DURUM = {"aranacak": "Aranacak", "arandi": "Arandı", "whatsapp_yazildi": "WhatsApp yazıldı",
+                 "ilgileniyor": "İlgileniyor", "olumsuz": "İlgilenmiyor"}
+
+
+@app.route("/telefon")
+@giris_gerekli
+def telefon():
+    durum = request.args.get("durum", "")
+    sql = ("SELECT * FROM musteri WHERE (eposta IS NULL OR eposta='') AND telefon IS NOT NULL AND telefon!='' "
+           "AND mevcut_musteri=0 AND durum!='listeden_cikti'")
+    with vt.baglanti() as con:
+        if durum == "aranacak":
+            liste = con.execute(sql + " AND durum IN ('yeni','atlandi') ORDER BY puan DESC, ad LIMIT 300").fetchall()
+        elif durum:
+            liste = con.execute(sql + " AND durum=? ORDER BY puan DESC, ad LIMIT 300", (durum,)).fetchall()
+        else:
+            liste = con.execute(sql + " ORDER BY (durum='yeni') DESC, puan DESC, ad LIMIT 300").fetchall()
+    satirlar = []
+    for m in liste:
+        metin = im.whatsapp_metni(dict(m))
+        satirlar.append({"m": m, "metin": metin, "wa": im.whatsapp_baglantisi(m["telefon"], metin),
+                         "cep": im.cep_mi(m["telefon"]), "not_": im.telefon_notu(dict(m))})
+    return render_template("telefon.html", satirlar=satirlar, durum=durum, durumlar=TELEFON_DURUM,
+                           turler=musteri_bul.TURLER)
+
+
+@app.post("/telefon/<int:mid>")
+@giris_gerekli
+def telefon_durum(mid):
+    yeni = request.form.get("durum", "")
+    if yeni not in TELEFON_DURUM or yeni == "aranacak":
+        abort(400)
+    with vt.baglanti() as con:
+        con.execute("UPDATE musteri SET durum=?, son_temas=? WHERE id=?", (yeni, vt.simdi(), mid))
+    return redirect(url_for("telefon", durum=request.args.get("durum", "")))
 
 
 @app.route("/kara-liste", methods=["GET", "POST"])
@@ -275,6 +341,21 @@ def _form_secenekleri(f) -> list[tg.Secenek]:
     return secenekler
 
 
+def _mail_resimleri(mail_id: int) -> list[str]:
+    with vt.baglanti() as con:
+        r = con.execute("SELECT ek_yollari FROM mail WHERE id=?", (mail_id,)).fetchone()
+    return [y for y in json.loads((r and r["ek_yollari"]) or "[]") if Path(y).exists()]
+
+
+@app.route("/mail/<int:mid>/ek/<int:n>")
+@giris_gerekli
+def mail_eki(mid, n):
+    yollar = _mail_resimleri(mid)
+    if not 1 <= n <= len(yollar):
+        abort(404)
+    return send_file(yollar[n - 1])
+
+
 @app.route("/teklifler")
 @giris_gerekli
 def teklifler():
@@ -290,24 +371,33 @@ def teklif_yeni():
     f = request.form
     on = {}
     mail_id = request.values.get("mail", type=int)
+    hazir_logolar = _mail_resimleri(mail_id) if mail_id else []
     if request.method == "GET" and mail_id:
         with vt.baglanti() as con:
             g = con.execute("SELECT teklif_karti, kimden FROM mail WHERE id=?", (mail_id,)).fetchone()
         if g:
             on = _karttan_oku(g["teklif_karti"]) | ({"eposta": g["kimden"]} if g["kimden"] else {})
+        if hazir_logolar:
+            on["hazir_logo"] = "1"
     if request.method == "POST":
         on = f.to_dict()
         dosya = request.files.get("logo")
-        uzanti = Path(dosya.filename or "").suffix.lower() if dosya else ""
-        if not dosya or not dosya.filename:
-            flash("Logo dosyası seçin (PNG veya JPG). Logo yoksa işletme adını yazan bir görsel yükleyin.")
-        elif uzanti not in LOGO_UZANTILARI:
-            flash("Logo PNG, JPG veya WEBP olmalı. PDF logoyu önce resim olarak kaydedin.")
+        uzanti = Path(dosya.filename or "").suffix.lower() if dosya and dosya.filename else ""
+        secilen = f.get("hazir_logo", type=int)
+        logo = None
+        if uzanti:
+            if uzanti not in LOGO_UZANTILARI:
+                flash("Logo PNG, JPG veya WEBP olmalı. PDF logoyu önce resim olarak kaydedin.")
+            else:
+                yuklenen = islemler.TEKLIF_KLASORU / "_yuklenen"
+                yuklenen.mkdir(parents=True, exist_ok=True)
+                logo = yuklenen / f"{secrets.token_hex(8)}{uzanti}"
+                dosya.save(logo)
+        elif secilen and 1 <= secilen <= len(hazir_logolar):
+            logo = Path(hazir_logolar[secilen - 1])
         else:
-            yuklenen = islemler.TEKLIF_KLASORU / "_yuklenen"
-            yuklenen.mkdir(parents=True, exist_ok=True)
-            logo = yuklenen / f"{secrets.token_hex(8)}{uzanti}"
-            dosya.save(logo)
+            flash("Logo seçin: maildeki resimlerden birini işaretleyin veya bir dosya yükleyin.")
+        if logo:
             try:
                 tid = islemler.teklif_olustur(
                     f.get("firma", ""), f.get("eposta", ""), f.get("teslim_yeri", ""), _form_secenekleri(f), logo,
@@ -319,6 +409,7 @@ def teklif_yeni():
                 return redirect(url_for("teklif_goster", tid=tid))
     urunler = {k: fiyatlar()["urunler"][k]["ad"] for k in TEKLIF_URUNLERI}
     return render_template("teklif_yeni.html", on=on, mail_id=mail_id, urunler=urunler,
+                           hazir_logolar=[Path(y).name for y in hazir_logolar],
                            zeminler=list(tg.ZEMIN_RGB), logo_renkleri=list(tg.LOGO_RENK),
                            kokular=fiyatlar()["kokular"])
 
@@ -369,6 +460,10 @@ def teklif_islem(tid, islem):
 
 def calistir():
     vt.kur()
+    try:
+        yedek.gunluk_yedek()
+    except Exception as h:  # yedek alınamazsa panel yine açılır
+        print(f"UYARI: günlük yedek alınamadı: {h}")
     if not AYAR.panel_sifresi or AYAR.panel_sifresi == "degistirin":
         print("UYARI: .env içinde PANEL_SIFRESI'ni değiştirin.")
     print("Panel: http://127.0.0.1:5000")

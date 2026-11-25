@@ -109,6 +109,25 @@ def hatirlatma_taslaklari_olustur(ilerleme=print) -> int:
 
 # --- Gelen kutusu ------------------------------------------------------------
 
+EK_KLASORU = Path(AYAR.veritabani).resolve().parent / "ekler"
+
+
+def ek_kaydet(con, mail_id: int, ekler: list[tuple[str, bytes]]) -> list[str]:
+    """Gelen maildeki resim eklerini (logo olabilir) diske yazar, yollarını maile kaydeder."""
+    yollar = []
+    for i, (ad, icerik) in enumerate(ekler, 1):
+        uzanti = Path(ad).suffix.lower()
+        temiz = "".join(c if c.isalnum() or c in "-_" else "_" for c in Path(ad).stem)[:40] or "ek"
+        dizin = EK_KLASORU / str(mail_id)
+        dizin.mkdir(parents=True, exist_ok=True)
+        yol = dizin / f"{i}_{temiz}{uzanti}"
+        yol.write_bytes(icerik)
+        yollar.append(str(yol))
+    if yollar:
+        con.execute("UPDATE mail SET ek_yollari=? WHERE id=?", (json.dumps(yollar, ensure_ascii=False), mail_id))
+    return yollar
+
+
 def _mail_kimligi(m: dict) -> str:
     if m.get("message_id"):
         return m["message_id"]
@@ -184,6 +203,9 @@ def gelen_maili_isle(con, m: dict) -> str:
     insan_baksin = s.guven < AYAR.guven_esigi
     kart = yz.teklif_karti(s, m["kimden"], m.get("ekler") or []) if s.kategori == yz.Kategori.teklif_talebi else None
     mail_id = kaydet(s.kategori.value, s.ozet, s.onem, s.guven, insan_baksin, kart)
+
+    if s.kategori not in CEVAPSIZ_KATEGORILER:
+        ek_kaydet(con, mail_id, m.get("gorsel_ekler") or [])
 
     if s.kategori == yz.Kategori.listeden_cikma and not insan_baksin:
         vt.kara_listeye_ekle(con, m["kimden"], "listeden çıkmak istedi (yapay zeka)")

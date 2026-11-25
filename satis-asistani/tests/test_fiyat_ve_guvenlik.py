@@ -68,3 +68,10 @@ def test_adres_uyarisi():
     assert gk.adres_uyarisi("info@firma.com", False)
 
 
+
+
+def test_medikal_kelime_basinda_aranir():
+    from guvenlik_kontrolu import denetle
+    assert denetle("Müşterilerinize logolu ıslak havlu sunun.") == []
+    assert [b.parca for b in denetle("Sterilize edilmiş ürün")] == ["steril"]
+    assert [b.parca for b in denetle("Tamamen steril.")] == ["steril"]

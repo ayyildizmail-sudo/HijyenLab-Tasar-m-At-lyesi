@@ -14,8 +14,18 @@
       <label>Teslim yeri (şehir/ilçe)<br><input name="teslim_yeri" value="{{ on.teslim_yeri or '' }}" required style="width:100%"></label>
       <label>Koku (mendil)<br><select name="koku" style="width:100%"><option value="">Dört koku listelensin</option>
         {% for k in kokular %}<option {% if (on.koku or '')|lower == k|lower %}selected{% endif %}>{{ k }}</option>{% endfor %}</select></label>
-      <label>Logo (PNG, JPG)<br><input type="file" name="logo" accept=".png,.jpg,.jpeg,.webp" required></label>
+      <label>Logo dosyası (PNG, JPG){% if hazir_logolar %} <span class="soluk">veya aşağıdan maildeki resmi seçin</span>{% endif %}<br>
+        <input type="file" name="logo" accept=".png,.jpg,.jpeg,.webp" {% if not hazir_logolar %}required{% endif %}></label>
     </div>
+    {% if hazir_logolar %}
+    <div style="margin-top:10px"><b>Maildeki resimler</b> <span class="soluk">(logo olanı seçin)</span>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px">
+      {% for ad in hazir_logolar %}
+        <label style="border:1px solid #e4e7ec;border-radius:8px;padding:6px;text-align:center;background:#fff">
+          <img src="{{ url_for('mail_eki', mid=mail_id, n=loop.index) }}" alt="" style="height:70px;max-width:160px;object-fit:contain;display:block;margin:0 auto 4px">
+          <input type="radio" name="hazir_logo" value="{{ loop.index }}" {% if loop.first %}checked{% endif %}> <span class="soluk">{{ ad[:24] }}</span></label>
+      {% endfor %}</div></div>
+    {% endif %}
     <p class="soluk">Bodrum teslimde kargo yazılmaz. Logonun zemini otomatik ayrılır; istenirse tek renge çevrilir.</p>
   </div>
   {% for i in [1, 2, 3] %}

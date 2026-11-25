@@ -1,4 +1,5 @@
 """SQLite veritabanı: potansiyel müşteriler, mailler, taslaklar, kara liste, denetim izi."""
+import re
 import secrets
 import sqlite3
 from contextlib import contextmanager
@@ -42,6 +43,7 @@ CREATE TABLE IF NOT EXISTS mail (
     referanslar TEXT,           -- References
     kimden TEXT, kime TEXT, konu TEXT, metin TEXT,
     ekler TEXT,                 -- ek dosya adları
+    ek_yollari TEXT,            -- kaydedilen resim ekleri (JSON; logo olabilir)
     tarih TEXT NOT NULL DEFAULT (datetime('now','localtime')),
     kategori TEXT, ozet TEXT, onem INTEGER,
     guven REAL,
@@ -117,7 +119,7 @@ EK_SUTUNLAR = {
     "musteri": {"eposta_kaynak": "TEXT", "marka": "TEXT", "puan": "INTEGER NOT NULL DEFAULT 0",
                 "mevcut_musteri": "INTEGER NOT NULL DEFAULT 0", "cikis_token": "TEXT"},
     "mail": {"referanslar": "TEXT", "ekler": "TEXT", "guven": "REAL",
-             "insan_baksin": "INTEGER NOT NULL DEFAULT 0", "teklif_karti": "TEXT"},
+             "insan_baksin": "INTEGER NOT NULL DEFAULT 0", "teklif_karti": "TEXT", "ek_yollari": "TEXT"},
     "taslak": {"orijinal_metin": "TEXT", "profil_surumu": "TEXT", "bulgular": "TEXT", "hesaplanan_teklif": "TEXT",
                "ekler": "TEXT", "teklif_id": "INTEGER"},
 }
@@ -155,13 +157,78 @@ ALANLAR = ("ad", "tur", "sehir", "ilce", "adres", "telefon", "eposta", "eposta_k
            "kaynak", "kaynak_id", "puan", "mevcut_musteri", "not_")
 
 
+# --- Mükerrer kayıt -------------------------------------------------------------
+
+_HUKUKI_EKLER = re.compile(r"\b(ltd|şti|sti|a\.?ş|as|san|tic|ve|limited|şirketi|sirketi)\b\.?")
+_GENEL_ALANLAR = {"instagram.com", "facebook.com", "fb.com", "tripadvisor.com", "tripadvisor.com.tr", "google.com",
+                  "goo.gl", "maps.app.goo.gl", "linktr.ee", "wa.me", "booking.com", "yemeksepeti.com",
+                  "getir.com", "trendyol.com", "foursquare.com", "x.com", "twitter.com", "tiktok.com"}
+
+
+def ad_anahtari(ad: str) -> str:
+    """İşletme adını karşılaştırma için sadeleştirir: küçük harf, Türkçe harf, noktalama ve şirket ekleri yok."""
+    s = (ad or "").replace("İ", "i").replace("I", "ı").lower()
+    s = s.translate(str.maketrans("çğıöşüâî", "cgiosuai"))
+    s = _HUKUKI_EKLER.sub(" ", s)
+    return re.sub(r"[^a-z0-9]+", " ", s).strip()
+
+
+def tel_anahtari(tel: str) -> str:
+    rakam = re.sub(r"\D", "", tel or "")
+    return rakam[-10:] if len(rakam) >= 10 else ""
+
+
+def alan_anahtari(web: str) -> str:
+    w = (web or "").strip().lower()
+    w = re.sub(r"^[a-z]+://", "", w).split("/")[0].split("?")[0]
+    w = w[4:] if w.startswith("www.") else w
+    return "" if (not w or "." not in w or w in _GENEL_ALANLAR) else w
+
+
+def mukerrer_bul(con, ad: str = "", ilce: str = "", telefon: str = "", web: str = "") -> int | None:
+    """Aynı işletme zaten kayıtlıysa id'sini döner: aynı telefon, aynı web alanı veya aynı ilçede aynı ad."""
+    tel, alan, anahtar = tel_anahtari(telefon), alan_anahtari(web), ad_anahtari(ad)
+    if not (tel or alan or anahtar):
+        return None
+    for r in con.execute("SELECT id, ad, ilce, telefon, web FROM musteri"):
+        if tel and tel_anahtari(r["telefon"]) == tel:
+            return r["id"]
+        if alan and alan_anahtari(r["web"]) == alan:
+            return r["id"]
+        if anahtar and len(anahtar) >= 4 and ad_anahtari(r["ad"]) == anahtar and \
+                ad_anahtari(r["ilce"] or "") == ad_anahtari(ilce or ""):
+            return r["id"]
+    return None
+
+
+def _eksikleri_doldur(con, mid: int, alan: dict) -> None:
+    """Mükerrer gelen kayıttaki bilgiyle mevcut kaydın boş alanlarını tamamlar (dolu alana dokunmaz)."""
+    r = con.execute("SELECT * FROM musteri WHERE id=?", (mid,)).fetchone()
+    for k in ("telefon", "web", "adres", "ilce", "sehir", "tur", "marka"):
+        if alan.get(k) and not r[k]:
+            con.execute(f"UPDATE musteri SET {k}=? WHERE id=?", (alan[k], mid))
+    if alan.get("eposta") and not r["eposta"]:
+        con.execute("UPDATE musteri SET eposta=?, eposta_kaynak=? WHERE id=?",
+                    (alan["eposta"], alan.get("eposta_kaynak") or alan.get("kaynak") or "elle", mid))
+    if (alan.get("puan") or 0) > (r["puan"] or 0):
+        con.execute("UPDATE musteri SET puan=? WHERE id=?", (alan["puan"], mid))
+
+
 def musteri_ekle(con, **alan) -> int | None:
-    """Aynı kaynak_id veya aynı e-posta varsa eklemez, None döner."""
+    """Aynı kaynak_id, aynı e-posta, aynı telefon, aynı web alanı veya aynı ilçede aynı ad varsa yeni kayıt
+    açmaz (mevcut kaydın boş alanlarını tamamlar), None döner."""
     if alan.get("eposta"):
         alan["eposta"] = alan["eposta"].strip().lower()
         if con.execute("SELECT 1 FROM musteri WHERE eposta=?", (alan["eposta"],)).fetchone():
             return None
         alan.setdefault("eposta_kaynak", alan.get("kaynak") or "elle")
+    if alan.get("kaynak_id") and con.execute("SELECT 1 FROM musteri WHERE kaynak_id=?",
+                                             (alan["kaynak_id"],)).fetchone():
+        return None
+    var = mukerrer_bul(con, alan.get("ad", ""), alan.get("ilce", ""), alan.get("telefon", ""), alan.get("web", ""))
+    if var:
+        _eksikleri_doldur(con, var, alan)
+        return None
     sutunlar = [k for k in ALANLAR if alan.get(k) not in (None, "")]
     sutunlar.append("cikis_token")
     degerler = [alan[k] for k in sutunlar[:-1]] + [secrets.token_urlsafe(24)]
@@ -274,3 +341,31 @@ def takip_bekleyen_teklifler(con, gun: int):
 def suresi_dolan_teklifleri_isaretle(con) -> int:
     return con.execute("UPDATE teklif SET durum='suresi_doldu' WHERE durum IN ('hazirlandi','gonderildi') "
                        "AND gecerlilik < date('now','localtime')").rowcount
+
+
+def mukerrerleri_birlestir(con) -> int:
+    """Eski kayıtlardaki mükerrerleri birleştirir. Yalnız hiç yazışılmamış (taslak/mail/teklif yok) fazla kayıtlar
+    silinir; bilgileri ilk kayda aktarılır. Dönüş: birleştirilen kayıt sayısı."""
+    kayitlar = [dict(r) for r in con.execute("SELECT * FROM musteri ORDER BY id")]
+    silinen = 0
+    tutulan: list[dict] = []
+    for r in kayitlar:
+        es = None
+        for t in tutulan:
+            tel, alan = tel_anahtari(r["telefon"]), alan_anahtari(r["web"])
+            ayni_ad = (len(ad_anahtari(r["ad"])) >= 4 and ad_anahtari(r["ad"]) == ad_anahtari(t["ad"])
+                       and ad_anahtari(r["ilce"] or "") == ad_anahtari(t["ilce"] or ""))
+            if (tel and tel == tel_anahtari(t["telefon"])) or (alan and alan == alan_anahtari(t["web"])) or ayni_ad:
+                es = t
+                break
+        bagli = con.execute("SELECT (SELECT COUNT(*) FROM taslak WHERE musteri_id=:i) + "
+                            "(SELECT COUNT(*) FROM mail WHERE musteri_id=:i) + "
+                            "(SELECT COUNT(*) FROM teklif WHERE musteri_id=:i)", {"i": r["id"]}).fetchone()[0]
+        if es and not bagli and not r["mevcut_musteri"] and not (r["eposta"] and es["eposta"]):
+            _eksikleri_doldur(con, es["id"], r)
+            con.execute("DELETE FROM musteri WHERE id=?", (r["id"],))
+            es.update({k: es[k] or r[k] for k in ("telefon", "web", "eposta", "ilce")})
+            silinen += 1
+        else:
+            tutulan.append(r)
+    return silinen

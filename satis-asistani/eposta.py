@@ -90,6 +90,25 @@ def ek_adlari(msg: Message) -> list[str]:
     return [_coz(p.get_filename()) for p in msg.walk() if p.get_filename()]
 
 
+GORSEL_UZANTILARI = (".png", ".jpg", ".jpeg", ".webp", ".gif")
+EK_EN_FAZLA_BAYT = 10 * 1024 * 1024
+
+
+def gorsel_ekleri(msg: Message, en_fazla: int = 5) -> list[tuple[str, bytes]]:
+    """Logo olabilecek resim ekleri (ad, içerik). Teklif formunda hazır logo olarak sunulur."""
+    sonuc = []
+    for p in msg.walk():
+        ad = _coz(p.get_filename()) if p.get_filename() else ""
+        if not ad or not ad.lower().endswith(GORSEL_UZANTILARI):
+            continue
+        icerik = p.get_payload(decode=True)
+        if icerik and len(icerik) <= EK_EN_FAZLA_BAYT:
+            sonuc.append((ad, icerik))
+        if len(sonuc) >= en_fazla:
+            break
+    return sonuc
+
+
 def geri_donen_mi(msg: Message) -> bool:
     gonderen = parseaddr(msg.get("From", ""))[1].lower()
     return (gonderen.startswith(("mailer-daemon", "postmaster"))
@@ -123,6 +142,7 @@ def mail_ayristir(ham: bytes) -> dict:
         "metin": metin,
         "yeni_metin": alintiyi_kirp(metin),
         "ekler": ek_adlari(msg),
+        "gorsel_ekler": gorsel_ekleri(msg),
         "otomatik": bool(msg.get("Auto-Submitted", "no").lower() != "no" or msg.get("X-Autoreply")
                          or msg.get("Precedence", "").lower() in ("bulk", "junk", "auto_reply")),
         "geri_donen": geri_donen_mi(msg),

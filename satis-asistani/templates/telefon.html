@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block icerik %}
+<h2>Telefon / WhatsApp ({{ satirlar|length }})</h2>
+<p class="soluk">E-postası olmayan, telefonu olan işletmeler. "WhatsApp'ta aç" mesajı hazır olarak WhatsApp'ta açar; göndermeyi siz yaparsınız.
+Esnafa ticari ileti için İYS yükümlülüğünü mali müşavirinize teyit ettirin.</p>
+<p>{% for kod, ad in durumlar.items() %}<a class="etiket" href="{{ url_for('telefon', durum=kod) }}" {% if durum == kod %}style="background:#0f766e;color:#fff"{% endif %}>{{ ad }}</a> {% endfor %}
+  <a class="soluk" href="{{ url_for('telefon') }}">(tümü)</a></p>
+{% for x in satirlar %}{% set m = x.m %}
+<div class="kart">
+  <div><b>{{ m.ad }}</b> <span class="soluk">{{ turler.get(m.tur, m.tur or '') }} · {{ m.ilce or '' }}</span>
+    <span class="etiket">{{ durumlar.get(m.durum, m.durum) }}</span></div>
+  <div style="margin:6px 0">📞 <a href="tel:{{ m.telefon }}">{{ m.telefon }}</a>
+    {% if m.web %} · <a class="soluk" href="{{ m.web if m.web.startswith('http') else 'https://' ~ m.web }}" target="_blank" rel="noopener">{{ m.web[:40] }}</a>{% endif %}</div>
+  <details><summary>WhatsApp mesajı</summary><pre class="kart-metin" id="wa{{ m.id }}">{{ x.metin }}</pre></details>
+  <details><summary>Telefon konuşma notu</summary><pre class="kart-metin">{{ x.not_ }}</pre></details>
+  <p style="margin-top:8px">
+    {% if x.wa %}<a class="dugme" href="{{ x.wa }}" target="_blank" rel="noopener">WhatsApp'ta aç</a>{% endif %}
+    {% if x.wa and not x.cep %}<span class="soluk">(sabit hat; WhatsApp olmayabilir)</span>{% endif %}
+    <button type="button" class="ikincil" onclick="navigator.clipboard.writeText(document.getElementById('wa{{ m.id }}').innerText).then(()=>this.textContent='Kopyalandı')">Mesajı kopyala</button>
+  </p>
+  <form method="post" action="{{ url_for('telefon_durum', mid=m.id, durum=durum) }}" style="display:flex;gap:6px;flex-wrap:wrap">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    {% for kod, ad in durumlar.items() if kod != 'aranacak' %}<button name="durum" value="{{ kod }}" class="ikincil">{{ ad }}</button>{% endfor %}
+  </form>
+</div>
+{% else %}<div class="kart soluk">Bu listede işletme yok.</div>{% endfor %}
+{% endblock %}
