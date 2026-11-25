@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-25e
+profil_surumu: 2026-11-25f
 fiyat_paylasilabilir: hayir
 ---
 
@@ -30,7 +30,7 @@ logosu ve renkleriyle hazırlar ve düzenli olarak tedarik eder.
 - Rulo ürünler (25×25, 25×30, 30×30, 30×35) ve 20×25 katlı ıslak havlu aynı kumaştan yapılır: 60 g/m² nonwoven, noktalı (delikli) dokulu.
 - Rulo ürünler: tekli ambalaj, 50 mikron OPP.
 - 20×25 katlı ıslak havlu: tekli ambalaj, 50 mikron OPP (14×19 cm).
-- 7×12 ıslak mendil: tek tek paketli, triplex ambalaj.
+- 7×12 ıslak mendil: nonwoven kumaş (gramajı belirtilmedi); tek tek paketli, triplex ambalaj.
 - Bütün ürünler beyaz veya renkli zeminle, logolu veya baskısız hazırlanabilir.
 - Oshibori: yemek öncesi veya sonrası misafire sunulan, rulo halinde sarılı ıslak havlu (fine dining, uzak doğu mutfağı, otel, beach club).
   Kumaşı %100 pamuk havlu (ilmekli havlu dokusu); ürün ailesindeki tek pamuklu ürün, bu yüzden en premium sunum.
@@ -96,6 +96,7 @@ Her tanıtım mailinin tek çağrısı: "Logonuzu gönderin, işletmenize özel 
 - Geçmiş özel teklif fiyatları
 - Başka müşterilerin adları (izin olmadan referans yok)
 - Steril, medikal, antibakteriyel, klinik kullanıma uygun gibi belgelenmemiş iddialar
+- Oshibori dışındaki ürünler (rulo, katlı, mendil) için "pamuk" veya "pamuklu" ifadesi; bunlar nonwoven'dır
 - Kesin teslim tarihi, indirim veya özel fiyat vaadi
 - Fiyat paylaşımı kapalıyken herhangi bir rakamsal fiyat; bunun yerine "size özel teklif hazırlayalım"
 
