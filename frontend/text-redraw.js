@@ -61,7 +61,7 @@ async function redraw({img,mask,out,palette,surface,opaqueGround,recognize,creat
  const {w,h}=mask,m=mask.m,{lab,comps:allComps}=PP._internal.components(m,w,h),lines=PP.glyphLines(m,w,h).filter(l=>l.count>=2&&l.height>=10),report=[];
  const [bx0,by0,bx1,by1]=out.box,k=out.w/(bx1-bx0);
  const oc=createCanvas(out.w,out.h),og=oc.getContext('2d'),id=og.createImageData(out.w,out.h);id.data.set(out.data);og.putImageData(id,0,0);let replaced=0;
- const used=[],done=new Set();const run=async(lineList,fonts,needMin,dry)=>{
+ const used=[],done=new Set();let domW=null;const run=async(lineList,fonts,needMin,dry)=>{
  for(const line of lineList){
   const r=recTensor(img,line.box);let rec;try{rec=await recognize(r.tensor,r.width);}catch{continue;}if(!rec)continue;
   const chars=ctcDecode(rec.probs,rec.T,rec.C,rec.keys);if(chars.length<2)continue;const conf=chars.reduce((a,c)=>a+c.p,0)/chars.length;
@@ -148,8 +148,22 @@ async function redraw({img,mask,out,palette,surface,opaqueGround,recognize,creat
     const items=glyphs.map((ch,q)=>{const mm2=mc.measureText(ch),cx=(clusters[q].x0+clusters[q].x1)/2,cw2=(mm2.actualBoundingBoxLeft+mm2.actualBoundingBoxRight)*sc;return {ch,cx,cw2,left:mm2.actualBoundingBoxLeft,right:mm2.actualBoundingBoxRight,box:clusters[q]};});
     // genişlik uyumu: harf genişlikleri fotoğraftakine yakın olmalı (yazı tipi seçimini yönlendirir)
     const wr=items.map(it=>Math.log(Math.max(1,it.cw2)/Math.max(1,it.box.x1-it.box.x0)));const wmed=wr.slice().sort((a,b)=>a-b)[wr.length>>1];if(Math.abs(wmed)>.55)continue;const hx=Math.exp(-Math.max(-.4,Math.min(.4,wmed)));
-    const draw=(g,ox,oy,kk)=>{g.save();g.font=`${big}px "${f.family}"`;g.textBaseline='alphabetic';for(const it of items){const x=it.cx-(it.right-it.left)/2*sc*hx;g.save();g.translate(ox+(x-ext[0])*kk,oy+(base-ext[1])*kk);g.scale(sc*hx*kk,sc*kk);g.fillText(it.ch,0,0);g.restore();}g.restore();};
-    const tm=maskOf(createCanvas,LM.w,LM.h,g=>draw(g,0,0,1)),cd=ccPen(tm);const scv=iou(tm,LM.m,LM.w,LM.h)-Math.max(0,Math.abs(wmed)-.15)*.25-(markSafe?Math.min(.15,cd*.03):(cd>1?1:cd*.05)),markCount=(cand.match(/[ŞşÇçĞğÖöÜüİ]/g)||[]).length,adj=scv-markCount*.012;
+    // Kelime kelime: harf aralığı yazı tipinin kendi aralığı (çift aralığı dahil); kelimenin başı ve sonu fotoğraftakiyle aynı.
+    // Fotoğrafta harfler aralıklı dizildiyse (ör. C O F F E E) fark tüm harflere eşit dağıtılır.
+    const words=[];{let cur=[];const splitAt=q=>spaceSet.has(q)||cgw[q-1]>=Math.max(cgm*1.8,lh*.1);glyphs.forEach((ch,q)=>{if(q&&splitAt(q)){words.push(cur);cur=[];}cur.push(q);});words.push(cur);}
+    const adv=t=>mc.measureText(t).width,place=[],wordSpans=[];
+    for(const W of words){const str=W.map(q=>glyphs[q]).join(''),mw=mc.measureText(str),natL=mw.actualBoundingBoxLeft,natW=natL+mw.actualBoundingBoxRight;
+     const x0=clusters[W[0]].x0,x1=clusters[W[W.length-1]].x1,span=x1-x0;let wx=hx,tr=0;
+     if(W.length>1){tr=(span-natW*sc*wx)/(W.length-1);if(tr<0){tr=0;wx=Math.max(hx*.8,span/Math.max(1,natW*sc));}}else{wx=hx;}
+     let pen=0;const o0=W.length>1?x0+natL*sc*wx:(x0+x1)/2-(natW/2-natL)*sc*wx;
+     const first=place.length;W.forEach((q,k)=>{if(k)pen+=adv(glyphs[W[k-1]]+glyphs[q])-adv(glyphs[q]);place.push({ch:glyphs[q],x:o0+pen*sc*wx+k*tr,wx});});wordSpans.push({a:first,b:place.length,x0,x1});}
+    // kelime aralığı en az yazı tipinin boşluk genişliği kadar; satır fotoğraftaki merkezinde kalır
+    const fitPlace=place.map(p=>({...p}));
+    if(wordSpans.length>1){const minGap=adv(' ')*sc*hx*.9,starts=[wordSpans[0].x0];for(let i=1;i<wordSpans.length;i++){const P=wordSpans[i-1];starts.push(Math.max(wordSpans[i].x0,starts[i-1]+(P.x1-P.x0)+minGap));}
+     const L=wordSpans[wordSpans.length-1],newEnd=starts[starts.length-1]+(L.x1-L.x0),shift=((wordSpans[0].x0+L.x1)-(starts[0]+newEnd))/2;
+     wordSpans.forEach((S,i)=>{const d=starts[i]-S.x0+shift;for(let k=S.a;k<S.b;k++)place[k].x+=d;});}
+    const drawP=P=>(g,ox,oy,kk)=>{g.save();g.font=`${big}px "${f.family}"`;g.textBaseline='alphabetic';g.textAlign='left';for(const it of P){g.save();g.translate(ox+(it.x-ext[0])*kk,oy+(base-ext[1])*kk);g.scale(sc*it.wx*kk,sc*kk);g.fillText(it.ch,0,0);g.restore();}g.restore();},draw=drawP(place);
+    const tm=maskOf(createCanvas,LM.w,LM.h,g=>drawP(fitPlace)(g,0,0,1)),cd=ccPen(tm);const inkR=(()=>{let a=0,b=0;for(let q=0;q<tm.length;q++){a+=tm[q];b+=LM.m[q];}return Math.abs(Math.log(Math.max(1,a)/Math.max(1,b)));})(),scv=iou(tm,LM.m,LM.w,LM.h)-(domW&&f.weight!==domW?.04:0)-Math.max(0,inkR-.08)*.5-Math.max(0,Math.abs(wmed)-.15)*.25-(markSafe?Math.min(.15,cd*.03):(cd>1?1:cd*.05)),markCount=(cand.match(/[ŞşÇçĞğÖöÜüİ]/g)||[]).length,adj=scv-markCount*.012;
     if(!best||adj>(best.adj??best.s))best={s:scv,adj,f,text:cand,draw,mode:'glyph'};if(!bestGlyph||adj>bestGlyph.adj)bestGlyph={s:scv,adj,f,text:cand,draw,mode:'glyph'};}}
   // kelime bölgeleri (satır kesitinde): her kelime kendi mürekkep aralığına oturtulur → harf/kelime aralığı fotoğraftakiyle aynı
   const segs=[];{let a0=ix0;for(const [g0,g1] of gaps){const s0=g0-ext[0],s1=g1-ext[0];if(s0>a0&&s0<=ix1){segs.push([a0,s0]);a0=s1;}}segs.push([a0,ix1+1]);}
@@ -164,11 +178,11 @@ async function redraw({img,mask,out,palette,surface,opaqueGround,recognize,creat
    const tm=maskOf(createCanvas,LM.w,LM.h,g=>R.draw(g,ix0,iy0,R.sx,R.sy)),cdl=ccPen(tm);const s=iou(tm,LM.m,LM.w,LM.h)-Math.max(0,Math.abs(Math.log(R.sx/R.sy))-.25)*.3-(cdl>1?1:cdl*.05)-.04;const adj2=s-((cand.match(/[ŞşÇçĞğÖöÜüİ]/g)||[]).length)*.004;if(!best||adj2>(best.adj??best.s))best={s,adj:adj2,f,R,text:cand,draw:(g,ox,oy,kk)=>R.draw(g,ox+ix0*kk,oy+iy0*kk,R.sx*kk,R.sy*kk)};}
   // harf eşleşmesi ve Türkçe işaretler kesinse (metin doğru), yazı tipi benzerliği için eşik biraz daha esnek
   // metin kesinse harf harf yerleştirme tercih edilir (aralıklar fotoğraftakiyle birebir)
-  if(markSafe&&bestGlyph&&(!best||best.s<MIN_IOU))best=bestGlyph;
+  if(geomText&&bestGlyph&&(!best||best.s<MIN_IOU||(bestGlyph.s>=(needMin??.66)&&bestGlyph.s>=best.s-.08)))best=bestGlyph; // metin kesinse harf harf (kelime içi aralık yazı tipinden); belirgin daha kötü değilse
   // kısa kelime (≤3 harf, çoğu zaman markanın kendisi): az kanıt → yalnız çok yüksek örtüşmede yeniden çizilir
   const need=Math.max((markSafe&&best&&best.mode==='glyph')?(needMin??.66):MIN_IOU,nonSpace<=3?.88:0);
   if(!best||best.s<need){report.push({text,bestFont:best&&best.f.family,conf:+conf.toFixed(2),iou:best?+best.s.toFixed(2):0,skip:'shape-mismatch'});continue;}
-  if(dry){used.push({fam:best.f.family.replace(/ \d+$/,''),w:lh*(best.s)});continue;}
+  if(dry){used.push({fam:best.f.family.replace(/ \d+$/,''),wt:best.f.weight,w:lh*(best.s)});continue;}
   // renk: satır mürekkebindeki baskın palet rengi
   const cnt=palette.map(()=>0);for(let y=0;y<LM.h;y++)for(let x=0;x<LM.w;x++){if(!LM.m[y*LM.w+x])continue;const j=((y+ext[1])*img.w+(x+ext[0]))*4;let bi=0,bd=1e9;palette.forEach((p,q)=>{const d=(img.data[j]-p[0])**2+(img.data[j+1]-p[1])**2+(img.data[j+2]-p[2])**2;if(d<bd){bd=d;bi=q;}});cnt[bi]++;}
   const col=palette[cnt.indexOf(Math.max(...cnt))]||[0,0,0];
@@ -182,7 +196,7 @@ async function redraw({img,mask,out,palette,surface,opaqueGround,recognize,creat
  // 1) kuru geçiş: her satırın en uygun yazı tipi ailesi; 2) logonun baskın ailesi bulunur; 3) satırlar önce o aileyle çizilir (tutarlı görünüm),
  //    olmayanlar tüm yazı tipleriyle denenir.
  const all=lines.slice(0,12),saveReport=report.length;await run(all,fonts,undefined,true);report.length=saveReport;
- const score=new Map();for(const u of used)score.set(u.fam,(score.get(u.fam)||0)+u.w);const dom=[...score].sort((a,b)=>b[1]-a[1])[0]?.[0];used.length=0;
+ const score=new Map();for(const u of used)score.set(u.fam,(score.get(u.fam)||0)+u.w);const dom=[...score].sort((a,b)=>b[1]-a[1])[0]?.[0];{const ws=new Map();for(const u of used)if(u.fam===dom)ws.set(u.wt,(ws.get(u.wt)||0)+u.w);domW=[...ws].sort((a,b)=>b[1]-a[1])[0]?.[0]??null;} // logonun baskın kalınlığı: farklı kalınlık ancak belirgin daha iyi örtüşürseused.length=0;
  if(dom)await run(all,fonts.filter(f=>f.family.replace(/ \d+$/,'')===dom),.62);
  const rest=all.filter(l=>!done.has(l));const keep=report.filter(r=>r.font);report.length=0;report.push(...keep);if(rest.length)await run(rest,dom?fonts.filter(f=>f.family.replace(/ \d+$/,'')===dom):fonts);
  if(replaced){const d=og.getImageData(0,0,out.w,out.h).data;out.data.set(d);}
