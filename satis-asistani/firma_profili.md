@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-25i
+profil_surumu: 2026-11-25j
 fiyat_paylasilabilir: hayir
 ---
 
@@ -87,6 +87,20 @@ Koli başına ücretlendirilir. Bodrum teslimatlarında kargo ücreti alınmaz.
 - Catering / organizasyon / etkinlik: yüksek adetli, etkinliğe özel tasarım.
 - Transfer / araç kiralama / tekne turu: misafire verilen markalı ıslak mendil.
 - Toptancı / reklam ajansı: kendi müşterilerine markalı ürün sunabilecekleri bir tedarikçi.
+
+## Sıcak ya da serin servis
+- Rulo ve katlı ıslak havlular ile Oshibori sıcak veya serin servis edilebilir. 7×12 ıslak mendil için önerilmez.
+- Sıcak: HijyenLab'ın ısıtıcı dolabında ambalajıyla birlikte sürekli 80°C'de sıcak tutulur. Dolap yoksa müşteri kendi
+  mikrodalga fırınında yaklaşık 10 saniye ısıtarak servis edebilir (HijyenLab mikrodalga satmaz).
+- Serin: +4°C buzdolabında bekletilip serin servis edilir.
+- Mevsime ve sektöre göre öner: kebapçı, ocakbaşı, fine dining, uzak doğu mutfağı ve kış ayları için sıcak servis;
+  beach club, havuz başı, otel lobisi, yaz terasları, tekne turları ve transfer için serin servis.
+
+## Isıtıcı dolap (ayrıca satılır)
+- Islak havlu ısıtıcı dolap, model RTD-23A: cam kapaklı, iki çıkarılabilir tel sepetli; 60–70 ambalajlı ıslak havlu alır,
+  sürekli 80°C'de sıcak tutar. "Havlu da ısıtıcı da bizden."
+- Fiyatı fiyatlar.json'dadır; fiyat paylaşımı kapalıyken rakam yazılmaz, teklif ile verilir.
+- UV, sterilizasyon, mikrop öldürme gibi iddialar kullanılmaz (belgelenmedi). Garanti süresi konusunda söz verilmez.
 
 ## Kumaşı anlatma (müşterinin anlayacağı dille)
 Teknik terim yerine şu onaylı ifadeler kullanılır:

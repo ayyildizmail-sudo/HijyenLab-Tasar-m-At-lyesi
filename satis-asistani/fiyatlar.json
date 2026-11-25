@@ -80,5 +80,16 @@
   "uretim_gun_yeni_klise": 25,
   "uretim_gun_mevcut_klise": 20,
   "teklif_gecerlilik_gun": 15,
-  "odeme": "%50 sipariş onayında, kalan %50 ürün fotoğrafları paylaşıldıktan sonra sevkten önce"
+  "odeme": "%50 sipariş onayında, kalan %50 ürün fotoğrafları paylaşıldıktan sonra sevkten önce",
+  "ek_urunler": {
+    "ISITICI_RTD23A": {
+      "ad": "Islak havlu ısıtıcı dolap (RTD-23A)",
+      "fiyat": 350,
+      "para_birimi": "USD",
+      "kdv_dahil_degil": true,
+      "kargo_tl": 350,
+      "kargo_not": "adet başına, KDV hariç",
+      "kapasite": "60-70 ambalajlı ıslak havlu"
+    }
+  }
 }
