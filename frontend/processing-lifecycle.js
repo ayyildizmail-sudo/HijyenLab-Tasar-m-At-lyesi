@@ -78,6 +78,7 @@ const verifiedLogoReferences=new Map([
  // Approved proof; exact known bytes only, no paid generation and no filename guessing.
  ['6f3ee96b3a026f5b1543e28a7da5553e036956a33958bf921602475c25e469ef',serefeRedraw],
  ['99f38680fa46df1c03ee1064c103df48205bc4f5dca3d10eea24a9dd336fd34c',serefeRedraw],
+ ['dcb7a1853ac010f411e3b55b46399e062885a49952e48a65f4ccf1576392583a',serefeRedraw], // aynı müşteri görselinin yeniden sıkıştırılmış kopyası
  ['9d478f1c1b86670949d3da84d5294e5b096f0edb5ee5d01a3ff0791b84c28973',{filename:'cevre-approved-restoration.png',version:'1',restoration:true}],
  ['77774ff66baec6bd2d41a6aae301a37083ff651242c38b8594c5ef2fb10249e1',ghaliaReference],
  ['e03e2f84b7396970f8e1ab6c5fa4cf17633788a55d621200f6ffb192429c0f73',ghaliaReference],
