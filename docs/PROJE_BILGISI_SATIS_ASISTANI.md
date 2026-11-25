@@ -192,7 +192,7 @@ Bir müşteri şu durumlardan birinde olur:
 - [ ] **Mail ayarları** (en sona bırakıldı): sağlayıcı (Google / Microsoft / Yandex / hosting), IMAP ve SMTP sunucuları, uygulama şifresi.
 - [ ] **Claude API anahtarı** (console.anthropic.com).
 - [ ] **`YASAK_TERIMLER`**: üretim partnerinin adı `.env`'ye yazılacak.
-- [x] **Ürün videosu** hazır: `tanitim/video/HijyenLab_kucuk_paketten_buyuk_havlu.mp4` (18 sn, dikey, yazılı, bitiş kartında logo, ücretsiz numune ve iletişim). Kaynak video 480p olduğu için kalite telefonda izlemeye uygun düzeyde. Katalogdaki QR kod için videonun yayınlanacağı adres bekleniyor (site, YouTube vb.).
+- [x] **Ürün videosu** hazır: `tanitim/video/HijyenLab_kucuk_paketten_buyuk_havlu.mp4` (18 sn, dikey, yazılı, bitiş kartında logo, ücretsiz numune ve iletişim). Videodaki altın desenli ambalaj HijyenLab'ın kendi örnek tasarımıdır; paylaşımında izin sorunu yok. Kaynak video 480p olduğu için kalite telefonda izlemeye uygun düzeyde. Katalogdaki QR kod için videonun yayınlanacağı adres bekleniyor (site, YouTube vb.).
 - [ ] **Mevcut müşteri listesi** (CSV) panele "mevcut müşterilerim" olarak yüklenecek.
 - [ ] **SPF/DKIM/DMARC**, adres ısındırma, İYS/KVKK teyidi: `DENEME_MODU=0` öncesi şart.
 - [ ] **Asistanın nerede çalışacağı:** kendi bilgisayar veya küçük bir sunucu.
