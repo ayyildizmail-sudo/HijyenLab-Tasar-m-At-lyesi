@@ -42,7 +42,7 @@ function textRedrawKit(){
   const loaded=TR.FONTS.filter(f=>document.fonts.check(`20px "${f.family}"`));if(!loaded.length)return null;
   const recognize=async(tensor,width)=>{const r=await session.run({[session.inputNames[0]]:new ort.Tensor('float32',tensor,[1,3,48,width])});const o=r[session.outputNames[0]];return {probs:o.data,T:o.dims[1],C:o.dims[2],keys};};
   const createCanvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
-  return {recognize,createCanvas,redrawText:{...TR,redraw:opts=>TR.redraw({...opts,fonts:loaded})}};
+  return {recognize,createCanvas,redrawText:{...TR,redraw:opts=>TR.redraw({...opts,fonts:opts.fonts?opts.fonts.filter(f=>loaded.includes(f)):loaded})}};
  })().catch(error=>{lastError='text-model:'+String(error?.message||error);return null;});
  return recPromise;
 }

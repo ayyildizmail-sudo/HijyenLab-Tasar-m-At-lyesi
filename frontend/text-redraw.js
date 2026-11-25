@@ -56,7 +56,7 @@ function dil(a,W,H){const o=new Uint8Array(W*H);for(let y=0;y<H;y++)for(let x=0;
 function compCount(mk,W,H,minN,maxH){const {comps}=PP._internal.components(mk,W,H);return comps.filter(c=>c.n>=minN&&(c.box[3]-c.box[1])<maxH).length;}
 function iou(a,b,W,H){const da=dil(a,W,H),db=dil(b,W,H);let na=0,nb=0,ta=0,tb=0;for(let k=0;k<a.length;k++){if(a[k]){na++;if(db[k])ta++;}if(b[k]){nb++;if(da[k])tb++;}}const p=nb?tb/nb:0,r=na?ta/na:0;return p+r?2*p*r/(p+r):0;}
 // ana fonksiyon
-async function redraw({img,mask,out,palette,drawPalette=null,surface,opaqueGround,recognize,createCanvas,fonts=FONTS}){
+async function redraw({img,mask,out,palette,drawPalette=null,relaxed=false,surface,opaqueGround,recognize,createCanvas,fonts=FONTS}){
  if(!recognize||!createCanvas||!out)return {replaced:0,lines:[]};
  const {w,h}=mask,m=mask.m;let maxLineH=0;const {lab,comps:allComps}=PP._internal.components(m,w,h),lines=PP.glyphLines(m,w,h).filter(l=>l.count>=2&&l.height>=10),report=[];for(const l of lines)maxLineH=Math.max(maxLineH,l.height);
  const [bx0,by0,bx1,by1]=out.box,k=out.w/(bx1-bx0);
@@ -179,7 +179,11 @@ async function redraw({img,mask,out,palette,drawPalette=null,surface,opaqueGroun
   // Harfler birbirine değdiğinde Türkçe işaretler: harflerin yeri yazı tipi ölçülerinden hesaplanır (kelime kelime, fotoğraftaki
   // kelime sınırlarına oturtularak); her harfin tam üstünde ayrı küçük leke (nokta/şapka) ya da altında çengel aranır.
   // Kanıt belirsizse (eşiğe çok yakınsa) satır için sonuç verilmez → satır yeniden çizilmez.
-  const LAY=(()=>{if(geomText||lh<22||lh>maxLineH*.6||!/[SCGIOUscgouiı]/.test(text))return null;const t=text.replace(/ı/g,'i');const words=t.split(' ').filter(Boolean);if(!words.length)return null;
+  // büyük harfli satırda üstte/altta hiç işaret mürekkebi yoksa metinde Türkçe işaret yoktur (okunan metin aynen doğrudur)
+  const noMarks=(()=>{const t=text.replace(/[^A-Za-z]/g,'');if(t.length<2||t!==t.toUpperCase())return false;let n=0;const thr=(lh*.04)**2;
+   for(const c of allComps){const b=c.box,cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2;if(cx<lx0||cx>lx1)continue;if(!((b[3]<=ly0+lh*.04&&b[1]>=ly0-lh*.45)||(b[1]>=ly1-lh*.04&&b[3]<=ly1+lh*.4)))continue;
+    if(lines.some(L2=>L2!==line&&cy>=L2.box[1]&&cy<=L2.box[3]))continue;n+=c.n;}return n<thr;})();
+  const LAY=(()=>{if(geomText||lh<22||(lh>maxLineH*.6&&!(noMarks&&relaxed))||!/[SCGIOUscgouiı]/.test(text))return null;const t=text.replace(/ı/g,'i');const words=t.split(' ').filter(Boolean);if(!words.length)return null;
    const big=200,ff=ALLF.find(f=>f.kind==='sans')||ALLF[0],mc=createCanvas(10,10).getContext('2d');mc.font=`${big}px "${ff.family}"`;
    const C=clusters0;if(C.length<2)return null;
    // fotoğraftaki kelime aralıkları: model boşluk sayısı kadar en büyük küme aralığı
@@ -220,11 +224,12 @@ async function redraw({img,mask,out,palette,drawPalette=null,surface,opaqueGroun
     // gövde ile işaret birleşik: gövde büyük harf/x yüksekliğinin belirgin üstüne çıkıyorsa işaret var
     const n=inkRect(a2,ref-lh*.42,b2,ref-lh*.09),thr=(lh*.05)**2;if(n>=thr*.5&&n<thr*1.5)return null;return n>=thr;};
    const downMark=o=>{const a=o.x0+(o.x1-o.x0)*.25,b=o.x1-(o.x1-o.x0)*.25,n=inkRect(a,baseRef+lh*.05,b,baseRef+lh*.32),thr=(lh*.05)**2;if(n>=thr*.15&&n<thr*1.5)unsure=true;return n>=thr;};
-   const upperLine=words.join('').replace(/[^A-Za-z]/g,'');const mostlyUpper=upperLine&&upperLine.replace(/[^A-Z]/g,'').length>upperLine.length*.6;
+   const upperLine=words.join('').replace(/[^A-Za-z]/g,'');let mostlyUpper=upperLine&&upperLine.replace(/[^A-Z]/g,'').length>upperLine.length*.6;
+   {const hs=C.map(c=>c.y1-c.y0).filter(v=>v>lh*.4).sort((a,b)=>a-b);if(hs.length>=3&&hs[0]>=hs[hs.length-1]*.85)mostlyUpper=true;} // harf boyları eşit: büyük harfli satır
    // belirsiz işaret: kelimedeki önceki ünlüye göre ünlü uyumu (ince ünlüden sonra i/ü, kalından sonra ı/u); önceki ünlü yoksa karar verilmez
    const outC=[];const prevVowel=j=>{for(let k=j-1;k>=0&&pos[k].w===pos[j].w;k--){const v=outC[k];if(/[aeıioöuüAEIİOÖUÜ]/.test(v))return v;}return null;};
    const front=v=>/[eiöüEİÖÜ]/.test(v);
-   pos.forEach((o,j)=>{let ch=o.ch;const prev=pos[j-1]&&pos[j-1].w===o.w?pos[j-1].ch:'',next=pos[j+1]&&pos[j+1].w===o.w?pos[j+1].ch:'';
+   pos.forEach((o,j)=>{let ch=o.ch;if(noMarks){outC.push(ch==='i'?'I':ch);return;}const prev=pos[j-1]&&pos[j-1].w===o.w?pos[j-1].ch:'',next=pos[j+1]&&pos[j+1].w===o.w?pos[j+1].ch:'';
     if(ch==='i'&&(mostlyUpper||(/[A-Z]/.test(prev)&&/[A-Z]/.test(next))))ch='I';
     const dec=(res,yes,no,harm)=>{if(res===true)return yes;if(res===false)return no;const pv=prevVowel(j);if(harm&&pv){return front(pv)?yes:no;}unsure=true;return no;};
     let r=ch;
@@ -236,6 +241,7 @@ async function redraw({img,mask,out,palette,drawPalette=null,surface,opaqueGroun
     else if(ch==='i'){let res=upMark(o,xRef);if(res===false&&xRef!=null){const wd=o.x1-o.x0,n=inkRect(o.x0-wd*.4,xRef-lh*.45,o.x1+wd*.4,xRef-lh*.06);if(n>=(lh*.04)**2*.3)res=null;}r=dec(res,'i','ı',true);}
     else if(/[SCsc]/.test(ch))r=downMark(o)?{S:'Ş',C:'Ç',s:'ş',c:'ç'}[ch]:ch;
     outC.push(r);});
+   if(mostlyUpper)for(let j=0;j<outC.length;j++){const c=outC[j];outC[j]=c==='i'?'İ':c==='ı'?'I':c.toLocaleUpperCase('tr');}
    if(unsure)return null;let r='',k=0;const outW=[];words.forEach((wd,i)=>{if(i)r+=' ';const ww=outC.slice(k,k+wd.length).join('');outW.push(ww);r+=ww;k+=wd.length;});return {text:r,words:outW,segX,capRef,xRef,baseRef};})(),layoutText=LAY&&LAY.text;
   const eligible=/[SCGIOUscgoui]/.test(plain(text)),markSafe=geomText&&lh>=28;
   const glyphCands=markSafe?[geomText.join('')]:(!eligible&&geomText?[geomText.join('')]:[]);
@@ -291,7 +297,7 @@ async function redraw({img,mask,out,palette,drawPalette=null,surface,opaqueGroun
   // metin kesinse harf harf yerleştirme tercih edilir (aralıklar fotoğraftakiyle birebir)
   if(geomText&&bestGlyph&&(!best||best.s<MIN_IOU||(bestGlyph.s>=(needMin??.66)&&bestGlyph.s>=best.s-.08)))best=bestGlyph; // metin kesinse harf harf (kelime içi aralık yazı tipinden); belirgin daha kötü değilse
   // kısa kelime (≤3 harf, çoğu zaman markanın kendisi): az kanıt → yalnız çok yüksek örtüşmede yeniden çizilir
-  const need=best&&best.mode==='layout'?Math.max(.74,needMin??0):Math.max((markSafe&&best&&best.mode==='glyph')?(needMin??.66):MIN_IOU,nonSpace<=3?.88:0,wasSplit?.9:0); // bölünmüş harflerde eşleşme daha az kesin
+  const need=best&&best.mode==='layout'?(relaxed?.48:Math.max(.74,needMin??0)):Math.max((markSafe&&best&&best.mode==='glyph')?(needMin??.66):MIN_IOU,nonSpace<=3?.88:0,wasSplit?.9:0); // bölünmüş harflerde eşleşme daha az kesin
   if(!best||best.s<need){report.push({text,bestFont:best&&best.f.family,conf:+conf.toFixed(2),iou:best?+best.s.toFixed(2):0,skip:'shape-mismatch'});continue;}
   if(dry){used.push({fam:best.f.family.replace(/ (\d+|Regular|SemiBold|Bold|Black)$/,''),wt:best.f.weight,w:lh*(best.s)*(best.mode==='layout'?.5:1)});continue;}
   // renk: satır mürekkebindeki baskın palet rengi

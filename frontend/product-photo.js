@@ -651,7 +651,13 @@ async function extract(data,w,h,{classify=null,candidates=3,recognize=null,creat
   const out=renderClean(img,repair.mask,surface.map(Math.round),pal,2000,lightOnDark,repair.solid,showRgb);if(!out)return {ok:false,reason:'empty'};
   const outlineFixed=lightOnDark?removeGlow(out,pal.map(labToRgb),surface.map(Math.round)):restoreOutline(out,showRgb||pal.map(labToRgb));
   // Yazıları okuyup temiz yazı tipiyle yeniden çiz (yerel metin tanıma modeli verilmişse)
-  let textRedraw=null;const TR=redrawText||(typeof root!=='undefined'&&root.TextRedraw);if(recognize&&createCanvas&&TR){try{textRedraw=await TR.redraw({img,mask:{m:repair.mask,w:mm.w,h:mm.h},out,palette:pal.map(labToRgb),drawPalette:showRgb,surface,opaqueGround:lightOnDark,recognize,createCanvas});}catch(e){textRedraw={error:String(e&&e.message||e)};}}
+  let textRedraw=null;const TR=redrawText||(typeof root!=='undefined'&&root.TextRedraw);if(recognize&&createCanvas&&TR){try{const rd=(()=>{if(!lightOnDark||pal.length<2)return {m:repair.mask,pal:pal.map(labToRgb)};
+   // neon: ışıltı değil parlak tüp çizgisi esas alınır (tek renk, ince çizgi); satırlar ortak taban çizgisine oturtulur
+   const P=pal.map(labToRgb),L=p=>.3*p[0]+.59*p[1]+.11*p[2],core=P.reduce((b,p,k)=>L(p)>L(P[b])?k:b,0),cm=new Uint8Array(repair.mask.length);
+   for(let i=0;i<cm.length;i++){if(!repair.mask[i])continue;const j=i*4;let bi=0,bd=1e9;P.forEach((p,q)=>{const d=(img.data[j]-p[0])**2+(img.data[j+1]-p[1])**2+(img.data[j+2]-p[2])**2;if(d<bd){bd=d;bi=q;}});if(bi===core)cm[i]=1;}
+   return {m:cm,pal:[P[core]]};})();
+  const neonFonts=lightOnDark&&outlineFixed&&TR.FONTS?TR.FONTS.filter(f=>/quicksand|comfortaa|varela-round|m-plus-rounded/.test(f.family)&&f.weight<=500):null; // neon: yuvarlak, tek çizgili yazı tipleri
+  textRedraw=await TR.redraw({...(neonFonts&&neonFonts.length?{fonts:neonFonts,relaxed:true}:{}),img,mask:{m:rd.m,w:mm.w,h:mm.h},out,palette:rd.pal,drawPalette:lightOnDark?null:showRgb,surface,opaqueGround:lightOnDark,recognize,createCanvas});}catch(e){textRedraw={error:String(e&&e.message||e)};}}
   // koyu zemin: ışıltı/lamba ayıklandıktan sonra boş kalan kenarlar kırpılır, logo ortalanır
   if(lightOnDark&&outlineFixed){const {data:D,w:W,h:H}=out,g=[D[0],D[1],D[2]];let x0=W,y0=H,x1=-1,y1=-1;for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=(y*W+x)*4;if(Math.abs(D[i]-g[0])+Math.abs(D[i+1]-g[1])+Math.abs(D[i+2]-g[2])>=30){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}}
    if(x1>x0&&y1>y0){const pd=Math.round(Math.max(x1-x0,y1-y0)*.04);x0=Math.max(0,x0-pd);y0=Math.max(0,y0-pd);x1=Math.min(W-1,x1+pd);y1=Math.min(H-1,y1+pd);const nw=x1-x0+1,nh=y1-y0+1;
