@@ -3,7 +3,7 @@
 info@hijyenlab.com için yapay zeka destekli satış asistanı:
 
 1. **Gelen kutusu:** Gelen mailleri okur ve sınıflandırır: teklif talebi, sipariş, soru, şikâyet, spam vb. Gerekenler için cevap taslağı yazar.
-2. **Müşteri bulma:** Seçtiğiniz ilçedeki otel, restoran, kebapçı, fast food ve kafeleri OpenStreetMap'ten bulur. İşletmenin web sitesinde **herkese açık yayımlanmış** kurumsal e-postayı arar.
+2. **Müşteri bulma:** Seçtiğiniz ilçedeki restoran, kebapçı, fast food, kafe, otel, kuaför/berber, güzellik merkezi, pastane, spa/hamam, catering ve araç kiralama işletmelerini OpenStreetMap'ten bulur. İşletmenin web sitesinde **herkese açık yayımlanmış** kurumsal e-postayı arar.
 3. **Tanıtım maili:** Her işletmeye türüne göre kişisel bir mail yazar. Cevap gelmezse kibar bir hatırlatma hazırlar.
 4. **Onay paneli:** Hiçbir mail siz onaylamadan gitmez. Taslağı panelde okur, düzeltir, "Onayla ve gönder" dersiniz.
 

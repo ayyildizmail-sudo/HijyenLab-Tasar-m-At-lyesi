@@ -30,8 +30,11 @@ def test_osm_cevirme_ve_sorgu():
                                               "contact:email": "Info@Lezzet.com", "phone": "+90 252"}}
     k = musteri_bul.osm_kaydini_cevir(oge, "Bodrum")
     assert k["tur"] == "fast_food" and k["eposta"] == "info@lezzet.com" and k["kaynak_id"] == "osm:node/5"
-    q = musteri_bul.overpass_sorgusu("Bodrum", ["restaurant", "hotel"])
-    assert 'amenity"~"^(restaurant)$' in q and 'tourism"~"^(hotel)$' in q
+    q = musteri_bul.overpass_sorgusu("Bodrum", ["restoran", "fast_food", "otel", "kuafor"])
+    assert 'amenity"~"^(restaurant|fast_food|food_court)$' in q and 'shop"~"^(hairdresser)$' in q
+    assert 'tourism"~"^(hotel|' in q
+    assert musteri_bul.sektor_bul({"shop": "beauty"}) == "guzellik"
+    assert musteri_bul.sektor_bul({"amenity": "public_bath"}) == "spa"
 
 
 def test_siteden_eposta_secimi():

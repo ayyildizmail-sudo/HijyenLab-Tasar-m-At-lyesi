@@ -19,15 +19,23 @@ import veritabani as vt
 OVERPASS = "https://overpass-api.de/api/interpreter"
 UA = {"User-Agent": "Mozilla/5.0 (compatible; isletme-iletisim-arayici/1.0)"}
 
-TURLER = {
-    "restaurant": "restoran",
-    "fast_food": "fast_food",
-    "cafe": "kafe",
-    "food_court": "yemek_alani",
-    "hotel": "otel",
-    "guest_house": "pansiyon",
-    "hostel": "hostel",
+# Sektör kodu -> (etiket, OSM etiketleri). Öncelik sırası firma profilindeki pazar sırasına göre.
+SEKTORLER = {
+    "restoran": ("Restoran / lokanta / kebapçı", [("amenity", "restaurant")]),
+    "fast_food": ("Fast food / paket servis", [("amenity", "fast_food"), ("amenity", "food_court")]),
+    "kafe": ("Kafe / kahveci", [("amenity", "cafe")]),
+    "otel": ("Otel / pansiyon", [("tourism", "hotel"), ("tourism", "guest_house"), ("tourism", "motel"),
+                                 ("tourism", "hostel"), ("tourism", "apartment")]),
+    "kuafor": ("Kuaför / berber", [("shop", "hairdresser")]),
+    "guzellik": ("Güzellik merkezi", [("shop", "beauty")]),
+    "pastane": ("Pastane / tatlıcı / dondurmacı", [("shop", "pastry"), ("shop", "confectionery"),
+                                                   ("amenity", "ice_cream")]),
+    "spa": ("Spa / hamam / masaj", [("shop", "massage"), ("amenity", "public_bath"), ("leisure", "sauna")]),
+    "catering": ("Catering", [("craft", "caterer")]),
+    "arac_kiralama": ("Araç kiralama", [("amenity", "car_rental")]),
 }
+TURLER = {kod: etiket for kod, (etiket, _) in SEKTORLER.items()}  # panelde gösterilen liste
+_OSM_TO_SEKTOR = {etiket: kod for kod, (_, etiketler) in SEKTORLER.items() for etiket in etiketler}
 
 EPOSTA_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 KOTU_UZANTI = (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".js", ".css")
@@ -35,26 +43,31 @@ KOTU_ALAN = ("sentry", "wixpress", "example", "domain.com", "email.com", "sentry
 TERCIH = ("info", "iletisim", "rezervasyon", "reservation", "satis", "contact", "bilgi", "hello", "merhaba")
 
 
-def overpass_sorgusu(bolge: str, turler: list[str]) -> str:
-    amenity = [t for t in turler if t in ("restaurant", "fast_food", "cafe", "food_court")]
-    tourism = [t for t in turler if t in ("hotel", "guest_house", "hostel")]
-    parcalar = []
-    if amenity:
-        parcalar.append(f'nwr["amenity"~"^({"|".join(amenity)})$"]["name"](area.a);')
-    if tourism:
-        parcalar.append(f'nwr["tourism"~"^({"|".join(tourism)})$"]["name"](area.a);')
+def overpass_sorgusu(bolge: str, sektorler: list[str]) -> str:
+    anahtara_gore: dict[str, list[str]] = {}
+    for kod in sektorler:
+        for anahtar, deger in SEKTORLER.get(kod, ("", []))[1]:
+            anahtara_gore.setdefault(anahtar, []).append(deger)
+    parcalar = "".join(f'nwr["{a}"~"^({"|".join(d)})$"]["name"](area.a);' for a, d in anahtara_gore.items())
     bolge = bolge.replace('"', "")
-    return (f'[out:json][timeout:120];area["name"="{bolge}"]["boundary"="administrative"]->.a;'
-            f'({"".join(parcalar)});out tags center;')
+    return (f'[out:json][timeout:180];area["name"="{bolge}"]["boundary"="administrative"]->.a;'
+            f'({parcalar});out tags center;')
+
+
+def sektor_bul(etiketler: dict) -> str:
+    for anahtar in ("amenity", "tourism", "shop", "leisure", "craft"):
+        kod = _OSM_TO_SEKTOR.get((anahtar, etiketler.get(anahtar)))
+        if kod:
+            return kod
+    return etiketler.get("amenity") or etiketler.get("shop") or ""
 
 
 def osm_kaydini_cevir(oge: dict, bolge: str) -> dict:
     t = oge.get("tags", {})
-    tur_kodu = t.get("amenity") or t.get("tourism") or ""
     eposta = t.get("email") or t.get("contact:email") or ""
     return {
         "ad": t.get("name", "").strip(),
-        "tur": TURLER.get(tur_kodu, tur_kodu),
+        "tur": sektor_bul(t),
         "sehir": t.get("addr:province") or t.get("addr:city") or bolge,
         "ilce": t.get("addr:district") or t.get("addr:city") or bolge,
         "adres": " ".join(x for x in (t.get("addr:street"), t.get("addr:housenumber")) if x),

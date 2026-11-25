@@ -115,7 +115,11 @@ def gelen_maili_degerlendir(mail: dict, onceki_yazisma: str = "") -> GelenDegerl
 
 
 def tanitim_maili_yaz(musteri: dict, hatirlatma: bool = False, onceki: str = "") -> TanitimMaili:
-    isletme = "\n".join(f"{k}: {v}" for k, v in musteri.items()
+    from musteri_bul import TURLER
+    bilgi = dict(musteri)
+    if bilgi.get("tur") in TURLER:
+        bilgi["tur"] = TURLER[bilgi["tur"]]
+    isletme = "\n".join(f"{k}: {v}" for k, v in bilgi.items()
                         if k in ("ad", "tur", "sehir", "ilce", "web") and v)
     if hatirlatma:
         gorev = (
@@ -127,9 +131,11 @@ def tanitim_maili_yaz(musteri: dict, hatirlatma: bool = False, onceki: str = "")
     else:
         gorev = (
             "Bu işletmeye ilk kez yazıyoruz. Kişiselleştirilmiş, en fazla 120 kelimelik bir tanıtım maili yaz. "
-            "İşletmenin türüne göre faydayı somutlaştır (ör. kebapçı: yemek sonrası el temizliği ve masada logolu "
-            "mendil; otel: odada/restoranda marka algısı). Sonunda tek, kolay bir eylem iste: logolarını "
-            "göndermeleri halinde ücretsiz ambalaj önizlemesi hazırlayacağımızı söyle. "
+            "İşletmenin sektörünü belirle ve firma profilindeki 'Sektöre göre anlatım' bölümüne göre faydayı "
+            "somutlaştır. O sektöre en uygun 1-2 ürünü öner (ör. kebapçıya 7×12 ıslak mendil ve rulo havlu, "
+            "kuaföre rulo havlu, otele katlı havlu ve mendil); bütün ürün listesini sayma. "
+            "Sonunda tek, kolay bir eylem iste: logolarını göndermeleri halinde ambalaj önizlemesini "
+            "hazırlayacağımızı söyle. "
             "Konu satırı kısa olsun, işletme adını içersin, 'reklam', 'fırsat', 'ücretsiz' gibi spam kelimeleri "
             "konu satırında kullanma.\n"
         )
