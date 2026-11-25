@@ -2,6 +2,7 @@
 * { box-sizing: border-box; }
 .adminBody { margin: 0; }
 .adminMain { max-width: 1120px; padding: 28px 22px 44px; margin: auto; }
+.adminLogo { display: block; height: 40px; width: auto; margin-bottom: 10px; }
 .adminHeader { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 28px; }
 .adminEyebrow { color: #526577; font-size: 14px; margin: 0 0 8px; }
 h1 { font-size: 30px; margin: 0; } h2 { font-size: 22px; margin: 0 0 12px; } h3 { font-size: 19px; margin: 0 0 10px; }
