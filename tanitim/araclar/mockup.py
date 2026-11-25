@@ -36,7 +36,7 @@ PAKETLER = {
     # BM21: Hakan Bey'in gönderdiği BM21 grafik onay şablonlarındaki gerçek paket fotoğrafından
     # (iki farklı müşteri şablonu üst üste konup yazılar temizlendi). Yüz 120×70 mm,
     # güvenli alan bıçak izindeki iç çerçeve: 110×58 mm. Ön ve arka yüz aynı paket.
-    "BM21": ("bm21-front.png", "bm21-back.png", 120, (110, 58), (110, 58), 0.50),
+    "BM21": ("bm21-front-temiz.png", "bm21-back-temiz.png", 120, (110, 58), (110, 58), 0.50),
     "BM15": ("bm15-front.png", "bm15-back.png", 170, (140, 40), (120, 22), 0.30),
 }
 PAKETLER["BM11"] = PAKETLER["BM12"]
