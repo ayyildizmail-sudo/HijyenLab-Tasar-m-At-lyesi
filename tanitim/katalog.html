@@ -101,6 +101,27 @@
   .arka h2 { font-size: 26pt; margin-top: 12mm; }
   .iletisim { font-size: 14pt; line-height: 2.1; padding: 14mm 18mm 0; color: var(--lacivert); }
   .iletisim b { color: var(--mavi); display: inline-block; width: 30mm; font-size: 9.5pt; text-transform: uppercase; letter-spacing: .1em; }
+
+  /* 5 sayfalık hızlı katalog */
+  .kapak .urunler { top: 112mm; gap: 3mm 8mm; align-items: start; }
+  .kapak .hucre img { width: 100%; }
+  .kapak .hucre .ad { font-size: 11pt; font-weight: 800; color: var(--lacivert); margin-top: -3mm; }
+  .kapak .hucre .olc { font-size: 10pt; font-weight: 600; color: var(--mavi); }
+  .kapak .hucre .kms { font-size: 8.5pt; color: var(--soluk); }
+  .kapak .bas { padding: 18mm 18mm 10mm; }
+  .kapak .slogan { margin-top: 8mm; font-size: 24pt; }
+  table.urun-tablo td, table.urun-tablo th { font-size: 8.6pt; padding: 1.8mm 2mm; }
+  table.urun-tablo td b { color: var(--lacivert); }
+  table.urun-tablo td .t { display:block; font-size:7.5pt; color: var(--soluk); }
+  .mini-olcu { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 3mm; }
+  .mini-olcu figure { border:1px solid var(--cizgi); border-radius:3mm; background:#fff; padding:1.5mm 2mm 2mm; }
+  .mini-olcu figcaption { font-size:8pt; font-weight:700; color:var(--lacivert); }
+  .mini-olcu figcaption span { display:block; font-weight:400; color:var(--soluk); font-size:7.5pt; }
+  .adim4 { display:grid; grid-template-columns: repeat(4,1fr); gap:3mm; }
+  .adim4 .k { background: var(--acik); border:1px solid var(--cizgi); border-radius:3mm; padding:3.5mm; font-size:8.6pt; }
+  .adim4 .no { width:8mm; height:8mm; border-radius:50%; background:var(--mavi); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; margin-bottom:2mm; }
+  .adim4 b { display:block; color:var(--lacivert); font-size:9.5pt; margin-bottom:1mm; }
+  table.oneri td { font-size: 9pt; padding: 1.8mm 3mm; } table.oneri td:first-child { font-weight:700; color:var(--lacivert); width:58mm; }
 </style>
 </head>
 <body>
@@ -110,152 +131,54 @@
   <div class="bas">
     <img class="logo" src="varliklar/hijyenlab_logo.svg" alt="HijyenLab">
     <div class="slogan">İşletmenizin markası, müşterinizin her temasında.</div>
-    <div class="alt-baslik">Logolu rulo ve katlı ıslak havlu, ıslak mendil ve Oshibori. Restoran, otel, kafe ve hizmet işletmelerine özel üretim.</div>
+    <div class="alt-baslik">Tek tek paketli, logolu ıslak havlu, ıslak mendil ve Oshibori. Restoran, otel, kafe ve hizmet işletmelerine özel üretim.</div>
   </div>
   <div class="urunler">
-    <img src="gorseller/rulo_25x30_logolu.jpg" alt="25×30 rulo ıslak havlu">
-    <img src="gorseller/katli_20x25_logolu.jpg" alt="20×25 katlı ıslak havlu">
-    <img src="gorseller/rulo_25x30_siyah_zemin.jpg" alt="Siyah zeminli rulo ıslak havlu">
-    <img src="gorseller/mendil_7x12_logolu.jpg" alt="7×12 ıslak mendil" style="width:78%;justify-self:center">
+    <div class="hucre"><img src="gorseller/rulo_25x30_logolu.jpg" alt="Rulo ıslak havlu">
+      <div class="ad">Rulo ıslak havlu</div><div class="olc">25×25 · 25×30 · 30×30 · 30×35 cm</div><div class="kms">Nonwoven, noktalı doku · paket 17 cm</div></div>
+    <div class="hucre"><img src="gorseller/katli_20x25_logolu.jpg" alt="Katlı ıslak havlu">
+      <div class="ad">Katlı ıslak havlu</div><div class="olc">20×25 cm</div><div class="kms">Nonwoven, noktalı doku · paket 14 cm</div></div>
+    <div class="hucre"><img src="gorseller/mendil_7x12_logolu.jpg" alt="Islak mendil" style="width:80%;margin:0 auto">
+      <div class="ad">Islak mendil</div><div class="olc">Paket 7×12 cm · açılınca 16×18 cm</div><div class="kms">Nonwoven · 4 koku seçeneği</div></div>
+    <div class="hucre"><img src="gorseller/rulo_25x30_siyah_zemin.jpg" alt="Renkli zeminli ambalaj">
+      <div class="ad">Beyaz veya renkli zemin</div><div class="olc">Logolu ya da baskısız</div><div class="kms">Oshibori: %100 pamuk havlu, 22,5×24,5 cm</div></div>
   </div>
   <div class="serit"><span>Kurumsal Ürün Kataloğu</span><span>hijyenlab.com</span></div>
 </section>
 
-<!-- 2. HAKKIMIZDA -->
+<!-- 2. ÜRÜNLER VE KUMAŞ -->
 <section class="sayfa">
-  <div class="ust-etiket">HijyenLab hakkında</div>
-  <h2>Hijyen ürününüz, markanızın en çok dokunulan yüzü.</h2>
-  <p class="giris">Restoranda masaya bırakılan havlu, otelde misafire verilen mendil, kuaförde kullanılan havlu… Bunlar müşterinizin işletmenize fiziksel olarak dokunduğu anlardır. HijyenLab bu ürünleri işletmenizin logosu, renkleri ve kurumsal kimliğiyle hazırlar ve düzenli olarak tedarik eder.</p>
-  <p class="giris">Böylece her tek kullanımlık ürün, hem hijyen ihtiyacını karşılar hem de markanızı müşterinizin eline, cebine, evine taşır.</p>
-
-  <div class="izgara3" style="margin-top:10mm">
-    <div class="kart"><div class="sayi">01</div><h3 style="margin-top:3mm">Hijyen</h3><p>Tek tek paketlenmiş, tek kullanımlık ıslak havlu ve mendillerle müşterinize temiz bir deneyim sunun.</p></div>
-    <div class="kart"><div class="sayi">02</div><h3 style="margin-top:3mm">Markanıza özel</h3><p>Logonuz, renkleriniz ve iletişim bilgilerinizle ambalaj tasarımı. Logonuz yoksa işletme adınızla tasarlıyoruz.</p></div>
-    <div class="kart"><div class="sayi">03</div><h3 style="margin-top:3mm">Kolay tedarik</h3><p>Toplu üretim, düzenli sipariş. Aynı tasarımla tekrar siparişte klişe bedeli ödemezsiniz.</p></div>
-  </div>
-
-  <div class="kart beyaz" style="margin-top:8mm">
-    <div class="izgara3" style="text-align:center">
-      <div><div class="sayi">7</div><div class="soluk kucuk">ürün ve ölçü seçeneği</div></div>
-      <div><div class="sayi">4</div><div class="soluk kucuk">standart mendil kokusu</div></div>
-      <div><div class="sayi">3</div><div class="soluk kucuk">renge kadar standart baskı</div></div>
-    </div>
-  </div>
-  <div class="alt"><span>HijyenLab · İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.</span><span>2</span></div>
-</section>
-
-<!-- 3. ÜRÜN AİLESİ -->
-<section class="sayfa">
-  <div class="ust-etiket">Ürün ailesi</div>
-  <h2>Her işletmeye uygun bir ölçü</h2>
-  <p class="giris" style="margin-bottom:6mm">Bütün ürünler beyaz veya renkli zeminle, logolu ya da baskısız olarak hazırlanabilir. Ölçüler iç kumaş ölçüsüdür; 30×30 ve 30×35 rulo, 25×30 ile aynı ambalajda gelir.</p>
-  <table>
-    <tr><th>Ürün</th><th>Kod</th><th>Koli içi</th><th>En az sipariş<br><span style="font-weight:400">beyaz / renkli zemin</span></th><th>Öne çıktığı yerler</th></tr>
-    <tr><td><b>25×30 cm rulo ıslak havlu</b></td><td>BM12</td><td>400</td><td>5.200 / 10.000</td><td>Restoran, kafe, otel, kuaför, güzellik merkezi</td></tr>
-    <tr><td><b>25×25 cm rulo ıslak havlu</b></td><td>BM15</td><td>500</td><td>5.000 / 10.000</td><td>Lokanta, fast food, paket servis</td></tr>
-    <tr><td><b>30×30 cm rulo ıslak havlu</b></td><td>BM11</td><td>400</td><td>5.200 / 10.000</td><td>Otel, spa, premium işletmeler</td></tr>
-    <tr><td><b>30×35 cm rulo ıslak havlu</b></td><td>BM13</td><td>400</td><td>5.200 / 10.000</td><td>Otel, spa ve wellness, güzellik merkezi</td></tr>
-    <tr><td><b>20×25 cm katlı ıslak havlu</b></td><td>BM545</td><td>625</td><td>5.000 / 10.000</td><td>Restoran, otel, catering, kuaför</td></tr>
-    <tr><td><b>7×12 cm ıslak mendil</b></td><td>BM21</td><td>1.000</td><td>10.000</td><td>Kebapçı, balıkçı, fast food, pastane, otel, etkinlik</td></tr>
-    <tr><td><b>Oshibori ıslak havlu</b><br><span class="soluk kucuk">%100 pamuk havlu</span></td><td>OSHIBORI</td><td>250</td><td>3.000</td><td>Fine dining, uzak doğu mutfağı, otel, beach club</td></tr>
+  <div class="ust-etiket">Ürünler ve kumaş</div>
+  <h2>Kağıt peçete değil, kumaş gibi yumuşak ıslak havlu</h2>
+  <table class="urun-tablo">
+    <tr><th>Ürün</th><th>Açılmış ölçü</th><th>Kumaş</th><th>Ambalaj</th><th>Koli</th><th>En az sipariş<br><span style="font-weight:400">beyaz / renkli</span></th></tr>
+    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM12 · en çok tercih edilen</span></td><td>25×30 cm</td><td>Nonwoven, noktalı</td><td>Tekli OPP, 16×17 cm</td><td>400</td><td>5.200 / 10.000</td></tr>
+    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM15 · ekonomik</span></td><td>25×25 cm</td><td>Nonwoven, noktalı</td><td>Tekli OPP</td><td>500</td><td>5.000 / 10.000</td></tr>
+    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM11 · büyük ölçü</span></td><td>30×30 cm</td><td>Nonwoven, noktalı</td><td>Tekli OPP, 16×17 cm</td><td>400</td><td>5.200 / 10.000</td></tr>
+    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM13 · en geniş ölçü</span></td><td>30×35 cm</td><td>Nonwoven, noktalı</td><td>Tekli OPP, 16×17 cm</td><td>400</td><td>5.200 / 10.000</td></tr>
+    <tr><td><b>Katlı ıslak havlu</b><span class="t">BM545</span></td><td>20×25 cm</td><td>Nonwoven, noktalı</td><td>Tekli OPP, 14×19 cm</td><td>625</td><td>5.000 / 10.000</td></tr>
+    <tr><td><b>Islak mendil</b><span class="t">BM21 · 4 koku</span></td><td>16×18 cm<span class="t">paket 7×12 cm</span></td><td>Nonwoven</td><td>Tekli triplex</td><td>1.000</td><td>10.000</td></tr>
+    <tr><td><b>Oshibori</b><span class="t">premium sunum</span></td><td>22,5×24,5 cm<span class="t">adet 15 g</span></td><td>%100 pamuk havlu</td><td>Tekli paket</td><td>250</td><td>3.000</td></tr>
   </table>
-  <div class="kart" style="margin-top:8mm">
-    <h3>Paket önerisi: Restoranlar için</h3>
-    <p>Tek ürün yerine ihtiyacınızı birlikte karşılayalım: masaya <b>25×30 rulo ıslak havlu</b>, servis için <b>20×25 katlı ıslak havlu</b>, hesapla birlikte <b>7×12 ıslak mendil</b>. Hepsi aynı tasarım diliyle, markanızın renklerinde.</p>
+  <h3 style="margin-top:5mm">Küçük paketten büyük havlu</h3>
+  <div class="mini-olcu">
+    <figure><img src="gorseller/olcu_rulo.jpg" alt="25×30 rulo: paket ve açılmış havlu"><figcaption>Rulo · 25×30 cm<span>17 cm'lik paketten</span></figcaption></figure>
+    <figure><img src="gorseller/olcu_katli.jpg" alt="20×25 katlı: paket ve açılmış havlu"><figcaption>Katlı · 20×25 cm<span>14 cm'lik paketten</span></figcaption></figure>
+    <figure><img src="gorseller/olcu_mendil.jpg" alt="7×12 mendil: paket ve açılmış mendil"><figcaption>Mendil · 16×18 cm<span>7×12 cm'lik paketten</span></figcaption></figure>
   </div>
-  <p class="soluk kucuk" style="margin-top:6mm">Fiyatlar adet, zemin rengi ve baskı rengi sayısına göre değiştiği için size özel teklif hazırlanır.</p>
-  <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>3</span></div>
-</section>
-
-<!-- 4. RULO ISLAK HAVLULAR -->
-<section class="sayfa rulo">
-  <div class="ust-etiket">Rulo ıslak havlular</div>
-  <h2>Tek tek paketli, logolu rulo ıslak havlu</h2>
-  <div class="izgara2">
-    <div class="urun"><div class="foto"><img src="gorseller/rulo_25x30_logolu.jpg" alt=""></div>
-      <div class="icerik"><div class="kod">BM12 · EN ÇOK TERCİH EDİLEN</div><h3>25×30 cm rulo ıslak havlu</h3>
-        <dl class="ozellik"><dt>Kumaş</dt><dd>Nonwoven, noktalı doku</dd><dt>Ambalaj</dt><dd>Tekli, 50 mikron OPP (16×17 cm)</dd><dt>Koli</dt><dd>400 adet</dd><dt>En az</dt><dd>5.200 beyaz / 10.000 renkli</dd></dl></div></div>
-    <div class="urun"><div class="foto"><img src="gorseller/rulo_25x25_logolu.jpg" alt=""></div>
-      <div class="icerik"><div class="kod">BM15 · EKONOMİK</div><h3>25×25 cm rulo ıslak havlu</h3>
-        <dl class="ozellik"><dt>Kumaş</dt><dd>Nonwoven, noktalı doku</dd><dt>Ambalaj</dt><dd>Tekli, 50 mikron OPP</dd><dt>Koli</dt><dd>500 adet</dd><dt>En az</dt><dd>5.000 beyaz / 10.000 renkli</dd><dt>Uygun</dt><dd>Lokanta, fast food, paket servis</dd></dl></div></div>
-    <div class="urun"><div class="foto"><img src="gorseller/rulo_25x30_logolu.jpg" alt=""></div>
-      <div class="icerik"><div class="kod">BM11 · BÜYÜK ÖLÇÜ</div><h3>30×30 cm rulo ıslak havlu</h3>
-        <dl class="ozellik"><dt>Kumaş</dt><dd>Nonwoven, noktalı doku</dd><dt>Ambalaj</dt><dd>25×30 ile aynı (16×17 cm)</dd><dt>Koli</dt><dd>400 adet</dd><dt>En az</dt><dd>5.200 beyaz / 10.000 renkli</dd><dt>Uygun</dt><dd>Otel, spa, premium işletme</dd></dl></div></div>
-    <div class="urun"><div class="foto"><img src="gorseller/rulo_25x30_logolu.jpg" alt=""></div>
-      <div class="icerik"><div class="kod">BM13 · EN GENİŞ ÖLÇÜ</div><h3>30×35 cm rulo ıslak havlu</h3>
-        <dl class="ozellik"><dt>Kumaş</dt><dd>Nonwoven, noktalı doku</dd><dt>Ambalaj</dt><dd>25×30 ile aynı (16×17 cm)</dd><dt>Koli</dt><dd>400 adet</dd><dt>En az</dt><dd>5.200 beyaz / 10.000 renkli</dd><dt>Uygun</dt><dd>Otel, spa, güzellik merkezi</dd></dl></div></div>
-  </div>
-  <div class="kart beyaz" style="margin-top:6mm;display:flex;gap:6mm;align-items:center;padding:4mm 6mm">
-    <img src="gorseller/doku_nonwoven.jpg" alt="Noktalı dokulu nonwoven kumaş" style="height:54mm">
-    <div>
-      <div class="kod" style="font-size:8pt;font-weight:700;color:var(--mavi);letter-spacing:.08em">KUMAŞ</div>
-      <h3>Rulo ve katlı ürünlerde aynı kumaş</h3>
-      <p class="kucuk">Dört rulo ölçüsünde ve 20×25 katlı ıslak havluda aynı kumaş kullanılır: <b>noktalı dokulu nonwoven</b>. Ürünler yalnız ölçüde ve katlanma biçiminde ayrılır.</p>
-      <p class="kucuk">Açılmış ölçü, ürün adındaki ölçüdür: 25×30 cm rulo havlu açıldığında 25×30 cm'dir.</p>
-      <p class="kucuk soluk">Görsel: kumaş dokusunun çizimidir.</p>
+  <div class="izgara2" style="margin-top:4mm;gap:4mm">
+    <div class="kart" style="padding:4mm 5mm;display:flex;gap:4mm;align-items:center">
+      <img src="gorseller/doku_nonwoven.jpg" alt="Noktalı dokulu nonwoven kumaş" style="width:24mm;border-radius:2mm">
+      <ul class="liste kucuk"><li>Kumaş gibi yumuşak</li><li>Yırtılmaz, dağılmaz, tüy bırakmaz</li><li>Islak ve kokulu; sıkınca su damlamaz</li><li>Tek tek paketli, ambalajda logonuz</li></ul>
     </div>
-  </div>
-  <div class="alt"><span>Görsellerdeki "LOGONUZ" yerine sizin logonuz basılır. Nihai görünüm üretim öncesi grafik onayıyla kesinleşir.</span><span>4</span></div>
-</section>
-
-<!-- 5. KATLI HAVLU, MENDİL, OSHIBORI -->
-<section class="sayfa">
-  <div class="ust-etiket">Katlı ıslak havlu · Islak mendil · Oshibori</div>
-  <h2>Servisten hesaba, her an markanızla</h2>
-  <div class="izgara2">
-    <div class="urun"><div class="foto"><img src="gorseller/katli_20x25_logolu.jpg" alt=""></div>
-      <div class="icerik"><div class="kod">BM545</div><h3>20×25 cm katlı ıslak havlu</h3>
-        <p class="kucuk soluk">Düzenli ve kurumsal servis sunumu isteyen işletmeler için katlanmış form.</p>
-        <dl class="ozellik"><dt>Kumaş</dt><dd>Nonwoven (rulo ile aynı)</dd><dt>Ambalaj</dt><dd>Tekli, 50 mikron OPP (14×19 cm)</dd><dt>Koli</dt><dd>625 adet</dd><dt>En az</dt><dd>5.000 beyaz / 10.000 renkli</dd></dl></div></div>
-    <div class="urun"><div class="foto"><img src="gorseller/mendil_7x12_logolu.jpg" alt=""></div>
-      <div class="icerik"><div class="kod">BM21</div><h3>7×12 cm ıslak mendil</h3>
-        <p class="kucuk soluk">Tek tek paketli, cepte taşınan, markanızı müşterinizin evine götüren ürün.</p>
-        <dl class="ozellik"><dt>Kumaş</dt><dd>Nonwoven</dd><dt>Ambalaj</dt><dd>Triplex, tekli paket</dd><dt>Koli</dt><dd>1.000 adet</dd><dt>En az</dt><dd>10.000 adet</dd></dl></div></div>
-  </div>
-  <div class="izgara2" style="margin-top:6mm">
-    <div class="kart">
-      <h3>Mendil koku seçenekleri</h3>
+    <div class="kart" style="padding:4mm 5mm">
+      <h3 style="font-size:10.5pt">Mendil kokuları</h3>
       <span class="etiket">Flambau (standart)</span><span class="etiket">Limon</span><span class="etiket">Bodrum Mandalinası</span><span class="etiket">Yeşil Çay</span>
-      <p class="kucuk soluk" style="margin-top:3mm">Farklı bir koku isterseniz 20.000 adet ve üzeri siparişlerde değerlendiriyoruz.</p>
-    </div>
-    <div class="kart">
-      <img src="gorseller/doku_pamuk_havlu.jpg" alt="%100 pamuk havlu dokusu" style="width:34mm;float:right;margin:-2mm -2mm 1mm 3mm;mix-blend-mode:multiply">
-      <h3>Oshibori ıslak havlu</h3>
-      <p class="kucuk">Yemek öncesi veya sonrası misafire sunulan, rulo halinde sarılı ıslak havlu. Gerçek havlu dokusuyla premium bir sunum: fine dining, uzak doğu mutfağı, otel ve beach club'lar için.</p>
-      <dl class="ozellik"><dt>Kumaş</dt><dd>%100 pamuk havlu</dd><dt>Ölçü</dt><dd>22,5×24,5 cm</dd><dt>Ağırlık</dt><dd>15 g (adet başına)</dd><dt>Ambalaj</dt><dd>Tek kullanımlık, tekli paket; logonuz ambalaja basılır</dd><dt>Koli</dt><dd>250 adet</dd><dt>En az</dt><dd>3.000 adet</dd></dl>
-      <p class="kucuk soluk" style="margin-top:2mm">Görsel: pamuk havlu dokusunun çizimidir.</p>
+      <h3 style="font-size:10.5pt;margin-top:3mm">Ücretsiz numune</h3>
+      <p class="kucuk" style="margin:0">Kumaşı elinizde görün; numune ücretsiz, kargo bizden.</p>
     </div>
   </div>
-  <div class="alt"><span>Görsellerdeki "LOGONUZ" yerine sizin logonuz basılır. Nihai görünüm üretim öncesi grafik onayıyla kesinleşir.</span><span>5</span></div>
-</section>
-
-<!-- 5b. KUMAŞI TANIYIN -->
-<section class="sayfa kumas-sayfa">
-  <div class="ust-etiket">Kumaşı tanıyın</div>
-  <h2>Küçük paketten büyük havlu</h2>
-  <p class="giris" style="margin-bottom:4mm">Kağıt peçete değil: kumaş gibi yumuşak, tek tek paketli ıslak havlu. Paket ve açılmış havlu aynı ölçekte gösterilmiştir.</p>
-  <div class="izgara2" style="gap:5mm">
-    <figure class="olcu"><img src="gorseller/olcu_rulo.jpg" alt="25×30 rulo: kapalı paket ve açılmış havlu"><figcaption>Rulo ıslak havlu · 25×30 cm<span>25×25, 30×30 ve 30×35 cm seçenekleri de aynı kumaştan</span></figcaption></figure>
-    <figure class="olcu"><img src="gorseller/olcu_katli.jpg" alt="20×25 katlı: kapalı paket ve açılmış havlu"><figcaption>Katlı ıslak havlu · 20×25 cm</figcaption></figure>
-    <figure class="olcu"><img src="gorseller/olcu_mendil.jpg" alt="7×12 mendil: kapalı paket ve açılmış mendil"><figcaption>Islak mendil · paket 7×12 cm<span>Açılınca 16×18 cm</span></figcaption></figure>
-    <div class="kart" style="display:flex;gap:4mm;align-items:center">
-      <img src="gorseller/doku_pamuk_havlu.jpg" alt="" style="width:30mm;mix-blend-mode:multiply">
-      <div><h3>Oshibori</h3><p class="kucuk">%100 pamuk havlu, 22,5×24,5 cm, adet başına 15 g. Rulo halinde sarılı, gerçek havlu dokusu.</p></div>
-    </div>
-  </div>
-  <table class="fayda" style="margin-top:4mm">
-    <tr><th></th><th>Kağıt peçete</th><th>Nonwoven ıslak havlu<br><span>rulo, katlı, mendil</span></th><th>Oshibori<br><span>%100 pamuk</span></th></tr>
-    <tr><td>Dokunuş</td><td>Kağıt</td><td><b>Kumaş gibi yumuşak</b></td><td><b>Gerçek havlu</b></td></tr>
-    <tr><td>Kullanırken</td><td>Islanınca dağılır</td><td><b>Yırtılmaz, dağılmaz, tüy bırakmaz</b></td><td>Gerçek havlu dokusu</td></tr>
-    <tr><td>Islaklık</td><td>Kuru</td><td><b>Islak ve kokulu; sıkınca su damlamaz</b></td><td>Islak</td></tr>
-    <tr><td>Sunum</td><td>Açıkta durur</td><td><b>Tek tek paketli</b></td><td><b>Tek tek paketli</b></td></tr>
-    <tr><td>Marka</td><td>Genellikle yok</td><td><b>Ambalajda logonuz</b></td><td><b>Ambalajda logonuz</b></td></tr>
-  </table>
-  <div class="kart" style="margin-top:4mm;padding:4mm 6mm">
-    <h3 style="margin:0">Kumaşı elinizde görün: ücretsiz numune</h3>
-    <p class="kucuk">İlgilendiğiniz ürünlerden ücretsiz numune gönderelim, kargo bizden. Kumaşı dokunarak inceleyin, işletmenizde deneyin.</p>
-  </div>
-  <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>6</span></div>
+  <div class="alt"><span>Fiyatlar adet, zemin ve baskı rengine göre değişir; size özel teklif hazırlanır. Kumaş görseli çizimdir.</span><span>2</span></div>
 </section>
 
 <!-- 5c. SICAK YA DA SERİN SERVİS -->
@@ -293,10 +216,11 @@
     </div>
   </div>
   <p class="kucuk soluk" style="margin-top:3mm">7×12 ıslak mendil sıcak veya serin servis için önerilmez.</p>
-  <div class="alt"><span>Isıtıcı dolap: tedarikçi ürün fotoğrafı. Buzdolabı: temsili çizim. Paketler temsilidir.</span><span>7</span></div>
+  <div class="alt"><span>Isıtıcı dolap: tedarikçi ürün fotoğrafı. Buzdolabı: temsili çizim. Paketler temsilidir.</span><span>3</span></div>
 </section>
 
-<!-- 6. MARKANIZA ÖZEL -->
+
+<!-- 4. MARKANIZA ÖZEL VE SİPARİŞ -->
 <section class="sayfa">
   <div class="ust-etiket">Markanıza özel tasarım</div>
   <h2>Boş ambalajdan markalı ürüne</h2>
@@ -305,119 +229,72 @@
     <figure><img src="gorseller/rulo_25x30_logolu.jpg" alt=""><figcaption>Beyaz zemin, logonuzla</figcaption></figure>
     <figure><img src="gorseller/rulo_25x30_siyah_zemin.jpg" alt=""><figcaption>Renkli zemin, logonuzla</figcaption></figure>
   </div>
-  <div class="izgara2" style="margin-top:7mm">
+  <div class="izgara2" style="margin-top:5mm">
     <div>
       <h3>Tasarımı biz hazırlıyoruz</h3>
-      <ul class="liste">
-        <li>Logonuz ambalajın güvenli baskı alanına, oranları korunarak yerleştirilir.</li>
-        <li>Logonuz yoksa işletme adınızla yazılı tasarım yapılır.</li>
-        <li>Kalitesi düşük logolar baskıya uygun hale getirilir; marka kimliğiniz onayınız olmadan değişmez.</li>
+      <ul class="liste kucuk">
+        <li>Logonuzla ambalaj görseli ücretsiz hazırlanır.</li>
+        <li>Logonuz yoksa işletme adınızla tasarlanır.</li>
         <li>Üretimden önce grafik onayınız alınır.</li>
       </ul>
     </div>
     <div>
       <h3>Baskı seçenekleri</h3>
-      <ul class="liste">
-        <li>Beyaz veya renkli zemin.</li>
-        <li>Standart flekso baskıda 3 renge kadar.</li>
-        <li>4 ve üzeri renk veya fotoğraf baskısı özel olarak değerlendirilir.</li>
+      <ul class="liste kucuk">
+        <li>Beyaz veya renkli zemin; standart baskıda 3 renge kadar.</li>
         <li>Renkli zeminde mat veya parlak selefon.</li>
         <li>İsterseniz arka yüze de baskı.</li>
       </ul>
     </div>
   </div>
-  <div class="kart" style="margin-top:7mm">
-    <h3>Logonuzu gönderin, görseli biz hazırlayalım</h3>
-    <p>Logonuzu mail veya WhatsApp ile iletin; ürününüzün logonuzla nasıl görüneceğini gösteren görseli ücretsiz hazırlayıp size gönderelim.</p>
-    <p class="kucuk soluk">Görsel fikir vermek içindir; üretim, grafik onayınızdan sonra başlar.</p>
+  <h3 style="margin-top:6mm">Sipariş 4 adımda</h3>
+  <div class="adim4">
+    <div class="k"><div class="no">1</div><b>Logonuzu gönderin</b>Mail veya WhatsApp ile; ürün ve adedi birlikte belirleyelim.</div>
+    <div class="k"><div class="no">2</div><b>Ücretsiz görsel</b>Ürününüzün logonuzla görselini hazırlarız, onaylarsınız.</div>
+    <div class="k"><div class="no">3</div><b>%50 ön ödeme</b>Fatura kesilir; klişe ve üretim başlar.</div>
+    <div class="k"><div class="no">4</div><b>Fotoğraf ve sevkiyat</b>Ürün fotoğrafını paylaşırız; kalan %50 ile sevk edilir.</div>
   </div>
-  <h3 style="margin-top:7mm">Ön ve arka yüz baskı</h3>
-  <p class="kucuk soluk">Arka yüzde logonuz kapama bandının üst yarısına basılır. Ön ve arka yüzde aynı renkler kullanılırsa klişe sayısı artmaz.</p>
-  <div class="karsilastir" style="grid-template-columns:1fr 1fr;margin-top:3mm">
+  <div class="kart beyaz" style="margin-top:6mm;padding:4mm 6mm">
+    <h3 style="font-size:10.5pt">Ticari koşullar</h3>
+    <ul class="liste kucuk">
+      <li>Baskı klişesi renk başına tek seferlik ücretlendirilir; aynı tasarımla tekrar siparişte klişe bedeli alınmaz.</li>
+      <li>Kargo koli başına ücretlendirilir; Bodrum teslimatlarında nakliye ücreti yoktur.</li>
+      <li>Teklifler 15 gün geçerlidir; fiyatlara KDV dahil değildir.</li>
+    </ul>
+  </div>
+  <h3 style="margin-top:6mm">Ön ve arka yüz baskı</h3>
+  <div class="karsilastir" style="grid-template-columns:1fr 1fr;margin-top:2mm;width:76%;margin-left:auto;margin-right:auto">
     <figure><img src="gorseller/katli_20x25_logolu.jpg" alt=""><figcaption>Ön yüz</figcaption></figure>
-    <figure><img src="gorseller/katli_20x25_arka.jpg" alt=""><figcaption>Arka yüz</figcaption></figure>
+    <figure><img src="gorseller/katli_20x25_arka.jpg" alt=""><figcaption>Arka yüz · aynı renklerle klişe artmaz</figcaption></figure>
   </div>
-  <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>8</span></div>
+  <div class="alt"><span>Görsellerdeki "LOGONUZ" yerine sizin logonuz basılır. Nihai görünüm grafik onayıyla kesinleşir.</span><span>4</span></div>
 </section>
 
-<!-- 7. SEKTÖRLER -->
-<section class="sayfa">
-  <div class="ust-etiket">Sektörlere göre çözümler</div>
-  <h2>İşletmenize göre doğru ürün</h2>
-  <div class="izgara2" style="gap:5mm">
-    <div class="kart"><h3>Restoran, kebapçı, balıkçı</h3><p class="kucuk">Yemek sonrası el temizliği için masada ve müşterinin cebinde logonuz.</p>
-      <span class="etiket">7×12 ıslak mendil</span><span class="etiket">25×30 rulo</span></div>
-    <div class="kart"><h3>Otel ve tatil köyü</h3><p class="kucuk">Restoranda, odada ve havuz başında misafirin gördüğü kurumsal ürün.</p>
-      <span class="etiket">20×25 katlı</span><span class="etiket">30×30 / 30×35 rulo</span><span class="etiket">Oshibori</span></div>
-    <div class="kart"><h3>Fast food ve paket servis</h3><p class="kucuk">Her paketin içinde markalı ıslak mendil; yüksek adet, düzenli tüketim.</p>
-      <span class="etiket">7×12 ıslak mendil</span><span class="etiket">25×25 rulo</span></div>
-    <div class="kart"><h3>Kafe ve pastane</h3><p class="kucuk">Servis havlusu ve mendil, markanızın müşteri deneyiminin parçası olur.</p>
-      <span class="etiket">25×25 rulo</span><span class="etiket">7×12 ıslak mendil</span></div>
-    <div class="kart"><h3>Kuaför, berber, güzellik merkezi</h3><p class="kucuk">Her müşteride kullanılan, salonunuzun adını taşıyan tek kullanımlık havlu.</p>
-      <span class="etiket">25×30 rulo</span><span class="etiket">20×25 katlı</span></div>
-    <div class="kart"><h3>Catering, organizasyon, etkinlik</h3><p class="kucuk">Yüksek adetli, etkinliğe veya kuruma özel tasarımlı mendil ve havlu.</p>
-      <span class="etiket">7×12 ıslak mendil</span><span class="etiket">20×25 katlı</span></div>
-  </div>
-  <div class="kart beyaz" style="margin-top:6mm">
-    <h3>Zincir işletmeler ve toptancılar</h3>
-    <p class="kucuk">Birden fazla şubeniz varsa bütün şubelere aynı tasarımla düzenli tedarik planlıyoruz. Otel ve restoran malzemesi toptancıları ile reklam ajanslarıyla da çalışıyoruz.</p>
-  </div>
-  <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>9</span></div>
-</section>
-
-<!-- 8. SİPARİŞ SÜRECİ -->
-<section class="sayfa">
-  <div class="ust-etiket">Sipariş süreci</div>
-  <h2>Logonuzdan kapınıza 8 adım</h2>
-  <div class="adimlar" style="margin-top:4mm">
-    <div class="adim"><div class="no">1</div><div><b>Ürün seçimi</b>Ürün, ölçü ve adedi birlikte belirleriz.</div></div>
-    <div class="adim"><div class="no">2</div><div><b>Ücretsiz görsel</b>Logonuzla ambalaj görselini ücretsiz hazırlarız.</div></div>
-    <div class="adim"><div class="no">3</div><div><b>Grafik onayı</b>Tasarımı onaylarsınız.</div></div>
-    <div class="adim"><div class="no">4</div><div><b>Ön ödeme</b>Fatura kesilir, %50 ön ödeme alınır.</div></div>
-    <div class="adim"><div class="no">5</div><div><b>Klişe ve üretim</b>Baskı klişesi hazırlanır, üretim başlar.</div></div>
-    <div class="adim"><div class="no">6</div><div><b>Ürün fotoğrafı</b>Üretilen ürünün fotoğrafını sizinle paylaşırız.</div></div>
-    <div class="adim"><div class="no">7</div><div><b>Kalan ödeme</b>Kalan %50 sevkiyattan önce alınır.</div></div>
-    <div class="adim"><div class="no">8</div><div><b>Sevkiyat</b>Ürünleriniz kolilenip gönderilir.</div></div>
-  </div>
-  <div class="izgara2" style="margin-top:10mm">
-    <div class="kart">
-      <h3>Ticari koşullar</h3>
-      <ul class="liste kucuk">
-        <li>Baskı klişesi renk başına tek seferlik ücretlendirilir.</li>
-        <li>Aynı tasarımla tekrar siparişte klişe bedeli alınmaz.</li>
-        <li>Kargo koli başına ücretlendirilir; Bodrum teslimatlarında nakliye ücreti yoktur.</li>
-        <li>Teklifler 15 gün geçerlidir; fiyatlara KDV dahil değildir.</li>
-      </ul>
-    </div>
-    <div class="kart">
-      <h3>Teklif için gerekenler</h3>
-      <ul class="liste kucuk">
-        <li>Logonuz (PNG, PDF, AI veya fotoğrafı)</li>
-        <li>İstediğiniz ürün ve ölçü</li>
-        <li>Yaklaşık adet veya aylık tüketim</li>
-        <li>Beyaz mı renkli zemin mi</li>
-      </ul>
-    </div>
-  </div>
-  <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>10</span></div>
-</section>
-
-<!-- 9. ARKA KAPAK -->
+<!-- 5. ARKA KAPAK -->
 <section class="sayfa arka">
-  <div class="bas">
+  <div class="bas" style="padding:18mm 18mm 12mm">
     <img class="logo" src="varliklar/hijyenlab_logo.svg" alt="HijyenLab">
-    <h2>Logonuzu gönderin,<br>ürününüzü size gösterelim.</h2>
-    <p style="font-size:12pt;color:#2a3f5c;max-width:150mm">Logonuzu ve ilgilendiğiniz ürünü bize iletin; ambalaj görselinizi ve size özel teklifinizi hazırlayalım.</p>
+    <h2 style="margin-top:8mm">Logonuzu gönderin,<br>ürününüzü size gösterelim.</h2>
+    <p style="font-size:11.5pt;color:#2a3f5c;max-width:155mm">Logonuzu ve ilgilendiğiniz ürünü iletin; ambalaj görselinizi ve size özel teklifinizi hazırlayalım.</p>
   </div>
-  <div class="iletisim">
+  <div class="iletisim" style="padding-top:8mm">
     <div><b>Telefon</b>0 (542) 569 98 69</div>
     <div><b>E-posta</b>info@hijyenlab.com</div>
     <div><b>Web</b>hijyenlab.com</div>
   </div>
-  <div style="position:absolute;left:18mm;right:18mm;bottom:22mm;display:flex;justify-content:center">
-    <img src="gorseller/mendil_7x12_logolu.jpg" alt="" style="width:70mm">
+  <div style="padding:6mm 18mm 0">
+    <h3>İşletmenize göre öneri</h3>
+    <table class="oneri">
+      <tr><td>Restoran, kebapçı, balıkçı</td><td>7×12 ıslak mendil · 25×30 rulo</td></tr>
+      <tr><td>Otel ve tatil köyü</td><td>20×25 katlı · 30×30 / 30×35 rulo · Oshibori</td></tr>
+      <tr><td>Fast food ve paket servis</td><td>7×12 ıslak mendil · 25×25 rulo</td></tr>
+      <tr><td>Kafe ve pastane</td><td>25×25 rulo · 7×12 ıslak mendil</td></tr>
+      <tr><td>Kuaför, berber, güzellik merkezi</td><td>25×30 rulo · 20×25 katlı</td></tr>
+      <tr><td>Catering ve etkinlik</td><td>7×12 ıslak mendil · 20×25 katlı</td></tr>
+    </table>
+    <p class="kucuk soluk" style="margin-top:3mm"><b>Teklif için:</b> logonuz, ürün ve ölçü, yaklaşık adet, beyaz veya renkli zemin.</p>
   </div>
-  <div class="alt"><span>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti. · Rulo ıslak havlu · Katlı ıslak havlu · Islak mendil · Oshibori</span><span></span></div>
+  <div class="alt"><span>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti. · Zincir işletmeler, toptancılar ve ajanslarla da çalışıyoruz.</span><span></span></div>
 </section>
 
 </body>

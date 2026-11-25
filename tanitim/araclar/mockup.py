@@ -46,12 +46,36 @@ GUVENLIK_PAYI = 0.85  # güvenli alanın %85'ini kullan (kenara yapışmasın)
 REF_LUM = 0.9346      # BM12 boş paketin ortalama parlaklığı (gölgelendirme referansı)
 
 
+# Gölge yumuşatma: boş paketin ışık/gölge kontrastını azaltır (form ve siluet aynı kalır).
+# BM545 boş mockup'ı gerçeğinden kabarık görünüyordu (Hakan Bey, 2026-11-25).
+DUZLESTIR = {"BM545": 0.5}
+
+
+def _duzlestir(kaynak: Path, k: float) -> Path:
+    """Parlaklığın ortalamadan sapmasını k ile çarpar; kaynak dosyaya dokunmaz."""
+    hedef = kaynak.with_name(kaynak.stem + f"-duz{int(k * 100)}.png")
+    if hedef.exists() and hedef.stat().st_mtime >= kaynak.stat().st_mtime:
+        return hedef
+    A = np.array(Image.open(kaynak).convert("RGBA")).astype(float)
+    govde = A[..., 3] > 200
+    lum = A[..., :3].mean(2)
+    ort = float(np.median(lum[govde]))
+    yeni = max(ort, REF_LUM * 255) + (lum - ort) * k
+    oran = np.where(lum > 1, yeni / np.maximum(lum, 1), 1)[..., None]
+    A[..., :3] = np.where(govde[..., None], np.clip(A[..., :3] * oran, 0, 255), A[..., :3])
+    Image.fromarray(A.astype("uint8"), "RGBA").save(hedef)
+    return hedef
+
+
 def paket(urun: str, yuz: str = "on") -> Path:
     if urun not in PAKETLER:
         raise ValueError(f"{urun} için doğrulanmış boş mockup yok. Tahmini paket ÇİZMEYİN; "
                          "bıçak izi PDF'ini isteyin.")
     on, arka, *_ = PAKETLER[urun]
-    return BOS / (on if yuz == "on" else arka)
+    yol = BOS / (on if yuz == "on" else arka)
+    if urun in DUZLESTIR:
+        yol = _duzlestir(yol, DUZLESTIR[urun])
+    return yol
 
 
 def oran_hesapla(urun: str, logo: Image.Image | str, yuz: str = "on",
