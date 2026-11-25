@@ -1,91 +1,129 @@
-"""Müşteri fotoğraflarından (gerçek baskılı paketler) kırpılmış, beyaz dengesi eşitlenmiş görseller üretir.
+"""Müşteri fotoğraflarından (gerçek baskılı paketler) katalog kalitesinde ürün görselleri üretir.
 
-Kullanım: python araclar/gercek_baskilar.py <fotoğraf_klasörü>
-Çıktı: varliklar/gercek/<ad>.jpg  (katalog ve sektör sayfaları kullanır)
+1) Kesme: arka plan yapay zeka modeliyle temizlenir (rembg + birefnet-general, yerel çalışır):
+     pip install "rembg[cpu]"  ->  python araclar/gercek_baskilar.py kes <fotoğraf_klasörü> <ara_klasör>
+2) Düzenleme: paket yataya çevrilir, beyaz dengesi eşitlenir, aynı boyda beyaz zemine yumuşak gölgeyle yerleşir:
+     python araclar/gercek_baskilar.py duzenle <ara_klasör>
+Çıktı: varliklar/gercek/<ad>.jpg
 
-Bütün müşterilerden referans izni alındı (kullanıcı teyidi). Paketin sahibi dışındaki üçüncü taraf
-marka logolarını taşıyan paketler (ör. otomobil markaları) kullanılmaz. Liste SECIM sözlüğündedir; bir müşteri izin
-vermezse satırını silip betiği yeniden çalıştırmak yeterli.
+Bütün müşterilerden referans izni alındı (kullanıcı teyidi). Paket sahibi dışındaki üçüncü taraf marka
+logolarını taşıyan paketler (ör. otomobil markaları) kullanılmaz.
 """
 import sys
 from pathlib import Path
 import numpy as np
-from PIL import Image, ImageOps, ImageFilter
+from PIL import Image, ImageFilter, ImageOps
+from scipy import ndimage
 
 KOK = Path(__file__).resolve().parents[1]
 CIKTI = KOK / "varliklar" / "gercek"
 
-# ad: (dosya öneki, bölüm)  bölüm: tam | ust | alt | (y0, y1) yükseklik oranı (iki paketli fotoğrafta hangi paket)
+# ad: (fotoğraf öneki, paket)  paket: tam | ust | alt  (iki paketli fotoğrafta hangisi)
 SECIM = {
-    # restoran / kafe / meyhane
-    "kazancilar": ("2e5a521c", (0.40, 0.61)), "kazancilar_arka": ("2e5a521c", (0.59, 0.80)),
-    "sohret": ("253e273b", "tam"), "sohret_arka": ("c6464934", "alt"),
-    "kultur_sofrasi": ("08261d46", "tam"), "seruven": ("a691671f", "tam"),
-    "cotto": ("63f4cda4", "tam"), "cotto_arka": ("61edcf39", "alt"),
-    "sarihan": ("87aeee42", "tam"), "sarihan_arka": ("8c3fc8bd", "alt"),
-    "byada": ("72f32ea4", "tam"), "cikmaz": ("5f3e2e19", "tam"), "hunga": ("543011cb", "tam"),
-    "kadikoy_sahne": ("84387c75", "tam"), "green_park": ("2e612b5e", "tam"), "maderia": ("155b7300", "tam"),
-    "koyten": ("b4ffd97c", "tam"), "fayn": ("35540255", "tam"),
-    # otel / turizm
-    "vom": ("fd0d6eab", "tam"), "vom_arka": ("8a725e70", "alt"), "ajlan": ("aee09cc8", (0.48, 0.76)),
-    "salonika": ("0e2c5f27", "tam"), "salonika_arka": ("000273ab", "alt"), "hsh": ("68fd98c9", "tam"),
-    "meridian": ("ebb676dc", "tam"), "samtur": ("baa7d933", "ust"),
-    # güzellik / kişisel
-    "zehra_bora": ("b8c9d28b", "tam"), "mehmet_yildirim": ("039cc0e2", "tam"), "nyek": ("27deb815", "tam"),
-    # kurumsal / promosyon
-    "rotasa": ("a66a8990", "tam"), "yaf": ("7fbfe5c8", "tam"), "ulutas": ("58577ad2", "ust"),
-    "orkun": ("bfcea028", (0.56, 0.80)), "dynamic": ("4e761f73", "tam"), "strong": ("1288382d", "tam"),
-    "alagoz": ("c79c1f5e", "tam"), "ekopack": ("f5a5deb9", "ust"), "kofapack": ("2ad8a236", "tam"),
-    "prosatz": ("3bc1065a", "tam"), "monsfit": ("ae90a0e7", "tam"), "xovo": ("6b895ba1", "tam"),
-    "bauen": ("73f93aec", "tam"), "deniz_ticaret": ("b19f8ef0", "tam"), "seneca": ("b23c6812", "tam"),
-    "dsd": ("c58a1921", "tam"), "michelin": ("11d7a2ad", "tam"),
+    "kazancilar": ("2e5a521c", "ust"), "sohret": ("253e273b", "tam"), "cotto": ("63f4cda4", "tam"),
+    "sarihan": ("87aeee42", "tam"), "kultur_sofrasi": ("08261d46", "tam"), "seruven": ("a691671f", "tam"),
+    "vom": ("fd0d6eab", "tam"), "ajlan": ("aee09cc8", "alt"), "salonika": ("0e2c5f27", "tam"),
+    "meridian": ("ebb676dc", "tam"), "zehra_bora": ("b8c9d28b", "tam"), "mehmet_yildirim": ("039cc0e2", "tam"),
+    "nyek": ("27deb815", "tam"), "maderia": ("155b7300", "tam"), "rotasa": ("a66a8990", "tam"),
+    "yaf": ("7fbfe5c8", "tam"), "michelin": ("11d7a2ad", "tam"), "orkun": ("bfcea028", "alt"),
 }
+TUVAL = (1200, 470)   # 17x6 paket oranına uygun, sabit kart boyu
+DOLULUK = 0.90        # paket kartın genişliğinin bu kadarını kaplar
 
 
-def kirp(yol: Path, bolum: str) -> Image.Image:
-    im = ImageOps.exif_transpose(Image.open(yol)).convert("RGB")
-    w, h = im.size
-    if isinstance(bolum, tuple):
-        im = im.crop((0, int(h * bolum[0]), w, int(h * bolum[1])))
-    elif bolum == "ust":
-        im = im.crop((0, 0, w, int(h * 0.52)))
-    elif bolum == "alt":
-        im = im.crop((0, int(h * 0.48), w, h))
-    if isinstance(bolum, tuple):  # elle verilen kesim: otomatik kırpma yapılmaz
-        return beyaz_dengesi(im)
-    a = np.asarray(im.filter(ImageFilter.GaussianBlur(3))).astype(float)
-    kenar = np.concatenate([a[:8].reshape(-1, 3), a[-8:].reshape(-1, 3), a[:, :8].reshape(-1, 3), a[:, -8:].reshape(-1, 3)])
-    zemin = np.median(kenar, axis=0)
-    fark = np.abs(a - zemin).sum(axis=2)
-    parlak = a.mean(axis=2) - zemin.mean()
-    maske = (fark > 38) | (parlak > 14)
-    sat = maske.mean(axis=1) > 0.22
-    sut = maske.mean(axis=0) > 0.12
-    ys, xs = np.where(sat)[0], np.where(sut)[0]
-    if len(ys) < 10 or len(xs) < 10:
-        return im
-    y0, y1, x0, x1 = ys[0], ys[-1], xs[0], xs[-1]
-    py, px = int((y1 - y0) * 0.10), int((x1 - x0) * 0.03)
-    im = im.crop((max(0, x0 - px), max(0, y0 - py), min(im.width, x1 + px), min(im.height, y1 + py)))
-    return beyaz_dengesi(im)
+def kes(kaynak: Path, ara: Path):
+    from rembg import new_session, remove  # isteğe bağlı bağımlılık
+    oturum = new_session("birefnet-general")
+    ara.mkdir(parents=True, exist_ok=True)
+    for ad, (onek, _) in SECIM.items():
+        hedef = ara / f"{ad}.png"
+        if hedef.exists():
+            continue
+        im = ImageOps.exif_transpose(Image.open(next(kaynak.glob(onek + "*")))).convert("RGB")
+        im.thumbnail((1600, 1600))
+        remove(im, session=oturum).save(hedef)
 
 
-def beyaz_dengesi(im: Image.Image) -> Image.Image:
-    """Paketin en parlak bölgesi nötr beyaz olsun."""
-    b = np.asarray(im).astype(float)
-    ust = np.percentile(b.reshape(-1, 3), 97, axis=0)
-    b = np.clip(b * (245.0 / np.maximum(ust, 1)), 0, 255)
-    return Image.fromarray(b.astype(np.uint8))
+def paket_sec(rgba: Image.Image, paket: str) -> Image.Image:
+    a = np.asarray(rgba)[..., 3] > 128
+    etiket, n = ndimage.label(a)
+    if n == 0:
+        return rgba
+    boy = ndimage.sum(a, etiket, range(1, n + 1))
+    buyukler = [i + 1 for i in np.argsort(boy)[::-1][:2] if boy[i] > boy.max() * 0.3]
+    if paket != "tam" and len(buyukler) == 2:
+        merkez = {i: ndimage.center_of_mass(a, etiket, i)[0] for i in buyukler}
+        sec = min(buyukler, key=merkez.get) if paket == "ust" else max(buyukler, key=merkez.get)
+    else:
+        sec = buyukler[0]
+    maske = etiket == sec
+    if paket != "tam" and len(buyukler) == 1:  # iki paket birbirine değiyor: en ince satırdan ayır
+        ys = np.nonzero(maske.any(axis=1))[0]
+        y0, y1 = ys[0], ys[-1]
+        orta = slice(y0 + (y1 - y0) * 3 // 10, y0 + (y1 - y0) * 7 // 10)
+        satir = maske[orta].sum(axis=1)
+        kes_y = orta.start + int(np.argmin(satir))
+        maske = maske.copy()
+        if paket == "ust":
+            maske[kes_y:] = False
+        else:
+            maske[:kes_y] = False
+    maske = ndimage.binary_dilation(maske, iterations=3) & (np.asarray(rgba)[..., 3] > 0)
+    d = np.asarray(rgba).copy()
+    d[..., 3] = np.where(maske, d[..., 3], 0)
+    return Image.fromarray(d)
+
+
+def duzelt(rgba: Image.Image) -> Image.Image:
+    a = np.asarray(rgba)[..., 3]
+    ys, xs = np.nonzero(a > 128)
+    # ana eksen açısı: paketi yatay yap
+    c = np.cov(np.vstack([xs - xs.mean(), ys - ys.mean()]))
+    vx, vy = np.linalg.eigh(c)[1][:, -1]
+    aci = np.degrees(np.arctan2(vy, vx))
+    if aci > 90: aci -= 180
+    if aci < -90: aci += 180
+    rgba = rgba.rotate(aci, resample=Image.BICUBIC, expand=True)
+    return rgba.crop(rgba.getchannel("A").point(lambda v: 255 if v > 40 else 0).getbbox())
+
+
+def beyaz_dengesi(rgba: Image.Image) -> Image.Image:
+    d = np.asarray(rgba).astype(float)
+    m = d[..., 3] > 200
+    ust = np.percentile(d[..., :3][m], 92, axis=0)
+    d[..., :3] = np.clip(d[..., :3] * (248.0 / np.maximum(ust, 1)), 0, 255)
+    return Image.fromarray(d.astype(np.uint8))
+
+
+def yerlestir(rgba: Image.Image) -> Image.Image:
+    W, H = TUVAL
+    olcek = min(W * DOLULUK / rgba.width, H * 0.80 / rgba.height)
+    p = rgba.resize((round(rgba.width * olcek), round(rgba.height * olcek)), Image.LANCZOS)
+    tuval = Image.new("RGB", TUVAL, "white")
+    x, y = (W - p.width) // 2, (H - p.height) // 2 - 6
+    golge = Image.new("L", TUVAL, 0)
+    golge.paste(p.getchannel("A").point(lambda v: 70 if v > 40 else 0), (x, y + 14))
+    golge = golge.filter(ImageFilter.GaussianBlur(16))
+    tuval.paste(Image.new("RGB", TUVAL, (120, 130, 145)), (0, 0), golge)
+    tuval.paste(p, (x, y), p)
+    return tuval
+
+
+def duzenle(ara: Path):
+    CIKTI.mkdir(parents=True, exist_ok=True)
+    for eski in CIKTI.glob("*.jpg"):
+        eski.unlink()
+    for ad, (_, paket) in SECIM.items():
+        k = ara / f"{ad}.png"
+        if not k.exists():
+            print("kesim yok:", ad); continue
+        im = yerlestir(beyaz_dengesi(duzelt(paket_sec(Image.open(k).convert("RGBA"), paket))))
+        im.save(CIKTI / f"{ad}.jpg", quality=88)
+    print("hazır ->", CIKTI)
 
 
 if __name__ == "__main__":
-    kaynak = Path(sys.argv[1])
-    CIKTI.mkdir(parents=True, exist_ok=True)
-    for ad, (onek, bolum) in SECIM.items():
-        dosya = next(kaynak.glob(onek + "*"), None)
-        if not dosya:
-            print("yok:", ad); continue
-        im = kirp(dosya, bolum)
-        im.thumbnail((1000, 1000))
-        im.save(CIKTI / f"{ad}.jpg", quality=84)
-    print(len(SECIM), "görsel ->", CIKTI)
+    if sys.argv[1] == "kes":
+        kes(Path(sys.argv[2]), Path(sys.argv[3]))
+    else:
+        duzenle(Path(sys.argv[2]))

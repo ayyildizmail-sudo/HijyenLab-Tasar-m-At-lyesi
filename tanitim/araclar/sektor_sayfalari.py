@@ -114,7 +114,7 @@ h1{font-family:"Inter Display","Inter",sans-serif;font-size:24pt;line-height:1.1
 .cagri b{font-size:13pt;display:block;color:#fff;line-height:1.3}.cagri p{font-size:9pt;color:#cfe0f1;margin-top:1.5mm}
 .cagri .il{text-align:right;font-size:10pt;line-height:1.6;white-space:nowrap;color:#fff}
 .gr{margin-top:3mm}.gr h3{font-size:11pt;color:#0b3558;margin-bottom:2mm}.gr h3 span{font-weight:400;font-size:8.5pt;color:#4a5f7a}
-.gr div{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm}.gr img{width:100%;aspect-ratio:2.55;object-fit:cover;border-radius:2mm;border:1px solid #c6d9ec}
+.gr div{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm}.gr img{width:100%;aspect-ratio:2.55;object-fit:contain}
 .bl{position:absolute;left:16mm;right:16mm;bottom:56.5mm;display:flex;gap:2mm}
 .bl span{flex:1;border:1.2px solid #29537B;border-radius:2mm;padding:1mm;text-align:center;background:#fff}
 .bl b{display:block;font-size:8pt;color:#0b3558;line-height:1.2}.bl i{display:block;font-style:normal;font-size:6.3pt;color:#4a5f7a}
