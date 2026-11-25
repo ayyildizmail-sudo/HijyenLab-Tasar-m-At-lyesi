@@ -392,7 +392,7 @@ def tek_tik_cikis(token: str) -> bool:
 # --- Teklifler (panelden hazırlanır; rakamlar teklif_hesapla.py'den) -------------------------
 
 TEKLIF_KLASORU = Path(AYAR.veritabani).resolve().parent / "teklifler"
-IMZA = ("Saygılarımızla,\nHakan Ayyıldız\nHijyenLab · İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.\n"
+IMZA = ("Saygılarımızla,\nHakan Ayyıldız\nSatış · HijyenLab · İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.\n"
         "0 (542) 569 98 69 · hijyenlab.com")
 
 

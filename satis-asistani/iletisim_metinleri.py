@@ -9,7 +9,7 @@ from __future__ import annotations
 import re
 from urllib.parse import quote
 
-IMZA = "Hakan Ayyıldız · HijyenLab\nhijyenlab.com"
+IMZA = "Hakan Ayyıldız · Satış · HijyenLab\nhijyenlab.com"
 CAGRI = "Logonuzu buraya gönderirseniz ürününüzün logolu görselini ücretsiz hazırlayıp size iletelim."
 
 # Sektöre göre tek cümlelik kullanım anı (firma profilindeki anlatım)

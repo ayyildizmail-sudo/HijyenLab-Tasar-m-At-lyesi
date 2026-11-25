@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-25o
+profil_surumu: 2026-11-25p
 fiyat_paylasilabilir: hayir
 ---
 
@@ -142,7 +142,7 @@ Her tanıtım mailinin tek çağrısı: "Logonuzu gönderin, işletmenize özel 
 
 ## İmza
 Hakan Ayyıldız
-HijyenLab · İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.
+Satış · HijyenLab · İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.
 0 (542) 569 98 69 · hijyenlab.com
 
 ## Üslup
