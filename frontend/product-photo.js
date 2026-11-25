@@ -582,6 +582,26 @@ function dropIsolated(out){const {data,w:W,h:H}=out,N=W*H,ground=[data[0],data[1
   if(drop.size)for(let i=0;i<N;i++)if(M[i]&&drop.has(L2[i])){data[i*4]=ground[0];data[i*4+1]=ground[1];data[i*4+2]=ground[2];removed++;}}
 
  return removed;}
+// Işıklı/neon yazı logosu (koyu zemin, neredeyse tamamı yazı): ışıltı ve parlama tonları ayrı renk değildir.
+// Tüm mürekkep tek marka rengine indirilir, harf içindeki doku boşlukları kapanır, kenarlar yeniden vektörel izlenir (SVG).
+function monoVector(out,palRgb){const VT2=typeof module!=='undefined'&&module.exports?(()=>{try{return require('./vector-trace.js');}catch{return null;}})():(typeof root!=='undefined'?root.VectorTrace:null);
+ const {data,w:W,h:H}=out,N=W*H,g=[data[0],data[1],data[2]],A=new Uint8Array(N);let n=0;for(let i=0;i<N;i++){if(Math.abs(data[i*4]-g[0])+Math.abs(data[i*4+1]-g[1])+Math.abs(data[i*4+2]-g[2])>=40){A[i]=1;n++;}}if(n<100)return false;
+ // marka rengi: mürekkepteki en yaygın palet rengi (beyaza yakın parlama tonu hariç)
+ const P=palRgb.filter(p=>Math.min(...p)<235);const C=(P.length?P:palRgb).map(()=>0),PP=P.length?P:palRgb;for(let i=0;i<N;i+=3){if(!A[i])continue;let bi=0,bd=1e9;PP.forEach((p,q)=>{const d=(data[i*4]-p[0])**2+(data[i*4+1]-p[1])**2+(data[i*4+2]-p[2])**2;if(d<bd){bd=d;bi=q;}});C[bi]++;}
+ // turuncu dolgu + altın vurgu gibi iki ton: aydınlık olanı (ışıklı harfin kendisi) seçilir, oranları yakınsa
+ let ci=C.indexOf(Math.max(...C));const L=p=>.3*p[0]+.59*p[1]+.11*p[2];PP.forEach((p,q)=>{if(q!==ci&&C[q]>=C[ci]*.5&&L(p)>L(PP[ci]))ci=q;});const col=PP[ci];
+ // doku boşlukları: kenara değmeyen, küçük zemin bölgeleri (harfin gerçek iç boşluğu daha büyüktür)
+ const inv=new Uint8Array(N);for(let i=0;i<N;i++)inv[i]=A[i]?0:1;const {lab,comps}=components(inv,W,H),hmax=(Math.min(W,H)*.03)**2;
+ for(const c of comps){const b=c.box;if(c.n>hmax||b[0]<=0||b[1]<=0||b[2]>=W||b[3]>=H)continue;for(let y=b[1];y<b[3];y++)for(let x=b[0];x<b[2];x++){const i=y*W+x;if(lab[i]===c.id)A[i]=1;}}
+ // kopuk kırıntılar: harf gövdelerinden (büyük parçalar) belirgin uzakta duran küçük parçalar atılır (i noktası gibi yakın işaretler kalır)
+ {const {lab:L2,comps:C2}=components(A,W,H),mx=Math.max(...C2.map(c=>c.n)),big=C2.filter(c=>c.n>=mx*.05),S=Math.max(W,H),gp=(a,b)=>Math.hypot(Math.max(0,b.box[0]-a.box[2],a.box[0]-b.box[2]),Math.max(0,b.box[1]-a.box[3],a.box[1]-b.box[3]));
+  const GL=glyphLines(A,W,H).filter(l=>l.count>=3),inLine=b=>GL.some(l=>{const [x0,y0,x1,y1]=l.box,p=l.height*.25;return b[0]>=x0-p&&b[2]<=x1+p&&b[1]>=y0-p&&b[3]<=y1+p;});
+  const drop=new Set();for(const c of C2){if(c.n>=mx*.05||inLine(c.box))continue;const d=Math.min(...big.map(b=>gp(c,b)));if(d>S*.012)drop.add(c.id);}
+  if(drop.size)for(let i=0;i<N;i++)if(A[i]&&drop.has(L2[i]))A[i]=0;}
+ // izleme: yarı çözünürlükte hafif bulanık alan → düzgün eğriler
+ const fw=Math.ceil(W/2),fh=Math.ceil(H/2),F=new Float32Array(fw*fh);for(let y=0;y<fh;y++)for(let x=0;x<fw;x++){let s=0,k=0;for(let dy=-1;dy<=2;dy++)for(let dx=-1;dx<=2;dx++){const X=x*2+dx,Y=y*2+dy;if(X<0||Y<0||X>=W||Y>=H)continue;s+=A[Y*W+X];k++;}F[y*fw+x]=k?s/k:0;}
+ if(VT2){try{const vr=VT2.render([{field:F,color:col}],fw,fh,W,H,{opaqueGround:g,minArea:4,tol:.6});out.data=vr.data;out.svg=vr.svg;out.vector=true;return true;}catch(e){}}
+ for(let i=0;i<N;i++){const c=A[i]?col:g;data[i*4]=c[0];data[i*4+1]=c[1];data[i*4+2]=c[2];}return true;}
 async function extract(data,w,h,{classify=null,candidates=3,recognize=null,createCanvas=null,redrawText=null}={}){
  // Sonuç girdi boyutuna bağlı olmasın: her zaman en uzun kenarı en çok 2048 piksel olan görüntüde çalış (tarayıcı = test)
  {const d=downscale(data,w,h,2048);data=d.data;w=d.w;h=d.h;}
@@ -673,6 +693,7 @@ async function extract(data,w,h,{classify=null,candidates=3,recognize=null,creat
     if(nw*nh<W*H*.92){const nd=new Uint8ClampedArray(nw*nh*4);for(let y=0;y<nh;y++)nd.set(D.subarray(((y+y0)*W+x0)*4,((y+y0)*W+x0+nw)*4),y*nw*4);out.data=nd;out.w=nw;out.h=nh;out.svg=null;}}}
   // Temizlenmiş logodaki harf oranı (kendiliğinden yerleştirme kararı için)
   let finalInk=0,finalGlyph=0;{for(const v of mm.m)finalInk+=v;const inBox=new Uint8Array(mm.w*mm.h);for(const l of glyphLines(mm.m,mm.w,mm.h)){const [x0,y0,x1,y1]=l.box;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)inBox[y*mm.w+x]=1;}for(let i=0;i<inBox.length;i++)if(inBox[i]&&mm.m[i])finalGlyph++;}
+  if(lightOnDark&&pal.length>=2&&finalGlyph/Math.max(1,finalInk)>=.9)monoVector(out,pal.map(labToRgb));
   return {ok:true,svg:out.svg||null,vector:!!out.vector,textRedraw,lightOnDark,confidence:ok[0].diag.confidence,glyphFractionRaw:ok[0].diag.glyphFrac,glyphFraction:+(finalGlyph/Math.max(1,finalInk)).toFixed(2),quality,alternatives:ok.length-1,diagnostics:ok.map(t=>({...t.diag,quality:+t.quality.toFixed(4)})),image:out,palette:pal.map(labToRgb).map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('')),surface:'#'+surface.map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''),quad:cand.quad,quarterTurns:q,orientationSource:source,inkFraction:inkFrac,surfaceScore:cand.score,method:'local-product-photo-v1'};
  }
 }
