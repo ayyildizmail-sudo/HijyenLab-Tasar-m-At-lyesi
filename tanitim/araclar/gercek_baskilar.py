@@ -33,7 +33,13 @@ SECIM = {
     "mehmet_yildirim": ("039cc0e2", "tam"),
     "maderia": ("155b7300", "tam"),
     "yaf": ("7fbfe5c8", "tam"),
+    "sarihan": ("87aeee42", "tam"),
+    "michelin": ("c9cf37bd", "ust"),
+    "kultur_sofrasi": ("08261d46", "tam"),
+    "orkun": ("bfcea028", "alt"),
 }
+# N'yek ve Rotasa denendi; parlama logonun içine girdiği için temiz çıkmadı (logo dosyası gelirse eklenir).
+KESIM_ADI = {"michelin": "michelin2"}  # kesim dosyası farklı adla kaydedildiyse
 TUVAL = (1200, 470)   # 17x6 paket oranına uygun, sabit kart boyu
 DOLULUK = 0.90        # paket kartın genişliğinin bu kadarını kaplar
 
