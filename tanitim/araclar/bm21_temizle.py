@@ -32,15 +32,18 @@ bant[0:34, 642:682] = bant[0:34, 602:642]
 dx = np.minimum(xx - SOL, W - SAG - xx) / ((W - SOL - SAG) / 2)
 dy = np.minimum(yy - UST, H - ALT - yy) / ((H - UST - ALT) / 2)
 kenar = np.clip(np.minimum(dx, dy * 1.3), 0, 1)
-yuz = 240 + 11 * (1 - (1 - kenar) ** 2.5)                        # kenarlara doğru az gölge
+yuz = 236 + 12 * (1 - (1 - kenar) ** 2.5)                        # kenarlara doğru az gölge
 u = (xx - SOL) / (W - SOL - SAG); v = (yy - UST) / (H - UST - ALT)
 d = (u * 0.55 + v * 0.45) - 0.38                                  # çapraz parlama şeridi
-yuz += 9 * np.exp(-(d / 0.07) ** 2) + 4 * np.exp(-((d - 0.30) / 0.05) ** 2)
+yuz += 22 * np.exp(-(d / 0.06) ** 2) + 12 * np.exp(-((d - 0.28) / 0.035) ** 2) + 6 * np.exp(-((d + 0.22) / 0.03) ** 2)
 yuz = np.minimum(yuz, 255)
 
 # 3) Birleştir: sınırda yumuşak geçiş + ince kaynak çizgisi
 m = ndimage.gaussian_filter(ic.astype(float), 2.0)
 lum = bant * (1 - m) + yuz * m
+# parlama kaynak bantlarına da hafifçe uzansın (aynı film)
+ug = xx / W; vg = yy / H; dg = (ug * 0.55 + vg * 0.45) - 0.40
+lum = np.where(~ic, np.minimum(lum + 10 * np.exp(-(dg / 0.06) ** 2), 255), lum)
 sinir = ndimage.binary_dilation(ic, iterations=1) & ~ndimage.binary_erosion(ic, iterations=1)
 lum = np.where(sinir, lum - 6, lum)
 
