@@ -77,8 +77,8 @@ function findSurface(data,w,h,options={}){
 function homography(src,dst){const A=[],B=[];for(let i=0;i<4;i++){const [x,y]=dst[i],[u,v]=src[i];A.push([x,y,1,0,0,0,-u*x,-u*y]);B.push(u);A.push([0,0,0,x,y,1,-v*x,-v*y]);B.push(v);}
  for(let i=0;i<8;i++){let p=i;for(let k=i+1;k<8;k++)if(Math.abs(A[k][i])>Math.abs(A[p][i]))p=k;[A[i],A[p]]=[A[p],A[i]];[B[i],B[p]]=[B[p],B[i]];for(let k=i+1;k<8;k++){const f=A[k][i]/A[i][i];for(let j=i;j<8;j++)A[k][j]-=f*A[i][j];B[k]-=f*B[i];}}
  const h=new Array(8);for(let i=7;i>=0;i--){let t=B[i];for(let j=i+1;j<8;j++)t-=A[i][j]*h[j];h[i]=t/A[i][i];}return [...h,1];}
-function rectify(data,w,h,quad,maxSide=1400){
- const L=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);let W=Math.max(L(quad[0],quad[1]),L(quad[3],quad[2])),H=Math.max(L(quad[0],quad[3]),L(quad[1],quad[2]));const s=Math.min(1,maxSide/Math.max(W,H));W=Math.max(8,Math.round(W*s));H=Math.max(8,Math.round(H*s));
+function rectify(data,w,h,quad,maxSide=1400,up=1){
+ const L=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);let W=Math.max(L(quad[0],quad[1]),L(quad[3],quad[2])),H=Math.max(L(quad[0],quad[3]),L(quad[1],quad[2]));const s=Math.min(up,maxSide/Math.max(W,H));/* up>1: küçük kaynak büyütülerek düzleştirilir */W=Math.max(8,Math.round(W*s));H=Math.max(8,Math.round(H*s));
  const M=homography(quad,[[0,0],[W,0],[W,H],[0,H]]),out=new Uint8ClampedArray(W*H*4);
  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const X=x+.5,Y=y+.5,d=M[6]*X+M[7]*Y+1,u=(M[0]*X+M[1]*Y+M[2])/d-.5,v=(M[3]*X+M[4]*Y+M[5])/d-.5;const ix=Math.max(0,Math.min(w-2,Math.floor(u))),iy=Math.max(0,Math.min(h-2,Math.floor(v))),fx=Math.min(1,Math.max(0,u-ix)),fy=Math.min(1,Math.max(0,v-iy)),o=(y*W+x)*4;
   for(let k=0;k<3;k++){const i00=(iy*w+ix)*4+k,i10=i00+4,i01=i00+w*4,i11=i01+4;out[o+k]=(data[i00]*(1-fx)+data[i10]*fx)*(1-fy)+(data[i01]*(1-fx)+data[i11]*fx)*fy;}out[o+3]=255;}
@@ -144,7 +144,7 @@ function inkMaskLightOnDark(img){const {data,w,h}=img,G=Math.max(8,Math.round(Ma
  for(let gy=0;gy<gh;gy++)for(let gx=0;gx<gw;gx++){const v=[];for(let y=gy*G;y<Math.min(h,(gy+1)*G);y++)for(let x=gx*G;x<Math.min(w,(gx+1)*G);x++)v.push(lum[y*w+x]);v.sort((a,b)=>a-b);bg[gy*gw+gx]=v[Math.floor(v.length*.25)];}
  const m=new Uint8Array(w*h);for(let y=0;y<h;y++)for(let x=0;x<w;x++){let b=1e9;const gx=Math.min(gw-1,Math.floor(x/G)),gy=Math.min(gh-1,Math.floor(y/G));for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=gx+dx,Y=gy+dy;if(X>=0&&Y>=0&&X<gw&&Y<gh)b=Math.min(b,bg[Y*gw+X]);}if(lum[y*w+x]>Math.max(b+55,b*1.9))m[y*w+x]=1;}
  return m;}
-function inkMask(img,surface,threshold=22){const {data,w,h}=img,S=toLab(...surface),m=new Uint8Array(w*h);for(let i=0;i<w*h;i++){const j=i*4;if(d3(toLab(data[j],data[j+1],data[j+2]),S)>threshold)m[i]=1;}return m;}
+function inkMask(img,surface,threshold=22){const {data,w,h}=img,S=toLab(...surface),m=new Uint8Array(w*h);for(let i=0;i<w*h;i++){const j=i*4,L=toLab(data[j],data[j+1],data[j+2]),d=d3(L,S);if(d<=threshold)continue;const dC=Math.hypot(L[1]-S[1],L[2]-S[2]);if(Math.abs(S[0]-L[0])<=8&&dC>10&&Math.hypot(L[1],L[2])>Math.hypot(S[1],S[2])+8&&d<=threshold*1.75)continue;/* renkli mürekkebin JPEG renk taşması halesi (koyulaşmayan) sayılmaz */m[i]=1;}return m;}
 // ---------- 4) temizlik: kenar parçaları, kayıt işaretleri, gürültü ----------
 function cleanInk(m,w,h){
  const {lab,comps}=components(m,w,h),keep=new Uint8Array(comps.length),area=w*h,band=Math.round(Math.min(w,h)*.035);
@@ -447,15 +447,15 @@ function palette(img,m,maxColors=4){const {data,w,h}=img,pts=[];for(let i=0;i<w*
  return best.cent;}
 function labToRgb([L,a,b]){let y=(L+16)/116,x=a/500+y,z=y-b/200;const f=t=>t**3>.008856?t**3:(t-16/116)/7.787;x=f(x)*.95047;y=f(y);z=f(z)*1.08883;let r=x*3.2406+y*-1.5372+z*-.4986,g=x*-.9689+y*1.8758+z*.0415,bb=x*.0557+y*-.204+z*1.057;const c=v=>Math.round(255*Math.max(0,Math.min(1,v>.0031308?1.055*v**(1/2.4)-.055:12.92*v)));return [c(r),c(g),c(bb)];}
 // Yumuşak alfa (mürekkep olasılığı) ile kenarları düzgün, düz renkli, şeffaf zeminli çıktı
-function renderClean(img,m,surface,pal,minLong=2000,opaqueGround=false,solid=null){
+function renderClean(img,m,surface,pal,minLong=2000,opaqueGround=false,solid=null,showRgb=null){
  let x0=img.w,y0=img.h,x1=0,y1=0;for(let y=0;y<img.h;y++)for(let x=0;x<img.w;x++)if(m[y*img.w+x]){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
  if(x1<x0)return null;const pad=Math.round(Math.max(x1-x0,y1-y0)*.03);x0=Math.max(0,x0-pad);y0=Math.max(0,y0-pad);x1=Math.min(img.w-1,x1+pad);y1=Math.min(img.h-1,y1+pad);
- const cw=x1-x0+1,ch=y1-y0+1,scale=Math.max(1,minLong/Math.max(cw,ch)),W=Math.round(cw*scale),H=Math.round(ch*scale),S=toLab(...surface),rgbPal=pal.map(labToRgb);
+ const cw=x1-x0+1,ch=y1-y0+1,scale=Math.max(1,minLong/Math.max(cw,ch)),W=Math.round(cw*scale),H=Math.round(ch*scale),S=toLab(...surface),rgbPal=showRgb||pal.map(labToRgb);
  // kaynak çözünürlükte: alfa ve renk etiketi (yalnız temizlenmiş maskenin yakınında)
  const ownD=new Float32Array((x1-x0+1)*(y1-y0+1)).fill(1e9),cS=new Float32Array((x1-x0+1)*(y1-y0+1)),near=boxDilate(closeMask(m,img.w,img.h,2),img.w,img.h,2),alpha=new Float32Array(cw*ch),label=new Uint8Array(cw*ch);
  for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){const i=(y+y0)*img.w+(x+x0),j=i*4;if(!near[i])continue;const c=toLab(img.data[j],img.data[j+1],img.data[j+2]),dS=d3(c,S);let b=0,bd=1e9;pal.forEach((p,k)=>{const d=d3(c,p);if(d<bd){bd=d;b=k;}});
   // renkli (ince altın çizgi gibi) mürekkepte daha erken tam opaklık: soluk ince çizgiler kopmasın
-  ownD[y*cw+x]=bd;cS[y*cw+x]=dS;const chroma=Math.hypot(pal[b][1],pal[b][2])>12,lo=chroma?8:12,span=Math.max(8,d3(pal[b],S)-lo)*(chroma?.65:1);alpha[y*cw+x]=Math.max(0,Math.min(1,(dS-lo)/span));if(solid&&solid[i])alpha[y*cw+x]=Math.max(alpha[y*cw+x],.95);label[y*cw+x]=b;}
+  ownD[y*cw+x]=bd;cS[y*cw+x]=dS;const chroma=Math.hypot(pal[b][1],pal[b][2])>12,lo=chroma?8:12,span=Math.max(8,d3(pal[b],S)-lo)*(chroma?.65:1);alpha[y*cw+x]=Math.max(0,Math.min(1,(dS-lo)/span));if(!m[i]&&Math.abs(S[0]-c[0])<=8)alpha[y*cw+x]=Math.min(alpha[y*cw+x],.45); /* mürekkep sayılmayan, koyulaşmayan renk halesi kenarı büyütmez */if(solid&&solid[i])alpha[y*cw+x]=Math.max(alpha[y*cw+x],.95);label[y*cw+x]=b;}
  // İnce soluk çizgiler (altıgen çerçevesi gibi): karşıtlığın enine yerel tepe yaptığı orta hat pikselleri güçlendirilir.
  // Kalın harflerin kenarı tepe değildir (karşıtlık içe doğru artar), bu yüzden harfler kalınlaşmaz.
  const ridge=new Uint8Array(cw*ch);
@@ -585,7 +585,9 @@ async function extract(data,w,h,{classify=null,candidates=3,recognize=null,creat
   tried.push({cand,rect,flat,mask,surface,q,source,inkFrac,quality,diag:{refined:cand.refined?+cand.refined.support.toFixed(2):null,nested:!!cand.nested,quad:cand.quad.map(p=>p.map(Math.round)),glyphFrac:+glyphFrac.toFixed(2),glyphLines:gls.length,score:+cand.score.toFixed(3),lines,maxShare:+maxShare.toFixed(2),confidence:+confidence.toFixed(2),surface:surface.map(v=>v|0).join(',')}});
  }
  const ok=tried.filter(t=>t.quality!=null).sort((a,b)=>b.quality-a.quality);if(!ok.length)return {ok:false,reason:'no-usable-surface',tried:tried.map(t=>t.reason)};
- {const {cand,rect,flat,mask,surface,q,source,inkFrac,quality}=ok[0];
+ {let {cand,rect,flat,mask,surface,q,source,inkFrac,quality}=ok[0];
+  // küçük kaynak: seçilen yüzey daha yüksek çözünürlükte yeniden düzleştirilir (ince/küçük yazılar kopmasın, birbirine yapışmasın)
+  if(Math.max(rect.w,rect.h)<1100&&.3*surface[0]+.59*surface[1]+.11*surface[2]>=140){const r2=rectify(data,w,h,cand.quad,1400,2.5);if(Math.max(r2.w,r2.h)>Math.max(rect.w,rect.h)*1.2){const s2=surfaceColor(r2.data,r2.w,r2.h),f2=flatten(r2,s2),m2=cleanInk(inkMask(f2,s2),r2.w,r2.h);let n2=0;for(const v of m2)n2+=v;if(n2>0){rect=r2;surface=s2;flat=f2;mask=m2;}}}
   globalThis.__frontal=null;const img0=rotateRGBA(flat,q),mm0=rotateMask(mask,rect.w,rect.h,q),mmA={...mm0,m:brandGroup(dropOutliers(mm0.m,mm0.w,mm0.h,inkContrast(img0,surface),img0),mm0.w,mm0.h)},view0=frontalChoose(img0,mmA),viewU=await uprightView(view0,classify),dw=dewarpLines(viewU.img,viewU.mask),view=dw?{...viewU,img:dw.img,mask:dw.mask}:viewU,img=view.img,mm=view.mask,core=boxErode(mm.m,mm.w,mm.h,1);let coreN=0;for(const v of core)coreN+=v;const pal=palette(img,coreN>200?core:mm.m);// Koyu zemin üzerindeki açık baskı (tabela, neon): yüzey rengi de tasarımın parçasıdır; düz, tam kaplayan zeminle çizilir
   const lumS=.3*surface[0]+.59*surface[1]+.11*surface[2],lumInk=pal.length?Math.max(...pal.map(p=>p[0]))*2.55:0,lightOnDark=lumS<110&&lumInk>lumS+40;
   // Parlama/aşınma onarımı: harf gövdelerindeki küçük delik ve çatlaklar kapatılır, harfe değmeyen ufak lekeler atılır
@@ -607,10 +609,14 @@ async function extract(data,w,h,{classify=null,candidates=3,recognize=null,creat
    for(const c of comps){if(inLine(c.box))continue;const bw=c.box[2]-c.box[0],bh=c.box[3]-c.box[1];if(c.n<Hm*Hm*.04&&!(bw/Math.max(1,bh)<2.2&&bh/Math.max(1,bw)<2.6&&c.n/(bw*bh)>.5))drop[c.id]=1;}
    for(let i=0;i<mask.length;i++)if(lab[i]>=0&&drop[lab[i]]){mask[i]=0;solid[i]=0;}
    return {mask,solid};})();
-  const out=renderClean(img,repair.mask,surface.map(Math.round),pal,2000,lightOnDark,repair.solid);if(!out)return {ok:false,reason:'empty'};
-  const outlineFixed=lightOnDark?0:restoreOutline(out,pal.map(labToRgb));
+  // Beyaz ambalaj filmi fotoğrafta gri/renkli ışık altında görünür: film beyaz kabul edilip baskı renkleri ona göre düzeltilir
+  // (koyu mürekkep koyu kalır). Renkli zemin (kraft, renkli poşet) ve koyu zeminde renklere dokunulmaz.
+  const showRgb=(()=>{const sl=.3*surface[0]+.59*surface[1]+.11*surface[2];if(lightOnDark||sl<140||Math.max(...surface)-Math.min(...surface)>35)return null;const k=10;
+   return pal.map(labToRgb).map(c=>c.map((v,q)=>Math.max(0,Math.min(255,Math.round((v-k)/Math.max(30,surface[q]-k)*255)))));})();
+  const out=renderClean(img,repair.mask,surface.map(Math.round),pal,2000,lightOnDark,repair.solid,showRgb);if(!out)return {ok:false,reason:'empty'};
+  const outlineFixed=lightOnDark?0:restoreOutline(out,showRgb||pal.map(labToRgb));
   // Yazıları okuyup temiz yazı tipiyle yeniden çiz (yerel metin tanıma modeli verilmişse)
-  let textRedraw=null;const TR=redrawText||(typeof root!=='undefined'&&root.TextRedraw);if(recognize&&createCanvas&&TR){try{textRedraw=await TR.redraw({img,mask:{m:repair.mask,w:mm.w,h:mm.h},out,palette:pal.map(labToRgb),surface,opaqueGround:lightOnDark,recognize,createCanvas});}catch(e){textRedraw={error:String(e&&e.message||e)};}}
+  let textRedraw=null;const TR=redrawText||(typeof root!=='undefined'&&root.TextRedraw);if(recognize&&createCanvas&&TR){try{textRedraw=await TR.redraw({img,mask:{m:repair.mask,w:mm.w,h:mm.h},out,palette:pal.map(labToRgb),drawPalette:showRgb,surface,opaqueGround:lightOnDark,recognize,createCanvas});}catch(e){textRedraw={error:String(e&&e.message||e)};}}
   // Temizlenmiş logodaki harf oranı (kendiliğinden yerleştirme kararı için)
   let finalInk=0,finalGlyph=0;{for(const v of mm.m)finalInk+=v;const inBox=new Uint8Array(mm.w*mm.h);for(const l of glyphLines(mm.m,mm.w,mm.h)){const [x0,y0,x1,y1]=l.box;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)inBox[y*mm.w+x]=1;}for(let i=0;i<inBox.length;i++)if(inBox[i]&&mm.m[i])finalGlyph++;}
   return {ok:true,svg:out.svg||null,vector:!!out.vector,textRedraw,lightOnDark,confidence:ok[0].diag.confidence,glyphFractionRaw:ok[0].diag.glyphFrac,glyphFraction:+(finalGlyph/Math.max(1,finalInk)).toFixed(2),quality,alternatives:ok.length-1,diagnostics:ok.map(t=>({...t.diag,quality:+t.quality.toFixed(4)})),image:out,palette:pal.map(labToRgb).map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('')),surface:'#'+surface.map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''),quad:cand.quad,quarterTurns:q,orientationSource:source,inkFraction:inkFrac,surfaceScore:cand.score,method:'local-product-photo-v1'};
