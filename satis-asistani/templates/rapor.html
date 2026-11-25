@@ -3,13 +3,13 @@
 {% set ust = (r.huni|map(attribute=1)|max) or 1 %}
 <h2>Satış raporu</h2>
 <p>{% for kod, ad in [('7','Son 7 gün'),('30','Son 30 gün'),('tum','Tüm zamanlar')] %}
-  <a class="etiket" href="{{ url_for('rapor', donem=kod) }}" {% if donem == kod %}style="background:#0f766e;color:#fff"{% endif %}>{{ ad }}</a> {% endfor %}</p>
+  <a class="etiket" href="{{ url_for('rapor', donem=kod) }}" {% if donem == kod %}style="background:#1f5f96;color:#fff"{% endif %}>{{ ad }}</a> {% endfor %}</p>
 <div class="kart">
   <h3 style="margin-top:0">Huni</h3>
   {% for ad, n in r.huni %}
   <div style="display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr) 60px;gap:12px;align-items:center;margin:8px 0">
     <span>{{ ad }}</span>
-    <div style="background:#eef2f6;border-radius:6px;height:22px"><div style="background:#0f766e;height:22px;border-radius:6px;width:{{ (100 * n / ust)|round(1) }}%"></div></div>
+    <div style="background:#eef2f6;border-radius:6px;height:22px"><div style="background:#1f5f96;height:22px;border-radius:6px;width:{{ (100 * n / ust)|round(1) }}%"></div></div>
     <b style="text-align:right">{{ n }}</b>
   </div>
   {% endfor %}

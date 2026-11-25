@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-25l
+profil_surumu: 2026-11-25m
 fiyat_paylasilabilir: hayir
 ---
 
@@ -17,7 +17,7 @@ fiyat_paylasilabilir: hayir
 - Şirket: İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.
 - İletişim: info@hijyenlab.com · 0 (542) 569 98 69 · hijyenlab.com
 - İş: İşletmelere özel logolu, tek tek paketli tek kullanımlık ıslak havlu ve ıslak mendil üretimi ve tedariki.
-- Slogan: "İşletmenizin markası, müşterinizin her temasında."
+- Slogan: "Masada kalan son şey: logonuz." (ikincil: "İşletmenizin markası, müşterinizin her temasında.")
 
 Bir restoranın masaya koyduğu havlu, bir otelin misafire verdiği mendil, bir kuaförün kullandığı havlu,
 müşterinin işletmeyle doğrudan temas ettiği ve markayı gördüğü noktadır. HijyenLab bu ürünleri işletmenin
@@ -108,7 +108,7 @@ Koli başına ücretlendirilir. Bodrum teslimatlarında kargo ücreti alınmaz.
 
 ## Kumaşı anlatma (müşterinin anlayacağı dille)
 Teknik terim yerine şu onaylı ifadeler kullanılır:
-- Nonwoven ürünler (rulo, katlı, mendil): "Kağıt peçete değil; kumaş gibi yumuşak, tek tek paketli ıslak havlu."
+- Nonwoven ürünler (rulo, katlı, mendil): "Kağıt peçete değil: kumaş gibi yumuşak, tek tek paketli."
   Onaylı özellikler: yırtılmaz, dağılmaz, tüy bırakmaz, sıkınca su damlamaz, ıslak ve hoş kokulu.
 - "Küçük paketten büyük havlu": 17 cm'lik paketten 25×30 cm havlu, 14 cm'lik paketten 20×25 cm katlı havlu,
   7×12 cm'lik paketten 16×18 cm mendil çıkar.

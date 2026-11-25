@@ -42,7 +42,7 @@ def whatsapp_metni(musteri: dict) -> str:
     cumle = SEKTOR_CUMLESI.get(musteri.get("tur") or "", VARSAYILAN)
     selam = f"Merhaba, {ad} için yazıyorum." if ad else "Merhaba,"
     return (f"{selam} HijyenLab olarak {cumle} üretiyoruz. "
-            "Kağıt peçete değil; kumaş gibi yumuşak, ıslak havlu.\n\n"
+            "Kağıt peçete değil: kumaş gibi yumuşak, tek tek paketli.\n\n"
             f"{CAGRI_OZEL.get(musteri.get('tur') or '', CAGRI)}\n\n{IMZA}")
 
 

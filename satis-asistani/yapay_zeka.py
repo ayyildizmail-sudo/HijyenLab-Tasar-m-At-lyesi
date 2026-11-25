@@ -191,6 +191,8 @@ def tanitim_maili_yaz(musteri: dict, hatirlatma: bool = False, onceki: str = "")
     else:
         gorev = (
             "Bu işletmeye ilk kez yazıyoruz. Kişiselleştirilmiş, en fazla 120 kelimelik bir tanıtım maili yaz. "
+            "İlk cümlede işletmenin adını doğal biçimde kullan (ör. 'Örnek Kebap'ta yemekten sonra masaya bırakılan…'); "
+            "yetkilinin adını bilmiyorsak 'Merhaba,' ile başla, isim uydurma. "
             "İşletmenin sektörünü belirle ve profildeki 'Sektöre göre anlatım' bölümüne göre bir somut kullanım "
             "anıyla faydayı anlat. O sektöre en uygun 1-2 ürünü öner; bütün ürün listesini sayma. "
             "Kumaş için en fazla tek sade cümle kullan (profildeki 'Kumaşı anlatma'); teknik terim ve numune teklifi "

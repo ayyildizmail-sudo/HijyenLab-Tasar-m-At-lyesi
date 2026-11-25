@@ -22,6 +22,14 @@ SERVIS = {
     "serin": ("../varliklar/buzdolabi_paketli.jpg", "Serin servis", "+4°C buzdolabında bekletilip serin sunulur."),
 }
 
+# Her sayfada o sektöre uygun örnek marka tasarımları (araclar/ornek_markalar.py)
+GORSEL = {
+    "restoran": {"mendil": "ornek_mendil_kose", "rulo": "ornek_rulo_ocakbasi_kirmizi", "katli": "ornek_katli_yesil"},
+    "otel": {"katli": "ornek_katli_mavikoy", "rulo": "ornek_rulo_mavikoy"},
+    "kuafor": {"rulo": "ornek_rulo_salon", "katli": "ornek_katli_salon", "renkli": "ornek_rulo_salon_bordo"},
+    "toptanci": {"mendil": "ornek_mendil_kose", "rulo": "ornek_rulo_liman", "katli": "ornek_katli_mavikoy"},
+}
+
 SAYFALAR = {
     "restoran": dict(
         etiket="Restoran · Kebapçı · Balıkçı · Fast food",
@@ -73,32 +81,36 @@ SAYFALAR = {
 CSS = """@page{size:A4;margin:0}*{box-sizing:border-box;margin:0;padding:0}
 body{font-family:"Inter",sans-serif;color:#13294b;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .s{width:210mm;height:297mm;position:relative;overflow:hidden}
-.bas{background:#cfe0f1;border-bottom:1.6mm solid #1f5f96;padding:12mm 16mm 9mm}
+.bas{background:#cfe0f1;border-bottom:1.6mm solid #29537B;padding:12mm 16mm 9mm}
 .bas .ust{display:flex;justify-content:space-between;align-items:center}
-.bas img{width:40mm}.bas .et{font-size:8.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#1f5f96;text-align:right;max-width:105mm}
+.bas img{width:40mm}.bas .et{font-size:8.5pt;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#29537B;text-align:right;max-width:105mm}
 h1{font-family:"Inter Display","Inter",sans-serif;font-size:24pt;line-height:1.12;color:#0b3558;letter-spacing:-.015em;margin-top:8mm}
 .giris{font-size:12pt;line-height:1.5;color:#2a3f5c;margin-top:3.5mm}
 .ic{padding:9mm 16mm 0}
 .urunler{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm}
 .u{border:1px solid #c6d9ec;border-radius:3.5mm;padding:2mm 2mm 3mm;text-align:center;background:#fff}
-.u .r{height:38mm;display:flex;align-items:center;justify-content:center}.u img{max-height:100%;max-width:100%}
+.u .r{height:33mm;display:flex;align-items:center;justify-content:center}.u img{max-height:100%;max-width:100%}
 .u b{display:block;font-size:11pt;color:#0b3558;margin-top:1mm}.u span{font-size:9pt;color:#4a5f7a}
-.f{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;margin-top:8mm}
+.f{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5mm;margin-top:6mm}
 .f div{background:#e4eef8;border:1px solid #c6d9ec;border-radius:3.5mm;padding:5mm}
 .f b{display:block;font-size:11.5pt;color:#0b3558;margin-bottom:1.2mm}.f p{font-size:10pt;line-height:1.45;color:#2a3f5c}
-.sv{display:flex;gap:5mm;margin-top:8mm}
+.sv{display:flex;gap:5mm;margin-top:6mm}
 .sv .k{flex:1;display:flex;gap:4mm;align-items:center;min-width:0;border:1px solid #c6d9ec;border-radius:3.5mm;padding:3mm;background:#fff}
 .sv img{width:40mm;height:32mm;object-fit:contain;flex:none}.sv b{display:block;font-size:11.5pt;color:#0b3558}.sv p{font-size:9.8pt;line-height:1.4;color:#2a3f5c}
 .adim{display:flex;gap:3mm;margin-top:8mm}.adim div{flex:1;background:#fff;border:1px solid #c6d9ec;border-radius:3.5mm;padding:4mm 3mm;font-size:9.8pt;color:#2a3f5c}
-.adim b{display:block;color:#1f5f96;font-size:10.5pt;margin-bottom:1mm}
-.cagri{position:absolute;left:16mm;right:16mm;bottom:20mm;background:#0b3558;color:#eaf2fa;border-radius:4mm;padding:6mm 7mm;display:flex;justify-content:space-between;gap:6mm;align-items:center}
+.adim b{display:block;color:#29537B;font-size:10.5pt;margin-bottom:1mm}
+.cagri{position:absolute;left:16mm;right:16mm;bottom:20mm;background:#0b3558;border-left:3mm solid #D9622B;color:#eaf2fa;border-radius:4mm;padding:6mm 7mm;display:flex;justify-content:space-between;gap:6mm;align-items:center}
+.cip{display:inline-block;background:#D9622B;color:#fff;font-size:7.5pt;font-weight:800;letter-spacing:.1em;border-radius:99px;padding:.6mm 2.5mm;margin-bottom:2mm}
 .cagri b{font-size:13pt;display:block;color:#fff;line-height:1.3}.cagri p{font-size:9pt;color:#cfe0f1;margin-top:1.5mm}
 .cagri .il{text-align:right;font-size:10pt;line-height:1.6;white-space:nowrap;color:#fff}
 .alt{position:absolute;left:16mm;right:16mm;bottom:9mm;font-size:7.5pt;color:#4a5f7a;display:flex;justify-content:space-between;border-top:1px solid #c6d9ec;padding-top:2mm}"""
 
 
 def sayfa(ad: str, s: dict) -> str:
-    urunler = "".join(f'<div class="u"><div class="r"><img src="{URUN[k][0]}" alt=""></div><b>{e(URUN[k][1])}</b>'
+    def gorsel(k):
+        g = GORSEL.get(ad, {}).get(k)
+        return f"../gorseller/{g}.jpg" if g else URUN[k][0]
+    urunler = "".join(f'<div class="u"><div class="r"><img src="{gorsel(k)}" alt=""></div><b>{e(URUN[k][1])}</b>'
                       f'<span>{e(URUN[k][2])}</span></div>' for k in s["urunler"])
     faydalar = "".join(f"<div><b>{e(a)}</b><p>{e(b)}</p></div>" for a, b in s["faydalar"])
     if s["servis"]:
@@ -116,10 +128,10 @@ def sayfa(ad: str, s: dict) -> str:
             f'<div class="bas"><div class="ust"><img src="../varliklar/hijyenlab_logo.svg" alt="HijyenLab"><div class="et">{e(s["etiket"])}</div></div>'
             f'<h1>{e(s["baslik"])}</h1><p class="giris">{e(s["giris"])}</p></div>'
             f'<div class="ic"><div class="urunler">{urunler}</div><div class="f">{faydalar}</div>{orta}</div>'
-            f'<div class="cagri"><div><b>{e(cagri)}</b><p>Kumaşı elinizde görün: ücretsiz numune, kargo bizden.</p></div>'
+            f'<div class="cagri"><div><span class="cip">ÜCRETSİZ</span><b>{e(cagri)}</b><p>Kumaşı elinizde görün: ücretsiz numune, kargo bizden.</p></div>'
             f'<div class="il">0 (542) 569 98 69<br>info@hijyenlab.com<br>hijyenlab.com</div></div>'
             f'<div class="alt"><span>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.</span>'
-            f'<span>Görsellerdeki “LOGONUZ” yerine sizin logonuz basılır. Fiyat için size özel teklif hazırlanır.</span></div>'
+            f'<span>Marka adları örnek tasarımdır; sizin logonuz basılır. Fiyat için size özel teklif hazırlanır.</span></div>'
             f"</section></body></html>")
 
 

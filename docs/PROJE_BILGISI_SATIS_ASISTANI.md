@@ -193,6 +193,9 @@ Bir müşteri şu durumlardan birinde olur:
 - [x] **Satış raporu:** panelde Rapor sayfası (7 gün / 30 gün / tüm zamanlar): tanıtım → ulaşıldı → cevap → teklif → kabul hunisi, oranlar, açık ve kabul edilen teklif tutarı, sektöre göre tablo. 49/49 test.
 - [x] **Mevcut müşteri listesi istenmiyor:** Asistan yalnız yeni müşteriye odaklı; kara liste isteğe bağlı.
 
+- [x] **Tasarım yenilemesi (25.11.2026):** "LOGONUZ" yerine uydurma örnek marka tasarımları (Ocakbaşı Usta, Köşe Dürüm, Salon Mira, Liman Balık, Mavi Koy, Yeşil Bahçe; `araclar/ornek_markalar.py`, en fazla 2 düz renk, "örnek tasarım" notuyla). Ana slogan "Masada kalan son şey: logonuz." (ikincil: "İşletmenizin markası, müşterinizin her temasında."). Tek sıcak vurgu rengi turuncu #D9622B yalnız çağrı/ücretsiz kutularında; ikincil mavi logo rengi #29537B. Kumaş cümlesi "Kağıt peçete değil: kumaş gibi yumuşak, tek tek paketli." Tanıtım mailinin ilk cümlesinde işletme adı. Panel lacivert. Profil 2026-11-25m.
+- **Isıtıcı fotoğraf kuralı:** Kapağında "HEALTH SUPER KANG" etiketi görünen veya içinde mavi UV ışığı yanan tedarikçi fotoğrafları kullanılmaz (sağlık/UV iddiası ve yabancı marka). Katalogdaki fotoğraf uygun.
+
 ### Bekleyenler
 
 - [x] **BM15 (25×25) boş paketi**: Matbah 25×25 teklifindeki gerçek paketten; Hakan Bey'in onayıyla katalog ve tekliflerde kullanılıyor. Bıçak izi PDF'i gerekmiyor (baskı yerleşimi her işte grafik onayıyla kesinleşir).

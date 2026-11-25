@@ -3,7 +3,7 @@
 <h2>Telefon / WhatsApp ({{ satirlar|length }})</h2>
 <p class="soluk">E-postası olmayan, telefonu olan işletmeler. "WhatsApp'ta aç" mesajı hazır olarak WhatsApp'ta açar; göndermeyi siz yaparsınız.
 Esnafa ticari ileti için İYS yükümlülüğünü mali müşavirinize teyit ettirin.</p>
-<p>{% for kod, ad in durumlar.items() %}<a class="etiket" href="{{ url_for('telefon', durum=kod) }}" {% if durum == kod %}style="background:#0f766e;color:#fff"{% endif %}>{{ ad }}</a> {% endfor %}
+<p>{% for kod, ad in durumlar.items() %}<a class="etiket" href="{{ url_for('telefon', durum=kod) }}" {% if durum == kod %}style="background:#1f5f96;color:#fff"{% endif %}>{{ ad }}</a> {% endfor %}
   <a class="soluk" href="{{ url_for('telefon') }}">(tümü)</a></p>
 {% for x in satirlar %}{% set m = x.m %}
 <div class="kart">

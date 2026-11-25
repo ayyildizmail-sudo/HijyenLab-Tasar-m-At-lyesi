@@ -7,7 +7,7 @@
   @page { size: A4; margin: 0; }
   /* Renkler fiyat teklifi şablonuyla aynı: zemin #cfe0f1, çizgi #1f5f96, yazı #0b3558 */
   :root {
-    --lacivert: #0b3558; --mavi: #1f5f96; --zemin: #cfe0f1; --acik: #e4eef8; --cizgi: #c6d9ec;
+    --lacivert: #0b3558; --mavi: #29537B; --vurgu: #D9622B; --vurgu-acik: #FCEDE4; --zemin: #cfe0f1; --acik: #e4eef8; --cizgi: #c6d9ec;
     --yazi: #13294b; --soluk: #4a5f7a;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -125,6 +125,10 @@
   .adim4 .no { width:8mm; height:8mm; border-radius:50%; background:var(--mavi); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; margin-bottom:2mm; }
   .adim4 b { display:block; color:var(--lacivert); font-size:9.5pt; margin-bottom:1mm; }
   table.oneri td { font-size: 9pt; padding: 1.8mm 3mm; } table.oneri td:first-child { font-weight:700; color:var(--lacivert); width:58mm; }
+  .vurgu-kutu { background: var(--vurgu-acik); border-left: 2.5mm solid var(--vurgu); border-radius: 2mm; padding: 2.5mm 4mm; font-size: 9pt; color: var(--yazi); }
+  .vurgu-kutu b { color: #A8441A; }
+  .vurgu-adim .no { background: var(--vurgu) !important; }
+  .kapak .serit span { flex: none; }
 </style>
 </head>
 <body>
@@ -133,26 +137,26 @@
 <section class="sayfa kapak">
   <div class="bas">
     <img class="logo" src="varliklar/hijyenlab_logo.svg" alt="HijyenLab">
-    <div class="slogan">İşletmenizin markası, müşterinizin her temasında.</div>
-    <div class="alt-baslik">Tek tek paketli, logolu ıslak havlu, ıslak mendil ve Oshibori. Restoran, otel, kafe ve hizmet işletmelerine özel üretim.</div>
+    <div class="slogan">Masada kalan son şey: logonuz.</div>
+    <div class="alt-baslik"><b style="color:var(--lacivert)">İşletmenizin markası, müşterinizin her temasında.</b> Tek tek paketli, logolu ıslak havlu, ıslak mendil ve Oshibori; restoran, otel, kafe ve hizmet işletmelerine özel üretim.</div>
   </div>
   <div class="urunler">
-    <div class="hucre"><div class="resim"><img src="gorseller/rulo_25x30_logolu.jpg" alt="Rulo ıslak havlu"></div>
+    <div class="hucre"><div class="resim"><img src="gorseller/ornek_rulo_ocakbasi_beyaz.jpg" alt="Rulo ıslak havlu, örnek tasarım"></div>
       <div class="ad">Rulo ıslak havlu</div><div class="olc">25×25 · 25×30 · 30×30 · 30×35 cm</div><div class="kms">Nonwoven, çapraz doku · paket 17 cm</div></div>
-    <div class="hucre"><div class="resim"><img src="gorseller/katli_20x25_logolu.jpg" alt="Katlı ıslak havlu"></div>
+    <div class="hucre"><div class="resim"><img src="gorseller/ornek_katli_salon.jpg" alt="Katlı ıslak havlu, örnek tasarım"></div>
       <div class="ad">Katlı ıslak havlu</div><div class="olc">20×25 cm</div><div class="kms">Nonwoven, çapraz doku · paket 14 cm</div></div>
-    <div class="hucre"><div class="resim"><img src="gorseller/mendil_7x12_logolu.jpg" alt="Islak mendil"></div>
+    <div class="hucre"><div class="resim"><img src="gorseller/ornek_mendil_kose.jpg" alt="Islak mendil, örnek tasarım"></div>
       <div class="ad">Islak mendil</div><div class="olc">Paket 7×12 cm · açılınca 16×18 cm</div><div class="kms">Nonwoven · 4 koku seçeneği</div></div>
-    <div class="hucre"><div class="resim"><img src="gorseller/rulo_25x30_siyah_zemin.jpg" alt="Renkli zeminli ambalaj örneği"></div>
+    <div class="hucre"><div class="resim"><img src="gorseller/ornek_katli_liman.jpg" alt="Renkli zeminli ambalaj, örnek tasarım"></div>
       <div class="ad">Renkli zemin de olur</div><div class="olc">Bütün ürünlerde beyaz veya renkli zemin</div><div class="kms">Rulo, katlı, mendil ve Oshibori · logolu ya da baskısız</div></div>
   </div>
-  <div class="serit"><span>Kurumsal Ürün Kataloğu</span><span>hijyenlab.com</span></div>
+  <div class="serit"><span>Kurumsal Ürün Kataloğu</span><span style="font-weight:400;font-size:8pt">Görsellerdeki marka adları örnek tasarımdır.</span><span>hijyenlab.com</span></div>
 </section>
 
 <!-- 2. ÜRÜNLER VE KUMAŞ -->
 <section class="sayfa">
   <div class="ust-etiket">Ürünler ve kumaş</div>
-  <h2>Kağıt peçete değil, kumaş gibi yumuşak ıslak havlu</h2>
+  <h2>Kağıt peçete değil: kumaş gibi yumuşak, tek tek paketli.</h2>
   <table class="urun-tablo">
     <tr><th>Ürün</th><th>Açılmış ölçü</th><th>Kumaş</th><th>Ambalaj</th><th>Koli</th><th>En az sipariş<br><span style="font-weight:400">beyaz / renkli</span></th></tr>
     <tr><td><b>Rulo ıslak havlu</b><span class="t">BM12 · en çok tercih edilen</span></td><td>25×30 cm</td><td>Nonwoven, çapraz doku</td><td>Tekli OPP, 16×17 cm</td><td>400</td><td>5.200 / 10.000</td></tr>
@@ -177,8 +181,7 @@
     <div class="kart" style="padding:4mm 5mm">
       <h3 style="font-size:10.5pt">Mendil kokuları</h3>
       <span class="etiket">Flambau (standart)</span><span class="etiket">Limon</span><span class="etiket">Bodrum Mandalinası</span><span class="etiket">Yeşil Çay</span>
-      <h3 style="font-size:10.5pt;margin-top:3mm">Ücretsiz numune</h3>
-      <p class="kucuk" style="margin:0">Kumaşı elinizde görün; numune ücretsiz, kargo bizden.</p>
+      <div class="vurgu-kutu" style="margin-top:3mm"><b>Ücretsiz numune</b> Kumaşı elinizde görün; kargo bizden.</div>
     </div>
   </div>
   <div class="alt"><span>Fiyatlar adet, zemin ve baskı rengine göre değişir; size özel teklif hazırlanır. Kumaş görseli çizimdir.</span><span>2</span></div>
@@ -229,8 +232,8 @@
   <h2>Boş ambalajdan markalı ürüne</h2>
   <div class="karsilastir">
     <figure><img src="gorseller/rulo_25x30_bos.jpg" alt=""><figcaption>Baskısız</figcaption></figure>
-    <figure><img src="gorseller/rulo_25x30_logolu.jpg" alt=""><figcaption>Beyaz zemin, logonuzla</figcaption></figure>
-    <figure><img src="gorseller/rulo_25x30_siyah_zemin.jpg" alt=""><figcaption>Renkli zemin, logonuzla</figcaption></figure>
+    <figure><img src="gorseller/ornek_rulo_ocakbasi_beyaz.jpg" alt=""><figcaption>Beyaz zemin, logonuzla</figcaption></figure>
+    <figure><img src="gorseller/ornek_rulo_ocakbasi_kirmizi.jpg" alt=""><figcaption>Renkli zemin, markanızın renginde</figcaption></figure>
   </div>
   <div class="izgara2" style="margin-top:4mm">
     <div>
@@ -252,8 +255,8 @@
   </div>
   <h3 style="margin-top:4mm">Sipariş 4 adımda</h3>
   <div class="adim4">
-    <div class="k"><div class="no">1</div><b>Logonuzu gönderin</b>Mail veya WhatsApp ile; ürün ve adedi birlikte belirleyelim.</div>
-    <div class="k"><div class="no">2</div><b>Ücretsiz görsel</b>Ürününüzün logonuzla görselini hazırlarız, onaylarsınız.</div>
+    <div class="k vurgu-adim"><div class="no">1</div><b>Logonuzu gönderin</b>Mail veya WhatsApp ile; ürün ve adedi birlikte belirleyelim.</div>
+    <div class="k vurgu-adim"><div class="no">2</div><b>Ücretsiz görsel</b>Ürününüzün logonuzla görselini hazırlarız, onaylarsınız.</div>
     <div class="k"><div class="no">3</div><b>%50 ön ödeme</b>Fatura kesilir; klişe ve üretim başlar.</div>
     <div class="k"><div class="no">4</div><b>Fotoğraf ve sevkiyat</b>Ürün fotoğrafını paylaşırız; kalan %50 ile sevk edilir.</div>
   </div>
@@ -271,7 +274,7 @@
     <figure><img src="gorseller/katli_20x25_logolu.jpg" alt=""><figcaption>Ön yüz</figcaption></figure>
     <figure><img src="gorseller/katli_20x25_arka_iletisim.jpg" alt="Arka yüzde web, telefon ve Instagram örneği"><figcaption>Arka yüz: web, telefon, Instagram</figcaption></figure>
   </div>
-  <div class="alt"><span>Görsellerdeki "LOGONUZ" yerine sizin logonuz basılır. Nihai görünüm grafik onayıyla kesinleşir.</span><span>4</span></div>
+  <div class="alt"><span>Marka adları örnek tasarımdır; "LOGONUZ" yerine sizin logonuz basılır. Nihai görünüm grafik onayıyla kesinleşir.</span><span>4</span></div>
 </section>
 
 <!-- 5. ARKA KAPAK -->
@@ -279,6 +282,7 @@
   <div class="bas" style="padding:18mm 18mm 12mm">
     <img class="logo" src="varliklar/hijyenlab_logo.svg" alt="HijyenLab">
     <h2 style="margin-top:8mm">Logonuzu gönderin,<br>ürününüzü size gösterelim.</h2>
+    <div class="vurgu-kutu" style="margin-top:5mm;font-size:11pt"><b>Ücretsiz:</b> logolu ürün görseli ve kumaş numunesi, kargo bizden.</div>
     <p style="font-size:11.5pt;color:#2a3f5c;max-width:155mm">Logonuzu ve ilgilendiğiniz ürünü iletin; ambalaj görselinizi ve size özel teklifinizi hazırlayalım.</p>
   </div>
   <div class="iletisim" style="padding-top:8mm">
