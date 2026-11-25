@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-25j
+profil_surumu: 2026-11-25k
 fiyat_paylasilabilir: hayir
 ---
 
@@ -27,7 +27,7 @@ logosu ve renkleriyle hazırlar ve düzenli olarak tedarik eder.
 {{URUN_TABLOSU}}
 
 - Ürün ölçüsü iç kumaş ölçüsüdür. 30×30 ve 30×35 rulo, 25×30 ile aynı ambalajı (OPP 16×17 cm) kullanır; yalnız iç kumaş farklıdır.
-- Rulo ürünler (25×25, 25×30, 30×30, 30×35) ve 20×25 katlı ıslak havlu aynı kumaştan yapılır: noktalı (delikli) dokulu nonwoven.
+- Rulo ürünler (25×25, 25×30, 30×30, 30×35) ve 20×25 katlı ıslak havlu aynı kumaştan yapılır: nonwoven, çapraz doku. Kumaş müşteriye "nonwoven, çapraz doku" diye tarif edilir; "noktalı" veya "delikli" denmez.
 - Rulo ürünler: tekli ambalaj, 50 mikron OPP.
 - 20×25 katlı ıslak havlu: tekli ambalaj, 50 mikron OPP (14×19 cm).
 - 7×12 ıslak mendil: nonwoven kumaş; tek tek paketli, triplex ambalaj. Paket 7×12 cm, açılınca mendil 16×18 cm.
