@@ -498,6 +498,30 @@ function renderClean(img,m,surface,pal,minLong=2000,opaqueGround=false){
  return {data:out,w:W,h:H,box:[x0,y0,x1+1,y1+1]};}
 // ---------- tam akış ----------
 // classify: (tensorlar) → Promise<P(düz)[]> (isteğe bağlı yerel model). Verilmezse yalnız geometrik kanıt kullanılır.
+// Kavisli yüzey (şişkin poşet, kıvrık kâğıt): her yazı satırının taban çizgisi ikinci dereceden eğriyle bulunur ve satırlar
+// dikey kaydırmayla dümdüz edilir. Satırlar arası kaydırma doğrusal geçişle hesaplanır. Düzleşme ölçülmezse değişiklik yapılmaz.
+function baselineCurves(m,w,h){const {comps}=components(m,w,h),out=[];
+ for(const l of glyphLines(m,w,h)){if(l.count<4)continue;const [x0,y0,x1,y1]=l.box,cs=comps.filter(c=>c.box[0]>=x0&&c.box[2]<=x1&&c.box[1]>=y0&&c.box[3]<=y1&&c.box[3]-c.box[1]>=l.height*.55);if(cs.length<4)continue;
+  const hs=cs.map(c=>c.box[3]-c.box[1]).sort((a,b)=>a-b),med=hs[hs.length>>1],P=cs.filter(c=>c.box[3]-c.box[1]<=med*1.25).map(c=>[(c.box[0]+c.box[2])/2,c.box[3]]);if(P.length<4)continue;
+  const fit=Q=>{const cx=(x0+x1)/2,sx=Math.max(1,(x1-x0)/2);let S=[0,0,0,0,0],T=[0,0,0];for(const [x,y] of Q){const u=(x-cx)/sx,v=[1,u,u*u];for(let i=0;i<3;i++){T[i]+=v[i]*y;}S[0]+=1;S[1]+=u;S[2]+=u*u;S[3]+=u*u*u;S[4]+=u*u*u*u;}
+   const A=[[S[0],S[1],S[2]],[S[1],S[2],S[3]],[S[2],S[3],S[4]]],b=T.slice();for(let i=0;i<3;i++){let p=i;for(let r=i+1;r<3;r++)if(Math.abs(A[r][i])>Math.abs(A[p][i]))p=r;[A[i],A[p]]=[A[p],A[i]];[b[i],b[p]]=[b[p],b[i]];if(Math.abs(A[i][i])<1e-9)return null;for(let r=i+1;r<3;r++){const f=A[r][i]/A[i][i];for(let c=i;c<3;c++)A[r][c]-=f*A[i][c];b[r]-=f*b[i];}}
+   const c=[0,0,0];for(let i=2;i>=0;i--){let t=b[i];for(let j=i+1;j<3;j++)t-=A[i][j]*c[j];c[i]=t/A[i][i];}return {c,cx,sx,at:x=>{const u=Math.max(-1.15,Math.min(1.15,(x-cx)/sx));return c[0]+c[1]*u+c[2]*u*u;}};};
+  let f=fit(P);if(!f)continue;const res=P.map(([x,y])=>Math.abs(y-f.at(x))),tol=Math.max(1.5,res.slice().sort((a,b)=>a-b)[Math.floor(res.length*.7)]*1.5),inl=P.filter((p,i)=>res[i]<=tol);if(inl.length>=4)f=fit(inl)||f;
+  // eğri satıra temiz oturmalı: noktaların çoğu eğriye yakın (yan yana iki ayrı satır birleşmişse oturmaz → dokunulmaz)
+  const r2=P.map(([x,y])=>Math.abs(y-f.at(x))),good=r2.filter(v=>v<=Math.max(1.5,l.height*.06)).length/P.length;if(good<.85)continue;
+  out.push({box:l.box,height:l.height,curve:f,target:f.at(f.cx)});}
+ return out.sort((a,b)=>a.target-b.target);}
+function dewarpLines(img,mask){const curves=baselineCurves(mask.m,mask.w,mask.h);if(curves.length<1)return null;
+ // eğrilik/eğim yeterince büyük mü (satır ucu ile ortası arasında > satır yüksekliğinin %4'ü)
+ const dev=c=>Math.max(Math.abs(c.curve.at(c.box[0])-c.target),Math.abs(c.curve.at(c.box[2])-c.target))/c.height;if(!curves.some(c=>dev(c)>.04))return null;
+ const {w,h}=img,out=new Uint8ClampedArray(w*h*4),om=new Uint8Array(w*h),bg=[img.data[0],img.data[1],img.data[2]];
+ // her satırın düzeltmesi yalnız kendi yatay aralığında uygulanır (uçlarda yumuşak geçiş); yan sütundaki satırlar etkilenmez
+ for(let X=0;X<w;X++){const d=curves.map(c=>{const m=c.height*.6,out=X<c.box[0]?c.box[0]-X:X>c.box[2]?X-c.box[2]:0,wgt=Math.max(0,1-out/m);return (c.curve.at(X)-c.target)*wgt;}),T=curves.map(c=>c.target);
+  for(let Y=0;Y<h;Y++){let disp;if(Y<=T[0])disp=d[0];else if(Y>=T[T.length-1])disp=d[d.length-1];else{let k=0;while(k<T.length-2&&Y>T[k+1])k++;const t=(Y-T[k])/Math.max(1e-6,T[k+1]-T[k]);disp=d[k]*(1-t)+d[k+1]*t;}
+   const y=Y+disp,o=(Y*w+X)*4;if(y<0||y>h-1){out[o]=bg[0];out[o+1]=bg[1];out[o+2]=bg[2];out[o+3]=255;continue;}const iy=Math.min(h-2,Math.floor(y)),fy=y-iy;
+   for(let k=0;k<3;k++)out[o+k]=img.data[(iy*w+X)*4+k]*(1-fy)+img.data[((iy+1)*w+X)*4+k]*fy;out[o+3]=255;om[Y*w+X]=mask.m[Math.round(y)*w+X];}}
+ const after=baselineCurves(om,w,h),score=cs=>cs.reduce((a,c)=>a+dev(c),0)/Math.max(1,cs.length);if(!(score(after)<score(curves)*.9))return null;
+ return {img:{data:out,w,h},mask:{m:om,w,h}};}
 // Son görünümün yukarısı doğru mu? Yerel yön modeli (varsa) ya da taban çizgisi kanıtıyla; gerekirse 180° çevir.
 async function uprightView(v,classify){if(v.kind!=='frontal')return v;const flip={img:rotateRGBA(v.img,2),mask:rotateMask(v.mask.m,v.mask.w,v.mask.h,2),kind:v.kind+'+180'};
  const score=async c=>{const gl=glyphLines(c.mask.m,c.mask.w,c.mask.h).slice(0,6);if(!gl.length)return null;if(classify){const items=gl.map(l=>({...clsTensor(c.img,l.box),weight:l.count*l.height}));const P=await classify(items.map(i=>i.tensor));let s=0,w=0;P.forEach((p,i)=>{s+=p*items[i].weight;w+=items[i].weight;});return w?s/w:null;}return uprightEvidence(c.mask.m,c.mask.w,c.mask.h);};
@@ -533,7 +557,7 @@ async function extract(data,w,h,{classify=null,candidates=3,recognize=null,creat
  }
  const ok=tried.filter(t=>t.quality!=null).sort((a,b)=>b.quality-a.quality);if(!ok.length)return {ok:false,reason:'no-usable-surface',tried:tried.map(t=>t.reason)};
  {const {cand,rect,flat,mask,surface,q,source,inkFrac,quality}=ok[0];
-  globalThis.__frontal=null;const img0=rotateRGBA(flat,q),mm0=rotateMask(mask,rect.w,rect.h,q),mmA={...mm0,m:brandGroup(dropOutliers(mm0.m,mm0.w,mm0.h,inkContrast(img0,surface),img0),mm0.w,mm0.h)},view0=frontalChoose(img0,mmA),view=await uprightView(view0,classify),img=view.img,mm=view.mask,core=boxErode(mm.m,mm.w,mm.h,1);let coreN=0;for(const v of core)coreN+=v;const pal=palette(img,coreN>200?core:mm.m);// Koyu zemin üzerindeki açık baskı (tabela, neon): yüzey rengi de tasarımın parçasıdır; düz, tam kaplayan zeminle çizilir
+  globalThis.__frontal=null;const img0=rotateRGBA(flat,q),mm0=rotateMask(mask,rect.w,rect.h,q),mmA={...mm0,m:brandGroup(dropOutliers(mm0.m,mm0.w,mm0.h,inkContrast(img0,surface),img0),mm0.w,mm0.h)},view0=frontalChoose(img0,mmA),viewU=await uprightView(view0,classify),dw=dewarpLines(viewU.img,viewU.mask),view=dw?{...viewU,img:dw.img,mask:dw.mask}:viewU,img=view.img,mm=view.mask,core=boxErode(mm.m,mm.w,mm.h,1);let coreN=0;for(const v of core)coreN+=v;const pal=palette(img,coreN>200?core:mm.m);// Koyu zemin üzerindeki açık baskı (tabela, neon): yüzey rengi de tasarımın parçasıdır; düz, tam kaplayan zeminle çizilir
   const lumS=.3*surface[0]+.59*surface[1]+.11*surface[2],lumInk=pal.length?Math.max(...pal.map(p=>p[0]))*2.55:0,lightOnDark=lumS<110&&lumInk>lumS+40;
   const out=renderClean(img,mm.m,surface.map(Math.round),pal,2000,lightOnDark);if(!out)return {ok:false,reason:'empty'};
   // Yazıları okuyup temiz yazı tipiyle yeniden çiz (yerel metin tanıma modeli verilmişse)
