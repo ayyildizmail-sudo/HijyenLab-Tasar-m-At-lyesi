@@ -447,7 +447,7 @@ function palette(img,m,maxColors=4){const {data,w,h}=img,pts=[];for(let i=0;i<w*
  return best.cent;}
 function labToRgb([L,a,b]){let y=(L+16)/116,x=a/500+y,z=y-b/200;const f=t=>t**3>.008856?t**3:(t-16/116)/7.787;x=f(x)*.95047;y=f(y);z=f(z)*1.08883;let r=x*3.2406+y*-1.5372+z*-.4986,g=x*-.9689+y*1.8758+z*.0415,bb=x*.0557+y*-.204+z*1.057;const c=v=>Math.round(255*Math.max(0,Math.min(1,v>.0031308?1.055*v**(1/2.4)-.055:12.92*v)));return [c(r),c(g),c(bb)];}
 // Yumuşak alfa (mürekkep olasılığı) ile kenarları düzgün, düz renkli, şeffaf zeminli çıktı
-function renderClean(img,m,surface,pal,minLong=2000,opaqueGround=false){
+function renderClean(img,m,surface,pal,minLong=2000,opaqueGround=false,solid=null){
  let x0=img.w,y0=img.h,x1=0,y1=0;for(let y=0;y<img.h;y++)for(let x=0;x<img.w;x++)if(m[y*img.w+x]){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
  if(x1<x0)return null;const pad=Math.round(Math.max(x1-x0,y1-y0)*.03);x0=Math.max(0,x0-pad);y0=Math.max(0,y0-pad);x1=Math.min(img.w-1,x1+pad);y1=Math.min(img.h-1,y1+pad);
  const cw=x1-x0+1,ch=y1-y0+1,scale=Math.max(1,minLong/Math.max(cw,ch)),W=Math.round(cw*scale),H=Math.round(ch*scale),S=toLab(...surface),rgbPal=pal.map(labToRgb);
@@ -455,7 +455,7 @@ function renderClean(img,m,surface,pal,minLong=2000,opaqueGround=false){
  const ownD=new Float32Array((x1-x0+1)*(y1-y0+1)).fill(1e9),cS=new Float32Array((x1-x0+1)*(y1-y0+1)),near=boxDilate(closeMask(m,img.w,img.h,2),img.w,img.h,2),alpha=new Float32Array(cw*ch),label=new Uint8Array(cw*ch);
  for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){const i=(y+y0)*img.w+(x+x0),j=i*4;if(!near[i])continue;const c=toLab(img.data[j],img.data[j+1],img.data[j+2]),dS=d3(c,S);let b=0,bd=1e9;pal.forEach((p,k)=>{const d=d3(c,p);if(d<bd){bd=d;b=k;}});
   // renkli (ince altın çizgi gibi) mürekkepte daha erken tam opaklık: soluk ince çizgiler kopmasın
-  ownD[y*cw+x]=bd;cS[y*cw+x]=dS;const chroma=Math.hypot(pal[b][1],pal[b][2])>12,lo=chroma?8:12,span=Math.max(8,d3(pal[b],S)-lo)*(chroma?.65:1);alpha[y*cw+x]=Math.max(0,Math.min(1,(dS-lo)/span));label[y*cw+x]=b;}
+  ownD[y*cw+x]=bd;cS[y*cw+x]=dS;const chroma=Math.hypot(pal[b][1],pal[b][2])>12,lo=chroma?8:12,span=Math.max(8,d3(pal[b],S)-lo)*(chroma?.65:1);alpha[y*cw+x]=Math.max(0,Math.min(1,(dS-lo)/span));if(solid&&solid[i])alpha[y*cw+x]=Math.max(alpha[y*cw+x],.95);label[y*cw+x]=b;}
  // İnce soluk çizgiler (altıgen çerçevesi gibi): karşıtlığın enine yerel tepe yaptığı orta hat pikselleri güçlendirilir.
  // Kalın harflerin kenarı tepe değildir (karşıtlık içe doğru artar), bu yüzden harfler kalınlaşmaz.
  const ridge=new Uint8Array(cw*ch);
@@ -466,11 +466,11 @@ function renderClean(img,m,surface,pal,minLong=2000,opaqueGround=false){
  // Renk etiketi yalnız çekirdek (kenardan uzak) piksellerden alınır; kenar pikselleri en yakın çekirdeğin rengini alır.
  // Böylece koyu harflerin kenarında ikinci renkten (ör. altın) hale oluşmaz.
  {const core=new Uint8Array(cw*ch),q=new Int32Array(cw*ch);let head=0,tail=0;const lab2=new Int16Array(cw*ch).fill(-1);
-  for(let y=1;y<ch-1;y++)for(let x=1;x<cw-1;x++){const i=y*cw+x;if(alpha[i]<.85)continue;if(alpha[i-1]<.85||alpha[i+1]<.85||alpha[i-cw]<.85||alpha[i+cw]<.85)continue;const j=((y+y0)*img.w+(x+x0))*4,c=toLab(img.data[j],img.data[j+1],img.data[j+2]);let b=0,bd=1e9;pal.forEach((p,k)=>{const d=d3(c,p);if(d<bd){bd=d;b=k;}});lab2[i]=b;q[tail++]=i;}
+  for(let y=1;y<ch-1;y++)for(let x=1;x<cw-1;x++){const i=y*cw+x;if(alpha[i]<.85)continue;if(solid&&solid[(y+y0)*img.w+(x+x0)])continue;if(alpha[i-1]<.85||alpha[i+1]<.85||alpha[i-cw]<.85||alpha[i+cw]<.85)continue;const j=((y+y0)*img.w+(x+x0))*4,c=toLab(img.data[j],img.data[j+1],img.data[j+2]);let b=0,bd=1e9;pal.forEach((p,k)=>{const d=d3(c,p);if(d<bd){bd=d;b=k;}});lab2[i]=b;q[tail++]=i;}
   if(tail){while(head<tail){const i=q[head++],x=i%cw,y=(i/cw)|0;for(const n of [x>0?i-1:-1,x<cw-1?i+1:-1,y>0?i-cw:-1,y<ch-1?i+cw:-1])if(n>=0&&lab2[n]<0&&alpha[n]>0){lab2[n]=lab2[i];q[tail++]=n;}}// ince koyu çizgiler (ör. altıgen çerçevesi) kendi rengini korur: pikselin kendi rengi en koyu mürekkepse ve ona çok yakınsa.
   // Koyu harf kenarındaki karışık pikseller (açık renge benzeyen) yine çekirdekten renk alır; hale oluşmaz.
   const darkest=pal.reduce((b,p,k)=>p[0]<pal[b][0]?k:b,0);
-  for(let i=0;i<cw*ch;i++)if(lab2[i]>=0&&!(label[i]===darkest&&((ownD[i]<16&&alpha[i]>=.5)||ridge[i])))label[i]=lab2[i];}}
+  for(let i=0;i<cw*ch;i++)if(lab2[i]>=0&&(solid&&solid[((i/cw)|0)+y0]!==undefined&&solid[(((i/cw)|0)+y0)*img.w+(i%cw)+x0]||!(label[i]===darkest&&((ownD[i]<16&&alpha[i]>=.5)||ridge[i]))))label[i]=lab2[i];}}
  // Vektörleştirme (vector-trace.js varsa): her renk katmanı izlenip düz çizgi/eğriye çevrilir ve bu eğrilerden çizilir
  const VT=typeof module!=='undefined'&&module.exports?(()=>{try{return require('./vector-trace.js');}catch{return null;}})():root.VectorTrace;
  if(VT){try{const f=2,fw=cw*f,fh=ch*f,cubv=t=>{t=Math.abs(t);return t<1?1.5*t*t*t-2.5*t*t+1:t<2?-.5*t*t*t+2.5*t*t-4*t+2:0;};const layers=[];
@@ -559,7 +559,26 @@ async function extract(data,w,h,{classify=null,candidates=3,recognize=null,creat
  {const {cand,rect,flat,mask,surface,q,source,inkFrac,quality}=ok[0];
   globalThis.__frontal=null;const img0=rotateRGBA(flat,q),mm0=rotateMask(mask,rect.w,rect.h,q),mmA={...mm0,m:brandGroup(dropOutliers(mm0.m,mm0.w,mm0.h,inkContrast(img0,surface),img0),mm0.w,mm0.h)},view0=frontalChoose(img0,mmA),viewU=await uprightView(view0,classify),dw=dewarpLines(viewU.img,viewU.mask),view=dw?{...viewU,img:dw.img,mask:dw.mask}:viewU,img=view.img,mm=view.mask,core=boxErode(mm.m,mm.w,mm.h,1);let coreN=0;for(const v of core)coreN+=v;const pal=palette(img,coreN>200?core:mm.m);// Koyu zemin üzerindeki açık baskı (tabela, neon): yüzey rengi de tasarımın parçasıdır; düz, tam kaplayan zeminle çizilir
   const lumS=.3*surface[0]+.59*surface[1]+.11*surface[2],lumInk=pal.length?Math.max(...pal.map(p=>p[0]))*2.55:0,lightOnDark=lumS<110&&lumInk>lumS+40;
-  const out=renderClean(img,mm.m,surface.map(Math.round),pal,2000,lightOnDark);if(!out)return {ok:false,reason:'empty'};
+  // Parlama/aşınma onarımı: harf gövdelerindeki küçük delik ve çatlaklar kapatılır, harfe değmeyen ufak lekeler atılır
+  // Parlama/aşınma onarımı — yalnız yazı satırlarının içinde ve her satırın kendi harf boyuna göre:
+  // harf gövdesindeki ince çatlaklar kapatılır, harf içindeki küçük delikler doldurulur. Satır dışı (QR, simge, amblem) aynen kalır.
+  // Satır dışındaki uzun-ince/seyrek toz parçaları atılır.
+  const repair=(()=>{const G=glyphLines(mm.m,mm.w,mm.h),W2=mm.w,H2=mm.h,mask=mm.m.slice(),solid=new Uint8Array(W2*H2);if(!G.length)return {mask,solid:null};
+   for(const l of G){const [x0,y0,x1,y1]=l.box,pad=Math.round(l.height*.15),X0=Math.max(0,x0-pad),Y0=Math.max(0,y0-pad),X1=Math.min(W2,x1+pad),Y1=Math.min(H2,y1+pad),w2=X1-X0,h2=Y1-Y0;if(w2<4||h2<4)continue;
+    const sub=new Uint8Array(w2*h2);for(let y=0;y<h2;y++)for(let x=0;x<w2;x++)sub[y*w2+x]=mm.m[(y+Y0)*W2+x+X0];
+    if(l.height<Math.min(W2,H2)*.07)continue; // küçük yazılar onarılmaz (harf içi boşluklar kapanabilir)
+    const r=Math.max(1,Math.round(l.height*.02)),cl=closeMask(sub,w2,h2,r),inv=cl.map(v=>v?0:1),HC=components(inv,w2,h2),holeMax=(l.height*.07)**2;
+    for(let y=0;y<h2;y++)for(let x=0;x<w2;x++){const i=y*w2+x;let on=cl[i];if(!on){const c=HC.comps[HC.lab[i]];const b=c.box;if(c.n<=holeMax&&b[0]>0&&b[1]>0&&b[2]<w2&&b[3]<h2)on=1;}
+     // kapatma iki ayrı harfi birleştirmesin: yalnız orijinal mürekkebe çok yakın (r içinde) pikseller eklenir
+     // kapatmadan gelen piksel yalnız iki karşı yanında mürekkep varsa (çatlak) eklenir; harfin dış kenarı kalınlaşmaz
+     if(on&&!sub[i]&&cl[i]){const at=(xx,yy)=>xx>=0&&yy>=0&&xx<w2&&yy<h2&&sub[yy*w2+xx];let L=false,R=false,U=false,D=false;for(let k=1;k<=r+1;k++){L=L||at(x-k,y);R=R||at(x+k,y);U=U||at(x,y-k);D=D||at(x,y+k);}if(!((L&&R)||(U&&D)))on=0;}
+     if(on){mask[(y+Y0)*W2+x+X0]=1;if(!sub[i])solid[(y+Y0)*W2+x+X0]=1;}}} // yalnız onarılan (eklenen) pikseller zorla dolu; mevcut kenar yumuşaklığı korunur
+   const inLine=b=>G.some(l=>{const [x0,y0,x1,y1]=l.box,p=l.height*.12;return b[0]>=x0-p&&b[2]<=x1+p&&b[1]>=y0-p&&b[3]<=y1+p;});
+   const hs=G.map(l=>l.height).sort((a,b)=>a-b),Hm=hs[hs.length>>1],{lab,comps}=components(mask,W2,H2),drop=new Uint8Array(comps.length);
+   for(const c of comps){if(inLine(c.box))continue;const bw=c.box[2]-c.box[0],bh=c.box[3]-c.box[1];if(c.n<Hm*Hm*.04&&!(bw/Math.max(1,bh)<2.2&&bh/Math.max(1,bw)<2.6&&c.n/(bw*bh)>.5))drop[c.id]=1;}
+   for(let i=0;i<mask.length;i++)if(lab[i]>=0&&drop[lab[i]]){mask[i]=0;solid[i]=0;}
+   return {mask,solid};})();
+  const out=renderClean(img,repair.mask,surface.map(Math.round),pal,2000,lightOnDark,repair.solid);if(!out)return {ok:false,reason:'empty'};
   // Yazıları okuyup temiz yazı tipiyle yeniden çiz (yerel metin tanıma modeli verilmişse)
   let textRedraw=null;const TR=redrawText||(typeof root!=='undefined'&&root.TextRedraw);if(recognize&&createCanvas&&TR){try{textRedraw=await TR.redraw({img,mask:mm,out,palette:pal.map(labToRgb),surface,opaqueGround:lightOnDark,recognize,createCanvas});}catch(e){textRedraw={error:String(e&&e.message||e)};}}
   // Temizlenmiş logodaki harf oranı (kendiliğinden yerleştirme kararı için)
