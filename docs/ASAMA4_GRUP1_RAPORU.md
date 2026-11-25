@@ -194,3 +194,23 @@ Miz'de "B" harfi eksik; Sözenler'de kenarda hafif pürüz var.
 - **Miz:** "B" harfi eksik.
 - Sentetik ekran görüntüsü ve kartvizitlerde hâlâ çok sayıda yanlış var.
 - Gerçek iPhone testi yapılmadı.
+
+## Aşama 6 — Gerçek müşteri görselleri tek tek (25.11.2026)
+
+Kod `ozellik/urun-fotografi` dalında (son kayıt 47f1585). Canlıya alınmadı, dal birleştirilmedi.
+Dış yapay zeka yok: yazı tanıma tarayıcıda yerel PP-OCRv3 modeliyle, yazı tipleri pakette (açık lisanslı).
+
+Müşterinin onayladığı / kabul ettiği sonuçlar:
+- **Kars Polisevi:** Yazılar yerel tanımayla okunup Josefin Sans ile yeniden çizilir; Türkçe harfler geometriden; düzenli harf/kelime aralığı.
+- **Çatalca Park:** Birbirine değen küçük adres satırında Türkçe işaretler harf sütunlarından; çerçeveli harflerde parlama onarımı.
+- **CafeLife:** Beyaz filmde gerçek baskı renkleri; küçük kaynak yüksek çözünürlükte işlenir; renkli hale temizliği.
+- **Yeşiloğlu:** Gölgede renk düzeltmesi; yazı Sofia Sans ile yeniden çizildi (müşteri "bu şekliyle bırak" dedi).
+- **Cihangir:** Değişiklik yok (müşteri beğendi).
+- **Miz (neon):** Işıltı/lamba ayıklama; RESTAURANT ve BAR / LOUNGE düz taban çizgisinde yeniden çizilir (müşteri "fena değil").
+- **Şerefe:** Önceden onaylanmış yeniden çizim (serefe-reviewed-redraw.png) önizleme sitesinden geri alındı; kayıttaki SHA ile aynı (müşteri "çok güzel").
+- **MEA:** Teknik çizimdeki ek yazı blokları simgeleriyle korunur; ince ayırıcı çizgiler eksik (müşteri "fena değil").
+- **Muhtar:** Müşterinin kırmızı kalem işaretleri (çarpı, üstü çizili) çıkarılacak kısım olarak yorumlanır; yalnız "Muhtar" kalır.
+- **HijyenLab logosu:** Vektörel asıl dosyadan; başlık, teklif görseli, sekme simgesi, yönetim paneli.
+
+Testler: product-photo 7/7. Depodaki 24 başarısız test bu çalışmadan önce de başarısızdı (ortak atada aynı sonuç).
+Açık: Sözenler kartvizitinde baskı yüzeyi bulunamıyor.
