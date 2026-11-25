@@ -159,7 +159,13 @@ function cleanInk(m,w,h){
  if(cx1>cx0)for(const c of comps)if(keep[c.id]){const [x0,y0,x1,y1]=c.box,inBand=x0<band||y0<band||x1>w-band||y1>h-band;if(!inBand)continue;const gap=Math.max(cx0-x1,x0-cx1,cy0-y1,y0-cy1);const tiny=Math.max(x1-x0,y1-y0)<Math.min(w,h)*.04||Math.min(x1-x0,y1-y0)<Math.min(w,h)*.02;if(gap>Math.min(w,h)*.02&&tiny)keep[c.id]=0;}
  // Esaslı parçaların kutusu (kenar bandı hariç); dışında kalan küçük parçalar doku/üretici yazısıdır
  let bx0=w,by0=h,bx1=0,by1=0;const big=area*.0005;for(const c of comps)if(keep[c.id]&&c.n>=big){const [x0,y0,x1,y1]=c.box;if(x0<band&&x1<band*2||y0<band&&y1<band*2||x1>w-band&&x0>w-band*2||y1>h-band&&y0>h-band*2)continue;bx0=Math.min(bx0,x0);by0=Math.min(by0,y0);bx1=Math.max(bx1,x1);by1=Math.max(by1,y1);}
- if(bx1>bx0){const mg=Math.round(Math.min(w,h)*.03);for(const c of comps)if(keep[c.id]&&c.n<big){const [x0,y0,x1,y1]=c.box;if(x1<bx0-mg||x0>bx1+mg||y1<by0-mg||y0>by1+mg)keep[c.id]=0;}}
+ // kutu dışındaki küçük parçalar birbirine yakınsa küme olur; kümenin toplam mürekkebi esaslıysa ve ana içeriğe yakınsa
+ // (müşterinin ek yazı bloğu: slogan, ikonlu açıklama) korunur, dağınık benekler (doku) atılır
+ const keepCluster=new Set();if(bx1>bx0){const km=new Uint8Array(w*h);for(let i=0;i<w*h;i++)if(lab[i]>=0&&keep[lab[i]]&&comps[lab[i]].n<big)km[i]=1;
+  const R=Math.max(2,Math.round(Math.min(w,h)*.012)),G=components(boxDilate(km,w,h,R),w,h),mass=new Map(),cnt=new Map();
+  for(const c of comps)if(keep[c.id]&&c.n<big){const g=G.lab[c.box[1]*w+c.box[0]]??-1,gg=g>=0?g:G.lab[((c.box[1]+c.box[3])>>1)*w+((c.box[0]+c.box[2])>>1)];if(gg<0)continue;c._g=gg;mass.set(gg,(mass.get(gg)||0)+c.n);cnt.set(gg,(cnt.get(gg)||0)+1);}
+  const near=Math.min(w,h)*.2;for(const [g,ms] of mass){const b=G.comps[g].box,gap=Math.max(bx0-b[2],b[0]-bx1,by0-b[3],b[1]-by1,0);if(ms>=big*1.5&&cnt.get(g)>=4&&gap<=near)keepCluster.add(g);}}
+ if(bx1>bx0){const mg=Math.round(Math.min(w,h)*.03);for(const c of comps)if(keep[c.id]&&c.n<big){const [x0,y0,x1,y1]=c.box;if((x1<bx0-mg||x0>bx1+mg||y1<by0-mg||y0>by1+mg)&&!keepCluster.has(c._g))keep[c.id]=0;}}
  // Kenara yapışık doku kümesi (paket dikişi, kırışık parlama): kenarın %15'i içinde ve yalnız çok küçük beneklerden oluşur
  {const kept=new Uint8Array(w*h);for(let i=0;i<w*h;i++)if(lab[i]>=0&&keep[lab[i]])kept[i]=1;const R=Math.max(2,Math.round(Math.min(w,h)*.025)),groups=components(boxDilate(kept,w,h,R),w,h);
   const sizes=comps.filter(c=>keep[c.id]).map(c=>c.n).sort((a,b)=>a-b),med=sizes.length?sizes[sizes.length>>1]:0;const members=new Map();
@@ -255,6 +261,11 @@ function brandGroup(m,w,h){
   if(!added)break;for(const c of comps){if(keep[c.id]||c.n<6)continue;const cb=c.box,inside=cb[0]>=box[0]&&cb[1]>=box[1]&&cb[2]<=box[2]&&cb[3]<=box[3],big=Math.max(cb[2]-cb[0],cb[3]-cb[1])>=H*.5;if(inside||(big&&touches(box,cb,H*.6))||touches(box,cb,H*.15))keep[c.id]=1;}}
  // Ek yazı satırları (adres, telefon...): yalnız kendi kutusundaki harf parçaları eklenir; büyük lekeler çekilmez
  for(const l of extra){const [x0,y0,x1,y1]=l.box,pad=l.height*.35;for(const c of comps){if(keep[c.id])continue;const b=c.box;if(b[0]>=x0-pad&&b[2]<=x1+pad&&b[1]>=y0-pad&&b[3]<=y1+pad&&(b[3]-b[1])<=l.height*1.6)keep[c.id]=1;}}
+ // Ek yazı blokları: yan yana/alt alta duran ek satırlar bir blok olur; bloğun içindeki ve hemen yanındaki simge, ayırıcı çizgi gibi parçalar da eklenir
+ {const ex=extra.filter(l=>comps.some(c=>keep[c.id]&&c.box[0]>=l.box[0]-2&&c.box[2]<=l.box[2]+2&&c.box[1]>=l.box[1]-2&&c.box[3]<=l.box[3]+2));const blocks=[];
+  for(const l of ex){const b=blocks.find(B=>{const lh=l.height,vg=Math.max(B.box[1]-l.box[3],l.box[1]-B.box[3]),hg=Math.max(B.box[0]-l.box[2],l.box[0]-B.box[2]);return vg<=lh*1.2&&hg<=lh*3;});
+   if(b){b.box=[Math.min(b.box[0],l.box[0]),Math.min(b.box[1],l.box[1]),Math.max(b.box[2],l.box[2]),Math.max(b.box[3],l.box[3])];b.lh=Math.max(b.lh,l.height);}else blocks.push({box:l.box.slice(),lh:l.height});}
+  for(const B of blocks){const px=B.lh*2.6,py=B.lh*1.2,bh=B.box[3]-B.box[1];for(const c of comps){if(keep[c.id]||c.n<6)continue;const b=c.box;if(b[0]>=B.box[0]-px&&b[2]<=B.box[2]+px&&b[1]>=B.box[1]-py&&b[3]<=B.box[3]+py&&(b[3]-b[1])<=Math.max(bh*1.3+2,B.lh*2.6)&&(b[2]-b[0])<=Math.max(B.lh*2.5,(B.box[2]-B.box[0])*.5))keep[c.id]=1;}}}
  const out=new Uint8Array(w*h);for(let i=0;i<w*h;i++)if(lab[i]>=0&&keep[lab[i]])out[i]=1;return out;}
 // Eğiklik: harf satırlarının taban çizgisi açısı (harf alt noktalarına dayanıklı doğru oturtma, satır ağırlıklı).
 // Logo bu açının tersine çevrilir; yazı karşıdan bakılıyormuş gibi yatay olur.
@@ -677,7 +688,8 @@ async function extract(data,w,h,{classify=null,candidates=3,recognize=null,creat
   const showRgb=(()=>{const sl=.3*surface[0]+.59*surface[1]+.11*surface[2];const rg=Math.max(...surface)-Math.min(...surface),cool=surface[2]>=surface[0]&&surface[2]>=surface[1];if(lightOnDark||sl<140||rg>(cool?55:35))return null; /* gölgedeki beyaz film mavimsi görünür */const k=10;
    return pal.map(labToRgb).map(c=>c.map((v,q)=>Math.max(0,Math.min(255,Math.round((v-k)/Math.max(30,surface[q]-k)*255)))));})();
   const out=renderClean(img,repair.mask,surface.map(Math.round),pal,2000,lightOnDark,repair.solid,showRgb);if(!out)return {ok:false,reason:'empty'};
-  const outlineFixed=lightOnDark?removeGlow(out,pal.map(labToRgb),surface.map(Math.round)):restoreOutline(out,showRgb||pal.map(labToRgb));
+  const veryDark=.3*surface[0]+.59*surface[1]+.11*surface[2]<70; // gerçek koyu tabela/neon (gri ambalaj zemini değil)
+  const outlineFixed=lightOnDark?(veryDark?removeGlow(out,pal.map(labToRgb),surface.map(Math.round)):0):restoreOutline(out,showRgb||pal.map(labToRgb));
   // Yazıları okuyup temiz yazı tipiyle yeniden çiz (yerel metin tanıma modeli verilmişse)
   let textRedraw=null;const TR=redrawText||(typeof root!=='undefined'&&root.TextRedraw);if(recognize&&createCanvas&&TR){try{const rd=(()=>{if(!lightOnDark||pal.length<2)return {m:repair.mask,pal:pal.map(labToRgb)};
    // neon: ışıltı değil parlak tüp çizgisi esas alınır (tek renk, ince çizgi); satırlar ortak taban çizgisine oturtulur
@@ -687,13 +699,13 @@ async function extract(data,w,h,{classify=null,candidates=3,recognize=null,creat
   const neonFonts=lightOnDark&&outlineFixed&&TR.FONTS?TR.FONTS.filter(f=>/quicksand|comfortaa|varela-round|m-plus-rounded/.test(f.family)&&f.weight<=500):null; // neon: yuvarlak, tek çizgili yazı tipleri
   textRedraw=await TR.redraw({...(neonFonts&&neonFonts.length?{fonts:neonFonts,relaxed:true}:{}),img,mask:{m:rd.m,w:mm.w,h:mm.h},out,palette:rd.pal,drawPalette:lightOnDark?null:showRgb,surface,opaqueGround:lightOnDark,recognize,createCanvas});}catch(e){textRedraw={error:String(e&&e.message||e)};}}
   // koyu zemin: ışıltı/lamba ayıklandıktan sonra boş kalan kenarlar kırpılır, logo ortalanır
-  const isoRemoved=lightOnDark?dropIsolated(out):0;
+  const isoRemoved=lightOnDark&&veryDark?dropIsolated(out):0;
   if(lightOnDark&&(outlineFixed||isoRemoved||(textRedraw&&textRedraw.replaced))){const {data:D,w:W,h:H}=out,g=[D[0],D[1],D[2]];let x0=W,y0=H,x1=-1,y1=-1;for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=(y*W+x)*4;if(Math.abs(D[i]-g[0])+Math.abs(D[i+1]-g[1])+Math.abs(D[i+2]-g[2])>=30){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}}
    if(x1>x0&&y1>y0){const pd=Math.round(Math.max(x1-x0,y1-y0)*.04);x0=Math.max(0,x0-pd);y0=Math.max(0,y0-pd);x1=Math.min(W-1,x1+pd);y1=Math.min(H-1,y1+pd);const nw=x1-x0+1,nh=y1-y0+1;
     if(nw*nh<W*H*.92){const nd=new Uint8ClampedArray(nw*nh*4);for(let y=0;y<nh;y++)nd.set(D.subarray(((y+y0)*W+x0)*4,((y+y0)*W+x0+nw)*4),y*nw*4);out.data=nd;out.w=nw;out.h=nh;out.svg=null;}}}
   // Temizlenmiş logodaki harf oranı (kendiliğinden yerleştirme kararı için)
   let finalInk=0,finalGlyph=0;{for(const v of mm.m)finalInk+=v;const inBox=new Uint8Array(mm.w*mm.h);for(const l of glyphLines(mm.m,mm.w,mm.h)){const [x0,y0,x1,y1]=l.box;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++)inBox[y*mm.w+x]=1;}for(let i=0;i<inBox.length;i++)if(inBox[i]&&mm.m[i])finalGlyph++;}
-  if(lightOnDark&&pal.length>=2&&finalGlyph/Math.max(1,finalInk)>=.9)monoVector(out,pal.map(labToRgb));
+  if(lightOnDark&&veryDark&&pal.length>=2&&finalGlyph/Math.max(1,finalInk)>=.9)monoVector(out,pal.map(labToRgb));
   return {ok:true,svg:out.svg||null,vector:!!out.vector,textRedraw,lightOnDark,confidence:ok[0].diag.confidence,glyphFractionRaw:ok[0].diag.glyphFrac,glyphFraction:+(finalGlyph/Math.max(1,finalInk)).toFixed(2),quality,alternatives:ok.length-1,diagnostics:ok.map(t=>({...t.diag,quality:+t.quality.toFixed(4)})),image:out,palette:pal.map(labToRgb).map(c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('')),surface:'#'+surface.map(v=>Math.round(v).toString(16).padStart(2,'0')).join(''),quad:cand.quad,quarterTurns:q,orientationSource:source,inkFraction:inkFrac,surfaceScore:cand.score,method:'local-product-photo-v1'};
  }
 }
