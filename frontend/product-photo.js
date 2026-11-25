@@ -238,7 +238,9 @@ function dropOutliers(m,w,h,contrast,img){
 function brandGroup(m,w,h){
  const lines=glyphLines(m,w,h);if(!lines.length)return m;
  const brand=lines.reduce((b,l)=>l.count*l.height*l.height>b.count*b.height*b.height?l:b,lines[0]),H=brand.height;
- let box=brand.box.slice();const used=new Set([brand]);let grew=true;
+ // Müşterinin gönderdiği tüm yazı satırları korunur (adres, telefon, Instagram dahil): yeterince belirgin her satır gruba girer.
+ // Yalnız yazı olmayan lekeler (gölge, parmak, arka plan parçası) grup dışında kalıp atılır.
+ let box=brand.box.slice();const used=new Set([brand]),extra=lines.filter(l=>l!==brand&&l.count>=4&&l.height>=Math.max(6,H*.12));let grew=true;
  while(grew){grew=false;for(const l of lines){if(used.has(l)||l.height<H*.3)continue;const [x0,y0,x1,y1]=l.box,vgap=Math.max(box[1]-y1,y0-box[3]),hov=Math.min(box[2],x1)-Math.max(box[0],x0);
   const vov=Math.min(box[3],y1)-Math.max(box[1],y0),hgap=Math.max(box[0]-x1,x0-box[2]);
   // alt/üst satır ya da aynı hizada yan yana duran ikinci marka/satır
@@ -251,6 +253,8 @@ function brandGroup(m,w,h){
  for(let pass=0;pass<2;pass++){let added=false;for(const l of lines){if(used.has(l)||l.height<H*.3)continue;const [x0,y0,x1,y1]=l.box,vgap=Math.max(box[1]-y1,y0-box[3]),hov=Math.min(box[2],x1)-Math.max(box[0],x0),vov=Math.min(box[3],y1)-Math.max(box[1],y0),hgap=Math.max(box[0]-x1,x0-box[2]);
   if((vgap<=H*1.2&&hov>-H*.5)||(vov>0&&hgap<=H*2)){used.add(l);box=[Math.min(box[0],x0),Math.min(box[1],y0),Math.max(box[2],x1),Math.max(box[3],y1)];added=true;}}
   if(!added)break;for(const c of comps){if(keep[c.id]||c.n<6)continue;const cb=c.box,inside=cb[0]>=box[0]&&cb[1]>=box[1]&&cb[2]<=box[2]&&cb[3]<=box[3],big=Math.max(cb[2]-cb[0],cb[3]-cb[1])>=H*.5;if(inside||(big&&touches(box,cb,H*.6))||touches(box,cb,H*.15))keep[c.id]=1;}}
+ // Ek yazı satırları (adres, telefon...): yalnız kendi kutusundaki harf parçaları eklenir; büyük lekeler çekilmez
+ for(const l of extra){const [x0,y0,x1,y1]=l.box,pad=l.height*.35;for(const c of comps){if(keep[c.id])continue;const b=c.box;if(b[0]>=x0-pad&&b[2]<=x1+pad&&b[1]>=y0-pad&&b[3]<=y1+pad&&(b[3]-b[1])<=l.height*1.6)keep[c.id]=1;}}
  const out=new Uint8Array(w*h);for(let i=0;i<w*h;i++)if(lab[i]>=0&&keep[lab[i]])out[i]=1;return out;}
 // Eğiklik: harf satırlarının taban çizgisi açısı (harf alt noktalarına dayanıklı doğru oturtma, satır ağırlıklı).
 // Logo bu açının tersine çevrilir; yazı karşıdan bakılıyormuş gibi yatay olur.
