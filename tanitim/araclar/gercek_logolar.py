@@ -32,7 +32,8 @@ DELIK = {"nyek": 0.004, "orkun": 0.004}                            # parlamanın
 LEKE = {"sarihan": 0.03, "kultur_sofrasi": 0.01, "sohret": 0.05, "orkun": 0.005}                           # bu orandan küçük öbekler leke sayılır (en büyük öbeğe göre)
 YESIL_DEGIL = {"sohret"}                           # logoda yeşil yok: yeşilimsi parlama yansımalarını sil
 GRUP_ORAN = {"orkun": 0.02}                        # ana logodan uzak ama logoya ait yazılar (ör. "GROUP")
-RENK_SAYISI = {"rotasa": 2, "michelin": 1}
+YUMUSAT = {"cotto": 4, "sohret": 4, "zehra_bora": 4, "seruven": 2, "kazancilar": 2, "kultur_sofrasi": 2}
+RENK_SAYISI = {"rotasa": 2, "michelin": 1, "cotto": 1, "sohret": 1, "vom": 1, "orkun": 2, "maderia": 1, "salonika": 1, "sarihan": 1}
 ESIK = {"nyek": (0.50, 0.07), "sarihan": (0.50, 0.16), "kultur_sofrasi": (0.45, 0.14)}
 
 
@@ -136,6 +137,7 @@ def _logo(renk, alfa, paket_alfa, ad: str = "") -> Image.Image:
             renk = np.where(kucuk[..., None], renk[iy, ix], renk)
             alfa = np.where(kucuk, 1.0, alfa)
     r = duz_renk(renk, alfa, RENK_SAYISI.get(ad, 4))
+    r, alfa = vektorle(r, alfa, YUMUSAT.get(ad, 3))
     im = Image.fromarray(np.dstack([r, alfa * 255]).astype(np.uint8), "RGBA")
     return im.crop(im.getchannel("A").point(lambda v: 255 if v > 60 else 0).getbbox())
 
@@ -161,6 +163,48 @@ def duz_renk(renk: np.ndarray, alfa: np.ndarray, k_en_cok: int = 4) -> np.ndarra
     mer = en_iyi[1]
     d = ((renk[..., None, :] - mer[None, None]) ** 2).sum(-1)
     return mer[d.argmin(-1)]
+
+
+def vektorle(r: np.ndarray, alfa: np.ndarray, yaricap: int = 3):
+    """Baskı gibi temiz kenar: her düz renk katmanı ayrı yumuşatılır, kumlanma ve tırtık giderilir,
+    küçük delikler dolar, küçük lekeler silinir; sonuç yumuşak (antialias) kenarlı tek renk bölgeler."""
+    m = alfa > 0.5
+    if not m.any():
+        return r, alfa
+    renkler, idx = np.unique(r[m].reshape(-1, 3).round().astype(int), axis=0, return_inverse=True)
+    idx = idx.ravel()
+    # birbirine çok yakın renkleri birleştir (aynı mürekkebin ışıkla ayrışmış tonları)
+    say = np.bincount(idx, minlength=len(renkler))
+    hedef = np.arange(len(renkler))
+    for i in np.argsort(-say):
+        for j in np.argsort(-say):
+            if j < len(renkler) and say[j] > say[i] and hedef[j] == j and np.abs(renkler[i] - renkler[j]).sum() < 70:
+                hedef[i] = j; break
+    idx = hedef[idx]
+    etiket = np.full(m.shape, -1)
+    etiket[m] = idx
+    alan = m.sum()
+    # genel leke ve delik temizliği
+    lbl, n = ndimage.label(m)
+    if n:
+        boy = ndimage.sum(m, lbl, range(1, n + 1))
+        m = m & ~np.isin(lbl, np.nonzero(boy < alan * 0.00012)[0] + 1)
+    dolu = ndimage.binary_fill_holes(m)
+    delik, n = ndimage.label(dolu & ~m)
+    if n:
+        boy = ndimage.sum(np.ones_like(m), delik, range(1, n + 1))
+        m = m | np.isin(delik, np.nonzero(boy < alan * 0.00003)[0] + 1)
+    # etiketsiz kalan (yeni doldurulan) pikselleri en yakın renge ata
+    if (m & (etiket < 0)).any():
+        _, (iy, ix) = ndimage.distance_transform_edt(etiket < 0, return_indices=True)
+        etiket = np.where(etiket < 0, etiket[iy, ix], etiket)
+    # katman katman yumuşat; her piksel en güçlü katmanı alır
+    s = yaricap * 0.6
+    katman = np.stack([ndimage.gaussian_filter(((etiket == i) & m).astype(float), s) if (etiket == i).any() else np.zeros(m.shape) for i in range(len(renkler))])
+    kazanan = katman.argmax(0)
+    toplam = ndimage.gaussian_filter(m.astype(float), s)
+    alfa2 = np.clip((toplam - 0.5) * 2.2 + 0.5, 0, 1)        # keskin ama yumuşak kenar
+    return renkler[kazanan].astype(float), alfa2
 
 
 def zemin_rengi(b: np.ndarray):

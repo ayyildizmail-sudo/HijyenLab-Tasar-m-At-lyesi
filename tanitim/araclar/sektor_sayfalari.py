@@ -35,7 +35,7 @@ GERCEK = {
     "restoran": ["kazancilar", "sohret", "kultur_sofrasi", "sarihan"],
     "otel": ["vom", "ajlan", "salonika", "meridian"],
     "kuafor": ["zehra_bora", "mehmet_yildirim", "maderia", "salonika"],
-    "toptanci": ["yaf", "orkun", "michelin", "cotto"],
+    "toptanci": ["kurumsal/tubitak_bilgem", "kurumsal/botas", "kurumsal/cevheri", "yaf"],
 }
 
 BELGELER = [('ISO 9001', 'Kalite'), ('ISO 14001', 'Çevre'), ('ISO 22000', 'Gıda güvenliği'), ('OHSAS 18001', 'İş sağlığı'), ('GMP', 'İyi üretim'), ('CE', 'Uygunluk'), ('IFRA', 'Koku standardı')]
@@ -137,7 +137,7 @@ def sayfa(ad: str, s: dict) -> str:
             ("Logo", "Müşterinizin logosunu gönderirsiniz."), ("Görsel", "Logolu ürün görselini ücretsiz hazırlarız."),
             ("Onay", "Müşteriniz grafiği onaylar."), ("Üretim", "Klişe ve üretim; ürün fotoğrafını paylaşırız."),
             ("Sevkiyat", "Kolilenip gönderilir.")], 1)) + "</div>")
-    gercek = "".join(f'<img src="../varliklar/gercek/{g}.jpg" alt="">' for g in GERCEK.get(ad, []))
+    gercek = "".join(f'<img src="../varliklar/{g if "/" in g else "gercek/" + g}.jpg" alt="">' for g in GERCEK.get(ad, []))
     if gercek:
         orta += f'<div class="gr"><h3>Bastıklarımızdan <span>· müşterilerimizin logoları</span></h3><div>{gercek}</div></div>'
     belgeler = "".join(f"<span><b>{a}</b><i>{b}</i></span>" for a, b in BELGELER)
