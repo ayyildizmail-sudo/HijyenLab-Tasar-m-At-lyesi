@@ -36,7 +36,7 @@ Yanında bir **tanıtım kataloğu** (PDF) hazırlandı. Potansiyel müşteriler
 | 30×35 cm rulo ıslak havlu | BM13 | 400 | 5.200 / 10.000 | 3,80 TL | 4,30 TL |
 | 20×25 cm katlı ıslak havlu | BM545 | 625 | 5.000 / 10.000 | 2,40 TL | 2,80 TL |
 | 7×12 cm ıslak mendil | BM21 | 1.000 | 10.000 | 1,40 TL | 1,40 TL |
-| Oshibori ıslak havlu (%100 pamuk, 25×30 / 30×30 cm) | OSHIBORI | 250 | 3.000 | dolar bazlı, teklifle | |
+| Oshibori ıslak havlu (%100 pamuk, 22,5×24,5 cm, 15 g) | OSHIBORI | 250 | 3.000 | dolar bazlı, teklifle | |
 
 - Fiyatlar teyit edildi (25.11.2026), KDV (%20) hariçtir.
 - **Klişe:** renk başına 1.000 TL, tek seferlik. Aynı tasarımla tekrar siparişte alınmaz. Özel CMYK klişe 10.000 TL.
@@ -184,7 +184,7 @@ Bir müşteri şu durumlardan birinde olur:
 
 - [ ] **HijyenLab logosunun vektör/yüksek çözünürlüklü hali** (`hijyenlab logo.pdf`): katalogdaki logo 226×88 px; ekranda yeterli, baskıda bulanık olur.
 - [ ] **BM15 (25×25) bıçak izi PDF'i**: boş paket görseli ve güvenli alan şimdilik yaklaşık.
-- [ ] **Mendil (BM21) kumaş bilgisi ve görüntüsü** bekleniyor. Katlı (BM545) rulo ile aynı kumaş (teyitli); kumaş yakın çekimi katalogda. Oshibori: %100 pamuk havlu, 25×30 / 30×30 cm, tek kullanımlık tekli paket, logo ambalaja basılır (teyitli); kendi ürün fotoğrafı bekleniyor (internetteki referans görseller telif nedeniyle katalogda kullanılmıyor). Rulo ürünlerin dördünde aynı kumaş (60 g/m² nonwoven) kullanıldığı teyit edildi; açılmış 25×30 fotoğrafı katalogda.
+- [ ] **Mendil (BM21) kumaş bilgisi ve görüntüsü** bekleniyor. Katlı (BM545) rulo ile aynı kumaş (teyitli); kumaş yakın çekimi katalogda. Oshibori: %100 pamuk havlu, 22,5×24,5 cm, adet başına 15 g, tek kullanımlık tekli paket, logo ambalaja basılır (teyitli); kendi ürün fotoğrafı bekleniyor (internetteki referans görseller telif nedeniyle katalogda kullanılmıyor). Rulo ürünlerin dördünde aynı kumaş (60 g/m² nonwoven) kullanıldığı teyit edildi; açılmış 25×30 fotoğrafı katalogda.
 - [ ] **Gerçek ürün fotoğrafları:** Mevcut mockup'lar yapay zekayla üretilmiş, düşük çözünürlüklü. 7×12 mendil mockup'ı kare görünüyor, gerçekte dikdörtgen.
 - [ ] **Kataloğa son onay:** metinler, sıralama, renkler.
 - [ ] **Mail ayarları** (en sona bırakıldı): sağlayıcı (Google / Microsoft / Yandex / hosting), IMAP ve SMTP sunucuları, uygulama şifresi.
