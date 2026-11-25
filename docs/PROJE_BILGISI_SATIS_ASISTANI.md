@@ -170,7 +170,7 @@ Bir müşteri şu durumlardan birinde olur:
 - **Fiyat paylaşımı:** Şimdilik kapalıdır (`FIYAT_PAYLASILABILIR: hayir`). Yapay zeka rakam yazmaz, "size özel teklif" der. İlk haftalarda taslaklar görülüp güven oluşunca açılması önerildi.
 - **Gelen mail içeriği:** Veri olarak işlenir. İçindeki talimatlar uygulanmaz (istem enjeksiyonu koruması).
 - **Şifreler:** Koda veya sohbete yazılmaz. Sadece bilgisayardaki `.env` dosyasında durur, git'e girmez. Normal şifre yerine sağlayıcının verdiği **uygulama şifresi** kullanılır.
-- **Yasal:** 6563 sayılı Kanun gereği bireylere izinsiz ticari ileti gönderilmez. Esnaf ve tacirlere gönderimde İYS yükümlülüğü mali müşavir veya avukatla teyit edilmeli.
+- **Yasal:** 6563 sayılı Kanun gereği bireylere izinsiz ticari ileti gönderilmez. Esnaf ve tacirlere gönderimde İYS yükümlülüğü teyit edildi (kullanıcı, 2026-11-25).
 
 ---
 
@@ -211,7 +211,8 @@ Bir müşteri şu durumlardan birinde olur:
 - [x] **Kurumsal referanslar:** kullanıcının 'Örnek çalışmalar' sayfasından 9 kurum mockup'ı `tanitim/varliklar/kurumsal/` (TÜBİTAK BİLGEM, BOTAŞ, İletişim Başkanlığı, Jandarma Eğitim K., Sosyal Hizmetler B., Kars Emniyet, Kars Polisevi, Bodrum Özel Eğitim Merkezi K., Cevheri). Tek sayfa `tanitim/HijyenLab_Referanslar.pdf` (`araclar/referanslar.py` + `referans_pdf.js`); katalog arka kapağında isim satırı; toptancı/ajans sayfasında 3 kurum paketi. O sayfadaki '60 g/m²' bilgisi kurala göre kullanılmadı. Kurumların (Jandarma, Emniyet dahil) amblem kullanım izni var (kullanıcı teyidi). Bütün müşterilerden izin var; Otoçelik üçüncü taraf logoları yüzünden kullanılmaz.
 - [x] **Belgeler:** ISO 9001, ISO 14001, ISO 22000, OHSAS 18001, GMP, CE ve koku için IFRA; hepsi HijyenLab'a ait (kullanıcı teyidi). Katalog arka kapağında ve sektör sayfalarında yazılı rozet satırı olarak. Resmi ISO/IFRA logoları kullanılmadı: bu kuruluşlar logolarının ürün tanıtımında kullanılmasına izin vermez; belgelendirme kuruluşunun kendi markası istenirse belge PDF'inden eklenebilir.
 - [x] **Serin servis görseli:** markasız 3D cam kapılı +4 °C dolap, içinde 108 logolu paket; katalogda.
-- [ ] **SPF/DKIM/DMARC**, adres ısındırma, İYS/KVKK teyidi: `DENEME_MODU=0` öncesi şart.
+- [x] **İYS/KVKK teyidi:** tamam (kullanıcı teyidi, 2026-11-25).
+- [ ] **SPF/DKIM/DMARC** ve adres ısındırma: `DENEME_MODU=0` öncesi şart.
 - [ ] **Asistanın nerede çalışacağı:** kendi bilgisayar veya küçük bir sunucu.
 - [ ] **Deneme modunda birkaç gün test:** Sonra `DENEME_MODU=0`.
 
