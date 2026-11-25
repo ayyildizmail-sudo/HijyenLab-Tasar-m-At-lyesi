@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block icerik %}
+<h2>{{ t.teklif_no }} · {{ t.firma }} <span class="etiket">{{ durumlar.get(t.durum, t.durum) }}</span></h2>
+<div class="izgara" style="grid-template-columns:minmax(260px,360px) 1fr">
+  <div class="kart">
+    <a href="{{ url_for('teklif_gorsel', tid=t.id) }}" target="_blank"><img src="{{ url_for('teklif_gorsel', tid=t.id) }}" alt="Teklif görseli" style="width:100%;border-radius:8px;border:1px solid #e4e7ec"></a>
+    <p><a class="dugme" href="{{ url_for('teklif_gorsel', tid=t.id, indir=1) }}">Görseli indir (WhatsApp için)</a></p>
+  </div>
+  <div>
+    <div class="kart">
+      <div>{% if t.kisi %}<b>{{ t.kisi }}</b> · {% endif %}{{ t.eposta or 'e-posta yok' }} · {{ t.teslim_yeri }}</div>
+      <div class="soluk">Tarih {{ t.tarih }} · geçerli: {{ t.gecerlilik }}{% if t.gonderim %} · gönderim {{ t.gonderim }}{% endif %}</div>
+      <div class="tablo" style="margin-top:10px"><table>
+        <tr><th>Ürün</th><th>Zemin</th><th>Adet</th><th>Birim</th><th>Ürün bedeli</th><th>Kargo</th><th>Klişe</th><th>Toplam</th></tr>
+        {% for s in satirlar %}
+        <tr><td>{{ s.urun }}</td><td>{{ s.zemin }}</td><td>{{ tl(s.adet) }} <span class="soluk">({{ s.koli }} koli)</span></td>
+            <td>{{ tl(s.birim) }}</td><td>{{ tl(s.urun_bedeli) }}</td><td>{{ tl(s.kargo) }}</td><td>{{ tl(s.klise) }}</td>
+            <td><b>{{ tl(s.toplam) }} TL</b></td></tr>
+        {% for n in s.notlar %}<tr><td colspan="8" class="soluk">Not: {{ n }}</td></tr>{% endfor %}
+        {% endfor %}
+      </table></div>
+      <p class="soluk">Tutarlar KDV hariçtir ve fiyatlar.json'dan kodla hesaplanmıştır.</p>
+    </div>
+    <div class="kart">
+      {% if t.durum == 'hazirlandi' %}
+      <form method="post" action="{{ url_for('teklif_islem', tid=t.id, islem='mail') }}" style="display:inline">
+        <input type="hidden" name="csrf" value="{{ csrf }}"><button {% if not t.eposta %}disabled{% endif %}>Mail taslağı oluştur (görsel ekli)</button></form>
+      <form method="post" action="{{ url_for('teklif_islem', tid=t.id, islem='gonderildi') }}" style="display:inline">
+        <input type="hidden" name="csrf" value="{{ csrf }}"><button class="ikincil">WhatsApp / elden gönderdim</button></form>
+      <p class="soluk">Mail, onay bekleyenler sayfasına düşer; siz okuyup onaylayınca gider. Gönderimden {{ takip_gun }} gün sonra cevap yoksa takip taslağı hazırlanır.</p>
+      {% elif t.durum == 'taslakta' %}
+      <p>Mail taslağı <a href="{{ url_for('taslaklar') }}">onay bekleyenler</a> sayfasında.</p>
+      {% endif %}
+      {% if t.durum in ('gonderildi', 'cevap_geldi', 'taslakta', 'hazirlandi') %}
+      <form method="post" action="{{ url_for('teklif_islem', tid=t.id, islem='kabul') }}" style="display:inline">
+        <input type="hidden" name="csrf" value="{{ csrf }}"><button>Kabul edildi</button></form>
+      <form method="post" action="{{ url_for('teklif_islem', tid=t.id, islem='ret') }}" style="display:inline">
+        <input type="hidden" name="csrf" value="{{ csrf }}"><button class="tehlike">Reddedildi</button></form>
+      {% endif %}
+      <p style="margin-top:10px"><a href="{{ url_for('teklif_yeni') }}">Yeni teklif</a> · <a href="{{ url_for('teklifler') }}">Tüm teklifler</a></p>
+    </div>
+    {% if taslaklar %}<div class="kart"><b>Bu teklifin mailleri</b>
+      {% for x in taslaklar %}<div class="soluk">{{ 'Teklif maili' if x.tur == 'teklif' else 'Takip maili' }} · {{ x.durum }} · {{ x.gonderim or x.olusturma }}</div>{% endfor %}</div>{% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,10 +1,13 @@
 """İş akışları: taslak üretme, gelen kutusunu işleme, onaylanan taslağı gönderme."""
 import hashlib
 import json
+from datetime import date, datetime
+from pathlib import Path
 
 import eposta
 import guvenlik_kontrolu as gk
 import teklif_hesapla as th
+import teklif_gorseli as tg
 import veritabani as vt
 import yapay_zeka as yz
 from ayarlar import AYAR, fiyat_paylasilabilir, fiyatlar, profil_surumu
@@ -34,14 +37,19 @@ def denetle(con, metin: str, musteri: dict | None, kime: str, tanitim: bool) -> 
     return bulgular
 
 
+SOGUK_TURLER = ("tanitim", "hatirlatma")   # tanıtım kuralları (çıkış notu, saat penceresi, limit) bunlara uygulanır
+
+
 def _taslak_kaydet(con, tur: str, kime: str, konu: str, metin: str, musteri: dict | None = None,
-                   gelen_mail_id: int | None = None, hesaplanan_teklif: str = "") -> int:
-    bulgular = denetle(con, f"{konu}\n{metin}", musteri, kime, tanitim=tur != "cevap")
+                   gelen_mail_id: int | None = None, hesaplanan_teklif: str = "",
+                   ekler: list[str] | None = None, teklif_id: int | None = None) -> int:
+    bulgular = denetle(con, f"{konu}\n{metin}", musteri, kime, tanitim=tur in SOGUK_TURLER)
     cur = con.execute(
         "INSERT INTO taslak (tur, musteri_id, gelen_mail_id, kime, konu, metin, orijinal_metin, profil_surumu, "
-        "bulgular, hesaplanan_teklif) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "bulgular, hesaplanan_teklif, ekler, teklif_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (tur, (musteri or {}).get("id"), gelen_mail_id, kime, konu, metin, metin, profil_surumu(),
-         json.dumps(bulgular, ensure_ascii=False), hesaplanan_teklif or None),
+         json.dumps(bulgular, ensure_ascii=False), hesaplanan_teklif or None,
+         json.dumps(ekler or [], ensure_ascii=False), teklif_id),
     )
     return cur.lastrowid
 
@@ -190,7 +198,9 @@ def gelen_maili_isle(con, m: dict) -> str:
         }.get(s.kategori, "cevap_verdi")
         con.execute("UPDATE musteri SET durum=?, son_temas=? WHERE id=?", (yeni_durum, vt.simdi(), musteri_id))
         con.execute("UPDATE taslak SET durum='reddedildi', hata='müşteri cevap verdi' "
-                    "WHERE musteri_id=? AND tur='hatirlatma' AND durum='onay_bekliyor'", (musteri_id,))
+                    "WHERE musteri_id=? AND tur IN ('hatirlatma','teklif_takip') AND durum='onay_bekliyor'",
+                    (musteri_id,))
+        con.execute("UPDATE teklif SET durum='cevap_geldi' WHERE musteri_id=? AND durum='gonderildi'", (musteri_id,))
     elif s.kategori in (yz.Kategori.teklif_talebi, yz.Kategori.siparis, yz.Kategori.soru):
         musteri_id = vt.musteri_ekle(con, ad=s.firma_adi or m.get("kimden_ad") or m["kimden"],
                                      eposta=m["kimden"], telefon=s.telefon, kaynak="gelen_mail")
@@ -245,7 +255,7 @@ def taslak_gonder(taslak_id: int, konu: str | None = None, metin: str | None = N
         if not t or t["durum"] != "onay_bekliyor":
             return "Bu taslak zaten işlenmiş."
         konu, metin = konu or t["konu"], metin or t["metin"]
-        tanitim = t["tur"] in ("tanitim", "hatirlatma")
+        tanitim = t["tur"] in SOGUK_TURLER
         musteri = con.execute("SELECT * FROM musteri WHERE id=?", (t["musteri_id"],)).fetchone() if t["musteri_id"] else None
 
         # Son metni yeniden denetle (insan düzenlemesi de kontrol edilir)
@@ -281,10 +291,19 @@ def taslak_gonder(taslak_id: int, konu: str | None = None, metin: str | None = N
             g = con.execute("SELECT message_id FROM mail WHERE yon='giden' AND musteri_id=? ORDER BY id DESC LIMIT 1",
                             (t["musteri_id"],)).fetchone()
             yanit_id = g["message_id"] if g else None
+        elif t["tur"] == "teklif_takip" and t["teklif_id"]:
+            g = con.execute("SELECT m.message_id FROM taslak x JOIN mail m ON m.yon='giden' AND m.kime=x.kime "
+                            "AND m.konu=x.konu WHERE x.teklif_id=? AND x.tur='teklif' AND x.durum='gonderildi' "
+                            "ORDER BY m.id DESC LIMIT 1", (t["teklif_id"],)).fetchone()
+            yanit_id = g["message_id"] if g else None
 
         token = vt.cikis_tokeni(con, t["musteri_id"]) if tanitim and t["musteri_id"] else None
+        ekler = json.loads(t["ekler"] or "[]")
+        eksik = [e for e in ekler if not Path(e).exists()]
+        if eksik:
+            return "Gönderilmedi: ek dosya bulunamadı: " + ", ".join(Path(e).name for e in eksik)
         msg = eposta.mail_olustur(t["kime"], konu, metin, tanitim=tanitim, yanit_id=yanit_id,
-                                  referanslar=referanslar, cikis_token=token)
+                                  referanslar=referanslar, cikis_token=token, ekler=ekler)
         denetim = (taslak_id, t["profil_surumu"], json.dumps(bulgular, ensure_ascii=False),
                    json.dumps(sorted(onaylanan), ensure_ascii=False), onaylayan, t["orijinal_metin"], konu)
         try:
@@ -296,7 +315,7 @@ def taslak_gonder(taslak_id: int, konu: str | None = None, metin: str | None = N
                         (*denetim, str(h), int(AYAR.deneme_modu)))
             return f"Gönderilemedi: {h}"
 
-        govde = msg.get_content()
+        govde = msg.get_body(("plain",)).get_content()
         con.execute("UPDATE taslak SET durum='gonderildi', gonderim=? WHERE id=?", (vt.simdi(), taslak_id))
         con.execute(
             "INSERT INTO mail (yon, musteri_id, message_id, yanit_id, referanslar, kimden, kime, konu, metin, deneme) "
@@ -313,6 +332,10 @@ def taslak_gonder(taslak_id: int, konu: str | None = None, metin: str | None = N
                 con.execute("UPDATE musteri SET durum=?, son_temas=? WHERE id=?", (yeni, vt.simdi(), t["musteri_id"]))
             else:
                 con.execute("UPDATE musteri SET son_temas=? WHERE id=?", (vt.simdi(), t["musteri_id"]))
+        if t["tur"] == "teklif" and t["teklif_id"]:
+            con.execute("UPDATE teklif SET durum='gonderildi', gonderim=? WHERE id=?", (vt.simdi(), t["teklif_id"]))
+            if t["musteri_id"]:
+                con.execute("UPDATE musteri SET durum='teklif_verildi' WHERE id=?", (t["musteri_id"],))
         if AYAR.deneme_modu:
             return "DENEME MODU: gönderilmiş gibi kaydedildi."
         return "Gönderildi." + (f" Uyarı: {uyari}" if uyari else "")
@@ -328,6 +351,8 @@ def taslak_reddet(taslak_id: int, onaylayan: str = "panel") -> None:
                         (taslak_id, t["profil_surumu"], t["bulgular"], onaylayan, t["orijinal_metin"]))
             if t["tur"] == "tanitim" and t["musteri_id"]:
                 con.execute("UPDATE musteri SET durum='atlandi' WHERE id=? AND durum='taslak_hazir'", (t["musteri_id"],))
+            if t["tur"] == "teklif" and t["teklif_id"]:
+                con.execute("UPDATE teklif SET durum='hazirlandi' WHERE id=? AND durum='taslakta'", (t["teklif_id"],))
 
 
 def tek_tik_cikis(token: str) -> bool:
@@ -340,3 +365,127 @@ def tek_tik_cikis(token: str) -> bool:
             return False
         vt.kara_listeye_ekle(con, m["eposta"], "tek tık listeden çıkış")
         return True
+
+
+# --- Teklifler (panelden hazırlanır; rakamlar teklif_hesapla.py'den) -------------------------
+
+TEKLIF_KLASORU = Path(AYAR.veritabani).resolve().parent / "teklifler"
+IMZA = ("Saygılarımızla,\nHakan Ayyıldız\nHijyenLab · İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.\n"
+        "0 (542) 569 98 69 · hijyenlab.com")
+
+
+def _tr_tarih(gun: str) -> str:
+    return datetime.strptime(gun, "%Y-%m-%d").strftime("%d.%m.%Y")
+
+
+def teklif_olustur(firma: str, eposta_adresi: str, teslim_yeri: str, secenekler: list["tg.Secenek"],
+                   logo_yolu: str | Path, kisi: str = "", koku: str = "", musteri_id: int | None = None,
+                   gelen_mail_id: int | None = None) -> int:
+    """Teklif görselini üretir ve kaydeder. Mail göndermez. Dönüş: teklif id.
+    Hata olursa tg.TeklifHatasi (kullanıcıya gösterilecek açıklama) fırlatır."""
+    eposta_adresi = (eposta_adresi or "").strip().lower()
+    with vt.baglanti() as con:
+        no = vt.yeni_teklif_no(con)
+        dizin = TEKLIF_KLASORU / no
+        sonuc = tg.olustur(no, firma, teslim_yeri, secenekler, Path(logo_yolu), dizin,
+                           alt_baslik=" · ".join(x for x in (kisi.strip(), teslim_yeri.strip()) if x), koku=koku)
+        bugun = date.today()
+        if not musteri_id and eposta_adresi:
+            r = con.execute("SELECT id FROM musteri WHERE eposta=?", (eposta_adresi,)).fetchone()
+            musteri_id = r["id"] if r else vt.musteri_ekle(con, ad=firma.strip(), eposta=eposta_adresi,
+                                                           ilce=teslim_yeri, kaynak="teklif")
+        cur = con.execute(
+            "INSERT INTO teklif (teklif_no, musteri_id, gelen_mail_id, firma, kisi, eposta, teslim_yeri, koku, "
+            "secenekler, satirlar, genel_toplam, gorsel, tarih, gecerlilik) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (no, musteri_id, gelen_mail_id, firma.strip(), kisi.strip(), eposta_adresi, teslim_yeri.strip(),
+             koku.strip(), json.dumps([s.__dict__ for s in secenekler], ensure_ascii=False),
+             json.dumps(sonuc["satirlar"], ensure_ascii=False), sonuc["genel_toplam"], str(sonuc["jpg"]),
+             bugun.isoformat(), tg.gecerlilik_tarihi(bugun).isoformat()),
+        )
+        if musteri_id:
+            con.execute("UPDATE musteri SET durum='ilgileniyor', son_temas=? WHERE id=? "
+                        "AND durum NOT IN ('listeden_cikti')", (vt.simdi(), musteri_id))
+        return cur.lastrowid
+
+
+def teklif_mail_metni(t) -> tuple[str, str]:
+    """Teklif maili: rakam içermez (rakamlar ekteki görselde, kodla hesaplanmış olarak durur)."""
+    hitap = f"Merhaba {t['kisi']}," if t["kisi"] else "Merhaba,"
+    konu = f"HijyenLab fiyat teklifi · {t['firma']} ({t['teklif_no']})"
+    metin = (f"{hitap}\n\n"
+             "Talebiniz için hazırladığımız fiyat teklifini, logonuzla ürün görseliyle birlikte ekte bulabilirsiniz.\n\n"
+             f"Teklifimiz {_tr_tarih(t['gecerlilik'])} tarihine kadar geçerlidir. Onaylamak ya da adet, zemin rengi "
+             "veya ürün değişikliği istemek için bu maile cevap vermeniz yeterli.\n\n"
+             "Kumaşı elinizde görmek isterseniz ücretsiz numune de gönderebiliriz, kargo bizden.\n\n" + IMZA)
+    return konu, metin
+
+
+def teklif_taslagi_olustur(teklif_id: int) -> int:
+    """Teklif mailini (görsel ekli) onay bekleyenlere koyar. Gönderim yine panelden onayla yapılır."""
+    with vt.baglanti() as con:
+        t = con.execute("SELECT * FROM teklif WHERE id=?", (teklif_id,)).fetchone()
+        if not t:
+            raise tg.TeklifHatasi("Teklif bulunamadı.")
+        if not t["eposta"]:
+            raise tg.TeklifHatasi("Bu teklifte e-posta adresi yok; görseli indirip WhatsApp ile gönderebilirsiniz.")
+        if t["durum"] not in ("hazirlandi",):
+            raise tg.TeklifHatasi("Bu teklifin maili zaten hazırlanmış veya gönderilmiş.")
+        if vt.kara_listede_mi(con, t["eposta"]):
+            raise tg.TeklifHatasi("Bu adres listeden çıkmış; mail hazırlanmadı.")
+        konu, metin = teklif_mail_metni(t)
+        mus = con.execute("SELECT * FROM musteri WHERE id=?", (t["musteri_id"],)).fetchone() if t["musteri_id"] else None
+        tid = _taslak_kaydet(con, "teklif", t["eposta"], konu, metin, dict(mus) if mus else None,
+                             t["gelen_mail_id"], ekler=[t["gorsel"]], teklif_id=teklif_id)
+        con.execute("UPDATE teklif SET durum='taslakta' WHERE id=?", (teklif_id,))
+        return tid
+
+
+def teklif_takip_metni(t) -> tuple[str, str]:
+    hitap = f"Merhaba {t['kisi']}," if t["kisi"] else "Merhaba,"
+    gonderim = _tr_tarih((t["gonderim"] or t["tarih"])[:10])
+    konu = f"Ynt: HijyenLab fiyat teklifi · {t['firma']} ({t['teklif_no']})"
+    metin = (f"{hitap}\n\n"
+             f"{gonderim} tarihinde gönderdiğimiz {t['teklif_no']} numaralı fiyat teklifimizi inceleme fırsatınız "
+             f"oldu mu? Teklifimiz {_tr_tarih(t['gecerlilik'])} tarihine kadar geçerli.\n\n"
+             "Adet, zemin rengi ya da ürün konusunda değiştirmek istediğiniz bir şey varsa yazmanız yeterli; "
+             "görseli ve teklifi yeniden hazırlarız. Kumaşı denemek isterseniz ücretsiz numune de gönderebiliriz.\n\n"
+             + IMZA)
+    return konu, metin
+
+
+def teklif_takip_taslaklari_olustur(gun: int | None = None, ilerleme=print) -> int:
+    """Teklif gönderildikten `gun` (varsayılan TEKLIF_TAKIP_GUN=10) gün sonra cevap yoksa takip taslağı yazar."""
+    gun = gun or AYAR.teklif_takip_gun
+    olusan = 0
+    with vt.baglanti() as con:
+        vt.suresi_dolan_teklifleri_isaretle(con)
+        for t in vt.takip_bekleyen_teklifler(con, gun):
+            if not t["eposta"] or vt.kara_listede_mi(con, t["eposta"]):
+                continue
+            konu, metin = teklif_takip_metni(t)
+            mus = con.execute("SELECT * FROM musteri WHERE id=?", (t["musteri_id"],)).fetchone() if t["musteri_id"] else None
+            _taslak_kaydet(con, "teklif_takip", t["eposta"], konu, metin, dict(mus) if mus else None,
+                           teklif_id=t["id"])
+            olusan += 1
+            ilerleme(f"  Teklif takibi hazır: {t['firma']} ({t['teklif_no']})")
+    return olusan
+
+
+def teklif_durumu(teklif_id: int, durum: str) -> None:
+    if durum not in ("kabul", "ret", "gonderildi", "cevap_geldi"):
+        raise ValueError(durum)
+    with vt.baglanti() as con:
+        if durum == "gonderildi":   # WhatsApp / elden gönderildi: takip bu andan sayılır
+            con.execute("UPDATE teklif SET durum='gonderildi', gonderim=COALESCE(gonderim, ?) WHERE id=? "
+                        "AND durum IN ('hazirlandi','taslakta')", (vt.simdi(), teklif_id))
+            con.execute("UPDATE taslak SET durum='reddedildi', hata='teklif başka yoldan gönderildi' "
+                        "WHERE teklif_id=? AND tur='teklif' AND durum='onay_bekliyor'", (teklif_id,))
+            return
+        con.execute("UPDATE teklif SET durum=? WHERE id=?", (durum, teklif_id))
+        if durum in ("kabul", "ret"):
+            con.execute("UPDATE taslak SET durum='reddedildi', hata=? WHERE teklif_id=? AND tur='teklif_takip' "
+                        "AND durum='onay_bekliyor'", (f"teklif {durum}", teklif_id))
+            t = con.execute("SELECT musteri_id FROM teklif WHERE id=?", (teklif_id,)).fetchone()
+            if t and t["musteri_id"]:
+                con.execute("UPDATE musteri SET durum=? WHERE id=?",
+                            ("musteri_oldu" if durum == "kabul" else "olumsuz", t["musteri_id"]))

@@ -186,6 +186,9 @@ Bir müşteri şu durumlardan birinde olur:
 - [x] Tanıtım kataloğu: 9 sayfa A4 PDF (`tanitim/HijyenLab_Katalog.pdf`), fiyatsız. Görseller **gerçek boş paketlerden** (bıçak izi PDF'leri ve grafik onay şablonları) `tanitim/araclar/katalog_gorselleri.py` ile üretiliyor; yapay zeka görselleri kaldırıldı. HijyenLab logosu vektörel (`tanitim/varliklar/hijyenlab_logo.svg/.pdf/.png`, logo rengi #29537B) ve teklif şablonunun renkleri kullanılıyor.
 - [x] Claude Projeleri öneri raporu (25.11.2026) uygulandı: güvenlik kontrolü + onay kilidi, fiyat hesaplayıcı, iki model, UID takibi, Gönderilmiş klasörüne kopya, tek tık çıkış, bounce, gönderim penceresi, alan adı sınırı, MX kontrolü, teklif kartı, aday puanı, mevcut müşteri listesi, denetim izi. 27/27 test geçiyor.
 
+- [x] **Faz 2 – Teklifler panelde (25.11.2026):** Teklif görseli panelden üretiliyor (kalıcı teklif şablonu, gerçek boş paket mockup'ı, 1–3 seçenek, rakamlar yalnız `teklif_hesapla.py`'den). Gelen teklif talebinin kartından form otomatik doluyor. Teklif kaydı (HL-YYYY-AAGG-NN, 15 gün geçerlilik, durum), görsel ekli mail taslağı (metinde rakam yok, onaysız gitmez), WhatsApp için görsel indirme, 10. gün cevapsız teklife aynı yazışma zincirinde takip taslağı; müşteri cevap verince takip iptal, süresi dolana takip yok. Kabul/ret işaretleme. Teklif etiketlerinde gramaj yok, kumaş "nonwoven, çapraz doku". 38/38 test geçiyor.
+- [x] **Mevcut müşteri listesi istenmiyor:** Asistan yalnız yeni müşteriye odaklı; kara liste isteğe bağlı.
+
 ### Bekleyenler
 
 - [ ] **BM15 (25×25) bıçak izi PDF'i**: boş paket görseli ve güvenli alan şimdilik yaklaşık.
@@ -197,8 +200,7 @@ Bir müşteri şu durumlardan birinde olur:
 - [ ] **`YASAK_TERIMLER`**: üretim partnerinin adı `.env`'ye yazılacak.
 - [x] **Ürün videosu** hazır: `tanitim/video/HijyenLab_kucuk_paketten_buyuk_havlu.mp4` (21,5 sn, dikey, doğal paket sesleriyle, yazılı; bitiş kartına 1,2 sn yavaş geçiş, ortam sesi kademeli kısılır, sonda siyaha yavaş kararma). Videodaki altın desenli ambalaj HijyenLab'ın kendi örnek tasarımıdır; paylaşımında izin sorunu yok. Kaynak video 480p olduğu için kalite telefonda izlemeye uygun düzeyde. Katalogdaki QR kod için videonun yayınlanacağı adres bekleniyor (site, YouTube vb.).
 - [ ] **Isıtıcı dolap:** garanti süresi, ölçü ve elektrik gücü; UV lamba var mı; fotoğraf ve video kullanımı için tedarikçi izni; tanıtım klibi (taslak, müziksiz) onay bekliyor.
-- [ ] **Serin servis görseli:** buzdolabında ürün fotoğrafı veya videosu (gerçek çekim) bekleniyor.
-- [ ] **Mevcut müşteri listesi** (CSV) panele "mevcut müşterilerim" olarak yüklenecek.
+- [x] **Serin servis görseli:** markasız 3D cam kapılı +4 °C dolap, içinde 108 logolu paket; katalogda.
 - [ ] **SPF/DKIM/DMARC**, adres ısındırma, İYS/KVKK teyidi: `DENEME_MODU=0` öncesi şart.
 - [ ] **Asistanın nerede çalışacağı:** kendi bilgisayar veya küçük bir sunucu.
 - [ ] **Deneme modunda birkaç gün test:** Sonra `DENEME_MODU=0`.
@@ -209,7 +211,6 @@ Bir müşteri şu durumlardan birinde olur:
 - Toptancı ve ajanslar için ayrı tanıtım maili şablonu.
 - Gönderilen maillerin mail programındaki "Gönderilmiş" klasörüne de kopyalanması.
 - Tekrar sipariş hatırlatması (ör. 5.200 adetten 60 gün, 10.000 adetten 90 gün sonra).
-- "Teklif gönderildi" / "sipariş" durumları ve "teklif gönderildi, 5 gün cevap yok" hatırlatması.
 - Telefon listesindeki işletmeler için kopyalanabilir WhatsApp metni.
 - Sabah özet maili ve haftalık huni ölçümü (gönderilen → cevap → teklif → sipariş).
 - Tanıtımlar için ayrı alt alan adı (ör. bilgi.hijyenlab.com).
@@ -218,7 +219,7 @@ Bir müşteri şu durumlardan birinde olur:
 
 ## 7. Çalışma tercihleri
 
-- **Kendi kendine yeterlilik ilkesi:** Satış asistanı (ve HijyenLab'ın diğer yazılım projeleri) işini kendi içinde yapar. Kullanıcıyı veya müşteriyi başka bir programa ya da yapay zekaya yönlendirmez ("şunu Claude projesine yapıştırın", "Canva'da açın", "atölyeye yükleyin" gibi adımlar yoktur). Yapay zeka (Claude API) yalnız yazılımın içinde, arka planda bir bileşen olarak kullanılır. Teklif görseli de panelin içinde üretilecek (Faz 2).
+- **Kendi kendine yeterlilik ilkesi:** Satış asistanı (ve HijyenLab'ın diğer yazılım projeleri) işini kendi içinde yapar. Kullanıcıyı veya müşteriyi başka bir programa ya da yapay zekaya yönlendirmez ("şunu Claude projesine yapıştırın", "Canva'da açın", "atölyeye yükleyin" gibi adımlar yoktur). Yapay zeka (Claude API) yalnız yazılımın içinde, arka planda bir bileşen olarak kullanılır. Teklif görseli de panelin içinde üretilir (Faz 2, tamamlandı).
 - **Satış asistanı ile HijyenLab Tasarım Atölyesi ayrı uygulamalardır.** Şu an aralarında bağlantı yok; satış asistanı müşteriyi atölyeye yönlendirmez. Müşteri logosunu mail veya WhatsApp ile gönderir, görseli HijyenLab hazırlar. Satış asistanı yalnızca bu oturumun bağlı olduğu depoda (`satis-asistani/` klasörü) duruyor.
 
 - **Canva kullanılmaz.** Tasarım ve belgeler Claude'da hazırlanır.

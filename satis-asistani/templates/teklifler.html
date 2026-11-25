@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block icerik %}
+<h2>Teklifler <a class="dugme" href="{{ url_for('teklif_yeni') }}" style="font-size:14px;margin-left:8px">Yeni teklif</a></h2>
+<div class="kart tablo">
+<table>
+  <tr><th>No</th><th>Firma</th><th>Tarih</th><th>Geçerlilik</th><th>Toplam (KDV hariç)</th><th>Durum</th></tr>
+  {% for t in liste %}
+  <tr><td><a href="{{ url_for('teklif_goster', tid=t.id) }}">{{ t.teklif_no }}</a></td>
+      <td>{{ t.firma }}{% if t.kisi %} <span class="soluk">· {{ t.kisi }}</span>{% endif %}<div class="soluk">{{ t.eposta or 'e-posta yok' }}</div></td>
+      <td>{{ t.tarih }}</td><td>{{ t.gecerlilik }}</td>
+      <td>{{ tl(t.genel_toplam or 0) }} TL</td>
+      <td><span class="etiket">{{ durumlar.get(t.durum, t.durum) }}</span></td></tr>
+  {% else %}<tr><td colspan="6" class="soluk">Henüz teklif yok.</td></tr>{% endfor %}
+</table>
+</div>
+<p class="soluk">Birden fazla seçenekli tekliflerde toplam sütununda en yüksek seçeneğin tutarı görünür.</p>
+{% endblock %}

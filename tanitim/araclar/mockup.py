@@ -97,7 +97,7 @@ def zemin_boya(bos: Path | str, renk: tuple[int, int, int], cikti: Path | str) -
     """Beyaz boş paketi ışık/gölgesini koruyarak renkli zemine çevirir."""
     A = np.array(Image.open(bos).convert("RGBA")).astype(float)
     lum = A[..., :3].mean(2) / 255
-    if sum(renk) / 3 < 60:   # siyah / çok koyu zemin: parlama yansımalarını koru
+    if max(renk) < 40:   # siyah zemin: parlama yansımalarını koru (lacivert vb. renkli yoldan boyanır)
         v = 14 + np.clip((lum - 0.78) / 0.22, 0, 1) ** 2.2 * 95
         for i in range(3):
             A[..., i] = v * (1.03 if i == 2 else 1)

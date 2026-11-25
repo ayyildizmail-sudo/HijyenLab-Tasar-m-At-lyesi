@@ -4,12 +4,15 @@ import secrets
 import tempfile
 import threading
 from functools import wraps
+from pathlib import Path
 
 from flask import Flask, abort, flash, redirect, render_template, request, send_file, session, url_for
 
 import islemler
 import musteri_bul
+import teklif_gorseli as tg
 import veritabani as vt
+from ayarlar import fiyatlar
 from ayarlar import AYAR
 
 app = Flask(__name__)
@@ -97,6 +100,8 @@ def is_baslat(ad):
         ok = arka_planda("Tanıtım taslakları", islemler.tanitim_taslaklari_olustur, int(f.get("adet", 10)))
     elif ad == "hatirlatma":
         ok = arka_planda("Hatırlatma taslakları", islemler.hatirlatma_taslaklari_olustur)
+    elif ad == "teklif_takip":
+        ok = arka_planda("Teklif takip taslakları", islemler.teklif_takip_taslaklari_olustur)
     elif ad == "bul":
         bolge = f.get("bolge", "").strip()
         if not bolge:
@@ -116,11 +121,13 @@ def taslaklar():
     with vt.baglanti() as con:
         liste = con.execute(
             "SELECT t.*, m.ad musteri_ad, m.tur musteri_tur, g.konu gelen_konu, g.metin gelen_metin, g.ozet gelen_ozet, "
-            "g.teklif_karti, g.guven, g.insan_baksin, g.ekler gelen_ekler "
+            "g.teklif_karti, g.guven, g.insan_baksin, g.ekler gelen_ekler, k.teklif_no, k.gorsel teklif_gorsel "
             "FROM taslak t LEFT JOIN musteri m ON m.id=t.musteri_id LEFT JOIN mail g ON g.id=t.gelen_mail_id "
+            "LEFT JOIN teklif k ON k.id=t.teklif_id "
             "WHERE t.durum='onay_bekliyor' ORDER BY (t.tur='cevap') DESC, t.id"
         ).fetchall()
-    liste = [dict(t) | {"bulgu_listesi": json.loads(t["bulgular"] or "[]")} for t in liste]
+    liste = [dict(t) | {"bulgu_listesi": json.loads(t["bulgular"] or "[]"),
+                        "ek_listesi": [Path(e).name for e in json.loads(t["ekler"] or "[]")]} for t in liste]
     for t in liste:
         for b in t["bulgu_listesi"]:
             b["anahtar"] = islemler.bulgu_anahtari(b)
@@ -226,6 +233,138 @@ def cik():
         return ("Adresiniz listemizden çıkarıldı. Bir daha tanıtım maili almayacaksınız." if ok
                 else "Bağlantı geçersiz. Lütfen maile ÇIKAR yazarak cevap verin."), (200 if ok else 400)
     return render_template("cik.html", token=token)
+
+
+# --- Teklifler --------------------------------------------------------------------
+
+TEKLIF_URUNLERI = ["BM12", "BM15", "BM11", "BM13", "BM545", "BM21"]
+LOGO_UZANTILARI = {".png", ".jpg", ".jpeg", ".webp"}
+TEKLIF_DURUM = {"hazirlandi": "Hazırlandı", "taslakta": "Mail onayda", "gonderildi": "Gönderildi",
+                "cevap_geldi": "Cevap geldi", "kabul": "Kabul edildi", "ret": "Reddedildi",
+                "suresi_doldu": "Süresi doldu"}
+
+
+def _karttan_oku(kart: str) -> dict:
+    """Gelen mailin 'Teklif dosyası' kartından form ön değerleri."""
+    d = {}
+    for satir in (kart or "").splitlines():
+        if ":" in satir:
+            k, v = satir.split(":", 1)
+            v = v.strip()
+            if v and v != "?" and not v.startswith("belirtilmedi"):
+                d[k.strip()] = v
+    adet = "".join(c for c in d.get("Adet", "") if c.isdigit())
+    return {"firma": d.get("Firma", ""), "eposta": d.get("Gönderen", ""), "teslim_yeri": d.get("Teslim şehri", ""),
+            "urun1": d.get("Ürün", "BM12") if d.get("Ürün") in TEKLIF_URUNLERI else "BM12",
+            "zemin1": (d.get("Zemin") or "beyaz").lower(), "renkler1": d.get("Baskı renkleri", "siyah"),
+            "adet1": adet, "koku": d.get("Koku", "")}
+
+
+def _form_secenekleri(f) -> list[tg.Secenek]:
+    secenekler = []
+    for i in (1, 2, 3):
+        urun = f.get(f"urun{i}", "")
+        if not urun:
+            continue
+        renkler = [r.strip().lower() for r in f.get(f"renkler{i}", "").replace("+", ",").split(",") if r.strip()]
+        adet = f.get(f"adet{i}", "").replace(".", "").strip()
+        secenekler.append(tg.Secenek(
+            urun=urun, zemin=f.get(f"zemin{i}", "beyaz") or "beyaz", renkler=renkler,
+            adet=int(adet) if adet.isdigit() else None, logo_rengi=f.get(f"logo_rengi{i}", "orijinal"),
+            arka_baski=f.get(f"arka{i}") == "1", tekrar_siparis=f.get(f"tekrar{i}") == "1"))
+    return secenekler
+
+
+@app.route("/teklifler")
+@giris_gerekli
+def teklifler():
+    with vt.baglanti() as con:
+        vt.suresi_dolan_teklifleri_isaretle(con)
+        liste = con.execute("SELECT * FROM teklif ORDER BY id DESC LIMIT 300").fetchall()
+    return render_template("teklifler.html", liste=liste, durumlar=TEKLIF_DURUM, tl=islemler.th.tl)
+
+
+@app.route("/teklif/yeni", methods=["GET", "POST"])
+@giris_gerekli
+def teklif_yeni():
+    f = request.form
+    on = {}
+    mail_id = request.values.get("mail", type=int)
+    if request.method == "GET" and mail_id:
+        with vt.baglanti() as con:
+            g = con.execute("SELECT teklif_karti, kimden FROM mail WHERE id=?", (mail_id,)).fetchone()
+        if g:
+            on = _karttan_oku(g["teklif_karti"]) | ({"eposta": g["kimden"]} if g["kimden"] else {})
+    if request.method == "POST":
+        on = f.to_dict()
+        dosya = request.files.get("logo")
+        uzanti = Path(dosya.filename or "").suffix.lower() if dosya else ""
+        if not dosya or not dosya.filename:
+            flash("Logo dosyası seçin (PNG veya JPG). Logo yoksa işletme adını yazan bir görsel yükleyin.")
+        elif uzanti not in LOGO_UZANTILARI:
+            flash("Logo PNG, JPG veya WEBP olmalı. PDF logoyu önce resim olarak kaydedin.")
+        else:
+            yuklenen = islemler.TEKLIF_KLASORU / "_yuklenen"
+            yuklenen.mkdir(parents=True, exist_ok=True)
+            logo = yuklenen / f"{secrets.token_hex(8)}{uzanti}"
+            dosya.save(logo)
+            try:
+                tid = islemler.teklif_olustur(
+                    f.get("firma", ""), f.get("eposta", ""), f.get("teslim_yeri", ""), _form_secenekleri(f), logo,
+                    kisi=f.get("kisi", ""), koku=f.get("koku", ""), gelen_mail_id=mail_id)
+            except tg.TeklifHatasi as h:
+                flash(f"Teklif hazırlanamadı: {h}")
+            else:
+                flash("Teklif hazırlandı. Görseli kontrol edin; uygunsa mail taslağını oluşturun.")
+                return redirect(url_for("teklif_goster", tid=tid))
+    urunler = {k: fiyatlar()["urunler"][k]["ad"] for k in TEKLIF_URUNLERI}
+    return render_template("teklif_yeni.html", on=on, mail_id=mail_id, urunler=urunler,
+                           zeminler=list(tg.ZEMIN_RGB), logo_renkleri=list(tg.LOGO_RENK),
+                           kokular=fiyatlar()["kokular"])
+
+
+@app.route("/teklif/<int:tid>")
+@giris_gerekli
+def teklif_goster(tid):
+    with vt.baglanti() as con:
+        t = con.execute("SELECT * FROM teklif WHERE id=?", (tid,)).fetchone()
+        if not t:
+            abort(404)
+        taslaklar = con.execute("SELECT id, tur, durum, olusturma, gonderim FROM taslak WHERE teklif_id=? ORDER BY id",
+                                (tid,)).fetchall()
+    return render_template("teklif.html", t=t, satirlar=json.loads(t["satirlar"]), taslaklar=taslaklar,
+                           durumlar=TEKLIF_DURUM, tl=islemler.th.tl, takip_gun=AYAR.teklif_takip_gun)
+
+
+@app.route("/teklif/<int:tid>/gorsel")
+@giris_gerekli
+def teklif_gorsel(tid):
+    with vt.baglanti() as con:
+        t = con.execute("SELECT gorsel FROM teklif WHERE id=?", (tid,)).fetchone()
+    if not t or not t["gorsel"] or not Path(t["gorsel"]).exists():
+        abort(404)
+    yol = Path(t["gorsel"])
+    return send_file(yol, mimetype="image/jpeg", as_attachment=request.args.get("indir") == "1",
+                     download_name=yol.name)
+
+
+@app.post("/teklif/<int:tid>/<islem>")
+@giris_gerekli
+def teklif_islem(tid, islem):
+    try:
+        if islem == "mail":
+            islemler.teklif_taslagi_olustur(tid)
+            flash("Teklif maili onay bekleyenlere eklendi (görsel ekli). Okuyup onaylayınca gider.")
+            return redirect(url_for("taslaklar"))
+        if islem in ("kabul", "ret", "gonderildi"):
+            islemler.teklif_durumu(tid, islem)
+            flash({"kabul": "Teklif kabul edildi olarak işaretlendi.", "ret": "Teklif reddedildi olarak işaretlendi.",
+                   "gonderildi": "WhatsApp/elden gönderildi olarak işaretlendi; 10. gün takibi bu tarihten sayılır."}[islem])
+        else:
+            abort(404)
+    except tg.TeklifHatasi as h:
+        flash(str(h))
+    return redirect(url_for("teklif_goster", tid=tid))
 
 
 def calistir():

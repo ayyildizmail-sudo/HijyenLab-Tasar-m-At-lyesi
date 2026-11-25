@@ -26,6 +26,13 @@
     <form method="post" action="{{ url_for('is_baslat', ad='hatirlatma') }}" style="margin-top:8px"><input type="hidden" name="csrf" value="{{ csrf }}">
       <button class="ikincil">Cevap vermeyenlere hatırlatma hazırla</button></form>
   </div>
+  <div class="kart">
+    <h3>4. Teklifler</h3>
+    <p class="soluk">Teklif görselini logolu mockup ve kodla hesaplanan fiyatlarla hazırlar; görsel ekli mail taslağı oluşturur.</p>
+    <p><a class="dugme" href="{{ url_for('teklif_yeni') }}">Yeni teklif</a> <a href="{{ url_for('teklifler') }}">Tüm teklifler</a></p>
+    <form method="post" action="{{ url_for('is_baslat', ad='teklif_takip') }}"><input type="hidden" name="csrf" value="{{ csrf }}">
+      <button class="ikincil">10 gündür cevapsız tekliflere takip hazırla</button></form>
+  </div>
 </div>
 
 {% if is_.kayit %}

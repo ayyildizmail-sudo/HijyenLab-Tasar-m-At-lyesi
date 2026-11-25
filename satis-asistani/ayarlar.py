@@ -30,6 +30,7 @@ class Ayarlar:
     alan_adi_gunluk_limit: int = int(os.getenv("ALAN_ADI_GUNLUK_LIMIT", "1"))
     gonderim_penceresi: bool = _bool("GONDERIM_PENCERESI", "1")
     hatirlatma_gun: int = int(os.getenv("HATIRLATMA_GUN", "7"))
+    teklif_takip_gun: int = int(os.getenv("TEKLIF_TAKIP_GUN", "10"))
     panel_sifresi: str = os.getenv("PANEL_SIFRESI", "")
     cikis_url_kok: str = os.getenv("CIKIS_URL_KOK", "")  # ör. https://panel.hijyenlab.com/cik
     veritabani: str = os.getenv("VERITABANI", str(KLASOR / "satis.db"))

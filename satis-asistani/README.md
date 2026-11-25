@@ -35,11 +35,18 @@ info@hijyenlab.com için yapay zeka destekli satış asistanı:
 - **Gönderilmiş klasörü:** Gönderilen mailler mail programınızdaki "Gönderilmiş" klasörüne de kopyalanır. Telefondan bütün yazışmayı görürsünüz.
 - **Denetim izi:** Her gönderim ve ret kaydedilir: kim, ne zaman, hangi profil sürümüyle, hangi bulgular görüldü, yapay zekanın ilk metni ve gönderilen son metin.
 
-## Teklif talepleri
+## Teklifler (panelden)
 
-Teklif isteyen bir mail geldiğinde panelde bir **"Teklif dosyası"** kartı oluşur. Kartta firma, ürün, adet, şehir, zemin, baskı renkleri, koku ve logo eki olup olmadığı yazar. Kart, teklifin hazırlanması için gereken bilgileri tek yerde toplar. (Sonraki sürümde teklif görseli doğrudan panelden üretilecek.)
+Teklifi panelden hazırlarsınız; başka bir programa veya yapay zekaya gerek yoktur.
 
-Bilgi eksikse, örneğin adet veya şehir yoksa, cevap taslağı yalnız eksikleri soran kısa bir mail olur.
+1. **Teklifler → Yeni teklif.** Teklif isteyen bir mail geldiyse onay bekleyenlerdeki "Teklif dosyası" kartında **Bu talepten teklif hazırla** düğmesine basın; firma, e-posta, ürün, adet, şehir ve zemin forma kendiliğinden dolar.
+2. Logoyu yükleyin, ürünü, zemini ve baskı renklerini seçin. Aynı görselde en fazla 3 seçenek ayrı ayrı fiyatlanır (ör. beyaz zemin / lacivert zemin).
+3. **Teklif görselini hazırla.** Gerçek boş paket üzerine logolu mockup ve kalıcı teklif şablonunuzla 1800×3900 JPG (telefon ekranı) üretilir. Rakamları yalnız `teklif_hesapla.py` hesaplar (`fiyatlar.json`): adet minimuma ve koli katına yuvarlanır, klişe zemin dahil renk başına, Bodrum'da kargo yok.
+4. **Mail taslağı oluştur.** Görsel ekli teklif maili onay bekleyenlere düşer. Mail metninde rakam yoktur; rakamlar ekteki görseldedir. Siz okuyup onaylayınca gider. WhatsApp ile göndermek için **Görseli indir**, sonra **WhatsApp / elden gönderdim**.
+5. **10. gün takibi.** Gönderimden 10 gün sonra müşteriden cevap gelmemişse kibar bir takip maili aynı yazışma zincirinde onay bekleyenlere düşer (Özet → "10 gündür cevapsız tekliflere takip hazırla" veya `python calistir.py otomatik`). Müşteri cevap verirse takip iptal olur; süresi (15 gün) dolan teklife takip yazılmaz.
+6. Sonucu **Kabul edildi / Reddedildi** ile işaretleyin.
+
+Teklif dosyaları `teklifler/` klasöründe durur. Görsel, bilgisayardaki Chrome veya Edge ile çizilir; bulunamazsa `.env` içinde `CHROME_YOLU` yazın. Oshibori fiyatı dolar bazlı olduğu için otomatik hesaplanmaz.
 
 ## Kurulum (bir kez)
 
@@ -99,7 +106,7 @@ Gelen kutusunun her saat kendiliğinden kontrol edilmesi için:
 0 * * * * cd /yol/satis-asistani && .venv/bin/python calistir.py otomatik
 ```
 
-Windows'ta Görev Zamanlayıcı ile `python calistir.py otomatik` komutunu saatlik çalıştırın. Bu komut sadece taslak hazırlar, hiçbir mail göndermez.
+Windows'ta Görev Zamanlayıcı ile `python calistir.py otomatik` komutunu saatlik çalıştırın. Bu komut gelen kutusunu işler, hatırlatma ve teklif takip taslaklarını hazırlar; hiçbir mail göndermez.
 
 ## Gerçek gönderime geçmeden önce
 

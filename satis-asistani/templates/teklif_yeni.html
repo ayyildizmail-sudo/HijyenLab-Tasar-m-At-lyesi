@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block icerik %}
+<h2>Yeni teklif</h2>
+{% if mail_id %}<div class="bilgi">Bilgiler gelen mailin teklif kartından dolduruldu. Kontrol edip eksikleri tamamlayın.</div>{% endif %}
+<form method="post" enctype="multipart/form-data" action="{{ url_for('teklif_yeni') }}">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  {% if mail_id %}<input type="hidden" name="mail" value="{{ mail_id }}">{% endif %}
+  <div class="kart">
+    <h3>Müşteri</h3>
+    <div class="izgara">
+      <label>Firma adı (teklifte büyük başlık)<br><input name="firma" value="{{ on.firma or '' }}" required style="width:100%"></label>
+      <label>Yetkili kişi (isteğe bağlı)<br><input name="kisi" value="{{ on.kisi or '' }}" style="width:100%"></label>
+      <label>E-posta<br><input name="eposta" type="email" value="{{ on.eposta or '' }}" style="width:100%"></label>
+      <label>Teslim yeri (şehir/ilçe)<br><input name="teslim_yeri" value="{{ on.teslim_yeri or '' }}" required style="width:100%"></label>
+      <label>Koku (mendil)<br><select name="koku" style="width:100%"><option value="">Dört koku listelensin</option>
+        {% for k in kokular %}<option {% if (on.koku or '')|lower == k|lower %}selected{% endif %}>{{ k }}</option>{% endfor %}</select></label>
+      <label>Logo (PNG, JPG)<br><input type="file" name="logo" accept=".png,.jpg,.jpeg,.webp" required></label>
+    </div>
+    <p class="soluk">Bodrum teslimde kargo yazılmaz. Logonun zemini otomatik ayrılır; istenirse tek renge çevrilir.</p>
+  </div>
+  {% for i in [1, 2, 3] %}
+  <div class="kart">
+    <h3>Seçenek {{ i }}{% if i > 1 %} <span class="soluk">(isteğe bağlı: aynı görselde ayrı fiyatlanır)</span>{% endif %}</h3>
+    <div class="izgara">
+      <label>Ürün<br><select name="urun{{ i }}" style="width:100%">{% if i > 1 %}<option value="">—</option>{% endif %}
+        {% for kod, ad in urunler.items() %}<option value="{{ kod }}" {% if on['urun' ~ i] == kod %}selected{% endif %}>{{ ad }} ({{ kod }})</option>{% endfor %}</select></label>
+      <label>Zemin<br><select name="zemin{{ i }}" style="width:100%">
+        {% for z in zeminler %}<option {% if (on['zemin' ~ i] or 'beyaz') == z %}selected{% endif %}>{{ z }}</option>{% endfor %}</select></label>
+      <label>Baskı renkleri (virgülle; beyaz sayılmaz)<br><input name="renkler{{ i }}" value="{{ on['renkler' ~ i] or ('siyah' if i == 1 else '') }}" style="width:100%"></label>
+      <label>Logo rengi<br><select name="logo_rengi{{ i }}" style="width:100%"><option value="orijinal">Orijinal renkleri</option>
+        {% for r in logo_renkleri %}<option {% if on['logo_rengi' ~ i] == r %}selected{% endif %}>{{ r }}</option>{% endfor %}</select></label>
+      <label>Adet (boşsa minimum)<br><input name="adet{{ i }}" value="{{ on['adet' ~ i] or '' }}" inputmode="numeric" style="width:100%"></label>
+      <div><label><input type="checkbox" name="arka{{ i }}" value="1" {% if on['arka' ~ i] %}checked{% endif %}> Arka yüze de baskı</label><br>
+           <label><input type="checkbox" name="tekrar{{ i }}" value="1" {% if on['tekrar' ~ i] %}checked{% endif %}> Tekrar sipariş (klişe yok)</label></div>
+    </div>
+  </div>
+  {% endfor %}
+  <p><button>Teklif görselini hazırla</button> <span class="soluk">Mail gönderilmez; önce görseli görürsünüz.</span></p>
+</form>
+<p class="soluk">Renkli zeminde zemin rengi de bir baskı rengi (klişe) sayılır. Oshibori fiyatı dolar bazlı olduğu için otomatik hesaplanmaz.</p>
+{% endblock %}

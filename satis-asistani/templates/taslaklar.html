@@ -21,6 +21,7 @@
   {% if t.teklif_karti %}
   <div class="bilgi"><b>Teklif dosyası</b> <span class="soluk">(teklif için gereken bilgiler)</span>
     <pre class="kart-metin" id="kart{{ t.id }}">{{ t.teklif_karti }}</pre>
+    <a class="dugme" href="{{ url_for('teklif_yeni', mail=t.gelen_mail_id) }}">Bu talepten teklif hazırla</a>
     <button type="button" class="ikincil" onclick="navigator.clipboard.writeText(document.getElementById('kart{{ t.id }}').innerText).then(()=>this.textContent='Kopyalandı')">Kopyala</button>
   </div>
   {% endif %}
@@ -32,7 +33,13 @@
     <input type="hidden" name="csrf" value="{{ csrf }}">
     <p><input name="konu" value="{{ t.konu }}" style="width:100%"></p>
     <textarea name="metin">{{ t.metin }}</textarea>
-    {% if t.tur != 'cevap' %}<p class="soluk">Gönderilirken sonuna "listeden çıkma" notu ve şirket bilgisi otomatik eklenir.</p>{% endif %}
+    {% if t.tur in ('tanitim', 'hatirlatma') %}<p class="soluk">Gönderilirken sonuna "listeden çıkma" notu ve şirket bilgisi otomatik eklenir.</p>{% endif %}
+    {% if t.ek_listesi %}
+    <div class="bilgi"><b>Ek:</b> {{ t.ek_listesi|join(', ') }}
+      {% if t.teklif_id %}<div style="margin-top:8px"><a href="{{ url_for('teklif_goster', tid=t.teklif_id) }}">
+        <img src="{{ url_for('teklif_gorsel', tid=t.teklif_id) }}" alt="Teklif görseli" style="width:180px;border:1px solid #e4e7ec;border-radius:8px"></a>
+        <div class="soluk">Teklif {{ t.teklif_no }} · görsele tıklayıp büyük açabilirsiniz</div></div>{% endif %}
+    </div>{% endif %}
 
     {% if t.bulgu_listesi %}
     <div class="bulgu"><b>Güvenlik kontrolü bulguları.</b> Göndermek için her birini okuyup işaretleyin

@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS musteri (
     mevcut_musteri INTEGER NOT NULL DEFAULT 0,   -- 1: zaten müşterimiz, tanıtım gitmez
     cikis_token TEXT,
     durum TEXT NOT NULL DEFAULT 'yeni',
-        -- yeni, taslak_hazir, atlandi, yazildi, hatirlatildi, cevap_verdi, ilgileniyor, olumsuz, listeden_cikti
+        -- yeni, taslak_hazir, atlandi, yazildi, hatirlatildi, cevap_verdi, ilgileniyor, teklif_verildi,
+        -- musteri_oldu, olumsuz, listeden_cikti
     not_ TEXT,
     olusturma TEXT NOT NULL DEFAULT (datetime('now','localtime')),
     son_temas TEXT
@@ -51,7 +52,7 @@ CREATE TABLE IF NOT EXISTS mail (
 
 CREATE TABLE IF NOT EXISTS taslak (
     id INTEGER PRIMARY KEY,
-    tur TEXT NOT NULL,          -- tanitim, hatirlatma, cevap
+    tur TEXT NOT NULL,          -- tanitim, hatirlatma, cevap, teklif, teklif_takip
     musteri_id INTEGER REFERENCES musteri(id),
     gelen_mail_id INTEGER REFERENCES mail(id),
     kime TEXT NOT NULL, konu TEXT NOT NULL, metin TEXT NOT NULL,
@@ -63,6 +64,24 @@ CREATE TABLE IF NOT EXISTS taslak (
     hata TEXT,
     olusturma TEXT NOT NULL DEFAULT (datetime('now','localtime')),
     gonderim TEXT
+);
+
+CREATE TABLE IF NOT EXISTS teklif (
+    id INTEGER PRIMARY KEY,
+    teklif_no TEXT UNIQUE NOT NULL,      -- HL-YYYY-AAGG-NN
+    musteri_id INTEGER REFERENCES musteri(id),
+    gelen_mail_id INTEGER REFERENCES mail(id),
+    firma TEXT NOT NULL, kisi TEXT, eposta TEXT, teslim_yeri TEXT, koku TEXT,
+    secenekler TEXT NOT NULL,            -- girilen seçenekler (JSON)
+    satirlar TEXT NOT NULL,              -- teklif_hesapla çıktısı (JSON); rakamların tek kaynağı
+    genel_toplam REAL,
+    gorsel TEXT,                         -- JPG yolu
+    tarih TEXT NOT NULL,                 -- YYYY-MM-DD
+    gecerlilik TEXT NOT NULL,            -- YYYY-MM-DD (tarih + 15 gün)
+    durum TEXT NOT NULL DEFAULT 'hazirlandi',
+        -- hazirlandi, taslakta, gonderildi, cevap_geldi, kabul, ret, suresi_doldu
+    gonderim TEXT,
+    olusturma TEXT NOT NULL DEFAULT (datetime('now','localtime'))
 );
 
 CREATE TABLE IF NOT EXISTS kara_liste (
@@ -99,7 +118,8 @@ EK_SUTUNLAR = {
                 "mevcut_musteri": "INTEGER NOT NULL DEFAULT 0", "cikis_token": "TEXT"},
     "mail": {"referanslar": "TEXT", "ekler": "TEXT", "guven": "REAL",
              "insan_baksin": "INTEGER NOT NULL DEFAULT 0", "teklif_karti": "TEXT"},
-    "taslak": {"orijinal_metin": "TEXT", "profil_surumu": "TEXT", "bulgular": "TEXT", "hesaplanan_teklif": "TEXT"},
+    "taslak": {"orijinal_metin": "TEXT", "profil_surumu": "TEXT", "bulgular": "TEXT", "hesaplanan_teklif": "TEXT",
+               "ekler": "TEXT", "teklif_id": "INTEGER"},
 }
 
 
@@ -227,3 +247,30 @@ def imap_durumu_kaydet(con, klasor: str, uidvalidity: int | None, son_uid: int) 
     con.execute("INSERT INTO imap_durum (klasor, uidvalidity, son_uid) VALUES (?, ?, ?) "
                 "ON CONFLICT(klasor) DO UPDATE SET uidvalidity=excluded.uidvalidity, son_uid=excluded.son_uid",
                 (klasor, uidvalidity, son_uid))
+
+
+# --- Teklifler ------------------------------------------------------------------
+
+def yeni_teklif_no(con, gun: datetime | None = None) -> str:
+    """HL-YYYY-AAGG-NN: NN o günün sıra numarası."""
+    gun = gun or datetime.now()
+    on = f"HL-{gun:%Y}-{gun:%m%d}-"
+    son = con.execute("SELECT teklif_no FROM teklif WHERE teklif_no LIKE ? ORDER BY teklif_no DESC LIMIT 1",
+                      (on + "%",)).fetchone()
+    sira = int(son[0].rsplit("-", 1)[1]) + 1 if son else 1
+    return f"{on}{sira:02d}"
+
+
+def takip_bekleyen_teklifler(con, gun: int):
+    """Gönderildikten `gun` gün sonra hâlâ cevap gelmemiş, takip taslağı yazılmamış ve süresi dolmamış teklifler."""
+    sinir = (datetime.now() - timedelta(days=gun)).strftime("%Y-%m-%d %H:%M:%S")
+    return con.execute(
+        "SELECT * FROM teklif WHERE durum='gonderildi' AND gonderim <= ? AND gecerlilik >= date('now','localtime') "
+        "AND id NOT IN (SELECT teklif_id FROM taslak WHERE tur='teklif_takip' AND teklif_id IS NOT NULL)",
+        (sinir,),
+    ).fetchall()
+
+
+def suresi_dolan_teklifleri_isaretle(con) -> int:
+    return con.execute("UPDATE teklif SET durum='suresi_doldu' WHERE durum IN ('hazirlandi','gonderildi') "
+                       "AND gecerlilik < date('now','localtime')").rowcount

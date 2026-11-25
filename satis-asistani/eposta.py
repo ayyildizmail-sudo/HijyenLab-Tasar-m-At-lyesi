@@ -6,6 +6,7 @@
 """
 import email
 import imaplib
+import mimetypes
 import re
 import smtplib
 import ssl
@@ -15,6 +16,7 @@ from email.header import decode_header, make_header
 from email.message import EmailMessage, Message
 from email.utils import formataddr, formatdate, make_msgid, parseaddr
 from html import unescape
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from ayarlar import AYAR
@@ -202,7 +204,8 @@ def gonderilmise_kopyala(msg: EmailMessage) -> None:
 # --- Gönderme --------------------------------------------------------------------
 
 def mail_olustur(kime: str, konu: str, metin: str, tanitim: bool = False, yanit_id: str | None = None,
-                 referanslar: str | None = None, cikis_token: str | None = None) -> EmailMessage:
+                 referanslar: str | None = None, cikis_token: str | None = None,
+                 ekler: list[str] | None = None) -> EmailMessage:
     msg = EmailMessage()
     msg["From"] = formataddr((AYAR.gonderen_adi, AYAR.mail_adresi))
     msg["To"] = kime
@@ -220,6 +223,11 @@ def mail_olustur(kime: str, konu: str, metin: str, tanitim: bool = False, yanit_
         msg["List-Unsubscribe"] = ", ".join(cikis)
         metin = metin.rstrip() + ALT_BILGI
     msg.set_content(metin)
+    for yol in ekler or []:
+        dosya = Path(yol)
+        tip = mimetypes.guess_type(dosya.name)[0] or "application/octet-stream"
+        ana, alt = tip.split("/", 1)
+        msg.add_attachment(dosya.read_bytes(), maintype=ana, subtype=alt, filename=dosya.name)
     return msg
 
 
