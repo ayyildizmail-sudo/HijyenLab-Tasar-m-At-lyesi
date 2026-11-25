@@ -2,7 +2,8 @@
 
 1) Kesme: arka plan yapay zeka modeliyle temizlenir (rembg + birefnet-general, yerel çalışır):
      pip install "rembg[cpu]"  ->  python araclar/gercek_baskilar.py kes <fotoğraf_klasörü> <ara_klasör>
-2) Düzenleme: paket yataya çevrilir, beyaz dengesi eşitlenir, aynı boyda beyaz zemine yumuşak gölgeyle yerleşir:
+2) Logo + mockup: araclar/gercek_logolar.py <ara_klasör> (logoyu fotoğraftan düz renk çıkarır, boş pakete basar)
+   Eski yol, fotoğrafı doğrudan düzenleme: paket yataya çevrilir, beyaz dengesi eşitlenir, aynı boyda beyaz zemine yumuşak gölgeyle yerleşir:
      python araclar/gercek_baskilar.py duzenle <ara_klasör>
 Çıktı: varliklar/gercek/<ad>.jpg
 
@@ -20,12 +21,18 @@ CIKTI = KOK / "varliklar" / "gercek"
 
 # ad: (fotoğraf öneki, paket)  paket: tam | ust | alt  (iki paketli fotoğrafta hangisi)
 SECIM = {
-    "kazancilar": ("2e5a521c", "ust"), "sohret": ("253e273b", "tam"), "cotto": ("63f4cda4", "tam"),
-    "sarihan": ("87aeee42", "tam"), "kultur_sofrasi": ("08261d46", "tam"), "seruven": ("a691671f", "tam"),
-    "vom": ("fd0d6eab", "tam"), "ajlan": ("aee09cc8", "alt"), "salonika": ("0e2c5f27", "tam"),
-    "meridian": ("ebb676dc", "tam"), "zehra_bora": ("b8c9d28b", "tam"), "mehmet_yildirim": ("039cc0e2", "tam"),
-    "nyek": ("27deb815", "tam"), "maderia": ("155b7300", "tam"), "rotasa": ("a66a8990", "tam"),
-    "yaf": ("7fbfe5c8", "tam"), "michelin": ("11d7a2ad", "tam"), "orkun": ("bfcea028", "alt"),
+    "kazancilar": ("2e5a521c", "ust"),
+    "sohret": ("253e273b", "tam"),
+    "cotto": ("63f4cda4", "tam"),
+    "seruven": ("a691671f", "tam"),
+    "vom": ("fd0d6eab", "tam"),
+    "ajlan": ("aee09cc8", "alt"),
+    "salonika": ("0e2c5f27", "tam"),
+    "meridian": ("ebb676dc", "tam"),
+    "zehra_bora": ("b8c9d28b", "tam"),
+    "mehmet_yildirim": ("039cc0e2", "tam"),
+    "maderia": ("155b7300", "tam"),
+    "yaf": ("7fbfe5c8", "tam"),
 }
 TUVAL = (1200, 470)   # 17x6 paket oranına uygun, sabit kart boyu
 DOLULUK = 0.90        # paket kartın genişliğinin bu kadarını kaplar
