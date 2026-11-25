@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block icerik %}
+<h2>Onay bekleyen taslaklar ({{ liste|length }})</h2>
+{% for t in liste %}
+<div class="kart">
+  <div><span class="etiket">{{ t.tur }}</span> <b>{{ t.musteri_ad or t.kime }}</b> {% if t.musteri_tur %}<span class="soluk">({{ t.musteri_tur }})</span>{% endif %} → {{ t.kime }}</div>
+  {% if t.gelen_metin %}
+  <details style="margin:8px 0"><summary>Gelen mail: {{ t.gelen_konu }}</summary>
+    <p class="soluk">{{ t.gelen_ozet }}</p><pre style="white-space:pre-wrap">{{ t.gelen_metin }}</pre></details>
+  {% endif %}
+  <form method="post" action="{{ url_for('taslak_islem', tid=t.id) }}">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <p><input name="konu" value="{{ t.konu }}" style="width:100%"></p>
+    <textarea name="metin">{{ t.metin }}</textarea>
+    {% if t.tur != 'cevap' %}<p class="soluk">Gönderilirken sonuna "listeden çıkma" notu otomatik eklenir.</p>{% endif %}
+    <p><button name="islem" value="gonder">Onayla ve gönder</button>
+       <button name="islem" value="reddet" class="ikincil">Reddet</button></p>
+  </form>
+</div>
+{% else %}<div class="kart soluk">Onay bekleyen taslak yok.</div>{% endfor %}
+{% endblock %}

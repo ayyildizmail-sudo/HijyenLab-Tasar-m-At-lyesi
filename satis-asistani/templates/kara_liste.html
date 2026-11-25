@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block icerik %}
+<h2>Listeden çıkanlar</h2>
+<div class="kart"><p class="soluk">Bu adreslere bir daha tanıtım maili gitmez. Bütün bir alan adını engellemek için <code>@firma.com</code> yazın.</p>
+<form method="post"><input type="hidden" name="csrf" value="{{ csrf }}"><input name="eposta" placeholder="adres@firma.com"> <button>Ekle</button></form></div>
+<div class="kart tablo"><table><tr><th>Adres</th><th>Sebep</th><th>Tarih</th></tr>
+{% for k in liste %}<tr><td>{{ k.eposta }}</td><td>{{ k.sebep }}</td><td class="soluk">{{ k.tarih }}</td></tr>
+{% else %}<tr><td colspan="3" class="soluk">Boş</td></tr>{% endfor %}</table></div>
+{% endblock %}

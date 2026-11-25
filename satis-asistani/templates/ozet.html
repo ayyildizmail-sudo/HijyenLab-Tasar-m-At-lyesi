@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block bas %}{% if is_.calisiyor %}<meta http-equiv="refresh" content="4">{% endif %}{% endblock %}
+{% block icerik %}
+<div class="izgara">
+  <div class="kart">
+    <h3>1. Gelen kutusu</h3>
+    <p class="soluk">info@ adresine gelen mailleri okur, sınıflandırır, gerekenlere cevap taslağı hazırlar.</p>
+    <form method="post" action="{{ url_for('is_baslat', ad='gelen') }}"><input type="hidden" name="csrf" value="{{ csrf }}">
+      Son <input name="gun" value="3" size="2"> gün <button>Kontrol et</button></form>
+  </div>
+  <div class="kart">
+    <h3>2. Müşteri bul</h3>
+    <p class="soluk">OpenStreetMap'ten işletmeleri çeker, web sitelerinde yayımlanmış kurumsal e-postayı arar.</p>
+    <form method="post" action="{{ url_for('is_baslat', ad='bul') }}"><input type="hidden" name="csrf" value="{{ csrf }}">
+      <input name="bolge" placeholder="İlçe / şehir (ör. Bodrum)" required>
+      <div style="margin:8px 0">{% for kod, ad in turler.items() %}
+        <label style="margin-right:10px"><input type="checkbox" name="tur" value="{{ kod }}" checked> {{ ad }}</label>{% endfor %}</div>
+      <button>Ara</button></form>
+  </div>
+  <div class="kart">
+    <h3>3. Tanıtım taslakları</h3>
+    <p class="soluk">E-postası olan {{ epostali }} yeni işletme var. Her birine özel mail yazılır, siz onaylamadan gitmez.</p>
+    <form method="post" action="{{ url_for('is_baslat', ad='tanitim') }}"><input type="hidden" name="csrf" value="{{ csrf }}">
+      <input name="adet" value="10" size="3"> işletme için <button>Taslak yaz</button></form>
+    <form method="post" action="{{ url_for('is_baslat', ad='hatirlatma') }}" style="margin-top:8px"><input type="hidden" name="csrf" value="{{ csrf }}">
+      <button class="ikincil">Cevap vermeyenlere hatırlatma hazırla</button></form>
+  </div>
+</div>
+
+{% if is_.kayit %}
+<div class="kart"><h3>{{ is_.ad }} {% if is_.calisiyor %}<span class="etiket">çalışıyor…</span>{% endif %}</h3>
+<pre class="kayit">{{ is_.kayit|join("\n") }}</pre></div>
+{% endif %}
+
+<div class="izgara">
+  <div class="kart"><h3>Onay bekleyen</h3>
+    {% for b in bekleyen %}<div>{{ b.tur }}: <b>{{ b.n }}</b></div>{% else %}<div class="soluk">Yok</div>{% endfor %}
+    <p><a class="dugme" href="{{ url_for('taslaklar') }}">Taslaklara git</a></p></div>
+  <div class="kart"><h3>Bugün giden tanıtım</h3><div style="font-size:28px"><b>{{ bugun }}</b> / {{ limit }}</div></div>
+  <div class="kart"><h3>Müşteriler</h3>
+    {% for d in durumlar %}<div><a href="{{ url_for('musteriler', durum=d.durum) }}">{{ d.durum }}</a>: <b>{{ d.n }}</b></div>{% else %}<div class="soluk">Henüz yok</div>{% endfor %}</div>
+</div>
+{% endblock %}

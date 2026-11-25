@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HijyenLab Satış Asistanı</title>
+{% block bas %}{% endblock %}
+<style>
+  :root { --zemin:#f6f7f9; --kart:#fff; --yazi:#1d2330; --soluk:#667085; --ana:#0f766e; --kirmizi:#b42318; --cizgi:#e4e7ec; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--zemin); color:var(--yazi); }
+  header { background:#0b3b38; color:#fff; padding:12px 16px; display:flex; flex-wrap:wrap; gap:16px; align-items:center; }
+  header b { margin-right:12px; }
+  header a { color:#cdeeea; text-decoration:none; }
+  main { max-width:1100px; margin:0 auto; padding:16px; }
+  .kart { background:var(--kart); border:1px solid var(--cizgi); border-radius:10px; padding:16px; margin-bottom:16px; }
+  .uyari { background:#fff4e5; border:1px solid #f5c26b; padding:10px 14px; border-radius:8px; margin-bottom:16px; }
+  .bilgi { background:#e8f5f3; border:1px solid #9fd6cf; padding:10px 14px; border-radius:8px; margin-bottom:16px; }
+  button, .dugme { background:var(--ana); color:#fff; border:0; border-radius:8px; padding:8px 14px; font:inherit; cursor:pointer; text-decoration:none; display:inline-block; }
+  button.ikincil { background:#e4e7ec; color:var(--yazi); }
+  button.tehlike { background:var(--kirmizi); }
+  input, textarea, select { font:inherit; padding:7px 9px; border:1px solid #d0d5dd; border-radius:8px; max-width:100%; }
+  textarea { width:100%; min-height:220px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--cizgi); vertical-align:top; }
+  .tablo { overflow-x:auto; }
+  .etiket { display:inline-block; padding:1px 8px; border-radius:99px; background:#eef2f6; font-size:12px; }
+  .soluk { color:var(--soluk); font-size:13px; }
+  .izgara { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+  pre.kayit { background:#111827; color:#d1fae5; padding:12px; border-radius:8px; max-height:260px; overflow:auto; font-size:13px; white-space:pre-wrap; }
+  details summary { cursor:pointer; color:var(--ana); }
+</style>
+</head>
+<body>
+<header>
+  <b>HijyenLab Satış Asistanı</b>
+  {% if session.giris %}
+  <a href="{{ url_for('ozet') }}">Özet</a>
+  <a href="{{ url_for('taslaklar') }}">Onay bekleyenler</a>
+  <a href="{{ url_for('gelen') }}">Gelen mailler</a>
+  <a href="{{ url_for('musteriler') }}">Müşteriler</a>
+  <a href="{{ url_for('kara_liste') }}">Listeden çıkanlar</a>
+  {% endif %}
+</header>
+<main>
+  {% if deneme %}<div class="uyari"><b>DENEME MODU açık:</b> Hiçbir mail gerçekten gönderilmiyor. Gerçek gönderim için .env içinde <code>DENEME_MODU=0</code> yapın.</div>{% endif %}
+  {% for m in get_flashed_messages() %}<div class="bilgi">{{ m }}</div>{% endfor %}
+  {% block icerik %}{% endblock %}
+</main>
+</body>
+</html>
