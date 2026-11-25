@@ -153,10 +153,10 @@ def cevap_yaz(mail: dict, s: Siniflandirma, onceki_yazisma: str = "", hesaplanan
     elif s.kategori in (Kategori.teklif_talebi, Kategori.siparis):
         gorev += "Teklifi ekibimizin hazırlayıp göndereceğini söyle; gerekiyorsa logoyu iste.\n"
     if s.numune_istiyor:
-        gorev += ("Müşteri numune istiyor: memnuniyetle göndereceğimizi söyle; teslim adresi, yetkili kişi ve "
-                  "ilgilendiği ürünleri iste. Ücret ve gönderim tarihi konusunda söz verme.\n")
+        gorev += ("Müşteri numune istiyor: numuneyi ücretsiz, kargosu bizden göndereceğimizi söyle; teslim adresi, "
+                  "yetkili kişi ve ilgilendiği ürünleri iste. Gönderim tarihi konusunda söz verme.\n")
     elif s.kategori in (Kategori.tanitima_olumlu_cevap, Kategori.teklif_talebi, Kategori.soru):
-        gorev += ("Uygunsa, profildeki 'Numune' bölümüne göre kumaşı elinde görmesi için numune göndermeyi teklif et. "
+        gorev += ("Uygunsa, profildeki 'Numune' bölümüne göre kumaşı elinde görmesi için ücretsiz numune (kargo bizden) teklif et. "
                   "Kumaşı anlatman gerekirse profildeki 'Kumaşı anlatma' ifadelerini kullan.\n")
     if s.kategori == Kategori.sikayet:
         gorev += "Bu bir şikâyet: özür dile, konuyu ekibin hemen inceleyeceğini söyle, hiçbir tazmin sözü verme.\n"

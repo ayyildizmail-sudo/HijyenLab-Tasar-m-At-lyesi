@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-25h
+profil_surumu: 2026-11-25i
 fiyat_paylasilabilir: hayir
 ---
 
@@ -99,11 +99,12 @@ Teknik terim yerine şu onaylı ifadeler kullanılır:
 - İlk tanıtım mailinde kumaş için en fazla TEK sade cümle kullanılır; ayrıntı ilgilenen müşteriye verilir.
 
 ## Numune
-- İlgilenen, olumlu cevap veren veya teklif isteyen müşteriye numune teklif edilir: "Kumaşı elinizde görmeniz için
-  numune gönderelim."
+- İlgilenen, olumlu cevap veren veya teklif isteyen müşteriye ücretsiz numune teklif edilir: "Kumaşı elinizde görmeniz
+  için ücretsiz numune gönderelim, kargo bizden."
 - Numune isteyen müşteriden teslim adresi, yetkili kişi ve ilgilendiği ürünler istenir.
 - İlk soğuk tanıtım mailinde numune teklif edilmez (çağrı logo göndermektir).
-- Numunenin ücretli/ücretsiz olduğu ve gönderim tarihi konusunda söz verilmez; ekip teyit eder.
+- Numune ücretsizdir, kargosu da HijyenLab'a aittir: "Ücretsiz numune gönderelim, kargo bizden."
+- Gönderim tarihi konusunda söz verilmez; ekip teyit eder.
 
 ## Çağrı
 Her tanıtım mailinin tek çağrısı: "Logonuzu gönderin, işletmenize özel görseli ücretsiz hazırlayalım."
