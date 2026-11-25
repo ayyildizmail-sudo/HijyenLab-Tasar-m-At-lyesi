@@ -42,7 +42,7 @@ Yanında bir **tanıtım kataloğu** (PDF) hazırlandı. Potansiyel müşteriler
 - **Klişe:** renk başına 1.000 TL, tek seferlik. Aynı tasarımla tekrar siparişte alınmaz. Özel CMYK klişe 10.000 TL.
 - **Kargo:** koli başına 200 TL. Bodrum teslimatlarında nakliye ücreti alınmaz.
 - **Mendil kokuları:** Flambau (standart), Limon, Bodrum Mandalinası, Yeşil Çay. Başka koku için en az 20.000 adet.
-- **Rulo ürünler:** dört ölçüde aynı kumaş, 60 g/m² nonwoven; tekli ambalaj, 50 mikron OPP. Ölçüler iç kumaş ölçüsüdür; 30×30 ve 30×35, 25×30 ile aynı ambalajı (16×17 cm) kullanır.
+- **Kumaş:** Dört rulo ölçüsü ve 20×25 katlı aynı kumaş: 60 g/m² nonwoven, noktalı doku. Oshibori %100 pamuk havlu. Rulo ürünler tekli ambalaj, 50 mikron OPP. Ölçüler iç kumaş ölçüsüdür; 30×30 ve 30×35, 25×30 ile aynı ambalajı (16×17 cm) kullanır.
 - **Klişe renk sayımı:** Beyaz dışındaki her renk ayrı klişedir, zemin dahil; beyaza klişe yapılmaz (siyah zemin + beyaz yazı = 1, lacivert zemin + altın yazı = 2). Ön ve arka yüzde aynı renkler klişe sayısını artırmaz.
 - **Selefon:** Renkli zeminde uygulanır, renkli birim fiyata dahildir. **Baskısız ürün:** klişe yok, beyaz fiyat, en az bir koli.
 - **Hedef üretim süresi:** grafik onayı ve ön ödemeden sonra yeni klişede ~25 gün, tekrar siparişte ~20 gün; kesin tarih sözü verilmez. **Teklifler 15 gün geçerlidir.**
@@ -184,8 +184,7 @@ Bir müşteri şu durumlardan birinde olur:
 
 - [ ] **HijyenLab logosunun vektör/yüksek çözünürlüklü hali** (`hijyenlab logo.pdf`): katalogdaki logo 226×88 px; ekranda yeterli, baskıda bulanık olur.
 - [ ] **BM15 (25×25) bıçak izi PDF'i**: boş paket görseli ve güvenli alan şimdilik yaklaşık.
-- [ ] **Katlı (BM545) ve mendil (BM21) kumaş bilgisi ve görüntüsü** bekleniyor. Oshibori: %100 pamuk havlu, 25×30 / 30×30 cm, tek kullanımlık tekli paket, logo ambalaja basılır (teyitli); kendi ürün fotoğrafı bekleniyor (internetteki referans görseller telif nedeniyle katalogda kullanılmıyor). Rulo ürünlerin dördünde aynı kumaş (60 g/m² nonwoven) kullanıldığı teyit edildi; açılmış 25×30 fotoğrafı katalogda.
-- [ ] **Yakın çekim kumaş dokusu**: gönderilen video 478×850 piksel olduğu için yakın çekim görsel çıkmadı; telefonun orijinal videosu veya fotoğrafı gerekiyor.
+- [ ] **Mendil (BM21) kumaş bilgisi ve görüntüsü** bekleniyor. Katlı (BM545) rulo ile aynı kumaş (teyitli); kumaş yakın çekimi katalogda. Oshibori: %100 pamuk havlu, 25×30 / 30×30 cm, tek kullanımlık tekli paket, logo ambalaja basılır (teyitli); kendi ürün fotoğrafı bekleniyor (internetteki referans görseller telif nedeniyle katalogda kullanılmıyor). Rulo ürünlerin dördünde aynı kumaş (60 g/m² nonwoven) kullanıldığı teyit edildi; açılmış 25×30 fotoğrafı katalogda.
 - [ ] **Gerçek ürün fotoğrafları:** Mevcut mockup'lar yapay zekayla üretilmiş, düşük çözünürlüklü. 7×12 mendil mockup'ı kare görünüyor, gerçekte dikdörtgen.
 - [ ] **Kataloğa son onay:** metinler, sıralama, renkler.
 - [ ] **Mail ayarları** (en sona bırakıldı): sağlayıcı (Google / Microsoft / Yandex / hosting), IMAP ve SMTP sunucuları, uygulama şifresi.
