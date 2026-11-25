@@ -32,9 +32,9 @@ GORSEL = {
 
 # Gerçek müşteri baskıları (araclar/gercek_baskilar.py -> varliklar/gercek/)
 GERCEK = {
-    "restoran": ["kazancilar", "sohret", "kultur_sofrasi", "sarihan"],
+    "restoran": ["kazancilar", "kultur_sofrasi", "sarihan", "seruven"],
     "otel": ["vom", "ajlan", "salonika", "meridian"],
-    "kuafor": ["zehra_bora", "mehmet_yildirim", "maderia", "salonika"],
+    "kuafor": ["zehra_bora", "salonika", "vom", "ajlan"],
     "toptanci": ["kurumsal/tubitak_bilgem", "kurumsal/botas", "kurumsal/cevheri", "yaf"],
 }
 

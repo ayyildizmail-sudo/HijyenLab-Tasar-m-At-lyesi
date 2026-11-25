@@ -22,7 +22,6 @@ CIKTI = KOK / "varliklar" / "gercek"
 # ad: (fotoğraf öneki, paket)  paket: tam | ust | alt  (iki paketli fotoğrafta hangisi)
 SECIM = {
     "kazancilar": ("2e5a521c", "ust"),
-    "sohret": ("253e273b", "tam"),
     "cotto": ("63f4cda4", "tam"),
     "seruven": ("a691671f", "tam"),
     "vom": ("fd0d6eab", "tam"),
@@ -30,15 +29,13 @@ SECIM = {
     "salonika": ("0e2c5f27", "tam"),
     "meridian": ("ebb676dc", "tam"),
     "zehra_bora": ("b8c9d28b", "tam"),
-    "mehmet_yildirim": ("039cc0e2", "tam"),
-    "maderia": ("155b7300", "tam"),
     "yaf": ("7fbfe5c8", "tam"),
     "sarihan": ("87aeee42", "tam"),
     "michelin": ("c9cf37bd", "ust"),
     "kultur_sofrasi": ("08261d46", "tam"),
     "orkun": ("bfcea028", "alt"),
 }
-# N'yek ve Rotasa denendi; parlama logonun içine girdiği için temiz çıkmadı (logo dosyası gelirse eklenir).
+# Şöhret (yazı bozuluyor), Mehmet Yıldırım (kırışık harf), Maderia (dalgalı kutu), N'yek ve Rotasa denendi; parlama logonun içine girdiği için temiz çıkmadı (logo dosyası gelirse eklenir).
 KESIM_ADI = {"michelin": "michelin2"}  # kesim dosyası farklı adla kaydedildiyse
 TUVAL = (1200, 470)   # 17x6 paket oranına uygun, sabit kart boyu
 DOLULUK = 0.90        # paket kartın genişliğinin bu kadarını kaplar

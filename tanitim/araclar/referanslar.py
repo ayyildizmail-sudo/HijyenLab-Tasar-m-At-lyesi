@@ -13,10 +13,10 @@ KURUM = [("tubitak_bilgem", "TÜBİTAK BİLGEM"), ("botas", "BOTAŞ"), ("iletisi
          ("jandarma", "Jandarma Eğitim Komutanlığı"), ("sosyal_hizmetler", "Sosyal Hizmetler Başkanlığı"),
          ("kars_emniyet", "Kars Emniyet Müdürlüğü"), ("kars_polisevi", "Kars Polisevi Şube Müdürlüğü"),
          ("bodrum_ozel_egitim", "Bodrum Özel Eğitim Merkezi Komutanlığı"), ("cevheri", "Cevheri")]
-ISLETME = [("kazancilar", "Tarihi Kazancılar"), ("sohret", "Bakırköy Şöhret"), ("seruven", "Serüven"), ("cotto", "Cotto"),
+ISLETME = [("kazancilar", "Tarihi Kazancılar"), ("seruven", "Serüven"), ("cotto", "Cotto"),
            ("kultur_sofrasi", "Kültür Sofrası"), ("sarihan", "Sarıhan Fresh"), ("vom", "VOM Hotel"), ("ajlan", "Ajlan Bohemian"),
-           ("salonika", "Salonika Suites"), ("meridian", "Meridian Mice"), ("zehra_bora", "Zehra Bora"),
-           ("mehmet_yildirim", "Mehmet Yıldırım"), ("maderia", "Maderia"), ("yaf", "YAF Diesel"), ("orkun", "Orkun Group"),
+           ("salonika", "Salonika Suites"), ("zehra_bora", "Zehra Bora"),
+           ("yaf", "YAF Diesel"), ("orkun", "Orkun Group"),
            ("michelin", "Michelin")]
 
 CSS = """@page{size:A4;margin:0}*{box-sizing:border-box;margin:0;padding:0}
@@ -31,7 +31,7 @@ h2 span{font-size:8.5pt;font-weight:400;color:#4a5f7a}
 figure{text-align:center}figure img{width:100%;display:block}.g3 img{aspect-ratio:1.6;object-fit:cover}.g4 img{aspect-ratio:1.97;object-fit:contain}
 figcaption{font-size:7.6pt;font-weight:600;color:#0b3558;line-height:1.2;margin-top:.3mm}
 .alt{position:absolute;left:0;right:0;bottom:0;background:#0b3558;color:#eaf2fa;padding:4mm 16mm;display:flex;justify-content:space-between;align-items:center;font-size:9pt}
-.alt b{color:#fff;font-size:10.5pt}.not{position:absolute;left:16mm;right:16mm;bottom:15mm;font-size:7pt;color:#4a5f7a}"""
+.alt b{color:#fff;font-size:10.5pt}.alt span:last-child{white-space:nowrap}.not{position:absolute;left:16mm;right:16mm;bottom:21mm;font-size:7pt;color:#4a5f7a}"""
 
 
 def kart(klasor, ad, isim):
