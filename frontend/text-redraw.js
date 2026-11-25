@@ -121,6 +121,11 @@ async function redraw({img,mask,out,palette,drawPalette=null,relaxed=false,surfa
   const ws=cs=>{const d=dotless(cs);return withSpaces(d)??d.map(c=>c.ch).join('');};
   if(clusters.length!==chars.filter(c=>c.ch!==' ').length&&!ocrSpaces){const big=order.filter(o=>o[0]>=Math.max(cgm*2.5,lh*.15));if(big.length===1){/* tek belirgin boşluk: yaklaşık konumdan kelimeyi böl */const xg=(clusters[big[0][1]].x1+clusters[big[0][1]+1].x0)/2,frac=(xg-lx0)/(lx1-lx0);chars.splice(Math.max(1,Math.min(chars.length-1,Math.round(frac*chars.length))),0,{ch:' ',p:1,x:0});}}
   const trText=normalize(ws(turkish(chars,line,comps,cropX0,cropW,m,w,h))),trText2=normalize(ws(marks)),text=normalize(plain(ws(chars))),cands=[...new Set([trText,trText2,text])];
+  // ekran görüntüsündeki telefon/uygulama düğmesi yazısı (Düzenle, Paylaş, Edit…) logonun parçası değildir: silinir, çizilmez
+  if(!dry&&/^(düzenle|duzenle|paylaş|paylas|kaydet|edit|share|save|done|bitti|iptal|cancel|sil|delete)$/i.test(text.replace(/\s+/g,''))){
+   const pad=Math.round(lh*.6),X0=Math.max(0,lx0-pad),Y0=Math.max(0,ly0-pad),X1=Math.min(w,lx1+pad),Y1=Math.min(h,ly1+pad);
+   og.save();og.beginPath();og.rect((X0-bx0)*k,(Y0-by0)*k,(X1-X0)*k,(Y1-Y0)*k);og.clip();if(opaqueGround){og.fillStyle=`rgb(${surface.map(Math.round)})`;og.fillRect(0,0,out.w,out.h);}else og.clearRect(0,0,out.w,out.h);og.restore();
+   replaced++;done.add(line);report.push({text,skip:'ui-button-removed'});continue;}
   // simge (Instagram, telif vb.) yazı sanılmasın: e-posta dışında @ © ® içeren satır yeniden çizilmez
   if(/[@©®]/.test(text)&&!/\S@\S+\.\S/.test(text)){report.push({text,skip:'symbol'});continue;}
   // okunan metin satırın mürekkebini baştan sona kapsamalı (ör. 'www' okunmamışsa satır yeniden çizilmez)

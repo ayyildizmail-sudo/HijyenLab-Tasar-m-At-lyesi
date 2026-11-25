@@ -566,6 +566,9 @@ function removeGlow(out,palRgb,ground0){if(!palRgb||palRgb.length<2||!ground0)re
  for(let k=0;k<q.length;k++){const i=q[k];if(d[i]>=R)continue;const x=i%W;for(const j of [x>0?i-1:-1,x<W-1?i+1:-1,i-W,i+W]){if(j<0||j>=N||d[j]>=0)continue;d[j]=d[i]+1;q.push(j);}}
  let near=0;for(let i=0;i<N;i++)if(lab[i]>=0&&lab[i]!==core&&d[i]>=0)near++;if(near<nh*.85)return 0;
  const cc=palRgb[core];let n=0;for(let i=0;i<N;i++){if(lab[i]<0||lab[i]===core)continue;const nearCore=d[i]>=0&&d[i]<=1;const c=nearCore?cc:ground;data[i*4]=c[0];data[i*4+1]=c[1];data[i*4+2]=c[2];n++;}
+ return n;}
+// Koyu zemin: kenarda, logodan uzak tek başına kalan küçük parlak parçalar (lamba, ampul, yansıma) atılır
+function dropIsolated(out){const {data,w:W,h:H}=out,N=W*H,ground=[data[0],data[1],data[2]];let removed=0;
  // ışıltı kalkınca ayrı kalan, kenarda ve logodan uzak küçük parlak parça (spot lambası, yansıma) atılır
  {const M=new Uint8Array(N);for(let i=0;i<N;i++)M[i]=Math.abs(data[i*4]-ground[0])+Math.abs(data[i*4+1]-ground[1])+Math.abs(data[i*4+2]-ground[2])>=30?1:0;const {lab:L2,comps:C2}=components(M,W,H),S=Math.max(W,H),
    gp=(a,b)=>Math.hypot(Math.max(0,b.box[0]-a.box[2],a.box[0]-b.box[2]),Math.max(0,b.box[1]-a.box[3],a.box[1]-b.box[3])),maxN=Math.max(0,...C2.map(c=>c.n)),major=C2.filter(c=>c.n>=maxN*.02),drop=new Set();
@@ -574,10 +577,11 @@ function removeGlow(out,palRgb,ground0){if(!palRgb||palRgb.length<2||!ground0)re
   const groups=new Map();major.forEach((c,i)=>{const r=find(i);if(!groups.has(r))groups.set(r,[]);groups.get(r).push(c);});const G2=[...groups.values()];
   const gbox=cs=>({box:[Math.min(...cs.map(c=>c.box[0])),Math.min(...cs.map(c=>c.box[1])),Math.max(...cs.map(c=>c.box[2])),Math.max(...cs.map(c=>c.box[3]))]});
   if(G2.length>=2)for(const g of G2){const n=g.reduce((t,c)=>t+c.n,0),B=gbox(g),[a0,b0,a1,b1]=B.box,band=Math.min(W,H)*.12;if(!(a0<band||b0<band||a1>W-band||b1>H-band)||n>N*.03)continue;
-   let gap=1e9;for(const o of G2){if(o===g)continue;for(const c of g)for(const d of o)gap=Math.min(gap,gp(c,d));}
+   const gN=G2.map(o=>o.reduce((t,c)=>t+c.n,0)),bigN=Math.max(...gN);let gap=1e9;for(let oi=0;oi<G2.length;oi++){const o=G2[oi];if(o===g||gN[oi]<bigN*.1)continue;for(const c of g)for(const d of o)gap=Math.min(gap,gp(c,d));} // yalnız logonun gövdesine uzaklık
    if(gap>S*.08){for(const c of g){drop.add(c.id);for(const o of C2)if(o.n<maxN*.02&&gp(c,o)<S*.03)drop.add(o.id);}}}
-  if(drop.size)for(let i=0;i<N;i++)if(M[i]&&drop.has(L2[i])){data[i*4]=ground[0];data[i*4+1]=ground[1];data[i*4+2]=ground[2];}}
- return n;}
+  if(drop.size)for(let i=0;i<N;i++)if(M[i]&&drop.has(L2[i])){data[i*4]=ground[0];data[i*4+1]=ground[1];data[i*4+2]=ground[2];removed++;}}
+
+ return removed;}
 async function extract(data,w,h,{classify=null,candidates=3,recognize=null,createCanvas=null,redrawText=null}={}){
  // Sonuç girdi boyutuna bağlı olmasın: her zaman en uzun kenarı en çok 2048 piksel olan görüntüde çalış (tarayıcı = test)
  {const d=downscale(data,w,h,2048);data=d.data;w=d.w;h=d.h;}
@@ -643,6 +647,10 @@ async function extract(data,w,h,{classify=null,candidates=3,recognize=null,creat
    for(const c of comps){if(inLine(c.box))continue;const bw=c.box[2]-c.box[0],bh=c.box[3]-c.box[1];if(c.n<Hm*Hm*.04&&!(bw/Math.max(1,bh)<2.2&&bh/Math.max(1,bw)<2.6&&c.n/(bw*bh)>.5))drop[c.id]=1;}
    for(let i=0;i<mask.length;i++)if(lab[i]>=0&&drop[lab[i]]){mask[i]=0;solid[i]=0;}
    // koyu tabela: kenar bölgesinde, logodan uzakta tek başına duran küçük parlak parça (spot lambası, yansıma) atılır
+   // koyu tabela: yazı satırlarından uzakta kalan küçük kopuk parçalar (eksik çıkmış çizim kırıntısı, ışık) atılır; büyük simgeler kalır
+   if(lightOnDark){const {lab:L3,comps:C3}=components(mask,W2,H2),near=b=>G.some(l=>{const [x0,y0,x1,y1]=l.box,p=l.height*.3;return b[2]>=x0-p&&b[0]<=x1+p&&b[3]>=y0-p&&b[1]<=y1+p;});
+    const drop3=new Set();for(const c of C3){if(c.n>=Hm*Hm*.6)continue;if(near(c.box))continue;drop3.add(c.id);}
+    if(drop3.size)for(let i=0;i<mask.length;i++)if(mask[i]&&drop3.has(L3[i])){mask[i]=0;solid[i]=0;}}
    return {mask,solid};})();
   // Beyaz ambalaj filmi fotoğrafta gri/renkli ışık altında görünür: film beyaz kabul edilip baskı renkleri ona göre düzeltilir
   // (koyu mürekkep koyu kalır). Renkli zemin (kraft, renkli poşet) ve koyu zeminde renklere dokunulmaz.
@@ -659,7 +667,8 @@ async function extract(data,w,h,{classify=null,candidates=3,recognize=null,creat
   const neonFonts=lightOnDark&&outlineFixed&&TR.FONTS?TR.FONTS.filter(f=>/quicksand|comfortaa|varela-round|m-plus-rounded/.test(f.family)&&f.weight<=500):null; // neon: yuvarlak, tek çizgili yazı tipleri
   textRedraw=await TR.redraw({...(neonFonts&&neonFonts.length?{fonts:neonFonts,relaxed:true}:{}),img,mask:{m:rd.m,w:mm.w,h:mm.h},out,palette:rd.pal,drawPalette:lightOnDark?null:showRgb,surface,opaqueGround:lightOnDark,recognize,createCanvas});}catch(e){textRedraw={error:String(e&&e.message||e)};}}
   // koyu zemin: ışıltı/lamba ayıklandıktan sonra boş kalan kenarlar kırpılır, logo ortalanır
-  if(lightOnDark&&outlineFixed){const {data:D,w:W,h:H}=out,g=[D[0],D[1],D[2]];let x0=W,y0=H,x1=-1,y1=-1;for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=(y*W+x)*4;if(Math.abs(D[i]-g[0])+Math.abs(D[i+1]-g[1])+Math.abs(D[i+2]-g[2])>=30){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}}
+  const isoRemoved=lightOnDark?dropIsolated(out):0;
+  if(lightOnDark&&(outlineFixed||isoRemoved||(textRedraw&&textRedraw.replaced))){const {data:D,w:W,h:H}=out,g=[D[0],D[1],D[2]];let x0=W,y0=H,x1=-1,y1=-1;for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=(y*W+x)*4;if(Math.abs(D[i]-g[0])+Math.abs(D[i+1]-g[1])+Math.abs(D[i+2]-g[2])>=30){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}}
    if(x1>x0&&y1>y0){const pd=Math.round(Math.max(x1-x0,y1-y0)*.04);x0=Math.max(0,x0-pd);y0=Math.max(0,y0-pd);x1=Math.min(W-1,x1+pd);y1=Math.min(H-1,y1+pd);const nw=x1-x0+1,nh=y1-y0+1;
     if(nw*nh<W*H*.92){const nd=new Uint8ClampedArray(nw*nh*4);for(let y=0;y<nh;y++)nd.set(D.subarray(((y+y0)*W+x0)*4,((y+y0)*W+x0+nw)*4),y*nw*4);out.data=nd;out.w=nw;out.h=nh;out.svg=null;}}}
   // Temizlenmiş logodaki harf oranı (kendiliğinden yerleştirme kararı için)
