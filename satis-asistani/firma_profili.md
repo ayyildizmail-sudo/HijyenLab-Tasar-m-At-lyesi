@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-25b
+profil_surumu: 2026-11-25c
 fiyat_paylasilabilir: hayir
 ---
 
@@ -31,7 +31,9 @@ logosu ve renkleriyle hazırlar ve düzenli olarak tedarik eder.
 - 20×25 katlı ıslak havlu: tekli ambalaj, 50 mikron OPP (14×19 cm).
 - 7×12 ıslak mendil: tek tek paketli, triplex ambalaj.
 - Bütün ürünler beyaz veya renkli zeminle, logolu veya baskısız hazırlanabilir.
-- Oshibori: yemek öncesi veya sonrası misafire sunulan ıslak havlu (fine dining, uzak doğu mutfağı, otel, beach club).
+- Oshibori: yemek öncesi veya sonrası misafire sunulan, rulo halinde sarılı ıslak havlu (fine dining, uzak doğu mutfağı, otel, beach club).
+  Kumaşı %100 pamuk havlu (ilmekli havlu dokusu); ürün ailesindeki tek pamuklu ürün, bu yüzden en premium sunum.
+  Ölçü: 25×30 veya 30×30 cm. Tek kullanımlık, tek tek paketli; logo ambalajın üzerine basılır (havlunun üzerine değil).
 - Paket önerisi (restoran): 25×30 rulo ıslak havlu + 20×25 katlı ıslak havlu + 7×12 ıslak mendil.
 
 ## Baskı ve klişe

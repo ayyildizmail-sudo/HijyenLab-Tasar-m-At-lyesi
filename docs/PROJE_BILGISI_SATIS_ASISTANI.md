@@ -36,7 +36,7 @@ Yanında bir **tanıtım kataloğu** (PDF) hazırlandı. Potansiyel müşteriler
 | 30×35 cm rulo ıslak havlu | BM13 | 400 | 5.200 / 10.000 | 3,80 TL | 4,30 TL |
 | 20×25 cm katlı ıslak havlu | BM545 | 625 | 5.000 / 10.000 | 2,40 TL | 2,80 TL |
 | 7×12 cm ıslak mendil | BM21 | 1.000 | 10.000 | 1,40 TL | 1,40 TL |
-| Oshibori ıslak havlu | OSHIBORI | 250 | 3.000 | dolar bazlı, teklifle | |
+| Oshibori ıslak havlu (%100 pamuk, 25×30 / 30×30 cm) | OSHIBORI | 250 | 3.000 | dolar bazlı, teklifle | |
 
 - Fiyatlar teyit edildi (25.11.2026), KDV (%20) hariçtir.
 - **Klişe:** renk başına 1.000 TL, tek seferlik. Aynı tasarımla tekrar siparişte alınmaz. Özel CMYK klişe 10.000 TL.
@@ -184,7 +184,7 @@ Bir müşteri şu durumlardan birinde olur:
 
 - [ ] **HijyenLab logosunun vektör/yüksek çözünürlüklü hali** (`hijyenlab logo.pdf`): katalogdaki logo 226×88 px; ekranda yeterli, baskıda bulanık olur.
 - [ ] **BM15 (25×25) bıçak izi PDF'i**: boş paket görseli ve güvenli alan şimdilik yaklaşık.
-- [ ] **Katlı (BM545), mendil (BM21) ve Oshibori kumaş bilgisi ve görüntüsü** bekleniyor. Rulo ürünlerin dördünde aynı kumaş (60 g/m² nonwoven) kullanıldığı teyit edildi; açılmış 25×30 fotoğrafı katalogda.
+- [ ] **Katlı (BM545) ve mendil (BM21) kumaş bilgisi ve görüntüsü** bekleniyor. Oshibori: %100 pamuk havlu, 25×30 / 30×30 cm, tek kullanımlık tekli paket, logo ambalaja basılır (teyitli); kendi ürün fotoğrafı bekleniyor (internetteki referans görseller telif nedeniyle katalogda kullanılmıyor). Rulo ürünlerin dördünde aynı kumaş (60 g/m² nonwoven) kullanıldığı teyit edildi; açılmış 25×30 fotoğrafı katalogda.
 - [ ] **Yakın çekim kumaş dokusu**: gönderilen video 478×850 piksel olduğu için yakın çekim görsel çıkmadı; telefonun orijinal videosu veya fotoğrafı gerekiyor.
 - [ ] **Gerçek ürün fotoğrafları:** Mevcut mockup'lar yapay zekayla üretilmiş, düşük çözünürlüklü. 7×12 mendil mockup'ı kare görünüyor, gerçekte dikdörtgen.
 - [ ] **Kataloğa son onay:** metinler, sıralama, renkler.
