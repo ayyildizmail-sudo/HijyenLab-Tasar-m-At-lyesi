@@ -1,4 +1,4 @@
-"""Sektöre özel tek sayfalık tanıtımlar (A4, fiyatsız): restoran/kebapçı, otel, kuaför/güzellik, toptancı/ajans.
+"""Sektöre özel tek sayfalık tanıtımlar (A4, fiyatsız): restoran/kebapçı, otel, kuaför/güzellik merkezi/spa, toptancı/ajans.
 
 Kullanım (tanitim/ klasöründen): python araclar/sektor_sayfalari.py && node sektor_pdf.js
 Çıktı: sektor/<ad>.html ve sektor/HijyenLab_<Ad>.pdf
@@ -139,7 +139,7 @@ def sayfa(ad: str, s: dict) -> str:
             ("Sevkiyat", "Kolilenip gönderilir.")], 1)) + "</div>")
     gercek = "".join(f'<img src="../varliklar/{g if "/" in g else "gercek/" + g}.jpg" alt="">' for g in GERCEK.get(ad, []))
     if gercek:
-        orta += f'<div class="gr"><h3>Bastıklarımızdan <span>· müşterilerimizin logoları</span></h3><div>{gercek}</div></div>'
+        orta += f'<div class="gr"><h3>Müşterilerimiz için ürettiklerimiz</h3><div>{gercek}</div></div>'
     belgeler = "".join(f"<span><b>{a}</b><i>{b}</i></span>" for a, b in BELGELER)
     cagri = s.get("cagri", "Logonuzu gönderin, işletmenize özel görseli ücretsiz hazırlayalım.")
     return (f'<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>HijyenLab · {e(s["etiket"])}</title>'

@@ -45,10 +45,10 @@ def sayfa():
     isletme = "".join(kart("cesitler", a, i) for a, i in ISLETME)
     return (f'<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>HijyenLab · Referanslarımız</title>'
             f'<style>{CSS}</style></head><body><section class="s">'
-            f'<div class="bas"><img src="varliklar/hijyenlab_logo.svg" alt="HijyenLab"><h1>Bastıklarımızdan<span>Kurumlara ve işletmelere özel baskılı, tek tek paketli ıslak havlu</span></h1></div>'
+            f'<div class="bas"><img src="varliklar/hijyenlab_logo.svg" alt="HijyenLab"><h1>Referanslarımız<span>Müşterilerimiz için ürettiğimiz logolu ıslak havlu ve mendiller</span></h1></div>'
             f'<div class="ic"><h2>Kurumlar ve oteller <span>20×25 cm katlı ıslak havlu · 1–3 renk baskı</span></h2><div class="g3">{kurum}</div>'
             f'<h2>Aynı logo, her üründe <span>Hilton logosuyla rulo, katlı ve ıslak mendil</span></h2><div class="g3b">{her}</div>'
-            f'<h2>Restoran, otel, güzellik ve kurumsal firmalar <span>rulo, katlı ıslak havlu ve ıslak mendil</span></h2><div class="g4">{isletme}</div></div>'
+            f'<h2>Restoran, otel, güzellik merkezi, spa ve kurumsal firmalar <span>rulo, katlı ıslak havlu ve ıslak mendil</span></h2><div class="g4">{isletme}</div></div>'
             f'<p class="not">Logolar müşterilerimizin izniyle kullanılmıştır; markalar sahiplerine aittir. Görseller baskılı paketlerin temsili sunumudur.</p>'
             f'<div class="alt"><span><b>Logonuzu gönderin, ürününüzü ücretsiz görselleştirelim.</b></span>'
             f'<span>0 (542) 569 98 69 · info@hijyenlab.com · hijyenlab.com</span></div></section></body></html>')
