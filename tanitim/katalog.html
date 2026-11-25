@@ -5,96 +5,99 @@
 <title>HijyenLab Kurumsal Ürün Kataloğu</title>
 <style>
   @page { size: A4; margin: 0; }
+  /* Renkler fiyat teklifi şablonuyla aynı: zemin #cfe0f1, çizgi #1f5f96, yazı #0b3558 */
   :root {
-    --lacivert: #12355b; --turkuaz: #2aa7c9; --acik: #eaf5f9; --cizgi: #d6e6ee;
-    --yazi: #1d2a3a; --soluk: #5d6b7c;
+    --lacivert: #0b3558; --mavi: #1f5f96; --zemin: #cfe0f1; --acik: #e4eef8; --cizgi: #c6d9ec;
+    --yazi: #13294b; --soluk: #4a5f7a;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: #fff; }
   body { font-family: "Inter", sans-serif; color: var(--yazi); font-size: 10.5pt; line-height: 1.5;
          -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .sayfa { width: 210mm; height: 297mm; position: relative; overflow: hidden; page-break-after: always;
-           padding: 20mm 18mm 22mm; }
+           padding: 18mm 18mm 22mm; }
   .sayfa:last-child { page-break-after: auto; }
   .alt { position: absolute; left: 18mm; right: 18mm; bottom: 10mm; display: flex; justify-content: space-between;
          font-size: 8pt; color: var(--soluk); border-top: 1px solid var(--cizgi); padding-top: 3mm; }
-  .marka { font-weight: 800; letter-spacing: -0.02em; }
-  .marka .h { color: var(--lacivert); } .marka .l { color: var(--turkuaz); }
-  .ust-etiket { font-size: 8.5pt; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--turkuaz); }
-  h1 { font-family: "Inter Display", "Inter", sans-serif; font-size: 30pt; line-height: 1.1; color: var(--lacivert); letter-spacing: -0.02em; }
+  .logo { mix-blend-mode: multiply; display: block; }
+  .ust-etiket { font-size: 8.5pt; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--mavi); }
   h2 { font-family: "Inter Display", "Inter", sans-serif; font-size: 22pt; line-height: 1.15; color: var(--lacivert); letter-spacing: -0.015em; margin: 2mm 0 5mm; }
   h3 { font-size: 12.5pt; color: var(--lacivert); margin-bottom: 1.5mm; }
   p + p { margin-top: 2.5mm; }
-  .giris { font-size: 11.5pt; color: #34465a; max-width: 160mm; }
+  .giris { font-size: 11.5pt; color: #2a3f5c; max-width: 165mm; }
   .izgara2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
   .izgara3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5mm; }
-  .kart { background: var(--acik); border-radius: 4mm; padding: 6mm; }
-  .kart.beyaz { background: #fff; border: 1px solid var(--cizgi); }
-  .sayi { font-family: "Inter Display", sans-serif; font-size: 24pt; font-weight: 800; color: var(--turkuaz); line-height: 1; }
+  .kart { background: var(--acik); border: 1px solid var(--cizgi); border-radius: 4mm; padding: 6mm; }
+  .kart.beyaz { background: #fff; }
+  .sayi { font-family: "Inter Display", sans-serif; font-size: 24pt; font-weight: 800; color: var(--mavi); line-height: 1; }
   .soluk { color: var(--soluk); }
   .kucuk { font-size: 8.5pt; }
   ul.liste { list-style: none; }
   ul.liste li { padding-left: 5mm; position: relative; margin: 1.2mm 0; }
-  ul.liste li::before { content: ""; position: absolute; left: 0; top: 2.1mm; width: 2mm; height: 2mm; border-radius: 50%; background: var(--turkuaz); }
+  ul.liste li::before { content: ""; position: absolute; left: 0; top: 2.1mm; width: 2mm; height: 2mm; border-radius: 50%; background: var(--mavi); }
   table { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
-  th { background: var(--lacivert); color: #fff; text-align: left; padding: 2.5mm 3mm; font-weight: 600; }
+  th { background: var(--zemin); color: var(--lacivert); text-align: left; padding: 2.5mm 3mm; font-weight: 700; border-bottom: 2px solid var(--mavi); }
   td { padding: 2.6mm 3mm; border-bottom: 1px solid var(--cizgi); vertical-align: top; }
-  tr:nth-child(even) td { background: #f6fafc; }
-  .etiket { display: inline-block; font-size: 8pt; font-weight: 700; color: var(--lacivert); background: #fff;
+  .etiket { display: inline-block; font-size: 8pt; font-weight: 600; color: var(--lacivert); background: #fff;
             border: 1px solid var(--cizgi); border-radius: 99px; padding: .4mm 2.5mm; margin: .8mm 1mm 0 0; }
-  img { display: block; width: 100%; }
+  img { display: block; max-width: 100%; }
 
   /* Kapak */
-  .kapak { padding: 0; background: var(--lacivert); color: #fff; }
-  .kapak .ust { padding: 22mm 18mm 0; }
-  .kapak .marka { font-size: 44pt; }
-  .kapak .marka .h { color: #fff; }
-  .kapak .slogan { font-family: "Inter Display", sans-serif; font-size: 25pt; line-height: 1.2; font-weight: 600; margin-top: 14mm; max-width: 150mm; }
-  .kapak .alt-baslik { margin-top: 6mm; font-size: 12pt; color: #bfe3ef; max-width: 150mm; }
-  .kapak .gorsel { position: absolute; left: 0; right: 0; bottom: 30mm; height: 118mm; overflow: hidden; }
-  .kapak .gorsel img { height: 100%; object-fit: cover; }
-  .kapak .serit { position: absolute; left: 0; right: 0; bottom: 0; height: 30mm; background: var(--turkuaz);
-                  display: flex; align-items: center; justify-content: space-between; padding: 0 18mm; font-size: 10pt; font-weight: 600; }
+  .kapak { padding: 0; }
+  .kapak .bas { background: var(--zemin); border-bottom: 2mm solid var(--mavi); padding: 22mm 18mm 14mm; }
+  .kapak .bas .logo { width: 62mm; }
+  .kapak .slogan { font-family: "Inter Display", sans-serif; font-size: 26pt; line-height: 1.18; font-weight: 700;
+                   color: var(--lacivert); margin-top: 12mm; max-width: 160mm; letter-spacing: -0.015em; }
+  .kapak .alt-baslik { margin-top: 5mm; font-size: 12pt; color: #2a3f5c; max-width: 160mm; }
+  .kapak .urunler { position: absolute; left: 14mm; right: 14mm; top: 128mm; display: grid;
+                    grid-template-columns: 1fr 1fr; gap: 2mm 6mm; align-items: center; }
+  .kapak .urunler img { width: 100%; }
+  .kapak .serit { position: absolute; left: 0; right: 0; bottom: 0; height: 24mm; background: var(--zemin);
+                  border-top: 1.2mm solid var(--mavi); display: flex; align-items: center; justify-content: space-between;
+                  padding: 0 18mm; font-size: 10pt; font-weight: 700; color: var(--lacivert); }
 
   /* Ürün kartları */
   .urun { background: #fff; border: 1px solid var(--cizgi); border-radius: 4mm; overflow: hidden; display: flex; flex-direction: column; }
-  .urun .foto { background: #e9e9ea; height: 52mm; overflow: hidden; }
-  .urun .foto img { height: 100%; object-fit: cover; object-position: center 55%; }
-  .urun .icerik { padding: 4.5mm 5mm 5mm; }
-  .urun .kod { font-size: 8pt; font-weight: 700; color: var(--turkuaz); letter-spacing: .08em; }
+  .urun .foto { height: 50mm; display: flex; align-items: center; justify-content: center; padding: 1mm 3mm 0; }
+  .urun .foto img { max-height: 100%; }
+  .urun .icerik { padding: 3mm 5mm 5mm; border-top: 1px solid var(--cizgi); }
+  .urun .kod { font-size: 8pt; font-weight: 700; color: var(--mavi); letter-spacing: .08em; }
   .ozellik { display: grid; grid-template-columns: auto 1fr; gap: .6mm 3mm; font-size: 8.8pt; margin-top: 2mm; }
   .ozellik dt { color: var(--soluk); } .ozellik dd { font-weight: 600; }
 
-  .karsilastir { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
-  .karsilastir figure { background: #e9e9ea; border-radius: 4mm; overflow: hidden; position: relative; height: 70mm; }
-  .karsilastir figure img { height: 100%; object-fit: cover; object-position: center 55%; }
-  .karsilastir figcaption { position: absolute; left: 4mm; top: 4mm; background: var(--lacivert); color: #fff; font-size: 8.5pt;
-                            font-weight: 700; padding: 1mm 3mm; border-radius: 99px; }
+  .karsilastir { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+  .karsilastir figure { border: 1px solid var(--cizgi); border-radius: 4mm; overflow: hidden; background: #fff; padding: 2mm; }
+  .karsilastir figcaption { text-align: center; font-size: 8.5pt; font-weight: 700; color: var(--lacivert); padding: 1mm 0 1mm; }
 
-  .adimlar { counter-reset: adim; display: grid; grid-template-columns: 1fr 1fr; gap: 3.5mm 6mm; }
+  .adimlar { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5mm 6mm; }
   .adim { display: flex; gap: 4mm; align-items: flex-start; }
-  .adim .no { flex: none; width: 9mm; height: 9mm; border-radius: 50%; background: var(--turkuaz); color: #fff;
+  .adim .no { flex: none; width: 9mm; height: 9mm; border-radius: 50%; background: var(--mavi); color: #fff;
               font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 10pt; }
   .adim b { color: var(--lacivert); display: block; }
 
-  .arka { background: var(--lacivert); color: #fff; padding: 30mm 18mm; }
-  .arka h2 { color: #fff; font-size: 28pt; }
-  .arka .kart { background: rgba(255,255,255,.08); color: #fff; }
-  .arka .kart h3 { color: #fff; }
-  .iletisim { font-size: 14pt; line-height: 2; margin-top: 4mm; }
-  .iletisim b { color: var(--turkuaz); display: inline-block; width: 26mm; font-size: 10pt; text-transform: uppercase; letter-spacing: .1em; }
+  .arka { padding: 0; }
+  .arka .bas { background: var(--zemin); border-bottom: 2mm solid var(--mavi); padding: 24mm 18mm 18mm; }
+  .arka .bas .logo { width: 50mm; }
+  .arka h2 { font-size: 26pt; margin-top: 12mm; }
+  .iletisim { font-size: 14pt; line-height: 2.1; padding: 14mm 18mm 0; color: var(--lacivert); }
+  .iletisim b { color: var(--mavi); display: inline-block; width: 30mm; font-size: 9.5pt; text-transform: uppercase; letter-spacing: .1em; }
 </style>
 </head>
 <body>
 
 <!-- 1. KAPAK -->
 <section class="sayfa kapak">
-  <div class="ust">
-    <div class="marka"><span class="h">Hijyen</span><span class="l">Lab</span></div>
+  <div class="bas">
+    <img class="logo" src="varliklar/hijyenlab_logo.png" alt="HijyenLab">
     <div class="slogan">İşletmenizin markası, müşterinizin her temasında.</div>
     <div class="alt-baslik">Logolu rulo ve katlı ıslak havlu, ıslak mendil ve Oshibori. Restoran, otel, kafe ve hizmet işletmelerine özel üretim.</div>
   </div>
-  <div class="gorsel"><img src="gorseller/genel.jpg" alt="HijyenLab ürün ailesi"></div>
+  <div class="urunler">
+    <img src="gorseller/rulo_25x30_logolu.jpg" alt="25×30 rulo ıslak havlu">
+    <img src="gorseller/katli_20x25_logolu.jpg" alt="20×25 katlı ıslak havlu">
+    <img src="gorseller/rulo_25x30_siyah_zemin.jpg" alt="Siyah zeminli rulo ıslak havlu">
+    <img src="gorseller/mendil_7x12_logolu.jpg" alt="7×12 ıslak mendil" style="width:78%;justify-self:center">
+  </div>
   <div class="serit"><span>Kurumsal Ürün Kataloğu</span><span>hijyenlab.com</span></div>
 </section>
 
@@ -106,7 +109,7 @@
   <p class="giris">Böylece her tek kullanımlık ürün, hem hijyen ihtiyacını karşılar hem de markanızı müşterinizin eline, cebine, evine taşır.</p>
 
   <div class="izgara3" style="margin-top:10mm">
-    <div class="kart"><div class="sayi">01</div><h3 style="margin-top:3mm">Hijyen</h3><p>Tek tek paketlenmiş, tek kullanımlık havlu ve mendillerle müşterinize temiz bir deneyim sunun.</p></div>
+    <div class="kart"><div class="sayi">01</div><h3 style="margin-top:3mm">Hijyen</h3><p>Tek tek paketlenmiş, tek kullanımlık ıslak havlu ve mendillerle müşterinize temiz bir deneyim sunun.</p></div>
     <div class="kart"><div class="sayi">02</div><h3 style="margin-top:3mm">Markanıza özel</h3><p>Logonuz, renkleriniz ve iletişim bilgilerinizle ambalaj tasarımı. Logonuz yoksa işletme adınızla tasarlıyoruz.</p></div>
     <div class="kart"><div class="sayi">03</div><h3 style="margin-top:3mm">Kolay tedarik</h3><p>Toplu üretim, düzenli sipariş. Aynı tasarımla tekrar siparişte klişe bedeli ödemezsiniz.</p></div>
   </div>
@@ -144,25 +147,25 @@
   <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>3</span></div>
 </section>
 
-<!-- 4. RULO HAVLULAR -->
+<!-- 4. RULO ISLAK HAVLULAR -->
 <section class="sayfa">
   <div class="ust-etiket">Rulo ıslak havlular</div>
   <h2>Tek tek paketli, logolu rulo ıslak havlu</h2>
   <div class="izgara2">
-    <div class="urun"><div class="foto"><img src="gorseller/25x30_baskili.jpg" alt=""></div>
+    <div class="urun"><div class="foto"><img src="gorseller/rulo_25x30_logolu.jpg" alt=""></div>
       <div class="icerik"><div class="kod">BM12 · EN ÇOK TERCİH EDİLEN</div><h3>25×30 cm rulo ıslak havlu</h3>
-        <dl class="ozellik"><dt>Malzeme</dt><dd>60 g/m² nonwoven</dd><dt>Ambalaj</dt><dd>Tekli, 50 mikron OPP</dd><dt>Koli</dt><dd>400 adet</dd><dt>En az</dt><dd>5.200 beyaz / 10.000 renkli</dd></dl></div></div>
-    <div class="urun"><div class="foto"><img src="gorseller/25x25_baskili.jpg" alt=""></div>
+        <dl class="ozellik"><dt>Malzeme</dt><dd>60 g/m² nonwoven</dd><dt>Ambalaj</dt><dd>Tekli, 50 mikron OPP (16×17 cm)</dd><dt>Koli</dt><dd>400 adet</dd><dt>En az</dt><dd>5.200 beyaz / 10.000 renkli</dd></dl></div></div>
+    <div class="urun"><div class="foto"><img src="gorseller/rulo_25x25_logolu.jpg" alt=""></div>
       <div class="icerik"><div class="kod">BM15 · EKONOMİK</div><h3>25×25 cm rulo ıslak havlu</h3>
-        <dl class="ozellik"><dt>Ambalaj</dt><dd>Tekli</dd><dt>Koli</dt><dd>500 adet</dd><dt>En az</dt><dd>5.000 beyaz / 10.000 renkli</dd><dt>Uygun</dt><dd>Lokanta, fast food, paket servis</dd></dl></div></div>
-    <div class="urun"><div class="foto"><img src="gorseller/30x30_baskili.jpg" alt=""></div>
+        <dl class="ozellik"><dt>Ambalaj</dt><dd>Tekli, 50 mikron OPP</dd><dt>Koli</dt><dd>500 adet</dd><dt>En az</dt><dd>5.000 beyaz / 10.000 renkli</dd><dt>Uygun</dt><dd>Lokanta, fast food, paket servis</dd></dl></div></div>
+    <div class="urun"><div class="foto"><img src="gorseller/rulo_25x30_logolu.jpg" alt=""></div>
       <div class="icerik"><div class="kod">BM11 · BÜYÜK ÖLÇÜ</div><h3>30×30 cm rulo ıslak havlu</h3>
-        <dl class="ozellik"><dt>Ambalaj</dt><dd>Tekli</dd><dt>Koli</dt><dd>400 adet</dd><dt>En az</dt><dd>5.200 beyaz / 10.000 renkli</dd><dt>Uygun</dt><dd>Otel, spa, premium işletme</dd></dl></div></div>
-    <div class="urun"><div class="foto"><img src="gorseller/30x35_baskili.jpg" alt=""></div>
+        <dl class="ozellik"><dt>Ambalaj</dt><dd>25×30 ile aynı ambalaj (16×17 cm)</dd><dt>Koli</dt><dd>400 adet</dd><dt>En az</dt><dd>5.200 beyaz / 10.000 renkli</dd><dt>Uygun</dt><dd>Otel, spa, premium işletme</dd></dl></div></div>
+    <div class="urun"><div class="foto"><img src="gorseller/rulo_25x30_logolu.jpg" alt=""></div>
       <div class="icerik"><div class="kod">BM13 · EN GENİŞ ÖLÇÜ</div><h3>30×35 cm rulo ıslak havlu</h3>
-        <dl class="ozellik"><dt>Ambalaj</dt><dd>Tekli</dd><dt>Koli</dt><dd>400 adet</dd><dt>En az</dt><dd>5.200 beyaz / 10.000 renkli</dd><dt>Uygun</dt><dd>Otel, spa, güzellik merkezi</dd></dl></div></div>
+        <dl class="ozellik"><dt>Ambalaj</dt><dd>25×30 ile aynı ambalaj (16×17 cm)</dd><dt>Koli</dt><dd>400 adet</dd><dt>En az</dt><dd>5.200 beyaz / 10.000 renkli</dd><dt>Uygun</dt><dd>Otel, spa, güzellik merkezi</dd></dl></div></div>
   </div>
-  <div class="alt"><span>Görseller temsilîdir; ambalajdaki "YOUR BRAND" yerine sizin logonuz basılır.</span><span>4</span></div>
+  <div class="alt"><span>Görsellerdeki "LOGONUZ" yerine sizin logonuz basılır. Nihai görünüm üretim öncesi grafik onayıyla kesinleşir.</span><span>4</span></div>
 </section>
 
 <!-- 5. KATLI HAVLU, MENDİL, OSHIBORI -->
@@ -170,14 +173,14 @@
   <div class="ust-etiket">Katlı ıslak havlu · Islak mendil · Oshibori</div>
   <h2>Servisten hesaba, her an markanızla</h2>
   <div class="izgara2">
-    <div class="urun"><div class="foto"><img src="gorseller/20x25_baskili.jpg" alt=""></div>
+    <div class="urun"><div class="foto"><img src="gorseller/katli_20x25_logolu.jpg" alt=""></div>
       <div class="icerik"><div class="kod">BM545</div><h3>20×25 cm katlı ıslak havlu</h3>
         <p class="kucuk soluk">Düzenli ve kurumsal servis sunumu isteyen işletmeler için katlanmış form.</p>
-        <dl class="ozellik"><dt>Koli</dt><dd>625 adet</dd><dt>En az</dt><dd>5.000 beyaz / 10.000 renkli</dd></dl></div></div>
-    <div class="urun"><div class="foto"><img src="gorseller/7x12_baskili.jpg" alt=""></div>
+        <dl class="ozellik"><dt>Ambalaj</dt><dd>Tekli, 50 mikron OPP (14×19 cm)</dd><dt>Koli</dt><dd>625 adet</dd><dt>En az</dt><dd>5.000 beyaz / 10.000 renkli</dd></dl></div></div>
+    <div class="urun"><div class="foto"><img src="gorseller/mendil_7x12_logolu.jpg" alt=""></div>
       <div class="icerik"><div class="kod">BM21</div><h3>7×12 cm ıslak mendil</h3>
         <p class="kucuk soluk">Tek tek paketli, cepte taşınan, markanızı müşterinizin evine götüren ürün.</p>
-        <dl class="ozellik"><dt>Koli</dt><dd>1.000 adet</dd><dt>En az</dt><dd>10.000 adet</dd></dl></div></div>
+        <dl class="ozellik"><dt>Ambalaj</dt><dd>Triplex, tekli paket</dd><dt>Koli</dt><dd>1.000 adet</dd><dt>En az</dt><dd>10.000 adet</dd></dl></div></div>
   </div>
   <div class="izgara2" style="margin-top:6mm">
     <div class="kart">
@@ -191,7 +194,7 @@
       <dl class="ozellik"><dt>Koli</dt><dd>250 adet</dd><dt>En az</dt><dd>3.000 adet</dd></dl>
     </div>
   </div>
-  <div class="alt"><span>Görseller temsilîdir; nihai ambalaj ölçü ve görünümü üretim numunesiyle onaylanır.</span><span>5</span></div>
+  <div class="alt"><span>Görsellerdeki "LOGONUZ" yerine sizin logonuz basılır. Nihai görünüm üretim öncesi grafik onayıyla kesinleşir.</span><span>5</span></div>
 </section>
 
 <!-- 6. MARKANIZA ÖZEL -->
@@ -199,14 +202,15 @@
   <div class="ust-etiket">Markanıza özel tasarım</div>
   <h2>Boş ambalajdan markalı ürüne</h2>
   <div class="karsilastir">
-    <figure><img src="gorseller/25x30_bos.jpg" alt=""><figcaption>Baskısız</figcaption></figure>
-    <figure><img src="gorseller/25x30_baskili.jpg" alt=""><figcaption>Logonuzla</figcaption></figure>
+    <figure><img src="gorseller/rulo_25x30_bos.jpg" alt=""><figcaption>Baskısız</figcaption></figure>
+    <figure><img src="gorseller/rulo_25x30_logolu.jpg" alt=""><figcaption>Beyaz zemin, logonuzla</figcaption></figure>
+    <figure><img src="gorseller/rulo_25x30_siyah_zemin.jpg" alt=""><figcaption>Renkli zemin, logonuzla</figcaption></figure>
   </div>
   <div class="izgara2" style="margin-top:7mm">
     <div>
       <h3>Tasarımı biz hazırlıyoruz</h3>
       <ul class="liste">
-        <li>Logonuz ambalaja oranları korunarak yerleştirilir.</li>
+        <li>Logonuz ambalajın güvenli baskı alanına, oranları korunarak yerleştirilir.</li>
         <li>Logonuz yoksa işletme adınızla yazılı tasarım yapılır.</li>
         <li>Kalitesi düşük logolar baskıya uygun hale getirilir; marka kimliğiniz onayınız olmadan değişmez.</li>
         <li>Üretimden önce grafik onayınız alınır.</li>
@@ -218,14 +222,21 @@
         <li>Beyaz veya renkli zemin.</li>
         <li>Standart flekso baskıda 3 renge kadar.</li>
         <li>4 ve üzeri renk veya fotoğraf baskısı özel olarak değerlendirilir.</li>
-        <li>Renkli zeminde mat veya parlak selefon seçeneği.</li>
+        <li>Renkli zeminde mat veya parlak selefon.</li>
+        <li>İsterseniz arka yüze de baskı.</li>
       </ul>
     </div>
   </div>
   <div class="kart" style="margin-top:7mm">
-    <h3>Tasarım Atölyesi ile hemen görün</h3>
-    <p>hijyenlab.com'daki Tasarım Atölyesi'nde logonuzu yükleyin, ürününüzün nasıl görüneceğini anında inceleyin. Dilerseniz logonuzu bize mail ile gönderin, önizlemeyi biz hazırlayalım.</p>
-    <p class="kucuk soluk">Önizleme fikir vermek içindir; üretim, grafik onayınızdan sonra başlar.</p>
+    <h3>Logonuzu gönderin, görseli biz hazırlayalım</h3>
+    <p>Logonuzu mail veya WhatsApp ile iletin; ürününüzün logonuzla nasıl görüneceğini gösteren görseli ücretsiz hazırlayıp size gönderelim.</p>
+    <p class="kucuk soluk">Görsel fikir vermek içindir; üretim, grafik onayınızdan sonra başlar.</p>
+  </div>
+  <h3 style="margin-top:7mm">Ön ve arka yüz baskı</h3>
+  <p class="kucuk soluk">Arka yüzde logonuz kapama bandının üst yarısına basılır. Ön ve arka yüzde aynı renkler kullanılırsa klişe sayısı artmaz.</p>
+  <div class="karsilastir" style="grid-template-columns:1fr 1fr;margin-top:3mm">
+    <figure><img src="gorseller/katli_20x25_logolu.jpg" alt=""><figcaption>Ön yüz</figcaption></figure>
+    <figure><img src="gorseller/katli_20x25_arka.jpg" alt=""><figcaption>Arka yüz</figcaption></figure>
   </div>
   <div class="alt"><span>HijyenLab · hijyenlab.com</span><span>6</span></div>
 </section>
@@ -294,18 +305,20 @@
 
 <!-- 9. ARKA KAPAK -->
 <section class="sayfa arka">
-  <div class="marka" style="font-size:30pt"><span class="h" style="color:#fff">Hijyen</span><span class="l">Lab</span></div>
-  <h2 style="margin-top:18mm">Logonuzu gönderin,<br>ürününüzü size gösterelim.</h2>
-  <p style="font-size:12pt;color:#bfe3ef;max-width:150mm">Logonuzu ve ilgilendiğiniz ürünü bize iletin; ambalaj önizlemenizi ve size özel teklifinizi hazırlayalım.</p>
-  <div class="iletisim" style="margin-top:14mm">
+  <div class="bas">
+    <img class="logo" src="varliklar/hijyenlab_logo.png" alt="HijyenLab">
+    <h2>Logonuzu gönderin,<br>ürününüzü size gösterelim.</h2>
+    <p style="font-size:12pt;color:#2a3f5c;max-width:150mm">Logonuzu ve ilgilendiğiniz ürünü bize iletin; ambalaj görselinizi ve size özel teklifinizi hazırlayalım.</p>
+  </div>
+  <div class="iletisim">
     <div><b>Telefon</b>0 (542) 569 98 69</div>
     <div><b>E-posta</b>info@hijyenlab.com</div>
     <div><b>Web</b>hijyenlab.com</div>
   </div>
-  <div class="kart" style="position:absolute;left:18mm;right:18mm;bottom:22mm">
-    <h3>HijyenLab</h3>
-    <p class="kucuk" style="color:#cfe7f0">İKA Kurumsal Tedarik Hizmetleri Ltd. Şti. · Kurumsal hijyen ürünleri · Kişiselleştirilmiş ambalaj · Rulo havlu · Katlı havlu · Islak mendil · Oshibori</p>
+  <div style="position:absolute;left:18mm;right:18mm;bottom:22mm;display:flex;justify-content:center">
+    <img src="gorseller/mendil_7x12_logolu.jpg" alt="" style="width:70mm">
   </div>
+  <div class="alt"><span>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti. · Rulo ıslak havlu · Katlı ıslak havlu · Islak mendil · Oshibori</span><span></span></div>
 </section>
 
 </body>

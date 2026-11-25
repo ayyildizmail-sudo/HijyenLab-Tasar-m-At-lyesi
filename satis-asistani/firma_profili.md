@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-25
+profil_surumu: 2026-11-25b
 fiyat_paylasilabilir: hayir
 ---
 
@@ -28,6 +28,8 @@ logosu ve renkleriyle hazırlar ve düzenli olarak tedarik eder.
 
 - Ürün ölçüsü iç kumaş ölçüsüdür. 30×30 ve 30×35 rulo, 25×30 ile aynı ambalajı (OPP 16×17 cm) kullanır; yalnız iç kumaş farklıdır.
 - Rulo ürünler: 60 g/m² nonwoven, tekli ambalaj, 50 mikron OPP.
+- 20×25 katlı ıslak havlu: tekli ambalaj, 50 mikron OPP (14×19 cm).
+- 7×12 ıslak mendil: tek tek paketli, triplex ambalaj.
 - Bütün ürünler beyaz veya renkli zeminle, logolu veya baskısız hazırlanabilir.
 - Oshibori: yemek öncesi veya sonrası misafire sunulan ıslak havlu (fine dining, uzak doğu mutfağı, otel, beach club).
 - Paket önerisi (restoran): 25×30 rulo ıslak havlu + 20×25 katlı ıslak havlu + 7×12 ıslak mendil.
@@ -67,7 +69,7 @@ Koli başına ücretlendirilir. Bodrum teslimatlarında kargo ücreti alınmaz.
 - Hedef üretim süresi: grafik onayı ve ön ödemeden sonra yeni klişede yaklaşık 25 gün, tekrar siparişte yaklaşık 20 gün.
   Bu bir hedeftir; kesin teslim tarihi sözü verilmez, tarih soran müşteriye "ekibimiz teyit edecek" denir.
 - Teklifler 15 gün geçerlidir.
-- Web sitesindeki Tasarım Atölyesi'nde müşteri logosunu yükleyip önizleme görebilir. Önizleme üretim onayı yerine geçmez.
+- Müşteri logosunu mail veya WhatsApp ile gönderir; işletmeye özel görseli (mockup) HijyenLab ücretsiz hazırlar. Görsel üretim onayı yerine geçmez; üretim grafik onayından sonra başlar.
 
 ## Sektöre göre anlatım
 - Restoran / kebapçı / kokoreççi / balıkçı / dönerci: yemek sonrası el temizliği; masada ve müşterinin cebinde
