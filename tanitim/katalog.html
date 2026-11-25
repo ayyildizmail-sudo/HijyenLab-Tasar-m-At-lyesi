@@ -129,6 +129,10 @@
   .vurgu-kutu b { color: #A8441A; }
   .vurgu-adim .no { background: var(--vurgu) !important; }
   .kapak .serit span { flex: none; }
+  .iletisim-satir { display:flex; justify-content:space-between; padding: 6mm 18mm 0; font-size: 12pt; font-weight: 700; color: var(--lacivert); }
+  .iletisim-satir b { display:block; color: var(--mavi); font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; }
+  .galeri-gercek { display:grid; grid-template-columns: repeat(4,1fr); gap: 2.5mm; }
+  .galeri-gercek img { width:100%; aspect-ratio: 2.55; object-fit: cover; border-radius: 2mm; border:1px solid var(--cizgi); }
 </style>
 </head>
 <body>
@@ -218,7 +222,7 @@
         <h3>Havlu da ısıtıcı da bizden</h3>
         <p class="kucuk">Ambalajlı ıslak havluları sürekli 80°C'de sıcak tutan, cam kapaklı, iki raflı ısıtıcı dolap.</p>
       </div>
-      <dl class="ozellik"><dt>Kapasite</dt><dd>60–70 ambalajlı ıslak havlu</dd><dt>Sıcaklık</dt><dd>80°C, ambalajıyla birlikte</dd><dt>Raf</dt><dd>2 adet, çıkarılabilir tel sepet</dd><dt>Satış</dt><dd>Ayrıca satılır; fiyat için teklif alın</dd></dl>
+      <dl class="ozellik"><dt>Kapasite</dt><dd>23 litre · 60–70 ambalajlı ıslak havlu</dd><dt>Sıcaklık</dt><dd>80°C, ambalajıyla birlikte</dd><dt>Raf</dt><dd>2 adet, çıkarılabilir paslanmaz sepet</dd><dt>Güç</dt><dd>200 W · 220–230 V, 50/60 Hz</dd><dt>Ölçü</dt><dd>45,2 × 28,5 × 35 cm (G × D × Y)</dd><dt>Satış</dt><dd>Ayrıca satılır; fiyat için teklif alın</dd></dl>
     </div>
   </div>
   <p class="kucuk soluk" style="margin-top:3mm">7×12 ıslak mendil sıcak veya serin servis için önerilmez.</p>
@@ -279,18 +283,19 @@
 
 <!-- 5. ARKA KAPAK -->
 <section class="sayfa arka">
-  <div class="bas" style="padding:18mm 18mm 12mm">
+  <div class="bas" style="padding:16mm 18mm 9mm">
     <img class="logo" src="varliklar/hijyenlab_logo.svg" alt="HijyenLab">
-    <h2 style="margin-top:8mm">Logonuzu gönderin,<br>ürününüzü size gösterelim.</h2>
+    <h2 style="margin-top:6mm">Logonuzu gönderin,<br>ürününüzü size gösterelim.</h2>
     <div class="vurgu-kutu" style="margin-top:5mm;font-size:11pt"><b>Ücretsiz:</b> logolu ürün görseli ve kumaş numunesi, kargo bizden.</div>
     <p style="font-size:11.5pt;color:#2a3f5c;max-width:155mm">Logonuzu ve ilgilendiğiniz ürünü iletin; ambalaj görselinizi ve size özel teklifinizi hazırlayalım.</p>
   </div>
-  <div class="iletisim" style="padding-top:8mm">
-    <div><b>Telefon</b>0 (542) 569 98 69</div>
-    <div><b>E-posta</b>info@hijyenlab.com</div>
-    <div><b>Web</b>hijyenlab.com</div>
+  <div class="iletisim-satir"><span><b>Telefon</b>0 (542) 569 98 69</span><span><b>E-posta</b>info@hijyenlab.com</span><span><b>Web</b>hijyenlab.com</span></div>
+  <div style="padding:5mm 18mm 0">
+    <h3>Bastıklarımızdan</h3>
+    <p class="kucuk soluk" style="margin-bottom:2mm">Restorandan otele, kuaförden kurumsal firmalara: müşterilerimiz için ürettiğimiz gerçek paketler.</p>
+    <div class="galeri-gercek"><img src="varliklar/gercek/kazancilar.jpg" alt=""><img src="varliklar/gercek/sohret.jpg" alt=""><img src="varliklar/gercek/cotto.jpg" alt=""><img src="varliklar/gercek/sarihan.jpg" alt=""><img src="varliklar/gercek/vom.jpg" alt=""><img src="varliklar/gercek/ajlan.jpg" alt=""><img src="varliklar/gercek/salonika.jpg" alt=""><img src="varliklar/gercek/zehra_bora.jpg" alt=""><img src="varliklar/gercek/maderia.jpg" alt=""><img src="varliklar/gercek/rotasa.jpg" alt=""><img src="varliklar/gercek/yaf.jpg" alt=""><img src="varliklar/gercek/ulutas.jpg" alt=""></div>
   </div>
-  <div style="padding:6mm 18mm 0">
+  <div style="padding:5mm 18mm 0">
     <h3>İşletmenize göre öneri</h3>
     <table class="oneri">
       <tr><td>Restoran, kebapçı, balıkçı</td><td>7×12 ıslak mendil · 25×30 rulo</td></tr>
@@ -302,7 +307,7 @@
     </table>
     <p class="kucuk soluk" style="margin-top:3mm"><b>Teklif için:</b> logonuz, ürün ve ölçü, yaklaşık adet, beyaz veya renkli zemin.</p>
   </div>
-  <div class="alt"><span>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti. · Zincir işletmeler, toptancılar ve ajanslarla da çalışıyoruz.</span><span></span></div>
+  <div class="alt"><span>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti. · Zincir işletmeler, toptancılar ve ajanslarla da çalışıyoruz.</span><span>Gerçek baskı fotoğrafları; markalar sahiplerine aittir.</span></div>
 </section>
 
 </body>

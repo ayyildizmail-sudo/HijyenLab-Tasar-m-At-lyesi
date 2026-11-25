@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-25m
+profil_surumu: 2026-11-25n
 fiyat_paylasilabilir: hayir
 ---
 
@@ -103,6 +103,8 @@ Koli başına ücretlendirilir. Bodrum teslimatlarında kargo ücreti alınmaz.
 ## Isıtıcı dolap (ayrıca satılır)
 - Islak havlu ısıtıcı dolap, model RTD-23A: cam kapaklı, iki çıkarılabilir tel sepetli; 60–70 ambalajlı ıslak havlu alır,
   sürekli 80°C'de sıcak tutar. "Havlu da ısıtıcı da bizden."
+- Teknik bilgi (üretici kılavuzu, Avrupa tipi): 23 litre, 200 W, 220–230 V 50/60 Hz; dış ölçü yaklaşık
+  45,2 × 28,5 × 35 cm (genişlik × derinlik × yükseklik); iki çıkarılabilir paslanmaz sepet. Türkiye şebekesine uygundur.
 - Fiyatı fiyatlar.json'dadır; fiyat paylaşımı kapalıyken rakam yazılmaz, teklif ile verilir.
 - UV, sterilizasyon, mikrop öldürme gibi iddialar kullanılmaz (belgelenmedi). Garanti süresi konusunda söz verilmez.
 
@@ -145,3 +147,12 @@ HijyenLab · İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.
 
 ## Üslup
 Samimi ama kurumsal, kısa (tanıtımda en fazla 120 kelime), "siz" diliyle. Abartılı reklam dili yok.
+
+## Gerçek baskı örnekleri (referanslar)
+- Katalogda ve sektör sayfalarında müşterilerimiz için basılmış gerçek paketlerin fotoğrafları var (restoran, otel,
+  kuaför, kurumsal firmalar). Müşteri "daha önce ne bastınız?" diye sorarsa "gerçek baskı fotoğraflarımızı
+  paylaşabiliriz" denir; fotoğraflar insan onayıyla eklenir.
+- Soğuk mailde ve tekliflerde müşteri adı referans olarak yazılmaz, rakam ("yüzlerce işletme" vb.) uydurulmaz.
+- Gerçek baskılarda görülen seçenekler anlatılabilir: beyaz zeminde 1–2 renk logo, arka yüzde telefon, web,
+  Instagram veya adres; koyu renkli zemin; aynı pakette birden fazla marka (ortak promosyon).
+
