@@ -28,7 +28,7 @@ SONA_KARARMA = 1.5  # en sonda siyaha yavaş kararma
 SIYAH_BEKLEME = 0.6 # kararmadan sonra kısa siyah ekran
 
 
-def bitis_karti(yol: Path):
+def bitis_karti(yol: Path, baslik=("Logonuzla,", "işletmenize özel!")):
     """Canlı bitiş kartı: turkuaz→mavi geçişli zemin, beyaz logo, sarı numune etiketi."""
     import numpy as np
     from PIL import ImageFilter
@@ -57,8 +57,8 @@ def bitis_karti(yol: Path):
         d.text(((W - d.textlength(yazi, font=f)) / 2, y), yazi, font=f, fill=renk)
         return f
 
-    orta(560, "Logonuzla,", 70, "ExtraBold", aile="InterDisplay")
-    orta(645, "işletmenize özel!", 70, "ExtraBold", aile="InterDisplay")
+    orta(560, baslik[0], 70, "ExtraBold", aile="InterDisplay")
+    orta(645, baslik[1], 70, "ExtraBold", aile="InterDisplay")
     # sarı etiket
     f = ImageFont.truetype("/usr/share/fonts/opentype/inter/Inter-Bold.otf", 34)
     yazi = "Ücretsiz numune · kargo bizden"
@@ -78,25 +78,37 @@ def yazi_filtresi(metin, sure):
             f"box=1:boxcolor=0x0b3558@0.82:boxborderw=26:x=(w-text_w)/2:y=h*0.80:alpha='{alfa}'")
 
 
-def main(ham: str):
+def main(ham: str, sahneler=None, cikti_adi="HijyenLab_kucuk_paketten_buyuk_havlu.mp4", ses=True, yatay_kaynak=False,
+         kart_baslik=("Logonuzla,", "işletmenize özel!")):
+    SAHNE = sahneler or SAHNELER
     OUT.mkdir(exist_ok=True)
     kart = OUT / "_bitis.png"
-    bitis_karti(kart)
-    son_bitis = SAHNELER[-1][1]
+    bitis_karti(kart, kart_baslik)
+    son_bitis = SAHNE[-1][1]
     giris = ["-i", ham, "-i", str(kart)]
     parca, sureler = [], []
-    for i, (a, b, yazi) in enumerate(SAHNELER):
+    for i, (a, b, yazi) in enumerate(SAHNE):
         sure = b - a
         sureler.append(sure)
-        parca.append(f"[0:v]trim={a}:{b},setpts=PTS-STARTPTS,scale=-2:{H}:flags=lanczos,crop={W}:{H},"
-                     f"eq=brightness=0.02:saturation=1.05,fps=30,format=yuv420p,{yazi_filtresi(yazi, sure)}[s{i}]")
-        parca.append(f"[0:a]atrim={a}:{b},asetpts=PTS-STARTPTS,aresample=44100[a{i}]")
-    n = len(SAHNELER)
+        if yatay_kaynak:
+            # yatay videoyu dikey kareye sığdır: arkada bulanık dolgu, önde videonun tamamı
+            parca.append(f"[0:v]trim={a}:{b},setpts=PTS-STARTPTS,split[bg{i}][fg{i}];"
+                         f"[bg{i}]scale=-2:{H},crop={W}:{H},gblur=sigma=30,eq=brightness=0.04[bgb{i}];"
+                         f"[fg{i}]scale={W}:-2:flags=lanczos[fgs{i}];"
+                         f"[bgb{i}][fgs{i}]overlay=(W-w)/2:(H-h)/2-110,fps=30,format=yuv420p,"
+                         f"{yazi_filtresi(yazi, sure)}[s{i}]")
+        else:
+            parca.append(f"[0:v]trim={a}:{b},setpts=PTS-STARTPTS,scale=-2:{H}:flags=lanczos,crop={W}:{H},"
+                         f"eq=brightness=0.02:saturation=1.05,fps=30,format=yuv420p,{yazi_filtresi(yazi, sure)}[s{i}]")
+        if ses:
+            parca.append(f"[0:a]atrim={a}:{b},asetpts=PTS-STARTPTS,aresample=44100[a{i}]")
+    n = len(SAHNE)
     kare = int(BITIS_SN * 30)
     parca.append(f"[1:v]scale={W * 2}:{H * 2},zoompan=z='1+0.06*on/{kare}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
                  f"d={kare}:s={W}x{H}:fps=30,trim=duration={BITIS_SN},format=yuv420p,setsar=1[s{n}]")
     # bitiş kartının altında ortam sesi kesilmeden devam eder (kaynakta son sahneden sonraki ses)
-    parca.append(f"[0:a]atrim={son_bitis}:{son_bitis + BITIS_SN},asetpts=PTS-STARTPTS,aresample=44100[a{n}]")
+    if ses:
+        parca.append(f"[0:a]atrim={son_bitis}:{son_bitis + BITIS_SN},asetpts=PTS-STARTPTS,aresample=44100[a{n}]")
     sureler.append(BITIS_SN)
     gecisler = [GECIS] * (n - 1) + [SON_GECIS]
     zincir, onv, ona, ofset = [], "s0", "a0", 0.0
@@ -104,7 +116,8 @@ def main(ham: str):
         g = gecisler[i - 1]
         ofset += sureler[i - 1] - g
         zincir.append(f"[{onv}][s{i}]xfade=transition=fade:duration={g}:offset={ofset:.2f}[x{i}]")
-        zincir.append(f"[{ona}][a{i}]acrossfade=d={g}:c1=qsin:c2=qsin[y{i}]")
+        if ses:
+            zincir.append(f"[{ona}][a{i}]acrossfade=d={g}:c1=qsin:c2=qsin[y{i}]")
         onv, ona = f"x{i}", f"y{i}"
     toplam = sum(sureler) - sum(gecisler)
     kart_basi = toplam - BITIS_SN
@@ -112,15 +125,16 @@ def main(ham: str):
     zincir.append(f"[{onv}]fade=t=out:st={kararma:.2f}:d={SONA_KARARMA}:color=black,"
                   f"tpad=stop_mode=add:stop_duration={SIYAH_BEKLEME}:color=black[vson]")
     # ses: kart gelince yavaşça kısılır, kararma bitmeden tamamen söner
-    zincir.append(f"[{ona}]highpass=f=70,afftdn=nf=-30:nr=12,acompressor=threshold=-30dB:ratio=3:attack=5:release=200,"
+    if ses:
+        zincir.append(f"[{ona}]highpass=f=70,afftdn=nf=-30:nr=12,acompressor=threshold=-30dB:ratio=3:attack=5:release=200,"
                   f"loudnorm=I=-18:TP=-2:LRA=11,afade=t=out:st={kart_basi + 0.3:.2f}:d={BITIS_SN - 0.8:.2f},"
-                  f"apad=pad_dur={SIYAH_BEKLEME}[ason]")
+                      f"apad=pad_dur={SIYAH_BEKLEME}[ason]")
     filtre = ";".join(parca + zincir)
-    cikti = OUT / "HijyenLab_kucuk_paketten_buyuk_havlu.mp4"
+    cikti = OUT / cikti_adi
     uzunluk = toplam + SIYAH_BEKLEME
     subprocess.run(["ffmpeg", "-v", "error", "-y", *giris, "-filter_complex", filtre,
-                    "-map", "[vson]", "-map", "[ason]", "-c:v", "libx264", "-crf", "20", "-preset", "slow",
-                    "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k", "-ar", "44100", "-t", f"{uzunluk:.2f}",
+                    "-map", "[vson]", *(["-map", "[ason]", "-c:a", "aac", "-b:a", "128k", "-ar", "44100"] if ses else ["-an"]),
+                    "-c:v", "libx264", "-crf", "20", "-preset", "slow", "-pix_fmt", "yuv420p", "-t", f"{uzunluk:.2f}",
                     "-movflags", "+faststart", str(cikti)], check=True)
     kart.unlink()
     print(cikti, f"{uzunluk:.1f} sn")
