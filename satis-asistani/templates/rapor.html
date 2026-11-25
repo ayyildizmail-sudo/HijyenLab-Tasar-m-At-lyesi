@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block icerik %}
+{% set ust = (r.huni|map(attribute=1)|max) or 1 %}
+<h2>Satış raporu</h2>
+<p>{% for kod, ad in [('7','Son 7 gün'),('30','Son 30 gün'),('tum','Tüm zamanlar')] %}
+  <a class="etiket" href="{{ url_for('rapor', donem=kod) }}" {% if donem == kod %}style="background:#0f766e;color:#fff"{% endif %}>{{ ad }}</a> {% endfor %}</p>
+<div class="kart">
+  <h3 style="margin-top:0">Huni</h3>
+  {% for ad, n in r.huni %}
+  <div style="display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr) 60px;gap:12px;align-items:center;margin:8px 0">
+    <span>{{ ad }}</span>
+    <div style="background:#eef2f6;border-radius:6px;height:22px"><div style="background:#0f766e;height:22px;border-radius:6px;width:{{ (100 * n / ust)|round(1) }}%"></div></div>
+    <b style="text-align:right">{{ n }}</b>
+  </div>
+  {% endfor %}
+  {% set h = r.huni %}
+  <p class="soluk">Cevap oranı: {{ ((100 * h[2][1] / (h[0][1] + h[1][1])) if (h[0][1] + h[1][1]) else 0)|round|int }}% ·
+     Teklif → kabul: {{ ((100 * h[5][1] / h[4][1]) if h[4][1] else 0)|round|int }}%</p>
+</div>
+<div class="izgara">
+  <div class="kart"><h3 style="margin-top:0">Takip</h3>
+    <div>Hatırlatma gönderildi: <b>{{ r.ek.hatirlatma }}</b></div>
+    <div>Teklif takibi gönderildi: <b>{{ r.ek.takip }}</b></div>
+    <div>Yeni bulunan işletme: <b>{{ r.ek.yeni_isletme }}</b></div></div>
+  <div class="kart"><h3 style="margin-top:0">Olumsuz</h3>
+    <div>İlgilenmiyor cevabı: <b>{{ r.ek.olumsuz }}</b></div>
+    <div>Reddedilen teklif: <b>{{ r.ek.ret }}</b></div>
+    <div>Listeden çıkan / geçersiz adres: <b>{{ r.ek.cikan }}</b></div></div>
+  <div class="kart"><h3 style="margin-top:0">Tutar (KDV hariç)</h3>
+    <div>Cevap bekleyen teklifler: <b>{{ tl(r.ek.acik_teklif_tutari) }} TL</b></div>
+    <div>Kabul edilen: <b>{{ tl(r.ek.kabul_tutari) }} TL</b></div>
+    <p class="soluk">Çok seçenekli tekliflerde en yüksek seçenek sayılır.</p></div>
+</div>
+<div class="kart tablo"><h3 style="margin-top:0">Sektöre göre</h3>
+<table><tr><th>Sektör</th><th>Tanıtım</th><th>Cevap</th><th>Teklif</th><th>Kabul</th></tr>
+{% for s in r.sektor %}<tr><td>{{ turler.get(s.tur, s.tur) }}</td><td>{{ s.yazilan }}</td><td>{{ s.cevap }}</td><td>{{ s.teklif }}</td><td>{{ s.kabul }}</td></tr>
+{% else %}<tr><td colspan="5" class="soluk">Bu dönemde hareket yok.</td></tr>{% endfor %}
+</table><p class="soluk">Hangi sektörün daha çok cevap verdiğini görüp müşteri bulmayı ona göre yönlendirin.</p></div>
+{% endblock %}

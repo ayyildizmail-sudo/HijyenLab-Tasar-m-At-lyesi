@@ -188,6 +188,9 @@ Bir müşteri şu durumlardan birinde olur:
 
 - [x] **Faz 2 – Teklifler panelde (25.11.2026):** Teklif görseli panelden üretiliyor (kalıcı teklif şablonu, gerçek boş paket mockup'ı, 1–3 seçenek, rakamlar yalnız `teklif_hesapla.py`'den). Gelen teklif talebinin kartından form otomatik doluyor. Teklif kaydı (HL-YYYY-AAGG-NN, 15 gün geçerlilik, durum), görsel ekli mail taslağı (metinde rakam yok, onaysız gitmez), WhatsApp için görsel indirme, 10. gün cevapsız teklife aynı yazışma zincirinde takip taslağı; müşteri cevap verince takip iptal, süresi dolana takip yok. Kabul/ret işaretleme. Teklif etiketlerinde gramaj yok, kumaş "nonwoven, çapraz doku". 38/38 test geçiyor.
 - [x] **Faz 2 ekleri:** gelen maildeki resim eki (logo) kaydedilip teklif formunda seçilebiliyor; e-postasız işletmeler için sektöre göre WhatsApp mesajı + telefon konuşma notu (wa.me bağlantısı, durum işaretleme, CSV); mükerrer kayıt engeli (telefon / web alanı / ilçe+ad) ve eski kayıtları birleştirme; günlük ZIP yedek (veritabanı + teklifler + ekler, son 30). Güvenlik kontrolündeki 'müşterilerinize' içinde 'steril' yanlış alarmı düzeltildi. 47/47 test.
+- [x] **Sektöre özel tek sayfalar (A4, fiyatsız):** restoran/kebapçı, otel, kuaför/güzellik, toptancı/ajans (`tanitim/sektor/*.pdf`, `araclar/sektor_sayfalari.py` + `sektor_pdf.js`).
+- [x] **Toptancı ve ajanslar:** yeni sektörler (OSM `shop=wholesale`, `office=advertising_agency`), profilde ayrı anlatım ve çağrı ("bir müşterinizin logosunu gönderin"), bayi fiyatı sözü yok; tanıtım maili ve WhatsApp metni buna göre. Profil 2026-11-25l.
+- [x] **Satış raporu:** panelde Rapor sayfası (7 gün / 30 gün / tüm zamanlar): tanıtım → ulaşıldı → cevap → teklif → kabul hunisi, oranlar, açık ve kabul edilen teklif tutarı, sektöre göre tablo. 49/49 test.
 - [x] **Mevcut müşteri listesi istenmiyor:** Asistan yalnız yeni müşteriye odaklı; kara liste isteğe bağlı.
 
 ### Bekleyenler
@@ -200,7 +203,7 @@ Bir müşteri şu durumlardan birinde olur:
 - [ ] **Claude API anahtarı** (console.anthropic.com).
 - [ ] **`YASAK_TERIMLER`**: üretim partnerinin adı `.env`'ye yazılacak.
 - [x] **Ürün videosu** hazır: `tanitim/video/HijyenLab_kucuk_paketten_buyuk_havlu.mp4` (21,5 sn, dikey, doğal paket sesleriyle, yazılı; bitiş kartına 1,2 sn yavaş geçiş, ortam sesi kademeli kısılır, sonda siyaha yavaş kararma). Videodaki altın desenli ambalaj HijyenLab'ın kendi örnek tasarımıdır; paylaşımında izin sorunu yok. Kaynak video 480p olduğu için kalite telefonda izlemeye uygun düzeyde. Katalogdaki QR kod için videonun yayınlanacağı adres bekleniyor (site, YouTube vb.).
-- [ ] **Isıtıcı dolap:** garanti süresi, ölçü ve elektrik gücü; UV lamba var mı; fotoğraf ve video kullanımı için tedarikçi izni; tanıtım klibi (taslak, müziksiz) onay bekliyor.
+- [x] **Isıtıcı dolap:** katalogda gereken bilgiler tamam (model, 60–70 paket, 80°C, iki sepet, cam kapak, fiyat/kargo). Ölçü, güç ve garanti malzemelerde yok; katalogda yazılmıyor. Fotoğraf kullanımı Hakan Bey'e göre uygun.
 - [x] **Serin servis görseli:** markasız 3D cam kapılı +4 °C dolap, içinde 108 logolu paket; katalogda.
 - [ ] **SPF/DKIM/DMARC**, adres ısındırma, İYS/KVKK teyidi: `DENEME_MODU=0` öncesi şart.
 - [ ] **Asistanın nerede çalışacağı:** kendi bilgisayar veya küçük bir sunucu.
@@ -208,11 +211,9 @@ Bir müşteri şu durumlardan birinde olur:
 
 ### Sonraki olası işler
 
-- Sektöre özel 1 sayfalık katalog sayfaları (otel, restoran, zincir, toptancı).
-- Toptancı ve ajanslar için ayrı tanıtım maili şablonu.
 - Gönderilen maillerin mail programındaki "Gönderilmiş" klasörüne de kopyalanması.
 - Tekrar sipariş hatırlatması (ör. 5.200 adetten 60 gün, 10.000 adetten 90 gün sonra).
-- Sabah özet maili ve haftalık huni ölçümü (gönderilen → cevap → teklif → sipariş).
+- Sabah özet maili (rapor sayfası hazır; mail ayarından sonra).
 - Tanıtımlar için ayrı alt alan adı (ör. bilgi.hijyenlab.com).
 
 ---

@@ -50,6 +50,12 @@ Teklif isteyen mailde resim eki (logo) varsa asistan onu kaydeder; teklif formun
 
 Teklif dosyaları `teklifler/` klasöründe durur. Görsel, bilgisayardaki Chrome veya Edge ile çizilir; bulunamazsa `.env` içinde `CHROME_YOLU` yazın. Oshibori fiyatı dolar bazlı olduğu için otomatik hesaplanmaz.
 
+## Rapor
+
+**Rapor** sayfası son 7 gün, 30 gün veya tüm zamanlar için hunisi gösterir: tanıtım gönderildi → WhatsApp/telefonla ulaşıldı → cevap geldi → teklif hazırlandı → gönderildi → kabul. Cevap oranı, teklif→kabul oranı, cevap bekleyen ve kabul edilen teklif tutarı ve sektöre göre tablo da burada. Hangi sektörün daha çok cevap verdiğine bakıp müşteri bulmayı ona göre yönlendirin.
+
+Müşteri bulmada **Toptancı** ve **Reklam/promosyon ajansı** da seçilebilir. Bunlara giden tanıtım ve WhatsApp metni ürünü kendi müşterilerine sunabilecekleri şekilde anlatır ("bir müşterinizin logosunu gönderin").
+
 ## Mükerrer kayıt ve yedek
 
 - **Mükerrer kayıt:** Aynı telefon, aynı web sitesi veya aynı ilçede aynı ad ile gelen işletme yeniden eklenmez; eksik bilgileri (ör. sonradan bulunan e-posta) mevcut kayda eklenir. Eski kayıtlar için Müşteriler → **Mükerrerleri birleştir** (yazışması olan kayıt silinmez).

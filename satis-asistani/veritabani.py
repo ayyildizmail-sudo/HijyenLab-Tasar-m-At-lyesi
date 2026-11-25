@@ -369,3 +369,53 @@ def mukerrerleri_birlestir(con) -> int:
         else:
             tutulan.append(r)
     return silinen
+
+
+# --- Rapor (huni) ---------------------------------------------------------------
+
+CEVAP_KATEGORILERI = ("tanitima_olumlu_cevap", "tanitima_olumsuz_cevap", "teklif_talebi", "siparis", "soru")
+
+
+def rapor(con, gun: int | None = 7) -> dict:
+    """Son `gun` gün (None: tüm zamanlar) için satış hunisi ve sektör tablosu."""
+    sinir = (datetime.now() - timedelta(days=gun)).strftime("%Y-%m-%d %H:%M:%S") if gun else "0000"
+
+    def say(sql, *a):
+        return con.execute(sql, a).fetchone()[0]
+
+    huni = [
+        ("Tanıtım maili gönderildi", say("SELECT COUNT(*) FROM taslak WHERE tur='tanitim' AND durum='gonderildi' "
+                                         "AND gonderim>=?", sinir)),
+        ("WhatsApp / telefonla ulaşıldı", say("SELECT COUNT(*) FROM musteri WHERE durum IN ('arandi','whatsapp_yazildi',"
+                                               "'ilgileniyor','olumsuz') AND (eposta IS NULL OR eposta='') "
+                                               "AND telefon!='' AND son_temas>=?", sinir)),
+        ("Cevap geldi", say("SELECT COUNT(DISTINCT kimden) FROM mail WHERE yon='gelen' AND kategori IN "
+                            f"({','.join('?' * len(CEVAP_KATEGORILERI))}) AND tarih>=?", *CEVAP_KATEGORILERI, sinir)),
+        ("Teklif hazırlandı", say("SELECT COUNT(*) FROM teklif WHERE olusturma>=?", sinir)),
+        ("Teklif gönderildi", say("SELECT COUNT(*) FROM teklif WHERE gonderim>=?", sinir)),
+        ("Kabul edildi", say("SELECT COUNT(*) FROM teklif WHERE durum='kabul' AND COALESCE(gonderim, olusturma)>=?",
+                             sinir)),
+    ]
+    ek = {
+        "hatirlatma": say("SELECT COUNT(*) FROM taslak WHERE tur='hatirlatma' AND durum='gonderildi' AND gonderim>=?", sinir),
+        "takip": say("SELECT COUNT(*) FROM taslak WHERE tur='teklif_takip' AND durum='gonderildi' AND gonderim>=?", sinir),
+        "ret": say("SELECT COUNT(*) FROM teklif WHERE durum='ret' AND COALESCE(gonderim, olusturma)>=?", sinir),
+        "olumsuz": say("SELECT COUNT(*) FROM mail WHERE yon='gelen' AND kategori='tanitima_olumsuz_cevap' AND tarih>=?", sinir),
+        "cikan": say("SELECT COUNT(*) FROM kara_liste WHERE tarih>=?", sinir),
+        "yeni_isletme": say("SELECT COUNT(*) FROM musteri WHERE olusturma>=?", sinir),
+        "acik_teklif_tutari": con.execute("SELECT COALESCE(SUM(genel_toplam),0) FROM teklif WHERE durum IN "
+                                          "('gonderildi','cevap_geldi')").fetchone()[0],
+        "kabul_tutari": con.execute("SELECT COALESCE(SUM(genel_toplam),0) FROM teklif WHERE durum='kabul' AND "
+                                    "COALESCE(gonderim, olusturma)>=?", (sinir,)).fetchone()[0],
+    }
+    sektor = [dict(r) for r in con.execute(
+        "SELECT COALESCE(NULLIF(m.tur,''),'diğer') tur, COUNT(DISTINCT m.id) isletme, "
+        "COUNT(DISTINCT CASE WHEN t.tur='tanitim' AND t.durum='gonderildi' AND t.gonderim>=:s THEN t.id END) yazilan, "
+        "COUNT(DISTINCT CASE WHEN g.kategori IN ('tanitima_olumlu_cevap','teklif_talebi','siparis','soru') "
+        "AND g.tarih>=:s THEN m.id END) cevap, "
+        "COUNT(DISTINCT CASE WHEN k.olusturma>=:s THEN k.id END) teklif, "
+        "COUNT(DISTINCT CASE WHEN k.durum='kabul' AND COALESCE(k.gonderim,k.olusturma)>=:s THEN k.id END) kabul "
+        "FROM musteri m LEFT JOIN taslak t ON t.musteri_id=m.id LEFT JOIN mail g ON g.musteri_id=m.id AND g.yon='gelen' "
+        "LEFT JOIN teklif k ON k.musteri_id=m.id WHERE m.mevcut_musteri=0 GROUP BY 1 ORDER BY yazilan DESC, cevap DESC, isletme DESC",
+        {"s": sinir})]
+    return {"huni": huni, "ek": ek, "sektor": [s for s in sektor if s["yazilan"] or s["cevap"] or s["teklif"]]}

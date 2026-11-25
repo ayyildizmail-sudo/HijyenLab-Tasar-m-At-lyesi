@@ -26,7 +26,14 @@ SEKTOR_CUMLESI = {
     "spa": "misafirlerinize sunulan, logonuzu taşıyan tek tek paketli ıslak havlu",
     "catering": "etkinliklerinizde dağıtılan, logonuzu taşıyan tek tek paketli ıslak mendil",
     "arac_kiralama": "araçlarda misafirinize verilen, logonuzu taşıyan tek tek paketli ıslak mendil",
+    "toptanci": "müşterilerinize sunabileceğiniz, onların logosunu taşıyan tek tek paketli ıslak havlu ve mendil",
+    "ajans": "müşterilerinize sunabileceğiniz, onların logosunu taşıyan tek tek paketli ıslak havlu ve mendil",
 }
+CAGRI_OZEL = {
+    "toptanci": "Bir müşterinizin logosunu buraya gönderirseniz örnek görseli ücretsiz hazırlayıp size iletelim; "
+                "tasarım, üretim ve sevkiyatı biz yapıyoruz.",
+}
+CAGRI_OZEL["ajans"] = CAGRI_OZEL["toptanci"]
 VARSAYILAN = "müşterilerinize sunulan, logonuzu taşıyan tek tek paketli ıslak havlu ve mendil"
 
 
@@ -36,7 +43,7 @@ def whatsapp_metni(musteri: dict) -> str:
     selam = f"Merhaba, {ad} için yazıyorum." if ad else "Merhaba,"
     return (f"{selam} HijyenLab olarak {cumle} üretiyoruz. "
             "Kağıt peçete değil; kumaş gibi yumuşak, ıslak havlu.\n\n"
-            f"{CAGRI}\n\n{IMZA}")
+            f"{CAGRI_OZEL.get(musteri.get('tur') or '', CAGRI)}\n\n{IMZA}")
 
 
 def telefon_notu(musteri: dict) -> str:
@@ -45,7 +52,9 @@ def telefon_notu(musteri: dict) -> str:
     return ("1) Kendinizi tanıtın: HijyenLab, İKA Kurumsal Tedarik. Satın almaya kim bakıyor, sorun.\n"
             f"2) Tek cümle: {cumle[0].upper() + cumle[1:]}.\n"
             "3) Kumaş: kağıt peçete değil, kumaş gibi yumuşak; yırtılmaz, tüy bırakmaz.\n"
-            "4) Çağrı: logolarını WhatsApp'tan isteyin, ücretsiz görsel hazırlayacağınızı söyleyin.\n"
+            + ("4) Çağrı: bir müşterilerinin logosunu isteyin, örnek görseli ücretsiz hazırlayacağınızı söyleyin; "
+               "bayi fiyatı sözü vermeyin.\n" if musteri.get("tur") in CAGRI_OZEL else
+               "4) Çağrı: logolarını WhatsApp'tan isteyin, ücretsiz görsel hazırlayacağınızı söyleyin.\n") +
             "5) İlgilenirse ücretsiz numune teklif edin (kargo bizden); adres ve yetkili kişiyi alın.\n"
             "Fiyat sorulursa: adet ve zemin rengine göre size özel teklif hazırlarız.")
 

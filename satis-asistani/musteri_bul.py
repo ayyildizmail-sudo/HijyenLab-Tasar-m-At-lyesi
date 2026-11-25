@@ -42,6 +42,8 @@ SEKTORLER = {
     "spa": ("Spa / hamam / masaj", [("shop", "massage"), ("amenity", "public_bath"), ("leisure", "sauna")]),
     "catering": ("Catering", [("craft", "caterer")]),
     "arac_kiralama": ("Araç kiralama", [("amenity", "car_rental")]),
+    "toptanci": ("Toptancı / otel-restoran malzemesi", [("shop", "wholesale")]),
+    "ajans": ("Reklam / promosyon ajansı", [("office", "advertising_agency")]),
 }
 # Arama yapılmayan ama mutfak türünden ayrılan alt sektörler
 ALT_SEKTORLER = {"kebapci": "Kebapçı / dönerci / ocakbaşı", "balik": "Balık restoranı"}
@@ -49,7 +51,8 @@ TURLER = {kod: etiket for kod, (etiket, _) in SEKTORLER.items()} | ALT_SEKTORLER
 _OSM_TO_SEKTOR = {etiket: kod for kod, (_, etiketler) in SEKTORLER.items() for etiket in etiketler}
 
 SEKTOR_PUANI = {"kebapci": 30, "otel": 30, "balik": 25, "fast_food": 25, "restoran": 20, "catering": 20,
-                "kafe": 15, "pastane": 10, "spa": 10, "arac_kiralama": 10, "guzellik": 5, "kuafor": 5}
+                "kafe": 15, "pastane": 10, "spa": 10, "arac_kiralama": 10, "guzellik": 5, "kuafor": 5,
+                "toptanci": 25, "ajans": 15}
 
 EPOSTA_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
 KOTU_UZANTI = (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".js", ".css")
@@ -77,7 +80,7 @@ def sektor_bul(etiketler: dict) -> str:
             return "kebapci"
         if re.search(r"seafood|fish", mutfak):
             return "balik"
-    for anahtar in ("amenity", "tourism", "shop", "leisure", "craft"):
+    for anahtar in ("amenity", "tourism", "shop", "leisure", "craft", "office"):
         kod = _OSM_TO_SEKTOR.get((anahtar, etiketler.get(anahtar)))
         if kod:
             return kod

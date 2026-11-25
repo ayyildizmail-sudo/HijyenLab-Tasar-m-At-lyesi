@@ -77,7 +77,7 @@ def test_whatsapp_metni_guvenli_ve_baglanti():
     for tur in list(im.SEKTOR_CUMLESI) + ["bilinmeyen"]:
         metin = im.whatsapp_metni({"ad": "Lezzet Kebap", "tur": tur})
         assert gk.denetle(metin, fiyat_paylasilabilir=False) == []
-        assert "Logonuzu" in metin and "pamuk" not in metin.lower()
+        assert ("Logonuzu" in metin or "müşterinizin logosunu" in metin) and "pamuk" not in metin.lower()
     assert im.telefon_numarasi("0532 123 45 67") == "905321234567"
     assert im.telefon_numarasi("+90 (252) 316 00 00") == "902523160000"
     assert im.telefon_numarasi("5321234567") == "905321234567"
@@ -158,3 +158,36 @@ def test_yedek_zip_ve_gunluk(monkeypatch, tmp_path):
         (yedek.YEDEK_KLASORU / f"satis-yedek-2020010{i}-000000.zip").write_bytes(b"x")
     yedek.yedek_al(ilerleme=lambda s: None)
     assert len(yedek.yedekleri_listele()) == 2
+
+
+# --- Toptancı / ajans ve rapor --------------------------------------------------
+
+def test_toptanci_ajans_sektoru_ve_metni():
+    import musteri_bul
+    assert musteri_bul.sektor_bul({"shop": "wholesale"}) == "toptanci"
+    assert musteri_bul.sektor_bul({"office": "advertising_agency"}) == "ajans"
+    assert 'office"~"^(advertising_agency)$' in musteri_bul.overpass_sorgusu("Bodrum", ["ajans"])
+    metin = im.whatsapp_metni({"ad": "Ege Otel Malzemeleri", "tur": "toptanci"})
+    assert "müşterinizin logosunu" in metin and gk.denetle(metin) == []
+    assert "bayi fiyatı" in im.telefon_notu({"tur": "ajans"})
+
+
+def test_rapor_huni():
+    from datetime import datetime
+    import panel
+    with vt.baglanti() as con:
+        a = vt.musteri_ekle(con, ad="A Kebap", tur="kebapci", eposta="a@a.com")
+        con.execute("INSERT INTO taslak (tur, musteri_id, kime, konu, metin, durum, gonderim) "
+                    "VALUES ('tanitim', ?, 'a@a.com', 'k', 'm', 'gonderildi', ?)", (a, vt.simdi()))
+        con.execute("INSERT INTO mail (yon, musteri_id, kimden, kategori, tarih) VALUES ('gelen', ?, 'a@a.com', "
+                    "'tanitima_olumlu_cevap', ?)", (a, vt.simdi()))
+        con.execute("INSERT INTO teklif (teklif_no, musteri_id, firma, secenekler, satirlar, genel_toplam, tarih, "
+                    "gecerlilik, durum, gonderim) VALUES ('HL-1', ?, 'A', '[]', '[]', 18680, '2026-11-25', "
+                    "'2026-12-10', 'kabul', ?)", (a, vt.simdi()))
+        r = vt.rapor(con, 7)
+    h = dict(r["huni"])
+    assert h["Tanıtım maili gönderildi"] == 1 and h["Cevap geldi"] == 1 and h["Kabul edildi"] == 1
+    assert r["ek"]["kabul_tutari"] == 18680 and r["sektor"][0]["tur"] == "kebapci"
+    c = panel.app.test_client()
+    c.post("/giris", data={"sifre": "test-sifre"})
+    assert "Huni" in c.get("/rapor").get_data(as_text=True) and c.get("/rapor?donem=tum").status_code == 200

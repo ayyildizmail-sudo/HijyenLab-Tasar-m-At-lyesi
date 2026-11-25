@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-25k
+profil_surumu: 2026-11-25l
 fiyat_paylasilabilir: hayir
 ---
 
@@ -86,7 +86,11 @@ Koli başına ücretlendirilir. Bodrum teslimatlarında kargo ücreti alınmaz.
 - Kafe / pastane: servis havlusu ve mendil, müşteri deneyiminin parçası.
 - Catering / organizasyon / etkinlik: yüksek adetli, etkinliğe özel tasarım.
 - Transfer / araç kiralama / tekne turu: misafire verilen markalı ıslak mendil.
-- Toptancı / reklam ajansı: kendi müşterilerine markalı ürün sunabilecekleri bir tedarikçi.
+- Toptancı (otel-restoran malzemesi) / reklam ve promosyon ajansı: ürünü kendileri kullanmaz, kendi müşterilerine
+  sunar. Anlatım: "Müşterilerinize onların logosuyla ıslak havlu ve mendil sunabilirsiniz; tasarımı ve logolu görseli
+  biz hazırlarız, üretim ve sevkiyatı biz yaparız." Düzenli tedarik ve birden çok müşteri için aynı kalite vurgulanır.
+  Çağrı bu sektörde: "Bir müşterinizin logosunu gönderin, örnek görseli ücretsiz hazırlayalım." Bayi/toptan fiyatı,
+  komisyon veya özel iskonto sözü verilmez; fiyat her iş için teklif ile verilir.
 
 ## Sıcak ya da serin servis
 - Rulo ve katlı ıslak havlular ile Oshibori sıcak veya serin servis edilebilir. 7×12 ıslak mendil için önerilmez.
@@ -122,6 +126,7 @@ Teknik terim yerine şu onaylı ifadeler kullanılır:
 
 ## Çağrı
 Her tanıtım mailinin tek çağrısı: "Logonuzu gönderin, işletmenize özel görseli ücretsiz hazırlayalım."
+(Toptancı ve ajanslarda: "Bir müşterinizin logosunu gönderin, örnek görseli ücretsiz hazırlayalım.")
 
 ## Müşteriye ASLA söylenmeyecekler
 - Üretim partnerinin adı veya yeri

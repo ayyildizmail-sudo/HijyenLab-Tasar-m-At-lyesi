@@ -269,6 +269,16 @@ def telefon_durum(mid):
     return redirect(url_for("telefon", durum=request.args.get("durum", "")))
 
 
+@app.route("/rapor")
+@giris_gerekli
+def rapor():
+    donem = request.args.get("donem", "7")
+    gun = {"7": 7, "30": 30, "tum": None}.get(donem, 7)
+    with vt.baglanti() as con:
+        r = vt.rapor(con, gun)
+    return render_template("rapor.html", r=r, donem=donem, turler=musteri_bul.TURLER, tl=islemler.th.tl)
+
+
 @app.route("/kara-liste", methods=["GET", "POST"])
 @giris_gerekli
 def kara_liste():
