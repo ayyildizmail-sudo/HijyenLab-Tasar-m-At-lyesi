@@ -103,9 +103,12 @@
   .iletisim b { color: var(--mavi); display: inline-block; width: 30mm; font-size: 9.5pt; text-transform: uppercase; letter-spacing: .1em; }
 
   /* 5 sayfalık hızlı katalog */
-  .kapak .urunler { top: 112mm; gap: 3mm 8mm; align-items: start; }
+  .kapak .urunler { top: 108mm; gap: 4mm 8mm; align-items: start; }
+  .kapak .hucre .resim { height: 56mm; display:flex; align-items:center; justify-content:center; }
+  .kapak .hucre .resim img { max-height: 100%; width:auto; max-width:100%; }
   .kapak .hucre img { width: 100%; }
-  .kapak .hucre .ad { font-size: 11pt; font-weight: 800; color: var(--lacivert); margin-top: -3mm; }
+  .kapak .hucre .ad { font-size: 11pt; font-weight: 800; color: var(--lacivert); margin-top: 0; }
+  .kapak .hucre { text-align:center; }
   .kapak .hucre .olc { font-size: 10pt; font-weight: 600; color: var(--mavi); }
   .kapak .hucre .kms { font-size: 8.5pt; color: var(--soluk); }
   .kapak .bas { padding: 18mm 18mm 10mm; }
@@ -134,13 +137,13 @@
     <div class="alt-baslik">Tek tek paketli, logolu ıslak havlu, ıslak mendil ve Oshibori. Restoran, otel, kafe ve hizmet işletmelerine özel üretim.</div>
   </div>
   <div class="urunler">
-    <div class="hucre"><img src="gorseller/rulo_25x30_logolu.jpg" alt="Rulo ıslak havlu">
+    <div class="hucre"><div class="resim"><img src="gorseller/rulo_25x30_logolu.jpg" alt="Rulo ıslak havlu"></div>
       <div class="ad">Rulo ıslak havlu</div><div class="olc">25×25 · 25×30 · 30×30 · 30×35 cm</div><div class="kms">Nonwoven, noktalı doku · paket 17 cm</div></div>
-    <div class="hucre"><img src="gorseller/katli_20x25_logolu.jpg" alt="Katlı ıslak havlu">
+    <div class="hucre"><div class="resim"><img src="gorseller/katli_20x25_logolu.jpg" alt="Katlı ıslak havlu"></div>
       <div class="ad">Katlı ıslak havlu</div><div class="olc">20×25 cm</div><div class="kms">Nonwoven, noktalı doku · paket 14 cm</div></div>
-    <div class="hucre"><img src="gorseller/mendil_7x12_logolu.jpg" alt="Islak mendil" style="width:80%;margin:0 auto">
+    <div class="hucre"><div class="resim"><img src="gorseller/mendil_7x12_logolu.jpg" alt="Islak mendil"></div>
       <div class="ad">Islak mendil</div><div class="olc">Paket 7×12 cm · açılınca 16×18 cm</div><div class="kms">Nonwoven · 4 koku seçeneği</div></div>
-    <div class="hucre"><img src="gorseller/rulo_25x30_siyah_zemin.jpg" alt="Renkli zeminli ambalaj">
+    <div class="hucre"><div class="resim"><img src="gorseller/rulo_25x30_siyah_zemin.jpg" alt="Renkli zeminli ambalaj"></div>
       <div class="ad">Beyaz veya renkli zemin</div><div class="olc">Logolu ya da baskısız</div><div class="kms">Oshibori: %100 pamuk havlu, 22,5×24,5 cm</div></div>
   </div>
   <div class="serit"><span>Kurumsal Ürün Kataloğu</span><span>hijyenlab.com</span></div>
@@ -243,7 +246,7 @@
       <ul class="liste kucuk">
         <li>Beyaz veya renkli zemin; standart baskıda 3 renge kadar.</li>
         <li>Renkli zeminde mat veya parlak selefon.</li>
-        <li>İsterseniz arka yüze de baskı.</li>
+        <li>Arka yüze logo, web sitesi, telefon veya Instagram.</li>
       </ul>
     </div>
   </div>
@@ -263,9 +266,10 @@
     </ul>
   </div>
   <h3 style="margin-top:6mm">Ön ve arka yüz baskı</h3>
-  <div class="karsilastir" style="grid-template-columns:1fr 1fr;margin-top:2mm;width:76%;margin-left:auto;margin-right:auto">
+  <p class="kucuk soluk">Arka yüze logonuzu tekrar basabilir ya da web sitenizi, telefonunuzu, Instagram adresinizi veya kısa bir mesajınızı yazdırabilirsiniz. Ön ve arka yüzde aynı renkler kullanılırsa klişe sayısı artmaz.</p>
+  <div class="karsilastir" style="grid-template-columns:1fr 1fr;margin-top:2mm;width:68%;margin-left:auto;margin-right:auto">
     <figure><img src="gorseller/katli_20x25_logolu.jpg" alt=""><figcaption>Ön yüz</figcaption></figure>
-    <figure><img src="gorseller/katli_20x25_arka.jpg" alt=""><figcaption>Arka yüz · aynı renklerle klişe artmaz</figcaption></figure>
+    <figure><img src="gorseller/katli_20x25_arka_iletisim.jpg" alt="Arka yüzde web, telefon ve Instagram örneği"><figcaption>Arka yüz: web, telefon, Instagram</figcaption></figure>
   </div>
   <div class="alt"><span>Görsellerdeki "LOGONUZ" yerine sizin logonuz basılır. Nihai görünüm grafik onayıyla kesinleşir.</span><span>4</span></div>
 </section>
