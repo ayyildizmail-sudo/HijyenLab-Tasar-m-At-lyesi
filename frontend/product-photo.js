@@ -613,9 +613,56 @@ function monoVector(out,palRgb){const VT2=typeof module!=='undefined'&&module.ex
  const fw=Math.ceil(W/2),fh=Math.ceil(H/2),F=new Float32Array(fw*fh);for(let y=0;y<fh;y++)for(let x=0;x<fw;x++){let s=0,k=0;for(let dy=-1;dy<=2;dy++)for(let dx=-1;dx<=2;dx++){const X=x*2+dx,Y=y*2+dy;if(X<0||Y<0||X>=W||Y>=H)continue;s+=A[Y*W+X];k++;}F[y*fw+x]=k?s/k:0;}
  if(VT2){try{const vr=VT2.render([{field:F,color:col}],fw,fh,W,H,{opaqueGround:g,minArea:4,tol:.6});out.data=vr.data;out.svg=vr.svg;out.vector=true;return true;}catch(e){}}
  for(let i=0;i<N;i++){const c=A[i]?col:g;data[i*4]=c[0];data[i*4+1]=c[1];data[i*4+2]=c[2];}return true;}
+// Müşteri işaretli fotoğraf: baskının üzerine kırmızı kalemle çarpı/üstü çizili işaret koyduysa, işaretlenen kısım istenmiyor demektir.
+// Koyu (siyah) baskı ayrılır; üstü çizili yazı satırı ve çarpı atılmış çizim çıkarılır, kırmızı işaretler silinir, kalan baskı vektörel izlenir.
+function annotatedPrint(data,w,h){const N=w*h,red=new Uint8Array(N),lum=new Float32Array(N);let nr=0;
+ for(let i=0;i<N;i++){const r=data[i*4],g=data[i*4+1],b=data[i*4+2];lum[i]=.3*r+.59*g+.11*b;if(r>170&&r-g>90&&r-b>60&&b>=g-10){red[i]=1;nr++;}} /* kalem kırmızısı/pembesi (turuncu değil: mavi ≥ yeşil) */
+ if(nr<N*.002||nr>N*.04)return null;
+ // koyu baskı: yerel zeminden belirgin koyu ve renksiz (yansıma/zemin dokusu değil)
+ const G=Math.max(8,Math.round(Math.max(w,h)/40)),gw=Math.ceil(w/G),gh=Math.ceil(h/G),bg=new Float32Array(gw*gh);
+ for(let gy=0;gy<gh;gy++)for(let gx=0;gx<gw;gx++){const v=[];for(let y=gy*G;y<Math.min(h,(gy+1)*G);y++)for(let x=gx*G;x<Math.min(w,(gx+1)*G);x++)v.push(lum[y*w+x]);v.sort((a,b)=>a-b);bg[gy*gw+gx]=v[Math.floor(v.length*.7)];}
+ const blk=new Uint8Array(N);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=y*w+x;if(red[i])continue;const r=data[i*4],g=data[i*4+1],b=data[i*4+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b);let B=0;const gx=Math.min(gw-1,(x/G)|0),gy=Math.min(gh-1,(y/G)|0);for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=gx+dx,Y=gy+dy;if(X>=0&&Y>=0&&X<gw&&Y<gh)B=Math.max(B,bg[Y*gw+X]);}
+  if(mx-mn<45&&lum[i]<Math.min(110,B*.6))blk[i]=1;}
+ // kırmızının altında kalan baskı da koyudur (işaret baskının üstünden geçer): kırmızı pikselin iki yanında koyu varsa doldurulur
+ let {lab,comps}=components(blk,w,h);const minN=Math.max(8,N*.00004);let nb=0;for(const c of comps)if(c.n>=minN)nb+=c.n;if(nb<N*.003)return null;
+ const keep=new Uint8Array(comps.length);for(const c of comps)if(c.n>=minN)keep[c.id]=1;
+ // işaretler
+ const R=components(red,w,h),marks=R.comps.filter(c=>{if(c.n<N*.0005)return false;const bw=c.box[2]-c.box[0],bh=c.box[3]-c.box[1];return c.n<bw*bh*.35&&Math.max(bw,bh)>Math.min(w,h)*.12;});if(!marks.length||marks.length>6)return null; // ince uzun kalem çizgileri
+ const km=new Uint8Array(N);for(let i=0;i<N;i++)if(lab[i]>=0&&keep[lab[i]])km[i]=1;
+ const Rr=Math.max(2,Math.round(Math.min(w,h)*.008)),CL=components(boxDilate(km,w,h,Rr),w,h);
+ const compOf=c=>{for(let y=c.box[1];y<c.box[3];y++)for(let x=c.box[0];x<c.box[2];x++)if(lab[y*w+x]===c.id)return CL.lab[y*w+x];return -1;};
+ const cl=new Int32Array(comps.length).fill(-1);for(const c of comps)if(keep[c.id])cl[c.id]=compOf(c);
+ const touched=mk=>{const t=new Set(),[x0,y0,x1,y1]=mk.box;for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const i=y*w+x;if(R.lab[i]!==mk.id)continue;for(let dy=-4;dy<=4;dy+=2)for(let dx=-4;dx<=4;dx+=2){const X=x+dx,Y=y+dy;if(X<0||Y<0||X>=w||Y>=h)continue;const q=lab[Y*w+X];if(q>=0&&keep[q])t.add(q);}}return t;};
+ if(!marks.every(mk=>touched(mk).size>=3))return null; // her işaret baskının üzerinden geçmeli
+ for(const mk of marks){const [x0,y0,x1,y1]=mk.box,mw=x1-x0,mh=y1-y0,t=touched(mk);if(!t.size)continue;
+  if(mw>mh*3){// üstü çizili satır: çizginin değdiği harfler ve aynı yükseklik bandındaki parçalar
+   let ty0=1e9,ty1=-1;for(const q of t){const b=comps[q].box;if(b[2]<x0-2||b[0]>x1+2)continue;ty0=Math.min(ty0,b[1]);ty1=Math.max(ty1,b[3]);}
+   const cy=(y0+y1)/2;ty0=Math.max(ty0,cy-(cy-ty0));for(const c of comps){if(!keep[c.id])continue;const b=c.box,ccy=(b[1]+b[3])/2,ccx=(b[0]+b[2])/2;if(ccx>=x0-mw*.05&&ccx<=x1+mw*.05&&ccy>=ty0&&ccy<=ty1&&(t.has(c.id)||(b[1]>=ty0-2&&b[3]<=ty1+2)))keep[c.id]=0;}}
+  else{// çarpı: değdiği çizim kümesi(leri) tamamen
+   const g=new Set();for(const q of t)if(cl[q]>=0)g.add(cl[q]);for(const c of comps)if(keep[c.id]&&g.has(cl[c.id]))keep[c.id]=0;}}
+ const m=new Uint8Array(N);for(let i=0;i<N;i++)if(lab[i]>=0&&keep[lab[i]])m[i]=1;
+ // kalan baskı: en büyük kümeler (yazı); dağınık doku ve kenar benekleri atılır
+ const C2=components(boxDilate(m,w,h,Rr),w,h),mass=new Map();for(const c of comps)if(keep[c.id]){const g=C2.lab[(()=>{for(let y=c.box[1];y<c.box[3];y++)for(let x=c.box[0];x<c.box[2];x++)if(lab[y*w+x]===c.id)return y*w+x;return 0;})()];c._g2=g;mass.set(g,(mass.get(g)||0)+c.n);}
+ const mxm=Math.max(0,...mass.values());if(!mxm)return null;const main=new Set([...mass].filter(([g,v])=>v>=mxm*.25).map(([g])=>g));
+ // dokuya benzer küme (çok sayıda ince paralel çizgi, düşük doluluk) ana sayılmaz
+ for(const g of [...main]){const b=C2.comps[g].box;if(b[1]>h*.85||b[3]<h*.05)main.delete(g);}if(!main.size)return null;
+ for(const c of comps)if(keep[c.id]&&!main.has(c._g2))keep[c.id]=0;
+ m.fill(0);for(let i=0;i<N;i++)if(lab[i]>=0&&keep[lab[i]])m[i]=1;
+ let bx0=w,by0=h,bx1=0,by1=0;for(const g of main){const b=C2.comps[g].box;bx0=Math.min(bx0,b[0]);by0=Math.min(by0,b[1]);bx1=Math.max(bx1,b[2]);by1=Math.max(by1,b[3]);}
+ const pd=Math.round(Math.max(bx1-bx0,by1-by0)*.03);
+ const X0=Math.max(0,Math.floor(bx0-pd)),Y0=Math.max(0,Math.floor(by0-pd)),X1=Math.min(w,Math.ceil(bx1+pd)),Y1=Math.min(h,Math.ceil(by1+pd)),cw=X1-X0,ch=Y1-Y0;
+ // mürekkep rengi
+ let sr=0,sg=0,sb=0,sn=0;for(let y=Y0;y<Y1;y++)for(let x=X0;x<X1;x++){const i=y*w+x;if(!m[i])continue;sr+=data[i*4];sg+=data[i*4+1];sb+=data[i*4+2];sn++;}const col=[sr/sn,sg/sn,sb/sn].map(v=>Math.round(Math.min(60,v)));
+ const VT2=typeof module!=='undefined'&&module.exports?(()=>{try{return require('./vector-trace.js');}catch{return null;}})():(typeof root!=='undefined'?root.VectorTrace:null);
+ const sc=Math.max(1,2000/Math.max(cw,ch)),W2=Math.round(cw*sc),H2=Math.round(ch*sc),F=new Float32Array(cw*ch);
+ for(let y=0;y<ch;y++)for(let x=0;x<cw;x++){let s=0,k=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=x+X0+dx,Y=y+Y0+dy;if(X<0||Y<0||X>=w||Y>=h)continue;s+=m[Y*w+X]*(dx||dy?1:2);k+=dx||dy?1:2;}F[y*cw+x]=s/k;}
+ let out;if(VT2){try{const vr=VT2.render([{field:F,color:col}],cw,ch,W2,H2,{minArea:3,tol:.5});out={data:vr.data,w:W2,h:H2,svg:vr.svg,vector:true};}catch(e){}}
+ if(!out){const d=new Uint8ClampedArray(cw*ch*4);for(let i=0;i<cw*ch;i++){d[i*4]=col[0];d[i*4+1]=col[1];d[i*4+2]=col[2];d[i*4+3]=F[i]>.5?255:0;}out={data:d,w:cw,h:ch};}
+ return {ok:true,svg:out.svg||null,vector:!!out.vector,annotated:true,confidence:.5,glyphFraction:1,glyphFractionRaw:1,image:out,palette:['#'+col.map(v=>v.toString(16).padStart(2,'0')).join('')],surface:'#ffffff',quarterTurns:0,orientationSource:'annotation',method:'local-annotated-print',diagnostics:[{annotated:true,marks:marks.length}]};}
 async function extract(data,w,h,{classify=null,candidates=3,recognize=null,createCanvas=null,redrawText=null}={}){
  // Sonuç girdi boyutuna bağlı olmasın: her zaman en uzun kenarı en çok 2048 piksel olan görüntüde çalış (tarayıcı = test)
  {const d=downscale(data,w,h,2048);data=d.data;w=d.w;h=d.h;}
+ {const an=annotatedPrint(data,w,h);if(an)return an;}
  const found=findSurface(data,w,h);if(!found.best)return {ok:false,reason:'surface-not-found'};
  const tried=[];let pool=found.candidates.slice(0,candidates);
  if(found.best&&found.best.area<.97){const top=found.best,inner=rectify(data,w,h,top.quad,1100),sub=findSurface(inner.data,inner.w,inner.h);
