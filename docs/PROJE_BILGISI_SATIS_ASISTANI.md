@@ -177,12 +177,11 @@ Bir müşteri şu durumlardan birinde olur:
 - [x] Satış asistanının ilk sürümü: gelen mail, müşteri bulma, tanıtım, hatırlatma, onay paneli, kara liste. 6/6 otomatik test geçiyor.
 - [x] Firma profili: bütün ürünler, teyitli fiyatlar, sektöre göre anlatım.
 - [x] Müşteri bulma şu sektörleri kapsıyor: restoran, fast food, kafe, otel, kuaför, güzellik, pastane, spa ve hamam, catering, araç kiralama.
-- [x] Tanıtım kataloğu: 9 sayfa A4 PDF (`tanitim/HijyenLab_Katalog.pdf`), fiyatsız. Görseller **gerçek boş paketlerden** (bıçak izi PDF'leri ve grafik onay şablonları) `tanitim/araclar/katalog_gorselleri.py` ile üretiliyor; yapay zeka görselleri kaldırıldı. HijyenLab logosu ve teklif şablonunun renkleri kullanılıyor.
+- [x] Tanıtım kataloğu: 9 sayfa A4 PDF (`tanitim/HijyenLab_Katalog.pdf`), fiyatsız. Görseller **gerçek boş paketlerden** (bıçak izi PDF'leri ve grafik onay şablonları) `tanitim/araclar/katalog_gorselleri.py` ile üretiliyor; yapay zeka görselleri kaldırıldı. HijyenLab logosu vektörel (`tanitim/varliklar/hijyenlab_logo.svg/.pdf/.png`, logo rengi #29537B) ve teklif şablonunun renkleri kullanılıyor.
 - [x] Claude Projeleri öneri raporu (25.11.2026) uygulandı: güvenlik kontrolü + onay kilidi, fiyat hesaplayıcı, iki model, UID takibi, Gönderilmiş klasörüne kopya, tek tık çıkış, bounce, gönderim penceresi, alan adı sınırı, MX kontrolü, teklif kartı, aday puanı, mevcut müşteri listesi, denetim izi. 27/27 test geçiyor.
 
 ### Bekleyenler
 
-- [ ] **HijyenLab logosunun vektör/yüksek çözünürlüklü hali** (`hijyenlab logo.pdf`): katalogdaki logo 226×88 px; ekranda yeterli, baskıda bulanık olur.
 - [ ] **BM15 (25×25) bıçak izi PDF'i**: boş paket görseli ve güvenli alan şimdilik yaklaşık.
 - [ ] **Mendil (BM21) gramajı ve kumaş fotoğrafı** bekleniyor (kumaş türü: nonwoven). Katlı (BM545) rulo ile aynı kumaş (teyitli); kumaş yakın çekimi katalogda. Oshibori: %100 pamuk havlu, 22,5×24,5 cm, adet başına 15 g, tek kullanımlık tekli paket, logo ambalaja basılır (teyitli); kendi ürün fotoğrafı bekleniyor (internetteki referans görseller telif nedeniyle katalogda kullanılmıyor). Rulo ürünlerin dördünde aynı kumaş (60 g/m² nonwoven) kullanıldığı teyit edildi; açılmış 25×30 fotoğrafı katalogda.
 - [ ] **Gerçek ürün fotoğrafları:** Mevcut mockup'lar yapay zekayla üretilmiş, düşük çözünürlüklü. 7×12 mendil mockup'ı kare görünüyor, gerçekte dikdörtgen.
