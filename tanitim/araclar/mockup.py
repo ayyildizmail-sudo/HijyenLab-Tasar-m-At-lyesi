@@ -48,7 +48,7 @@ REF_LUM = 0.9346      # BM12 boş paketin ortalama parlaklığı (gölgelendirme
 
 # Gölge yumuşatma: boş paketin ışık/gölge kontrastını azaltır (form ve siluet aynı kalır).
 # BM545 boş mockup'ı gerçeğinden kabarık görünüyordu (Hakan Bey, 2026-11-25).
-DUZLESTIR = {"BM545": 0.5}
+DUZLESTIR = {"BM545": 0.15}
 
 
 def _duzlestir(kaynak: Path, k: float) -> Path:
