@@ -611,7 +611,7 @@ async function extract(data,w,h,{classify=null,candidates=3,recognize=null,creat
    return {mask,solid};})();
   // Beyaz ambalaj filmi fotoğrafta gri/renkli ışık altında görünür: film beyaz kabul edilip baskı renkleri ona göre düzeltilir
   // (koyu mürekkep koyu kalır). Renkli zemin (kraft, renkli poşet) ve koyu zeminde renklere dokunulmaz.
-  const showRgb=(()=>{const sl=.3*surface[0]+.59*surface[1]+.11*surface[2];if(lightOnDark||sl<140||Math.max(...surface)-Math.min(...surface)>35)return null;const k=10;
+  const showRgb=(()=>{const sl=.3*surface[0]+.59*surface[1]+.11*surface[2];const rg=Math.max(...surface)-Math.min(...surface),cool=surface[2]>=surface[0]&&surface[2]>=surface[1];if(lightOnDark||sl<140||rg>(cool?55:35))return null; /* gölgedeki beyaz film mavimsi görünür */const k=10;
    return pal.map(labToRgb).map(c=>c.map((v,q)=>Math.max(0,Math.min(255,Math.round((v-k)/Math.max(30,surface[q]-k)*255)))));})();
   const out=renderClean(img,repair.mask,surface.map(Math.round),pal,2000,lightOnDark,repair.solid,showRgb);if(!out)return {ok:false,reason:'empty'};
   const outlineFixed=lightOnDark?0:restoreOutline(out,showRgb||pal.map(labToRgb));
