@@ -39,6 +39,11 @@ Slogan: **"İşletmenizin markası, müşterinizin her temasında."**
 |---|---|---|
 | 7×12 cm ıslak mendil (tek tek paketli) | BM21 | Kebapçı, balık restoranı, kokoreççi, dönerci, fast food, paket servis, pastane, otel, catering, transfer ve araç kiralama, etkinlikler |
 
+### Oshibori
+| Ürün | Kod | Kime özellikle uygun |
+|---|---|---|
+| Oshibori ıslak havlu | OSHIBORI | Yemek öncesi veya sonrası misafire ıslak havlu sunan restoranlar (özellikle uzak doğu ve fine dining), oteller, beach club'lar |
+
 Mendil koku seçenekleri: Flambau (standart), Limon, Bodrum Mandalinası, Yeşil Çay.
 Başka bir koku özel taleple değerlendirilir; bunun için minimum sipariş 20.000 adettir.
 
@@ -67,15 +72,16 @@ Tek ürün yerine ihtiyaca göre paket önerilebilir. Örnek restoran paketi: 25
 7. Kalan ödeme
 8. Sevkiyat
 
-## Ticari bilgiler [KONTROL EDİN: teklif öncesi teyit edilmeli, KDV hariç]
+## Ticari bilgiler (KDV hariç; 25×30, 20×25, 30×30, 30×35 ve Oshibori bilgileri 25.11.2026'da teyit edildi)
 | Ürün | Beyaz birim | Renkli birim | Koli içi | Min. adet (beyaz / renkli) |
 |---|---|---|---|---|
 | 25×30 rulo | 2,90 TL | 3,30 TL | 400 | 5.200 / 10.000 |
 | 25×25 rulo | 2,50 TL | 3,00 TL | 500 | 5.000 / 10.000 |
 | 20×25 katlı | 2,40 TL | 2,80 TL | 625 | 5.000 / 10.000 |
-| 30×30 rulo | teklif ile | teklif ile | | |
-| 30×35 rulo | teklif ile | teklif ile | | |
+| 30×30 rulo | 3,50 TL | 4,00 TL | 400 | 5.200 / 10.000 |
+| 30×35 rulo | 3,80 TL | 4,30 TL | 400 | 5.200 / 10.000 |
 | 7×12 ıslak mendil | 1,40 TL | 1,40 TL | 1.000 | 10.000 |
+| Oshibori | dolar bazlı, teklif ile | | 250 | 3.000 |
 
 - Klişe: renk başına 1.000 TL (tek seferlik; tekrar siparişte mevcut klişe kullanılabiliyorsa alınmaz).
 - Özel CMYK klişe: 10.000 TL.
@@ -98,6 +104,7 @@ FIYAT_PAYLASILABILIR: hayir
   logolu havlular; temizlik ve profesyonellik algısı.
 - **Spa, hamam, masaj, wellness:** Rulo ve katlı havlular; ölçü ve kullanım amacı anlatılır.
 - **Pastane, tatlıcı, dondurmacı:** Müşterinin yanına aldığı logolu ıslak mendil.
+- **Uzak doğu / sushi / fine dining restoranları:** Misafire sunulan logolu Oshibori ıslak havlu.
 - **Catering, organizasyon, etkinlik:** Yüksek adetli markalı mendil ve havlu; etkinliğe özel tasarım.
 - **Transfer, araç kiralama, tekne turu:** Misafire verilen markalı ıslak mendil.
 
