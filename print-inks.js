@@ -17,7 +17,10 @@ function artworkCorePalette(data,width,height,clusters,radius=1,spatialPairs=fal
   let core=true;for(let dy=-radius;dy<=radius&&core;dy++)for(let dx=-radius;dx<=radius&&core;dx++){const j=((y+dy)*width+x+dx)*4;if(data[j+3]<220||dist(c,[data[j],data[j+1],data[j+2]])>12)core=false;}
   if(!core)continue;let best=-1,delta=48;clusters.forEach((k,n)=>{const d=dist(c,k.color);if(d<delta){best=n;delta=d;}});if(best>=0)support[best]++;
  }
- const kept=clusters.filter((_,i)=>support[i]>=4),removed=clusters.filter((_,i)=>support[i]<4);
+ // A near-white tint with almost no solid core is compression ringing around white
+ // knockouts (JPEG), not a printable ink; it still has to pass the checks below.
+ const coreTotal=support.reduce((a,b)=>a+b,0),ringing=i=>support[i]<coreTotal*.005&&dist(clusters[i].color,[255,255,255])<=48;
+ const kept=clusters.filter((_,i)=>support[i]>=4&&!ringing(i)),removed=clusters.filter((_,i)=>support[i]<4||ringing(i));
  if(!kept.length||kept.length>6||(!removed.length&&!allowFlat))return null;
  // Validating a flat palette does not require deleting an unsupported shade.
  // A thin real mark may have no square core. Do not erase a detached line
@@ -25,6 +28,7 @@ function artworkCorePalette(data,width,height,clusters,radius=1,spatialPairs=fal
  for(let i=0;i<data.length&&removed.length;i+=4){
   if(data[i+3]<220)continue;const c=[data[i],data[i+1],data[i+2]];
   if(white(c)||!removed.some(k=>dist(c,k.color)<=12)||kept.some(k=>dist(c,k.color)<48))continue;
+  if(dist(c,[255,255,255])<=32&&clusters.some((k,n)=>ringing(n)&&dist(c,k.color)<=12))continue;
   const x=i/4%width,y=Math.floor(i/4/width);let near=false;
   for(let dy=-6;dy<=6&&!near;dy++)for(let dx=-6;dx<=6&&!near;dx++){
    const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=width||yy>=height)continue;const j=(yy*width+xx)*4;
