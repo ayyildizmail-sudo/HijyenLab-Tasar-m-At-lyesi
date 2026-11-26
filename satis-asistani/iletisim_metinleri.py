@@ -37,7 +37,7 @@ CAGRI_OZEL["ajans"] = CAGRI_OZEL["toptanci"]
 # İzinli referanslar (bütün müşterilerden izin alındı). Tanıtım mailinde sektöre göre en fazla 3 isim kullanılır.
 REFERANSLAR = {
     "otel": ["Çırağan Palace Kempinski", "Four Seasons", "Hilton", "Rixos", "Merit", "Divan"],
-    "restoran": ["Gürkan Şef", "7 Mehmet", "Tarihi Kazancılar"],
+    "restoran": ["Sahan", "Novikov", "Lacivert", "Garson Şükrü", "Gürkan Şef", "7 Mehmet", "Tarihi Kazancılar"],
     "guzellik": ["Zehra Bora"],
     "kurumsal": ["İstanbul Büyükşehir Belediyesi", "TÜBİTAK BİLGEM", "BOTAŞ"],
 }
