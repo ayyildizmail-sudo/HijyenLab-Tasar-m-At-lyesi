@@ -1,0 +1,378 @@
+PARÇA 13/15 — kodun bir bölümü
+
+---
+
+## `tanitim/katalog.html`  (324 satır)
+
+````html
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>HijyenLab Kurumsal Ürün Kataloğu</title>
+<style>
+  @page { size: A4; margin: 0; }
+  /* Renkler fiyat teklifi şablonuyla aynı: zemin #cfe0f1, çizgi #1f5f96, yazı #0b3558 */
+  :root {
+    --lacivert: #0b3558; --mavi: #29537B; --vurgu: #D9622B; --vurgu-acik: #FCEDE4; --zemin: #cfe0f1; --acik: #e4eef8; --cizgi: #c6d9ec;
+    --yazi: #13294b; --soluk: #4a5f7a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #fff; }
+  body { font-family: "Inter", sans-serif; color: var(--yazi); font-size: 10.5pt; line-height: 1.5;
+         -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sayfa { width: 210mm; height: 297mm; position: relative; overflow: hidden; page-break-after: always;
+           padding: 18mm 18mm 22mm; }
+  .sayfa:last-child { page-break-after: auto; }
+  .alt { position: absolute; left: 18mm; right: 18mm; bottom: 10mm; display: flex; justify-content: space-between;
+         font-size: 8pt; color: var(--soluk); border-top: 1px solid var(--cizgi); padding-top: 3mm; }
+  .logo { display: block; }
+  .ust-etiket { font-size: 8.5pt; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--mavi); }
+  h2 { font-family: "Inter Display", "Inter", sans-serif; font-size: 22pt; line-height: 1.15; color: var(--lacivert); letter-spacing: -0.015em; margin: 2mm 0 5mm; }
+  h3 { font-size: 12.5pt; color: var(--lacivert); margin-bottom: 1.5mm; }
+  p + p { margin-top: 2.5mm; }
+  .giris { font-size: 11.5pt; color: #2a3f5c; max-width: 165mm; }
+  .izgara2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .izgara3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5mm; }
+  .kart { background: var(--acik); border: 1px solid var(--cizgi); border-radius: 4mm; padding: 6mm; }
+  .kart.beyaz { background: #fff; }
+  .sayi { font-family: "Inter Display", sans-serif; font-size: 24pt; font-weight: 800; color: var(--mavi); line-height: 1; }
+  .soluk { color: var(--soluk); }
+  .kucuk { font-size: 8.5pt; }
+  ul.liste { list-style: none; }
+  ul.liste li { padding-left: 5mm; position: relative; margin: 1.2mm 0; }
+  ul.liste li::before { content: ""; position: absolute; left: 0; top: 2.1mm; width: 2mm; height: 2mm; border-radius: 50%; background: var(--mavi); }
+  table { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+  th { background: var(--zemin); color: var(--lacivert); text-align: left; padding: 2.5mm 3mm; font-weight: 700; border-bottom: 2px solid var(--mavi); }
+  td { padding: 2.6mm 3mm; border-bottom: 1px solid var(--cizgi); vertical-align: top; }
+  .etiket { display: inline-block; font-size: 8pt; font-weight: 600; color: var(--lacivert); background: #fff;
+            border: 1px solid var(--cizgi); border-radius: 99px; padding: .4mm 2.5mm; margin: .8mm 1mm 0 0; }
+  img { display: block; max-width: 100%; }
+
+  /* Kapak */
+  .kapak { padding: 0; }
+  .kapak .bas { background: var(--zemin); border-bottom: 2mm solid var(--mavi); padding: 22mm 18mm 14mm; }
+  .kapak .bas .logo { width: 62mm; }
+  .kapak .slogan { font-family: "Inter Display", sans-serif; font-size: 26pt; line-height: 1.18; font-weight: 700;
+                   color: var(--lacivert); margin-top: 12mm; max-width: 160mm; letter-spacing: -0.015em; }
+  .kapak .alt-baslik { margin-top: 5mm; font-size: 12pt; color: #2a3f5c; max-width: 160mm; }
+  .kapak .urunler { position: absolute; left: 14mm; right: 14mm; top: 128mm; display: grid;
+                    grid-template-columns: 1fr 1fr; gap: 2mm 6mm; align-items: center; }
+  .kapak .urunler img { width: 100%; }
+  .kapak .serit { position: absolute; left: 0; right: 0; bottom: 0; height: 24mm; background: var(--zemin);
+                  border-top: 1.2mm solid var(--mavi); display: flex; align-items: center; justify-content: space-between;
+                  padding: 0 18mm; font-size: 10pt; font-weight: 700; color: var(--lacivert); }
+
+  /* Ürün kartları */
+  .urun { background: #fff; border: 1px solid var(--cizgi); border-radius: 4mm; overflow: hidden; display: flex; flex-direction: column; }
+  .urun .foto { height: 50mm; display: flex; align-items: center; justify-content: center; padding: 1mm 3mm 0; }
+  .urun .foto img { max-height: 100%; }
+  .rulo .urun .foto { height: 34mm; }
+  .rulo .izgara2 { gap: 5mm; }
+  .rulo h2 { margin-bottom: 4mm; }
+  .urun .icerik { padding: 3mm 5mm 5mm; border-top: 1px solid var(--cizgi); }
+  .urun .kod { font-size: 8pt; font-weight: 700; color: var(--mavi); letter-spacing: .08em; }
+  .ozellik { display: grid; grid-template-columns: auto 1fr; gap: .6mm 3mm; font-size: 8.8pt; margin-top: 2mm; }
+  .ozellik dt { color: var(--soluk); } .ozellik dd { font-weight: 600; }
+
+  .olcu { border: 1px solid var(--cizgi); border-radius: 4mm; overflow: hidden; background: #fff; padding: 2mm 3mm 3mm; }
+  .olcu img { width: 100%; }
+  .olcu figcaption { font-size: 9pt; font-weight: 700; color: var(--lacivert); padding-top: 1mm; }
+  .olcu figcaption span { display: block; font-weight: 400; color: var(--soluk); font-size: 8pt; }
+  table.fayda th span { font-weight: 400; font-size: 8pt; }
+  table.fayda td:first-child { color: var(--soluk); font-weight: 600; width: 24mm; }
+  table.fayda td { font-size: 9pt; padding: 1.6mm 3mm; }
+  table.fayda th { padding: 2mm 3mm; }
+  .kumas-sayfa .izgara2 { gap: 4mm !important; }
+  .kumas-sayfa h2 { margin-bottom: 3mm; }
+  .servis-baslik { display:flex; align-items:center; gap:3mm; margin-bottom:2mm; }
+  .servis-baslik h3 { margin:0; }
+  .servis-ikon { width:10mm; height:10mm; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15pt; color:#fff; }
+  .kart.sicak { background:#fff3ea url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22120%22%20height%3D%22120%22%20viewBox%3D%220%200%20120%20120%22%3E%3Cpath%20d%3D%22M20.0%2052.0c-6.0%20-6.0%206.0%20-10.0%200%20-17.0s6.0%20-12.0%200%20-18.0M29.0%2052.0c-6.0%20-6.0%206.0%20-10.0%200%20-17.0s6.0%20-12.0%200%20-18.0M38.0%2052.0c-6.0%20-6.0%206.0%20-10.0%200%20-17.0s6.0%20-12.0%200%20-18.0M74.0%20108.0c-4.8%20-4.8%204.8%20-8.0%200%20-13.6s4.8%20-9.6%200%20-14.4M81.2%20108.0c-4.8%20-4.8%204.8%20-8.0%200%20-13.6s4.8%20-9.6%200%20-14.4M88.4%20108.0c-4.8%20-4.8%204.8%20-8.0%200%20-13.6s4.8%20-9.6%200%20-14.4M86.0%2040.0c-3.3%20-3.3%203.3%20-5.5%200%20-9.4s3.3%20-6.6%200%20-9.9M91.0%2040.0c-3.3%20-3.3%203.3%20-5.5%200%20-9.4s3.3%20-6.6%200%20-9.9M95.9%2040.0c-3.3%20-3.3%203.3%20-5.5%200%20-9.4s3.3%20-6.6%200%20-9.9%22%20stroke%3D%22%23f07a3a%22%20stroke-width%3D%222.2%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%20opacity%3D%22.17%22/%3E%3C/svg%3E") repeat; background-size:30mm 30mm; border-color:#ffd3b5; }
+  .kart.sicak .servis-ikon { background:#f07a3a; }
+  .kart.serin { background:#eaf6fd url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22120%22%20height%3D%22120%22%20viewBox%3D%220%200%20120%20120%22%3E%3Cpath%20d%3D%22M30.0%2032.0L44.0%2032.0M37.7%2032.0L41.1%2029.1M37.7%2032.0L41.1%2034.9M30.0%2032.0L37.0%2044.1M33.9%2038.7L38.1%2040.2M33.9%2038.7L33.1%2043.1M30.0%2032.0L23.0%2044.1M26.2%2038.7L26.9%2043.1M26.2%2038.7L21.9%2040.2M30.0%2032.0L16.0%2032.0M22.3%2032.0L18.9%2034.9M22.3%2032.0L18.9%2029.1M30.0%2032.0L23.0%2019.9M26.1%2025.3L21.9%2023.8M26.1%2025.3L26.9%2020.9M30.0%2032.0L37.0%2019.9M33.9%2025.3L33.1%2020.9M33.9%2025.3L38.1%2023.8M88.0%2078.0L97.7%2080.6M93.3%2079.4L96.2%2078.1M93.3%2079.4L95.1%2082.0M88.0%2078.0L90.6%2087.7M89.4%2083.3L92.0%2085.1M89.4%2083.3L88.1%2086.2M88.0%2078.0L80.9%2085.1M84.1%2081.9L83.8%2085.1M84.1%2081.9L80.9%2082.2M88.0%2078.0L78.3%2075.4M82.7%2076.6L79.8%2077.9M82.7%2076.6L80.9%2074.0M88.0%2078.0L85.4%2068.3M86.6%2072.7L84.0%2070.9M86.6%2072.7L87.9%2069.8M88.0%2078.0L95.1%2070.9M91.9%2074.1L92.2%2070.9M91.9%2074.1L95.1%2073.8M92.0%2022.0L97.2%2025.0M94.9%2023.6L96.7%2023.3M94.9%2023.6L95.5%2025.5M92.0%2022.0L92.0%2028.0M92.0%2025.3L93.2%2026.8M92.0%2025.3L90.8%2026.8M92.0%2022.0L86.8%2025.0M89.1%2023.6L88.5%2025.5M89.1%2023.6L87.3%2023.3M92.0%2022.0L86.8%2019.0M89.1%2020.3L87.3%2020.7M89.1%2020.3L88.5%2018.5M92.0%2022.0L92.0%2016.0M92.0%2018.7L90.8%2017.2M92.0%2018.7L93.2%2017.2M92.0%2022.0L97.2%2019.0M94.9%2020.3L95.5%2018.5M94.9%2020.3L96.7%2020.7M26.0%2096.0L32.9%2097.2M29.8%2096.7L31.7%2095.5M29.8%2096.7L31.2%2098.4M26.0%2096.0L28.4%20102.6M27.3%2099.6L29.3%20100.7M27.3%2099.6L26.6%20101.7M26.0%2096.0L21.5%20101.4M23.5%2098.9L23.5%20101.2M23.5%2098.9L21.3%2099.3M26.0%2096.0L19.1%2094.8M22.2%2095.3L20.3%2096.5M22.2%2095.3L20.8%2093.6M26.0%2096.0L23.6%2089.4M24.7%2092.4L22.7%2091.3M24.7%2092.4L25.4%2090.3M26.0%2096.0L30.5%2090.6M28.5%2093.1L28.5%2090.8M28.5%2093.1L30.7%2092.7%22%20stroke%3D%22%232aa7c9%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%20opacity%3D%22.16%22/%3E%3C/svg%3E") repeat; background-size:30mm 30mm; border-color:#bfe3f6; }
+  .kart.serin .servis-ikon { background:#2aa7c9; }
+  .karsilastir { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+  .karsilastir figure { border: 1px solid var(--cizgi); border-radius: 4mm; overflow: hidden; background: #fff; padding: 2mm; }
+  .karsilastir figcaption { text-align: center; font-size: 8.5pt; font-weight: 700; color: var(--lacivert); padding: 1mm 0 1mm; }
+
+  .adimlar { display: grid; grid-template-columns: 1fr 1fr; gap: 3.5mm 6mm; }
+  .adim { display: flex; gap: 4mm; align-items: flex-start; }
+  .adim .no { flex: none; width: 9mm; height: 9mm; border-radius: 50%; background: var(--mavi); color: #fff;
+              font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 10pt; }
+  .adim b { color: var(--lacivert); display: block; }
+
+  .arka { padding: 0; }
+  .arka .bas { background: var(--zemin); border-bottom: 2mm solid var(--mavi); padding: 24mm 18mm 18mm; }
+  .arka .bas .logo { width: 50mm; }
+  .arka h2 { font-size: 26pt; margin-top: 12mm; }
+  .iletisim { font-size: 14pt; line-height: 2.1; padding: 14mm 18mm 0; color: var(--lacivert); }
+  .iletisim b { color: var(--mavi); display: inline-block; width: 30mm; font-size: 9.5pt; text-transform: uppercase; letter-spacing: .1em; }
+
+  /* 5 sayfalık hızlı katalog */
+  .kapak .urunler { top: 108mm; gap: 4mm 8mm; align-items: start; }
+  .kapak .hucre .resim { height: 56mm; display:flex; align-items:center; justify-content:center; }
+  .kapak .hucre .resim img { max-height: 100%; width:auto; max-width:100%; }
+  .kapak .hucre img { width: 100%; }
+  .kapak .hucre .ad { font-size: 11pt; font-weight: 800; color: var(--lacivert); margin-top: 0; }
+  .kapak .hucre { text-align:center; }
+  .kapak .hucre .olc { font-size: 10pt; font-weight: 600; color: var(--mavi); }
+  .kapak .hucre .kms { font-size: 8.5pt; color: var(--soluk); }
+  .kapak .bas { padding: 18mm 18mm 10mm; }
+  .kapak .slogan { margin-top: 8mm; font-size: 24pt; }
+  table.urun-tablo td, table.urun-tablo th { font-size: 8.2pt; padding: 1.2mm 1.6mm; line-height:1.3; }
+  table.urun-tablo td:nth-child(n+5) { white-space:nowrap; }
+  table.urun-tablo td .t { display:inline; } table.urun-tablo td b { display:block; }
+  table.urun-tablo td b { color: var(--lacivert); }
+  table.urun-tablo td .t { display:block; font-size:7.5pt; color: var(--soluk); }
+  .mini-olcu { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 3mm; }
+  .mini-olcu figure { border:1px solid var(--cizgi); border-radius:3mm; background:#fff; padding:1.5mm 2mm 2mm; }
+  .mini-olcu figcaption { font-size:8pt; font-weight:700; color:var(--lacivert); }
+  .mini-olcu figcaption span { display:block; font-weight:400; color:var(--soluk); font-size:7.5pt; }
+  .adim4 { display:grid; grid-template-columns: repeat(4,1fr); gap:3mm; }
+  .adim4 .k { background: var(--acik); border:1px solid var(--cizgi); border-radius:3mm; padding:3.5mm; font-size:8.6pt; }
+  .adim4 .no { width:8mm; height:8mm; border-radius:50%; background:var(--mavi); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; margin-bottom:2mm; }
+  .adim4 b { display:block; color:var(--lacivert); font-size:9.5pt; margin-bottom:1mm; }
+  table.oneri td { font-size: 9pt; padding: 1.1mm 3mm; } table.oneri td:first-child { font-weight:700; color:var(--lacivert); width:58mm; }
+  .vurgu-kutu { background: var(--vurgu-acik); border-left: 2.5mm solid var(--vurgu); border-radius: 2mm; padding: 2.5mm 4mm; font-size: 9pt; color: var(--yazi); }
+  .vurgu-kutu b { color: #A8441A; }
+  .vurgu-adim .no { background: var(--vurgu) !important; }
+  .kapak .serit span { flex: none; }
+  .iletisim-satir { display:flex; justify-content:space-between; padding: 6mm 18mm 0; font-size: 12pt; font-weight: 700; color: var(--lacivert); }
+  .iletisim-satir b { display:block; color: var(--mavi); font-size: 8pt; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; }
+  .belgeler { display:flex; gap:2mm; flex-wrap:nowrap; }
+  .rz { flex:1; border:1.2px solid var(--mavi); border-radius:2mm; padding:1.2mm 1mm; text-align:center; background:#fff; }
+  .rz b { display:block; font-size:8.5pt; color:var(--lacivert); line-height:1.2; letter-spacing:.02em; }
+  .rz i { display:block; font-style:normal; font-size:6.5pt; color:var(--soluk); }
+  .isaretler { display:flex; justify-content:space-around; align-items:center; margin:2mm 0 3mm; }
+  .isaretler img { height:13mm; width:auto; }
+  .galeri-gercek { display:grid; grid-template-columns: repeat(4,1fr); gap: 0 3mm; }
+  .galeri-gercek img { width:100%; aspect-ratio: 2.1; object-fit: cover; }
+</style>
+</head>
+<body>
+
+<!-- 1. KAPAK -->
+<section class="sayfa kapak">
+  <div class="bas">
+    <img class="logo" src="varliklar/hijyenlab_logo.svg" alt="HijyenLab">
+    <div class="slogan">Masada kalan son şey: logonuz.</div>
+    <div class="alt-baslik"><b style="color:var(--lacivert)">İşletmenizin markası, müşterinizin her temasında.</b> Tek tek paketli, logolu ıslak havlu, ıslak mendil ve Oshibori; restoran, otel, kafe ve hizmet işletmelerine özel üretim.</div>
+  </div>
+  <div class="urunler">
+    <div class="hucre"><div class="resim"><img src="gorseller/ornek_rulo_ocakbasi_beyaz.jpg" alt="Rulo ıslak havlu, örnek tasarım"></div>
+      <div class="ad">Rulo ıslak havlu</div><div class="olc">25×25 · 25×30 · 30×30 · 30×35 cm</div><div class="kms">Nonwoven, çapraz doku · paket 17 cm</div></div>
+    <div class="hucre"><div class="resim"><img src="gorseller/ornek_katli_salon.jpg" alt="Katlı ıslak havlu, örnek tasarım"></div>
+      <div class="ad">Katlı ıslak havlu</div><div class="olc">20×25 cm</div><div class="kms">Nonwoven, çapraz doku · paket 14 cm</div></div>
+    <div class="hucre"><div class="resim"><img src="gorseller/ornek_mendil_kose.jpg" alt="Islak mendil, örnek tasarım"></div>
+      <div class="ad">Islak mendil</div><div class="olc">Paket 7×12 cm · açılınca 16×18 cm</div><div class="kms">Nonwoven · 4 koku seçeneği</div></div>
+    <div class="hucre"><div class="resim"><img src="gorseller/ornek_katli_liman.jpg" alt="Renkli zeminli ambalaj, örnek tasarım"></div>
+      <div class="ad">Renkli zemin de olur</div><div class="olc">Bütün ürünlerde beyaz veya renkli zemin</div><div class="kms">Rulo, katlı, mendil ve Oshibori · logolu ya da baskısız</div></div>
+  </div>
+  <div class="serit"><span>Kurumsal Ürün Kataloğu</span><span style="font-weight:400;font-size:8pt">Görsellerdeki marka adları örnek tasarımdır.</span><span>hijyenlab.com</span></div>
+</section>
+
+<!-- 2. ÜRÜNLER VE KUMAŞ -->
+<section class="sayfa">
+  <div class="ust-etiket">Ürünler ve kumaş</div>
+  <h2>Kağıt peçete değil: kumaş gibi yumuşak, tek tek paketli.</h2>
+  <table class="urun-tablo">
+    <tr><th>Ürün</th><th>Açılmış ölçü</th><th>Kumaş</th><th>Ambalaj</th><th>Koli</th><th>En az sipariş<br><span style="font-weight:400">beyaz / renkli</span></th><th>Baskısız<br>deneme kolisi*</th></tr>
+    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM12 · en çok tercih edilen</span></td><td>25×30 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP<br>16×17 cm</td><td>400</td><td>5.200 / 10.000</td><td data-baskisiz="BM12">1.160 TL</td></tr>
+    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM15 · ekonomik</span></td><td>25×25 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP</td><td>500</td><td>5.000 / 10.000</td><td data-baskisiz="BM15">1.250 TL</td></tr>
+    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM11 · büyük ölçü</span></td><td>30×30 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP<br>16×17 cm</td><td>400</td><td>5.200 / 10.000</td><td data-baskisiz="BM11">1.400 TL</td></tr>
+    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM13 · en geniş ölçü</span></td><td>30×35 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP<br>16×17 cm</td><td>400</td><td>5.200 / 10.000</td><td data-baskisiz="BM13">1.520 TL</td></tr>
+    <tr><td><b>Katlı ıslak havlu</b><span class="t">BM545</span></td><td>20×25 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP<br>14×19 cm</td><td>625</td><td>5.000 / 10.000</td><td data-baskisiz="BM545">1.500 TL</td></tr>
+    <tr><td><b>Islak mendil</b><span class="t">BM21 · 4 koku</span></td><td>16×18 cm<span class="t">paket 7×12 cm</span></td><td>Nonwoven</td><td>Tekli triplex</td><td>1.000</td><td>10.000</td><td data-baskisiz="BM21">1.400 TL</td></tr>
+    <tr><td><b>Oshibori</b><span class="t">premium sunum</span></td><td>22,5×24,5 cm<span class="t">adet 15 g</span></td><td>%100 pamuk havlu</td><td>Tekli paket</td><td>250</td><td>3.000</td><td data-baskisiz="OSHIBORI">teklif ile</td></tr>
+  </table>
+  <h3 style="margin-top:3.5mm">Küçük paketten büyük havlu</h3>
+  <div class="mini-olcu">
+    <figure><img src="gorseller/olcu_rulo.jpg" alt="25×30 rulo: paket ve açılmış havlu"><figcaption>Rulo · 25×30 cm<span>17 cm'lik paketten</span></figcaption></figure>
+    <figure><img src="gorseller/olcu_katli.jpg" alt="20×25 katlı: paket ve açılmış havlu"><figcaption>Katlı · 20×25 cm<span>14 cm'lik paketten</span></figcaption></figure>
+    <figure><img src="gorseller/olcu_mendil.jpg" alt="7×12 mendil: paket ve açılmış mendil"><figcaption>Mendil · 16×18 cm<span>7×12 cm'lik paketten</span></figcaption></figure>
+  </div>
+  <div class="izgara2" style="margin-top:4mm;gap:4mm">
+    <div class="kart" style="padding:4mm 5mm;display:flex;gap:4mm;align-items:center">
+      <img src="gorseller/doku_nonwoven.jpg" alt="Çapraz dokulu nonwoven kumaş" style="width:24mm;border-radius:2mm">
+      <ul class="liste kucuk"><li>Kumaş gibi yumuşak</li><li>Yırtılmaz, dağılmaz, tüy bırakmaz</li><li>Islak ve kokulu; sıkınca su damlamaz</li><li>Tek tek paketli, ambalajda logonuz</li><li>Geri dönüştürülebilir ürünler</li></ul>
+    </div>
+    <div class="kart" style="padding:4mm 5mm">
+      <h3 style="font-size:10.5pt">Mendil kokuları</h3>
+      <span class="etiket">Flambau (standart)</span><span class="etiket">Limon</span><span class="etiket">Bodrum Mandalinası</span><span class="etiket">Yeşil Çay</span>
+      <div class="vurgu-kutu" style="margin-top:3mm"><b>Ücretsiz numune</b> Kumaşı elinizde görün; kargo bizden. <b>Denemek için</b> baskısız tek koli (ücretli*).</div>
+    </div>
+  </div>
+  <div class="alt"><span style="max-width:160mm">* Baskısız deneme kolisi ücretlidir: koli içi adet × beyaz birim fiyat, klişe yok, KDV hariç; kargo koli başı <span data-kargo>200 TL</span> (Bodrum ücretsiz). Baskılı ürün fiyatları adet, zemin ve renge göre teklifle verilir.</span><span>2</span></div>
+</section>
+
+<!-- 5c. SICAK YA DA SERİN SERVİS -->
+<section class="sayfa servis-sayfa">
+  <div class="ust-etiket">Sıcak ya da serin servis</div>
+  <h2>Kışın sıcak, yazın serin</h2>
+  <p class="giris" style="margin-bottom:5mm">Aynı ıslak havlu, mevsime göre iki farklı ikram. Rulo ve katlı ıslak havlular ile Oshibori sıcak veya serin servis edilebilir.</p>
+  <div class="izgara2">
+    <div class="kart sicak">
+      <div class="servis-baslik"><span class="servis-ikon">♨</span><h3>Sıcak servis</h3></div>
+      <ul class="liste kucuk">
+        <li><b>Isıtıcı dolapta:</b> ıslak havlular ambalajıyla birlikte sürekli 80°C'de sıcak tutulur, her an servise hazırdır.</li>
+        <li><b>Dolap yoksa:</b> kendi mikrodalga fırınınızda yaklaşık 10 saniye ısıtılarak servis edilebilir.</li>
+      </ul>
+      <p class="kucuk soluk">Kebapçı, ocakbaşı, fine dining, uzak doğu mutfağı; kış ayları.</p>
+    </div>
+    <div class="kart serin">
+      <div class="servis-baslik"><span class="servis-ikon">❄</span><h3>Serin servis</h3></div>
+      <ul class="liste kucuk">
+        <li><b>Buzdolabında:</b> +4°C'de bekletilip serin servis edilir; sıcak havada ferahlatır.</li>
+      </ul>
+      <p class="kucuk soluk">Beach club, havuz başı, otel lobisi, yaz terasları, tekne turları, transfer araçları.</p>
+      <img src="varliklar/buzdolabi_paketli.jpg" alt="Cam kapılı buzdolabında HijyenLab logolu ıslak havlular" style="width:46%;display:block;margin:1mm auto 0;mix-blend-mode:multiply">
+    </div>
+  </div>
+  <div class="kart beyaz" style="margin-top:6mm;padding:4mm 6mm">
+    <img src="varliklar/isitici_rtd23a_paketli.jpg" alt="Islak havlu ısıtıcı dolap RTD-23A, içinde HijyenLab logolu ıslak havlular" style="width:62%;display:block;margin:0 auto">
+    <div class="izgara2" style="margin-top:3mm;align-items:start">
+      <div>
+        <div class="kod" style="font-size:8pt;font-weight:700;color:var(--mavi);letter-spacing:.08em">ISITICI DOLAP · RTD-23A</div>
+        <h3>Havlu da ısıtıcı da bizden</h3>
+        <p class="kucuk">Ambalajlı ıslak havluları sürekli 80°C'de sıcak tutan, cam kapaklı, iki raflı ısıtıcı dolap.</p>
+      </div>
+      <dl class="ozellik"><dt>Kapasite</dt><dd>23 litre · 60–70 ambalajlı ıslak havlu</dd><dt>Sıcaklık</dt><dd>80°C, ambalajıyla birlikte</dd><dt>Raf</dt><dd>2 adet, çıkarılabilir paslanmaz sepet</dd><dt>Güç</dt><dd>200 W · 220–230 V, 50/60 Hz</dd><dt>Ölçü</dt><dd>45,2 × 28,5 × 35 cm (G × D × Y)</dd><dt>Satış</dt><dd>Ayrıca satılır; fiyat için teklif alın</dd></dl>
+    </div>
+  </div>
+  <p class="kucuk soluk" style="margin-top:3mm">7×12 ıslak mendil sıcak veya serin servis için önerilmez.</p>
+  <div class="alt"><span>Isıtıcı dolap: tedarikçi ürün fotoğrafı. Buzdolabı: temsili çizim. Paketler temsilidir.</span><span>3</span></div>
+</section>
+
+
+<!-- 4. MARKANIZA ÖZEL VE SİPARİŞ -->
+<section class="sayfa">
+  <div class="ust-etiket">Markanıza özel tasarım</div>
+  <h2>Boş ambalajdan markalı ürüne</h2>
+  <div class="karsilastir">
+    <figure><img src="gorseller/rulo_25x30_bos.jpg" alt=""><figcaption>Baskısız</figcaption></figure>
+    <figure><img src="gorseller/ornek_rulo_ocakbasi_beyaz.jpg" alt=""><figcaption>Beyaz zemin, logonuzla</figcaption></figure>
+    <figure><img src="gorseller/ornek_rulo_ocakbasi_kirmizi.jpg" alt=""><figcaption>Renkli zemin, markanızın renginde</figcaption></figure>
+  </div>
+  <div class="izgara2" style="margin-top:4mm">
+    <div>
+      <h3>Tasarımı biz hazırlıyoruz</h3>
+      <ul class="liste kucuk">
+        <li>Logonuzla ambalaj görseli 12 saat içinde, ücretsiz hazırlanır.</li>
+        <li>Logonuz yoksa işletme adınızla tasarlanır.</li>
+        <li>Üretimden önce grafik onayınız alınır.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Baskı seçenekleri</h3>
+      <ul class="liste kucuk">
+        <li>Beyaz veya renkli zemin; standart baskıda 3 renge kadar.</li>
+        <li>Renkli zeminde mat veya parlak selefon.</li>
+        <li>Arka yüze logo, web sitesi, telefon veya Instagram.</li>
+      </ul>
+    </div>
+  </div>
+  <h3 style="margin-top:4mm">Sipariş 4 adımda</h3>
+  <div class="adim4">
+    <div class="k vurgu-adim"><div class="no">1</div><b>Logonuzu gönderin</b>Mail veya WhatsApp ile; ürün ve adedi birlikte belirleyelim.</div>
+    <div class="k vurgu-adim"><div class="no">2</div><b>12 saatte ücretsiz görsel</b>Ürününüzün logonuzla görselini hazırlarız, onaylarsınız.</div>
+    <div class="k"><div class="no">3</div><b>%50 ön ödeme</b>Fatura kesilir; klişe ve üretim başlar.</div>
+    <div class="k"><div class="no">4</div><b>Fotoğraf ve sevkiyat</b>Ürün fotoğrafını paylaşırız; kalan %50 ile sevk edilir.</div>
+  </div>
+  <div class="kart beyaz" style="margin-top:4mm;padding:3mm 6mm">
+    <h3 style="font-size:10.5pt">Ticari koşullar</h3>
+    <ul class="liste kucuk">
+      <li>Baskı klişesi renk başına tek seferlik ücretlendirilir; aynı tasarımla tekrar siparişte klişe bedeli alınmaz.</li>
+      <li>Kargo koli başına ücretlendirilir; Bodrum teslimatlarında nakliye ücreti yoktur.</li>
+      <li>Denemek için her çeşitten baskısız tek koli alınabilir; ücretlidir, koli fiyatları 2. sayfadaki tabloda.</li>
+      <li>Teklifler 15 gün geçerlidir; fiyatlara KDV dahil değildir.</li>
+    </ul>
+  </div>
+  <h3 style="margin-top:4mm">Ön ve arka yüz baskı</h3>
+  <p class="kucuk soluk">Arka yüze logonuzu tekrar basabilir ya da web sitenizi, telefonunuzu, Instagram adresinizi veya kısa bir mesajınızı yazdırabilirsiniz. Ön ve arka yüzde aynı renkler kullanılırsa klişe sayısı artmaz.</p>
+  <div class="karsilastir" style="grid-template-columns:1fr 1fr;margin-top:2mm;width:68%;margin-left:auto;margin-right:auto">
+    <figure><img src="gorseller/katli_20x25_logolu.jpg" alt=""><figcaption>Ön yüz</figcaption></figure>
+    <figure><img src="gorseller/katli_20x25_arka_iletisim.jpg" alt="Arka yüzde web, telefon ve Instagram örneği"><figcaption>Arka yüz: web, telefon, Instagram</figcaption></figure>
+  </div>
+  <div class="alt"><span>Marka adları örnek tasarımdır; "LOGONUZ" yerine sizin logonuz basılır. Nihai görünüm grafik onayıyla kesinleşir.</span><span>4</span></div>
+</section>
+
+<!-- 5. ARKA KAPAK -->
+<section class="sayfa arka">
+  <div class="bas" style="padding:12mm 18mm 7mm">
+    <img class="logo" src="varliklar/hijyenlab_logo.svg" alt="HijyenLab">
+    <h2 style="margin-top:4mm">Logonuzu gönderin,<br>ürününüzü size gösterelim.</h2>
+    <div class="vurgu-kutu" style="margin-top:5mm;font-size:11pt"><b>Ücretsiz:</b> 12 saat içinde logolu ürün görseli ve kumaş numunesi, kargo bizden.</div>
+    <p style="font-size:11.5pt;color:#2a3f5c;max-width:155mm">Logonuzu ve ilgilendiğiniz ürünü iletin; ambalaj görselinizi ve size özel teklifinizi hazırlayalım.</p>
+  </div>
+  <div class="iletisim-satir"><span><b>Telefon</b>0 (542) 569 98 69</span><span><b>E-posta</b>info@hijyenlab.com</span><span><b>Web</b>hijyenlab.com</span></div>
+  <div style="padding:5mm 18mm 0">
+    <h3>Müşterilerimiz için ürettiklerimiz</h3>
+    <p class="kucuk soluk" style="margin-bottom:1.5mm">Restorandan otele, kuaförden kurumsal firmalara: müşterilerimizin gerçek logoları, paketimiz üzerinde.</p>
+    <div class="galeri-gercek"><img src="varliklar/gercek/kazancilar.jpg" alt=""><img src="varliklar/gercek/cotto.jpg" alt=""><img src="varliklar/gercek/seruven.jpg" alt=""><img src="varliklar/gercek/sarihan.jpg" alt=""><img src="varliklar/gercek/vom.jpg" alt=""><img src="varliklar/gercek/ajlan.jpg" alt=""><img src="varliklar/gercek/salonika.jpg" alt=""><img src="varliklar/gercek/zehra_bora.jpg" alt=""><img src="varliklar/gercek/kultur_sofrasi.jpg" alt=""><img src="varliklar/gercek/yaf.jpg" alt=""><img src="varliklar/gercek/orkun.jpg" alt=""><img src="varliklar/gercek/michelin.jpg" alt=""></div>
+  </div>
+  <div style="padding:4mm 18mm 0">
+    <p class="kucuk" style="margin:0.5mm 0 2.5mm"><b style="color:var(--lacivert)">Kurumsal müşterilerimizden:</b> Çırağan Palace · Four Seasons · Hilton · Mandarin Oriental · Akbank · İBB</p>
+    <h3>Belgelerimiz</h3>
+    <div class="belgeler"><span class="rz"><b>ISO 9001</b><i>2015 · Kalite</i></span><span class="rz"><b>ISO 14001</b><i>2015 · Çevre</i></span><span class="rz"><b>ISO 22000</b><i>2018 · Gıda</i></span><span class="rz"><b>ISO 45001</b><i>2018 · İş sağlığı</i></span><span class="rz"><b>GMP</b><i>İyi üretim</i></span><span class="rz"><b>CE</b><i>Uygunluk</i></span><span class="rz"><b>IFRA</b><i>Koku standardı</i></span></div>
+    <div class="isaretler"><img src="varliklar/belge_isaretleri/aliment_iso14001.png" alt=""><img src="varliklar/belge_isaretleri/turkak.png" alt=""><img src="varliklar/belge_isaretleri/egemikal.png" alt=""><img src="varliklar/belge_isaretleri/ascert.png" alt=""><img src="varliklar/belge_isaretleri/ce.png" alt=""></div>
+    <h3>İşletmenize göre öneri</h3>
+    <table class="oneri">
+      <tr><td>Restoran, kebapçı, fast food</td><td>7×12 ıslak mendil · 25×30 rulo</td></tr>
+      <tr><td>Otel ve tatil köyü</td><td>20×25 katlı · 30×30 / 30×35 rulo · Oshibori</td></tr>
+      <tr><td>Kafe, pastane, catering</td><td>25×25 rulo · 7×12 ıslak mendil</td></tr>
+      <tr><td>Kuaför, berber, güzellik merkezi</td><td>25×30 rulo · 20×25 katlı</td></tr>
+    </table>
+  </div>
+  <div class="alt"><span>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti. · Zincir işletmeler, toptancılar ve ajanslarla da çalışıyoruz.</span><span>Müşteri logoları izinle kullanılmıştır.</span></div>
+</section>
+
+</body>
+</html>
+
+````
+
+
+---
+
+## `tanitim/pdf_olustur.js`  (16 satır)
+
+````javascript
+// Kullanım: node pdf_olustur.js  ->  HijyenLab_Katalog.pdf ve onizleme PNG'leri
+const { chromium } = require('playwright');
+const path = require('path');
+(async () => {
+  const b = await chromium.launch();
+  const p = await b.newPage();
+  await p.goto('file://' + path.resolve(__dirname, 'katalog.html'), { waitUntil: 'networkidle' });
+  await p.pdf({ path: path.resolve(__dirname, 'HijyenLab_Katalog.pdf'), format: 'A4', printBackground: true,
+                margin: { top: 0, right: 0, bottom: 0, left: 0 } });
+  if (process.argv[2]) {
+    await p.setViewportSize({ width: 794, height: 1123 });
+    const n = await p.locator('.sayfa').count();
+    for (let i = 0; i < n; i++) await p.locator('.sayfa').nth(i).screenshot({ path: `${process.argv[2]}/s${i + 1}.png` });
+  }
+  await b.close();
+})();
+
+````
+
+
+---
+
+## `tanitim/referans_pdf.js`  (10 satır)
+
+````javascript
+// Kullanım: node referans_pdf.js [önizleme.png]  ->  HijyenLab_Referanslar.pdf
+const { chromium } = require('playwright');
+const path = require('path');
+(async () => {
+  const b = await chromium.launch(); const p = await b.newPage();
+  await p.goto('file://' + path.resolve(__dirname, 'referanslar.html'), { waitUntil: 'networkidle' });
+  await p.pdf({ path: path.resolve(__dirname, 'HijyenLab_Referanslar.pdf'), format: 'A4', printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
+  if (process.argv[2]) { await p.setViewportSize({ width: 794, height: 1123 }); await p.screenshot({ path: process.argv[2] }); }
+  await b.close();
+})();
+
+````
+
