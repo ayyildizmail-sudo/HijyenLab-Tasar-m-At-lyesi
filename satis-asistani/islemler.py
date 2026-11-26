@@ -54,6 +54,31 @@ def _taslak_kaydet(con, tur: str, kime: str, konu: str, metin: str, musteri: dic
     return cur.lastrowid
 
 
+# --- Olumlu cevaba sektör sayfası ------------------------------------------
+# Tanıtım maili eksiz gider (spam riski, tek istek). Müşteri olumlu cevap verince cevabına kendi
+# sektörünün tek sayfalık PDF'i bir kez eklenir; sektör bilinmiyorsa katalog.
+TANITIM_KLASORU = Path(AYAR.tanitim_klasoru)
+SEKTOR_DOSYASI = {
+    **dict.fromkeys(("restoran", "kebapci", "balik", "fast_food", "kafe", "pastane", "catering"),
+                    "sektor/HijyenLab_Restoran_Kebapci.pdf"),
+    **dict.fromkeys(("otel", "arac_kiralama"), "sektor/HijyenLab_Otel.pdf"),
+    **dict.fromkeys(("kuafor", "guzellik", "spa"), "sektor/HijyenLab_Kuafor_Guzellik_Merkezi.pdf"),
+    **dict.fromkeys(("toptanci", "ajans"), "sektor/HijyenLab_Toptanci_Ajans.pdf"),
+}
+KATALOG_DOSYASI = "HijyenLab_Katalog.pdf"
+
+
+def sektor_eki(con, musteri: dict | None) -> str | None:
+    """Müşteriye daha önce tanıtım PDF'i eklenmediyse sektörüne uygun PDF'in yolunu döndürür."""
+    if musteri and musteri.get("id"):
+        once = con.execute("SELECT 1 FROM taslak WHERE musteri_id=? AND ekler LIKE '%HijyenLab_%.pdf%' "
+                           "AND durum!='iptal' LIMIT 1", (musteri["id"],)).fetchone()
+        if once:
+            return None
+    yol = TANITIM_KLASORU / SEKTOR_DOSYASI.get((musteri or {}).get("tur") or "", KATALOG_DOSYASI)
+    return str(yol) if yol.exists() else None
+
+
 # --- Tanıtım ve hatırlatma taslakları ---------------------------------------
 
 def tanitim_taslaklari_olustur(adet: int = 10, ilerleme=print) -> int:
@@ -233,11 +258,13 @@ def gelen_maili_isle(con, m: dict) -> str:
     # 4) Cevap taslağı (büyük model)
     if s.cevap_gerekli and s.kategori not in CEVAPSIZ_KATEGORILER:
         hesap = hesaplanan_teklif(s) if s.kategori == yz.Kategori.teklif_talebi else ""
-        c = yz.cevap_yaz(m, s, onceki, hesap)
+        mus = con.execute("SELECT * FROM musteri WHERE id=?", (musteri_id,)).fetchone() if musteri_id else None
+        ek = sektor_eki(con, dict(mus) if mus else None) if s.kategori == yz.Kategori.tanitima_olumlu_cevap else None
+        c = yz.cevap_yaz(m, s, onceki, hesap, ek_adi=Path(ek).name if ek else "")
         konu = c.konu or ("Ynt: " + m["konu"])
         metin = c.metin
-        mus = con.execute("SELECT * FROM musteri WHERE id=?", (musteri_id,)).fetchone() if musteri_id else None
-        tid = _taslak_kaydet(con, "cevap", m["kimden"], konu, metin, dict(mus) if mus else None, mail_id, hesap)
+        tid = _taslak_kaydet(con, "cevap", m["kimden"], konu, metin, dict(mus) if mus else None, mail_id, hesap,
+                             ekler=[ek] if ek else None)
         if c.insan_bakmali:
             con.execute("UPDATE mail SET ozet = ozet || ? WHERE id=?", (f" | İnsan bakmalı: {c.insan_bakmali}", mail_id))
         return "cevap_taslagi" if tid else s.kategori.value

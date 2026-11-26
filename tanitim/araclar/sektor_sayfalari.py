@@ -146,7 +146,7 @@ def sayfa(ad: str, s: dict) -> str:
             f'<style>{CSS}</style></head><body><section class="s">'
             f'<div class="bas"><div class="ust"><img src="../varliklar/hijyenlab_logo.svg" alt="HijyenLab"><div class="et">{e(s["etiket"])}</div></div>'
             f'<h1>{e(s["baslik"])}</h1><p class="giris">{e(s["giris"])}</p></div>'
-            f'<div class="ic"><div class="urunler">{urunler}</div><div class="f">{faydalar}</div>{orta}<div class="bl">{belgeler}</div></div>'
+            f'<div class="ic"><div class="urunler">{urunler}</div><div class="f">{faydalar}</div>{orta}</div>'
             f'<div class="cagri"><div><span class="cip">ÜCRETSİZ</span><b>{e(cagri)}</b><p>Kumaşı elinizde görün: ücretsiz numune, kargo bizden.</p></div>'
             f'<div class="il">0 (542) 569 98 69<br>info@hijyenlab.com<br>hijyenlab.com</div></div>'
             f'<div class="alt"><span>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.</span>'

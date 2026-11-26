@@ -28,7 +28,7 @@ def sahte_siniflandirma(kategori, guven=0.95, eksik=None, cevap_gerekli=True):
 
 
 def sahte_cevap(metin="Teşekkürler, logonuzu bekliyoruz.\n\nHakan Ayyıldız"):
-    return lambda mail, s, onceki="", hesap="": yz.CevapTaslagi(konu="", metin=metin, insan_bakmali="")
+    return lambda mail, s, onceki="", hesap="", ek_adi="": yz.CevapTaslagi(konu="", metin=metin, insan_bakmali="")
 
 
 def gelen(kimden, konu="Merhaba", metin="Fiyat alabilir miyim?", **ek):

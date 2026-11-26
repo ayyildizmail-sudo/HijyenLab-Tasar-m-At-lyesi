@@ -144,8 +144,13 @@ def siniflandir(mail: dict, onceki_yazisma: str = "") -> Siniflandirma:
     return s
 
 
-def cevap_yaz(mail: dict, s: Siniflandirma, onceki_yazisma: str = "", hesaplanan_teklif: str = "") -> CevapTaslagi:
+def cevap_yaz(mail: dict, s: Siniflandirma, onceki_yazisma: str = "", hesaplanan_teklif: str = "",
+              ek_adi: str = "") -> CevapTaslagi:
     gorev = "Aşağıdaki gelen maile cevap taslağı yaz.\n"
+    if ek_adi:
+        gorev += (f"Bu maile ek olarak '{ek_adi}' tanıtım dosyası (PDF) eklenecek. Metinde tek cümleyle ekten söz et "
+                  "(ör. 'Ürünlerimizi ve müşterilerimiz için ürettiklerimizi ekteki sayfada görebilirsiniz.'); "
+                  "dosyanın içeriğini sayma.\n")
     if s.kategori == Kategori.teklif_talebi and s.eksik_bilgiler and not hesaplanan_teklif:
         gorev += ("Bu bir teklif talebi ve bazı bilgiler eksik. Cevap KISA olsun: teşekkür et ve yalnız eksik "
                   f"bilgileri sor ({', '.join(s.eksik_bilgiler)}). Logoyu göndermelerini iste; işletmeye özel "

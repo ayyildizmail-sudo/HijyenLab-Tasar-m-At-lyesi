@@ -191,3 +191,25 @@ def test_rapor_huni():
     c = panel.app.test_client()
     c.post("/giris", data={"sifre": "test-sifre"})
     assert "Huni" in c.get("/rapor").get_data(as_text=True) and c.get("/rapor?donem=tum").status_code == 200
+
+
+# --- Olumlu cevaba sektör sayfası --------------------------------------------------
+
+def test_olumlu_cevaba_sektor_sayfasi_bir_kez_eklenir(monkeypatch):
+    monkeypatch.setattr(yz, "siniflandir", sahte_siniflandirma(yz.Kategori.tanitima_olumlu_cevap))
+    gorulen = []
+    monkeypatch.setattr(yz, "cevap_yaz", lambda mail, s, onceki="", hesap="", ek_adi="":
+                        gorulen.append(ek_adi) or yz.CevapTaslagi(konu="", metin="Teşekkürler.", insan_bakmali=""))
+    with vt.baglanti() as con:
+        vt.musteri_ekle(con, ad="Ocakbaşı Usta", tur="kebapci", eposta="info@ocakbasi.com", kaynak="elle")
+        islemler.gelen_maili_isle(con, gelen("info@ocakbasi.com", metin="İlgileniyoruz, bilgi verir misiniz?"))
+        islemler.gelen_maili_isle(con, gelen("info@ocakbasi.com", konu="Tekrar", metin="Bir sorumuz daha var."))
+        ekler = [json.loads(r["ekler"]) for r in con.execute("SELECT ekler FROM taslak WHERE tur='cevap' ORDER BY id")]
+    assert gorulen[0] == "HijyenLab_Restoran_Kebapci.pdf" and Path(ekler[0][0]).exists()
+    assert ekler[1] == [] and gorulen[1] == ""          # ikinci cevapta tekrar eklenmez
+
+
+def test_tanitim_maili_eksiz_gider():
+    with vt.baglanti() as con:
+        assert islemler.sektor_eki(con, {"tur": "otel"}).endswith("sektor/HijyenLab_Otel.pdf")
+        assert islemler.sektor_eki(con, {"tur": "bilinmeyen"}).endswith("HijyenLab_Katalog.pdf")
