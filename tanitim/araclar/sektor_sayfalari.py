@@ -5,9 +5,12 @@ Kullanım (tanitim/ klasöründen): python araclar/sektor_sayfalari.py && node s
 Metinler firma_profili.md'deki sektör anlatımı ve onaylı kumaş ifadelerine dayanır.
 """
 from html import escape as e
+import sys
 from pathlib import Path
 
 KOK = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(KOK / "araclar"))
+from baskisiz_fiyat import en_dusuk  # noqa: E402
 CIKTI = KOK / "sektor"
 
 URUN = {
@@ -148,7 +151,7 @@ def sayfa(ad: str, s: dict) -> str:
             f'<div class="bas"><div class="ust"><img src="../varliklar/hijyenlab_logo.svg" alt="HijyenLab"><div class="et">{e(s["etiket"])}</div></div>'
             f'<h1>{e(s["baslik"])}</h1><p class="giris">{e(s["giris"])}</p></div>'
             f'<div class="ic"><div class="urunler">{urunler}</div><div class="f">{faydalar}</div>{orta}</div>'
-            f'<div class="cagri"><div><span class="cip">ÜCRETSİZ</span><b>{e(cagri)}</b><p>Ücretsiz numune, kargo bizden · Denemek için baskısız tek koli · Geri dönüştürülebilir ürünler</p></div>'
+            f'<div class="cagri"><div><span class="cip">ÜCRETSİZ</span><b>{e(cagri)}</b><p>Ücretsiz numune, kargo bizden · Denemek için baskısız tek koli: ücretli, {en_dusuk()}’den başlayan koli fiyatıyla (KDV hariç) · Geri dönüştürülebilir ürünler</p></div>'
             f'<div class="il">0 (542) 569 98 69<br>info@hijyenlab.com<br>hijyenlab.com</div></div>'
             f'<div class="alt"><span>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.</span>'
             f'<span>Ürün kartlarındaki marka adları örnek tasarımdır; alt sıradakiler müşterilerimizin logolarıdır (izinle).</span></div>'

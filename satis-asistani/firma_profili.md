@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-26b
+profil_surumu: 2026-11-26c
 fiyat_paylasilabilir: hayir
 ---
 
@@ -53,7 +53,9 @@ logosu ve renkleriyle hazırlar ve düzenli olarak tedarik eder.
   getirilir; marka kimliği müşterinin onayı olmadan değiştirilmez.
 - Baskısız ürün: klişe yok, beyaz zemin fiyatı, en az bir koli.
 - Denemek isteyen müşteriye her çeşitten baskısız tek koli gönderilebilir (koli içi: rulo 25×30, 30×30, 30×35: 400;
-  rulo 25×25: 500; katlı 20×25: 625; mendil 7×12: 1.000; Oshibori: 250 adet). Fiyat beyaz fiyattır, teklif ile verilir.
+  rulo 25×25: 500; katlı 20×25: 625; mendil 7×12: 1.000; Oshibori: 250 adet). Deneme kolisi ÜCRETLİDİR (numune gibi
+  ücretsiz değildir; karıştırılmaz): koli fiyatı = koli içi adet × beyaz birim fiyat, klişe yok, KDV hariç, kargo ayrı.
+  Katalogda koli fiyatları yazılıdır; mailde rakam yalnız fiyat paylaşımı açıksa yazılır, değilse 'kataloğumuzda yazılı' denir.
 
 ## Koku (ıslak mendil)
 Flambau (standart), Limon, Bodrum Mandalinası, Yeşil Çay. Başka bir koku için en az 20.000 adet.
