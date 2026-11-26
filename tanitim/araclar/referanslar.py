@@ -9,7 +9,7 @@ from pathlib import Path
 
 KOK = Path(__file__).resolve().parents[1]
 
-KURUM = [("ciragan", "Çırağan Palace Kempinski"), ("fourseasons", "Four Seasons"), ("hilton", "Hilton"), ("istanbul_valiligi", "T.C. İstanbul Valiliği"), ("tubitak_bilgem", "TÜBİTAK BİLGEM"), ("botas", "BOTAŞ"), ("iletisim_baskanligi", "Cumhurbaşkanlığı İletişim Başkanlığı"),
+KURUM = [("ciragan", "Çırağan Palace Kempinski"), ("fourseasons", "Four Seasons"), ("hilton", "Hilton"), ("merit", "Merit International"), ("rixos", "Rixos"), ("istanbul_valiligi", "T.C. İstanbul Valiliği"), ("tubitak_bilgem", "TÜBİTAK BİLGEM"), ("botas", "BOTAŞ"), ("iletisim_baskanligi", "Cumhurbaşkanlığı İletişim Başkanlığı"),
          ("jandarma", "Jandarma Eğitim Komutanlığı"), ("sosyal_hizmetler", "Sosyal Hizmetler Başkanlığı"),
          ("kars_emniyet", "Kars Emniyet Müdürlüğü"), ("kars_polisevi", "Kars Polisevi Şube Müdürlüğü"),
          ("bodrum_ozel_egitim", "Bodrum Özel Eğitim Merkezi Komutanlığı"), ("cevheri", "Cevheri")]
