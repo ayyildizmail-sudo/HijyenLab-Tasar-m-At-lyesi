@@ -5,7 +5,7 @@
 (function(root){'use strict';
 if(typeof document==='undefined'||!root.ProductPhoto||typeof showDesignIssue!=='function'||typeof routeUploadedFile!=='function'||typeof state==='undefined')return;
 const PREFIX='urun-fotografi-',isGenerated=f=>typeof f?.name==='string'&&f.name.startsWith(PREFIX);
-const tried=new WeakSet(),claimed=new WeakSet();let running=false,lastError=null,lastResult=null,noteFor=null,modelPromise=null;
+const tried=new WeakSet(),claimed=new WeakSet();let running=false,lastError=null,lastResult=null,noteFor=null,modelPromise=null,ortPromise=null,recPromise=null;
 const note=document.createElement('p');note.id='productPhotoNote';note.className='hint';note.setAttribute('role','status');note.hidden=true;
 (document.querySelector('.simplePrimary')||document.getElementById('status')||document.body).before(note);
 const currentFile=()=>typeof lastUploadedFile==='undefined'?null:lastUploadedFile;
@@ -20,13 +20,31 @@ function loadScript(src){return new Promise((resolve,reject)=>{const s=document.
 // Yerel yön modeli: ilk kullanımda yüklenir, sonra önbellekte kalır.
 function orientationModel(){
  if(!modelPromise)modelPromise=(async()=>{
-  if(typeof WebAssembly==='undefined')return null;
-  const base='vendor/onnxruntime-web-1.20.1/';if(!root.ort)await loadScript(base+'ort.wasm.min.js');
-  const ort=root.ort;if(!ort)return null;ort.env.wasm.wasmPaths=new URL(base,document.baseURI).href;ort.env.wasm.numThreads=1;ort.env.wasm.proxy=false;
+  const ort=await runtime();if(!ort)return null;
   const session=await ort.InferenceSession.create(new URL('models/ppocr-mobile-v2-cls.onnx',document.baseURI).href,{executionProviders:['wasm']});
   return async tensors=>{const out=[];for(const t of tensors){const r=await session.run({[session.inputNames[0]]:new ort.Tensor('float32',t,[1,3,48,192])});out.push(r[session.outputNames[0]].data[0]);}return out;};
  })().catch(error=>{lastError='orientation-model:'+String(error?.message||error);return null;});
  return modelPromise;
+}
+// ONNX çalışma ortamı (yerel, WebAssembly): yön ve yazı tanıma modelleri ortak kullanır
+function runtime(){
+ if(!ortPromise)ortPromise=(async()=>{if(typeof WebAssembly==='undefined')return null;const base='vendor/onnxruntime-web-1.20.1/';if(!root.ort)await loadScript(base+'ort.wasm.min.js');
+  const ort=root.ort;if(!ort)return null;ort.env.wasm.wasmPaths=new URL(base,document.baseURI).href;ort.env.wasm.numThreads=1;ort.env.wasm.proxy=false;return ort;})().catch(()=>null);
+ return ortPromise;
+}
+// Yazıları temiz yazı tipiyle yeniden çizme: yerel metin tanıma modeli (PP-OCRv3) + paketteki açık lisanslı yazı tipleri.
+// İlk kullanımda yüklenir; yüklenemezse yazılar fotoğraftaki temizlenmiş hâliyle kalır (mevcut davranış).
+function textRedrawKit(){
+ if(!recPromise)recPromise=(async()=>{const TR=root.TextRedraw;if(!TR||typeof FontFace==='undefined'||!document.fonts)return null;const ort=await runtime();if(!ort)return null;
+  const [session,keysText]=await Promise.all([ort.InferenceSession.create(new URL('models/ppocr-v3-rec.onnx',document.baseURI).href,{executionProviders:['wasm']}),fetch(new URL('models/ppocr-v3-rec-keys.txt',document.baseURI).href).then(r=>{if(!r.ok)throw new Error('keys');return r.text();})]);
+  const keys=['blank',...keysText.split('\n'),' '];
+  await Promise.all(TR.FONTS.map(f=>new FontFace(f.family,`url(${new URL('assets/fonts/redraw/'+f.file+'.woff2',document.baseURI).href})`).load().then(face=>document.fonts.add(face)).catch(()=>null)));
+  const loaded=TR.FONTS.filter(f=>document.fonts.check(`20px "${f.family}"`));if(!loaded.length)return null;
+  const recognize=async(tensor,width)=>{const r=await session.run({[session.inputNames[0]]:new ort.Tensor('float32',tensor,[1,3,48,width])});const o=r[session.outputNames[0]];return {probs:o.data,T:o.dims[1],C:o.dims[2],keys};};
+  const createCanvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
+  return {recognize,createCanvas,redrawText:{...TR,redraw:opts=>TR.redraw({...opts,fonts:opts.fonts?opts.fonts.filter(f=>loaded.includes(f)):loaded})}};
+ })().catch(error=>{lastError='text-model:'+String(error?.message||error);return null;});
+ return recPromise;
 }
 const MISREAD_MIN_SCORE=.2;
 // Kamera fotoğrafı yanlışlıkla hazır logo sayılıp sahnenin tamamı ambalaja konduysa (yalnız JPEG/HEIC fotoğraflar)
@@ -54,14 +72,15 @@ async function attempt(){
   const same=()=>{const x=currentFile();return !!x&&(x===file||(x.name===file.name&&x.size===file.size));};if(!same()||!stillValid())return;
   // Logo sanılan fotoğraf: içinde belirgin, dikdörtgen, görselden küçük bir baskılı yüzey yoksa dokunma (düz logo dosyaları)
   if(misread){const sf=root.ProductPhoto.findSurface(g.getImageData(0,0,c.width,c.height).data,c.width,c.height).best;if(!sf||sf.score<MISREAD_MIN_SCORE||sf.rectangularity<.8||sf.area>.75)return;}
-  const classify=await orientationModel();if(!same()||!stillValid())return;
-  const result=await root.ProductPhoto.extract(g.getImageData(0,0,c.width,c.height).data,c.width,c.height,{classify});lastResult=result;
+  const [classify,kit]=await Promise.all([orientationModel(),textRedrawKit()]);if(!same()||!stillValid())return;
+  const result=await root.ProductPhoto.extract(g.getImageData(0,0,c.width,c.height).data,c.width,c.height,{classify,...(kit||{})});lastResult=result;
   if(!result.ok||!same()||!stillValid())return;
   let out=document.createElement('canvas');out.width=result.image.w;out.height=result.image.h;out.getContext('2d').putImageData(new ImageData(result.image.data,result.image.w,result.image.h),0,0);
   // Güven kademesi: emin → doğrudan; kararsız → müşteriye tek dokunuşla sor; emin değil → hiçbir şey koyma (mevcut davranış)
   // Harf oranı: mürekkebin yazı satırlarına ait kısmı (gösterge, süs, efekt parçalarında düşük)
-  const confidence=result.confidence??0,glyph=result.glyphFraction??0,sheet=!!state.technicalSheetDetected;
-  if(sheet?(confidence<.9||glyph<.1):(confidence<AUTO_MIN_ASK||glyph<GLYPH_MIN_ASK))return;
+  const confidence=result.confidence??0,raw=result.glyphFractionRaw??result.glyphFraction??0,glyph=result.glyphFraction??0,sheet=!!state.technicalSheetDetected;
+  // Ham oran (temizlik öncesi) düşükse içerik yazı değildir: reddet. Kendiliğinden yerleştirme temizlenmiş logodaki orana bakar.
+  if(sheet?(confidence<.9||raw<.1):(confidence<AUTO_MIN_ASK||raw<GLYPH_MIN_ASK))return;
   if(sheet||confidence<AUTO_MIN_PLACE||glyph<GLYPH_MIN_PLACE){const choice=await ask(out);if(!same()||!stillValid())return;if(!choice)return;out=choice;}
   const blob=await new Promise(resolve=>out.toBlob(resolve,'image/png'));if(!blob||!same())return;
   const generated=new File([blob],PREFIX+Date.now().toString(36)+'.png',{type:'image/png'});tried.add(generated);

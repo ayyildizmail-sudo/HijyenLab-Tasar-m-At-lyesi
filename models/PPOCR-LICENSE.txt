@@ -204,3 +204,9 @@ File: ppocr-mobile-v2-cls.onnx (unchanged), SHA-256 e47acedf663230f8863ff1ab0e64
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+
+PaddleOCR text recognition model (ch_PP-OCRv3_rec), ONNX conversion distributed in rapidocr_onnxruntime 1.2.3.
+Copyright (c) PaddlePaddle Authors. Licensed under the Apache License, Version 2.0.
+File: ppocr-v3-rec.onnx (unchanged), SHA-256 897a3ededb38fee0dae2c1ccee38241f37df202c9509e3abca02e9217c5ee615
+File: ppocr-v3-rec-keys.txt (character dictionary of the same model, ppocr_keys_v1, unchanged)
+Runs only in the visitor's browser; images are never sent anywhere.
