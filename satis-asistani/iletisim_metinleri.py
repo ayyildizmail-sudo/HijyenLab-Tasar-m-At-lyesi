@@ -38,7 +38,7 @@ CAGRI_OZEL["ajans"] = CAGRI_OZEL["toptanci"]
 REFERANSLAR = {
     "otel": ["Çırağan Palace Kempinski", "Four Seasons", "Hilton", "Rixos", "Merit", "Divan"],
     "restoran": ["Gürkan Şef", "7 Mehmet", "Tarihi Kazancılar"],
-    "guzellik": ["Çırağan Palace Kempinski", "Four Seasons", "Zehra Bora"],
+    "guzellik": ["Zehra Bora"],
     "kurumsal": ["İstanbul Büyükşehir Belediyesi", "TÜBİTAK BİLGEM", "BOTAŞ"],
 }
 REFERANS_GRUBU = {
