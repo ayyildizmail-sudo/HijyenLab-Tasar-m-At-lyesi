@@ -36,11 +36,12 @@ CAGRI_OZEL = {
 CAGRI_OZEL["ajans"] = CAGRI_OZEL["toptanci"]
 # İzinli referanslar (bütün müşterilerden izin alındı). Tanıtım mailinde sektöre göre en fazla 3 isim kullanılır.
 REFERANSLAR = {
-    "otel": ["Çırağan Palace Kempinski", "Four Seasons", "Hilton", "Marriott", "Sheraton", "Swissôtel", "Titanic",
-             "Rixos", "Merit", "Divan"],
+    "otel": ["Çırağan Palace Kempinski", "Four Seasons", "Hilton", "Mandarin Oriental", "Sheraton", "Swissôtel",
+             "Mövenpick", "Marriott", "DoubleTree by Hilton", "Titanic", "Rixos", "Merit", "Divan", "Barut Hotels"],
     "restoran": ["Sahan", "Novikov", "Lacivert", "Garson Şükrü", "Gürkan Şef", "7 Mehmet", "Tarihi Kazancılar"],
     "guzellik": ["Zehra Bora"],
-    "kurumsal": ["İstanbul Büyükşehir Belediyesi", "TÜBİTAK BİLGEM", "BOTAŞ"],
+    "kurumsal": ["Akbank", "Türk Telekom", "Vestel", "İstanbul Büyükşehir Belediyesi", "TÜBİTAK BİLGEM", "BOTAŞ",
+                 "DenizBank", "Petrol Ofisi"],
 }
 REFERANS_GRUBU = {
     **dict.fromkeys(("otel", "arac_kiralama"), "otel"),
