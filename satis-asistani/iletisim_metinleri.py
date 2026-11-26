@@ -34,6 +34,26 @@ CAGRI_OZEL = {
                 "tasarım, üretim ve sevkiyatı biz yapıyoruz.",
 }
 CAGRI_OZEL["ajans"] = CAGRI_OZEL["toptanci"]
+# İzinli referanslar (bütün müşterilerden izin alındı). Tanıtım mailinde sektöre göre en fazla 3 isim kullanılır.
+REFERANSLAR = {
+    "otel": ["Çırağan Palace Kempinski", "Four Seasons", "Hilton", "Rixos", "Merit", "Divan"],
+    "restoran": ["Gürkan Şef", "7 Mehmet", "Tarihi Kazancılar", "Hilton"],
+    "guzellik": ["Çırağan Palace Kempinski", "Four Seasons", "Zehra Bora"],
+    "kurumsal": ["İstanbul Büyükşehir Belediyesi", "TÜBİTAK BİLGEM", "BOTAŞ", "Hilton"],
+}
+REFERANS_GRUBU = {
+    **dict.fromkeys(("otel", "arac_kiralama"), "otel"),
+    **dict.fromkeys(("restoran", "kebapci", "balik", "fast_food", "kafe", "pastane", "catering"), "restoran"),
+    **dict.fromkeys(("kuafor", "guzellik", "spa"), "guzellik"),
+    **dict.fromkeys(("toptanci", "ajans"), "kurumsal"),
+}
+TUM_REFERANSLAR = sorted({ad for liste in REFERANSLAR.values() for ad in liste})
+
+
+def referanslar(tur: str | None) -> list[str]:
+    return REFERANSLAR[REFERANS_GRUBU.get(tur or "", "restoran")]
+
+
 VARSAYILAN = "müşterilerinize sunulan, logonuzu taşıyan tek tek paketli ıslak havlu ve mendil"
 
 

@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-25p
+profil_surumu: 2026-11-26a
 fiyat_paylasilabilir: hayir
 ---
 
@@ -133,7 +133,7 @@ Her tanıtım mailinin tek çağrısı: "Logonuzu gönderin, işletmenize özel 
 ## Müşteriye ASLA söylenmeyecekler
 - Üretim partnerinin adı veya yeri
 - Geçmiş özel teklif fiyatları
-- Başka müşterilerin adları (izin olmadan referans yok)
+- Başka müşterilerin adları (yalnız 'Gerçek baskı örnekleri' bölümündeki izinli referanslar anılabilir)
 - Steril, medikal, antibakteriyel, klinik kullanıma uygun gibi belgelenmemiş iddialar
 - Oshibori dışındaki ürünler (rulo, katlı, mendil) için "pamuk" veya "pamuklu" ifadesi; bunlar nonwoven'dır
 - Nonwoven ürünler (rulo, katlı, mendil) için gramaj (g/m²); bu ürünlerde gramaj konuşulmaz ve teklif edilmez. Gramaj yalnız Oshibori için verilir (adet başına 15 g)
@@ -146,7 +146,9 @@ Satış · HijyenLab · İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.
 0 (542) 569 98 69 · hijyenlab.com
 
 ## Üslup
-Samimi ama kurumsal, kısa (tanıtımda en fazla 120 kelime), "siz" diliyle. Abartılı reklam dili yok.
+Samimi ama kurumsal, kısa (tanıtımda 50-90 kelime), "siz" diliyle. Abartılı reklam dili yok.
+Tanıtım maili bizden değil, işletmenin kendi müşterisinin yaşadığı bir andan başlar ("Masada kalan son şey: logonuz.");
+sonra tek cümlelik kanıt (izinli referanslar), sonra işletmenin adıyla kişiselleştirilmiş tek çağrı.
 
 ## Belgeler
 - HijyenLab'ın belgeleri: ISO 9001 (kalite), ISO 14001 (çevre), ISO 22000 (gıda güvenliği), OHSAS 18001 (iş sağlığı
@@ -159,8 +161,10 @@ Samimi ama kurumsal, kısa (tanıtımda en fazla 120 kelime), "siz" diliyle. Aba
 - Katalogda ve sektör sayfalarında müşterilerimiz için basılmış gerçek paketlerin fotoğrafları var (restoran, otel,
   kuaför, kurumsal firmalar). Müşteri "daha önce ne bastınız?" diye sorarsa "gerçek baskı fotoğraflarımızı
   paylaşabiliriz" denir; fotoğraflar insan onayıyla eklenir.
-- Bütün müşterilerden referans izni alındı; yine de soğuk mailde müşteri adı sıralanmaz, rakam ("yüzlerce işletme" vb.)
-  uydurulmaz. Müşteri sorarsa sektöründen örnek isimler verilebilir.
+- Bütün müşterilerden referans izni alındı. Tanıtım mailinde güven için sektöre uygun en fazla 3 referans adı
+  kullanılır (otel: Çırağan Palace Kempinski, Four Seasons, Hilton, Rixos, Merit, Divan; restoran: Gürkan Şef,
+  7 Mehmet, Tarihi Kazancılar; kurumsal: İstanbul Büyükşehir Belediyesi, TÜBİTAK BİLGEM, BOTAŞ). Listede olmayan
+  isim ve rakam ("yüzlerce işletme" vb.) uydurulmaz.
 - Gerçek baskılarda görülen seçenekler anlatılabilir: beyaz zeminde 1–2 renk logo, arka yüzde telefon, web,
   Instagram veya adres; koyu renkli zemin; aynı pakette birden fazla marka (ortak promosyon).
 

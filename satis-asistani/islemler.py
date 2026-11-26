@@ -6,6 +6,7 @@ from pathlib import Path
 
 import eposta
 import guvenlik_kontrolu as gk
+import iletisim_metinleri as im
 import teklif_hesapla as th
 import teklif_gorseli as tg
 import veritabani as vt
@@ -27,7 +28,7 @@ def denetle(con, metin: str, musteri: dict | None, kime: str, tanitim: bool) -> 
         metin,
         fiyat_paylasilabilir=fiyat_paylasilabilir(),
         alici_musteri=(musteri or {}).get("ad", ""),
-        bilinen_musteriler=vt.bilinen_musteri_adlari(con),
+        bilinen_musteriler=[a for a in vt.bilinen_musteri_adlari(con) if a not in im.TUM_REFERANSLAR],
     )]
     if tanitim:
         kaynak = (musteri or {}).get("eposta_kaynak") or ""

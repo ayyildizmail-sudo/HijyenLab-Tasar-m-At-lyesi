@@ -194,21 +194,31 @@ def tanitim_maili_yaz(musteri: dict, hatirlatma: bool = False, onceki: str = "")
             f"<gelen_mail>\n{onceki}\n</gelen_mail>\n"
         )
     else:
+        from iletisim_metinleri import referanslar
+        refs = ", ".join(referanslar(musteri.get("tur")))
         gorev = (
-            "Bu işletmeye ilk kez yazıyoruz. Kişiselleştirilmiş, en fazla 120 kelimelik bir tanıtım maili yaz. "
-            "İlk cümlede işletmenin adını doğal biçimde kullan (ör. 'Örnek Kebap'ta yemekten sonra masaya bırakılan…'); "
-            "yetkilinin adını bilmiyorsak 'Merhaba,' ile başla, isim uydurma. "
-            "İşletmenin sektörünü belirle ve profildeki 'Sektöre göre anlatım' bölümüne göre bir somut kullanım "
-            "anıyla faydayı anlat. O sektöre en uygun 1-2 ürünü öner; bütün ürün listesini sayma. "
-            "Kumaş için en fazla tek sade cümle kullan (profildeki 'Kumaşı anlatma'); teknik terim ve numune teklifi "
-            "ilk mailde yok. "
-            "Zincirse bütün şubelere aynı tasarımla tedarik imkânını belirt. "
-            "Toptancı veya reklam/promosyon ajansıysa ürünü işletmenin kendisi için değil, onun müşterilerine "
-            "sunabileceği markalı bir ürün olarak anlat; tasarımı ve üretimi bizim yaptığımızı söyle; çağrıyı "
-            "profildeki toptancı/ajans çağrısıyla yap; bayi fiyatı veya iskonto sözü verme. "
-            "Tek çağrı: profildeki 'Çağrı' cümlesi. "
-            "Konu satırı kısa olsun, işletme adını içersin; büyük harf, ünlem, 'reklam', 'fırsat', 'ücretsiz' "
-            "gibi spam kelimeleri konu satırında kullanma.\n"
+            "Bu işletmeye ilk kez yazıyoruz. Amaç: maili açan kişi ilk iki satırda 'bu bana yazılmış' desin. "
+            "Reklam broşürü gibi değil, işletmeyi tanıyan birinin kısa notu gibi yaz. 50-90 kelime, 3 kısa paragraf:\n"
+            "1) AÇILIŞ: İşletmenin kendi müşterisinin yaşadığı TEK bir anı, işletmenin adıyla anlat ve onu "
+            "logolarına bağla (ör. kebapçı: 'Örnek Kebap'ta yemek biter, hesap ödenir; masada son kalan şey "
+            "çoğu zaman bir mendildir. O mendilin üzerinde sizin logonuz olsa?'; otel: havuz başında misafire "
+            "uzatılan serin havlu; kuaför: tıraştan sonra uzatılan sıcak havlu). 'HijyenLab olarak', 'firmamız', "
+            "'sizlere', 'merhaba, ben…' ile AÇMA; bizden değil, onların müşterisinden başla.\n"
+            "2) KANIT: Tek cümlede ne yaptığımızı söyle ve şu izinli referanslardan bu sektöre en uygun 2-3 tanesini "
+            f"adıyla an: {refs}. (ör. 'Çırağan Palace, Four Seasons ve Hilton'ın logolu ıslak havlularını biz "
+            "üretiyoruz.') Listede olmayan isim, rakam ('yüzlerce işletme') veya iddia uydurma. Kumaştan söz "
+            "edeceksen en fazla yarım cümle: 'kağıt peçete değil, kumaş gibi yumuşak'.\n"
+            "3) ÇAĞRI: Profildeki çağrıyı işletmenin adıyla kişiselleştir (ör. 'Logonuzu bu maile yanıt olarak "
+            "gönderin; Örnek Kebap logolu paketin görselini ücretsiz hazırlayıp size gönderelim.'). Tek çağrı, "
+            "fiyat yok, numune teklifi yok, teslim sözü yok, ürün listesi yok (gerekirse tek ürün adı).\n"
+            "Yetkilinin adını bilmiyorsak 'Merhaba,' ile başla, isim uydurma. "
+            "Zincirse kanıt cümlesinden sonra bütün şubelere aynı tasarımla tedarik edebileceğimizi yarım cümleyle ekle. "
+            "Toptancı veya reklam/promosyon ajansıysa açılışta onların müşterisinin anını anlat, ürünü kendi "
+            "müşterilerine sunabilecekleri markalı bir ürün olarak sun, tasarım ve üretimin bizde olduğunu söyle, "
+            "çağrıyı profildeki toptancı/ajans çağrısıyla yap; bayi fiyatı veya iskonto sözü verme. "
+            "Konu satırı 3-7 kelime, işletme adını içersin ve merak uyandırsın (ör. 'Örnek Kebap masasında son "
+            "kalan şey', 'Mavi Koy havuz başında bir havlu'); büyük harf, ünlem, 'reklam', 'fırsat', 'ücretsiz', "
+            "'teklif' gibi spam kelimeleri konu satırında kullanma.\n"
         )
     return _sor(f"{gorev}\n<isletme>\n{isletme}\n</isletme>", TanitimMaili, AYAR.model_yazim, effort="medium")
 

@@ -213,3 +213,25 @@ def test_tanitim_maili_eksiz_gider():
     with vt.baglanti() as con:
         assert islemler.sektor_eki(con, {"tur": "otel"}).endswith("sektor/HijyenLab_Otel.pdf")
         assert islemler.sektor_eki(con, {"tur": "bilinmeyen"}).endswith("HijyenLab_Katalog.pdf")
+
+
+# --- Tanıtım maili: açılış, kanıt, çağrı ---------------------------------------------
+
+def test_tanitim_talimati_sektor_referanslarini_verir(monkeypatch):
+    gorulen = {}
+    monkeypatch.setattr(yz, "_sor", lambda istem, tip, model, effort="": gorulen.setdefault("istem", istem))
+    yz.tanitim_maili_yaz({"ad": "Mavi Koy Otel", "tur": "otel", "ilce": "Bodrum"})
+    i = gorulen["istem"]
+    assert "Çırağan Palace Kempinski" in i and "Four Seasons" in i and "Gürkan Şef" not in i
+    assert "50-90 kelime" in i and "HijyenLab olarak" in i      # açılış yasağı talimatta
+
+
+def test_izinli_referans_adi_baska_musteri_sayilmaz():
+    with vt.baglanti() as con:
+        vt.musteri_ekle(con, ad="Hilton", tur="otel", eposta="satin@hilton.example", kaynak="elle")
+        con.execute("UPDATE musteri SET mevcut_musteri=1 WHERE ad='Hilton'")
+        vt.musteri_ekle(con, ad="Gizli Lokanta", tur="restoran", eposta="info@gizli.example", kaynak="elle")
+        con.execute("UPDATE musteri SET mevcut_musteri=1 WHERE ad='Gizli Lokanta'")
+        b = islemler.denetle(con, "Hilton ve Gizli Lokanta için de ürettik.", {"ad": "Mavi Koy"}, "a@b.com", False)
+    adlar = [x["parca"] for x in b if x["tur"] == "baska_musteri"]
+    assert adlar == ["Gizli Lokanta"]
