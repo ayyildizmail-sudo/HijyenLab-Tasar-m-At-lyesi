@@ -151,7 +151,7 @@ Tanıtım maili bizden değil, işletmenin kendi müşterisinin yaşadığı bir
 sonra tek cümlelik kanıt (izinli referanslar), sonra işletmenin adıyla kişiselleştirilmiş tek çağrı.
 
 ## Belgeler
-- HijyenLab'ın belgeleri: ISO 9001 (kalite), ISO 14001 (çevre), ISO 22000 (gıda güvenliği), OHSAS 18001 (iş sağlığı
+- HijyenLab'ın belgeleri: ISO 9001:2015 (kalite), ISO 14001:2015 (çevre), ISO 22000:2018 (gıda güvenliği), ISO 45001:2018 (iş sağlığı
   ve güvenliği), GMP (iyi üretim uygulamaları), CE. Kokularımız için IFRA sertifikası var (koku standartlarına uygunluk).
 - Kurumsal ve otel müşterilerine, satın alma birimlerine güven unsuru olarak anılabilir: "ISO 9001, ISO 14001 ve
   ISO 22000 belgeli üretim; kokularımız IFRA sertifikalı." Belge kopyası istenirse insan onayıyla gönderilir.

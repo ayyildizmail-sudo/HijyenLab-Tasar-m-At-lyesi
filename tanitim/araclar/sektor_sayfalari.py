@@ -38,7 +38,7 @@ GERCEK = {
     "toptanci": ["kurumsal/tubitak_bilgem", "kurumsal/botas", "kurumsal/cevheri", "yaf"],
 }
 
-BELGELER = [('ISO 9001', 'Kalite'), ('ISO 14001', 'Çevre'), ('ISO 22000', 'Gıda güvenliği'), ('OHSAS 18001', 'İş sağlığı'), ('GMP', 'İyi üretim'), ('CE', 'Uygunluk'), ('IFRA', 'Koku standardı')]
+BELGELER = [('ISO 9001:2015', 'Kalite'), ('ISO 14001:2015', 'Çevre'), ('ISO 22000:2018', 'Gıda güvenliği'), ('ISO 45001:2018', 'İş sağlığı'), ('GMP', 'İyi üretim'), ('CE', 'Uygunluk'), ('IFRA', 'Koku standardı')]
 
 SAYFALAR = {
     "restoran": dict(
