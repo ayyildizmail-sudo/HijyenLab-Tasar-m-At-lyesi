@@ -9,7 +9,7 @@ from pathlib import Path
 
 KOK = Path(__file__).resolve().parents[1]
 
-KURUM = [("ciragan", "Çırağan Palace Kempinski"), ("fourseasons", "Four Seasons"), ("hilton", "Hilton"), ("sheraton", "Sheraton"), ("swissotel", "Swissôtel"), ("merit", "Merit International"), ("rixos", "Rixos"), ("divan", "Divan"), ("gurkan_sef", "Gürkan Şef"), ("yedi_mehmet", "7 Mehmet"), ("istanbul_valiligi", "T.C. İstanbul Valiliği"), ("ibb", "İstanbul Büyükşehir Belediyesi"), ("tubitak_bilgem", "TÜBİTAK BİLGEM"), ("botas", "BOTAŞ"), ("iletisim_baskanligi", "Cumhurbaşkanlığı İletişim Başkanlığı"),
+KURUM = [("ciragan", "Çırağan Palace Kempinski"), ("fourseasons", "Four Seasons"), ("hilton", "Hilton"), ("sheraton", "Sheraton"), ("swissotel", "Swissôtel"), ("titanic", "Titanic"), ("merit", "Merit International"), ("rixos", "Rixos"), ("divan", "Divan"), ("sahan", "Sahan"), ("lacivert", "Lacivert"), ("garson_sukru", "Garson Şükrü"), ("gurkan_sef", "Gürkan Şef"), ("yedi_mehmet", "7 Mehmet"), ("istanbul_valiligi", "T.C. İstanbul Valiliği"), ("ibb", "İstanbul Büyükşehir Belediyesi"), ("tubitak_bilgem", "TÜBİTAK BİLGEM"), ("botas", "BOTAŞ"), ("iletisim_baskanligi", "Cumhurbaşkanlığı İletişim Başkanlığı"),
          ("jandarma", "Jandarma Eğitim Komutanlığı"), ("sosyal_hizmetler", "Sosyal Hizmetler Başkanlığı"),
          ("kars_emniyet", "Kars Emniyet Müdürlüğü"), ("kars_polisevi", "Kars Polisevi Şube Müdürlüğü"),
          ("bodrum_ozel_egitim", "Bodrum Özel Eğitim Merkezi Komutanlığı"), ("cevheri", "Cevheri")]
@@ -25,7 +25,7 @@ body{font-family:"Inter",sans-serif;color:#13294b;-webkit-print-color-adjust:exa
 .bas h1 span{display:block;font-size:10pt;font-weight:500;color:#29537B;margin-top:1mm}
 .ic{padding:5mm 16mm 0}h2{font-size:11.5pt;color:#0b3558;margin:5mm 0 2.5mm;display:flex;justify-content:space-between;align-items:baseline}
 h2 span{font-size:8.5pt;font-weight:400;color:#4a5f7a}
-.g3{display:grid;grid-template-columns:repeat(5,1fr);gap:2.5mm 4mm}.g3 figcaption{font-size:7.8pt}.g3b{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm 14mm;padding:0 10mm}.g3b img{aspect-ratio:2.1;object-fit:contain}
+.g3{display:grid;grid-template-columns:repeat(6,1fr);gap:2mm 3mm}.g3 figcaption{font-size:7.2pt}.g3b{display:grid;grid-template-columns:repeat(3,1fr);gap:2mm 14mm;padding:0 10mm}.g3b img{aspect-ratio:2.1;object-fit:contain}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:1mm 3mm}
 figure{text-align:center}figure img{width:100%;display:block}.g3 img{aspect-ratio:1.6;object-fit:cover}.g4 img{aspect-ratio:1.7;object-fit:contain}
 figcaption{font-size:7.6pt;font-weight:600;color:#0b3558;line-height:1.2;margin-top:.3mm}
