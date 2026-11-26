@@ -24,5 +24,9 @@ const items=freeze([
 function get(id){const item=items.find(item=>item.id===id);if(!item)throw Error('Bu ürün için doğrulanmış ürün ve fiyat kuralı yok.');return item;}
 function rules(id,rate){return id==='OSHIBORI'?oshiboriRules(rate):get(id).priceRules;}
 function validRules(value){try{if(value?.product==='OSHIBORI'&&(!fx?.valid(value.fxSnapshot)||value.fxPending||value.currency!=='TRY'))return false;return JSON.stringify(value)===JSON.stringify(rules(value.product,value.fxSnapshot));}catch{return false;}}
-const api=freeze({items,get,rules,validRules,defaultId:'BM12'});if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.ProductCatalog=api;
+// Commercial facts used by the request form and the server copy (scripts/sync-commercial-rules.mjs).
+// Unprinted (blank) towels ship with a fixed scent: wet wipes Yeşil çay, towels Flambau; Oshibori is chosen by the customer.
+const UNPRINTED_FRAGRANCE=freeze({BM12:'flambau',BM11:'flambau',BM13:'flambau',BM15:'flambau',BM545:'flambau',BM21:'green_tea',OSHIBORI:null});
+function commercialSummary(){const ids=items.map(i=>i.id),pick=f=>freeze(Object.fromEntries(ids.map(id=>[id,f(rules(id))])));return freeze({products:freeze(ids.slice()),minimumWhite:pick(r=>r.minimum.white),minimumColored:pick(r=>r.minimum.colored),cartons:pick(r=>r.unitsPerBox),unprintedFragrance:UNPRINTED_FRAGRANCE});}
+const api=freeze({items,get,rules,validRules,commercialSummary,defaultId:'BM12'});if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.ProductCatalog=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

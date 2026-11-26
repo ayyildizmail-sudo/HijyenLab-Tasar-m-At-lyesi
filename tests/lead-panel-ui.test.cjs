@@ -26,7 +26,7 @@ function fixture(admin=false) {
  return {doc,get:id=>doc.getElementById(id)};
 }
 const id='11111111-1111-4111-8111-111111111111';
-function load(file,extras={}) { const sandbox={module:{exports:{}},AbortController,setTimeout,clearTimeout,queueMicrotask,crypto:{randomUUID:()=>id},MutationObserver:class{observe(){}},addEventListener(){},...extras};vm.runInNewContext(fs.readFileSync('frontend/'+file,'utf8'),sandbox);return {api:sandbox.module.exports,root:sandbox}; }
+function load(file,extras={}) { const sandbox={module:{exports:{}},ProductCatalog:require('../frontend/product-catalog.js'),AbortController,setTimeout,clearTimeout,queueMicrotask,crypto:{randomUUID:()=>id},MutationObserver:class{observe(){}},addEventListener(){},...extras};vm.runInNewContext(fs.readFileSync('frontend/'+file,'utf8'),sandbox);return {api:sandbox.module.exports,root:sandbox}; }
 const ok=data=>({ok:true,json:async()=>data});
 const bad=status=>({ok:false,status});
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
