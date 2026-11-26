@@ -82,6 +82,8 @@ async function redraw({img,mask,out,palette,drawPalette=null,relaxed=false,surfa
   const clusters0=(()=>{const cs=comps.filter(c=>{const b=c.box,bh=b[3]-b[1],ov=Math.min(b[3],ly1)-Math.max(b[1],ly0);if(b[0]<lx0-2||b[2]>lx1+2||c.n<3)return false;
     // satırın kendi harfi (bandla çoğunlukla örtüşen) ya da hemen üstündeki/altındaki küçük işaret; komşu satırın harfleri girmez
     if(ov>=bh*.5)return true;if(!(bh<lh*.45&&b[3]>=ly0-lh*.6&&b[1]<=ly1+lh*.5))return false;
+    // başka bir satırın kendi harfi (ör. BONO'nun altındaki BURGER) işaret sayılmaz
+    {const cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2;if(lines.some(L2=>L2!==line&&cx>=L2.box[0]&&cx<=L2.box[2]&&cy>=L2.box[1]&&cy<=L2.box[3]&&(L2.box[3]-L2.box[1])>=bh*.7))return false;}
     // alttaki leke, alt satırın üst işareti (Ü noktası, Ğ şapkası) ise bu satıra katılmaz; üstteki leke üst satırın alt çengeliyse aynı şekilde
     if(b[1]>=ly1-lh*.1&&lines.some(L2=>L2!==line&&L2.box[1]>ly1-lh*.1&&b[3]<=L2.box[1]+(L2.box[3]-L2.box[1])*.3&&b[1]>=L2.box[1]-(L2.box[3]-L2.box[1])*.75))return false;
     return true;}).map(c=>({x0:c.box[0],x1:c.box[2],y0:c.box[1],y1:c.box[3]})).sort((a,b)=>a.x0-b.x0),out=[];
