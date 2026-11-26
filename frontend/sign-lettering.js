@@ -16,9 +16,11 @@ const hueBin=h=>Math.floor(h*36)%36;
 const binNear=(a,b)=>Math.min(Math.abs(a-b),36-Math.abs(a-b))<=1;
 
 // Renk grubunun maskesi (3×3 çoğunluk süzgeciyle tek piksel gürültüsü atılır)
+// Renksiz mürekkep (beyaz pano yazısı / siyah yazı): ayrı aday maskeler
+const LIGHT='light',DARK='dark',achroma={[LIGHT]:(s,v)=>s<.2&&v>.8,[DARK]:(s,v)=>v<.28};
 function maskFor(img,bin){
- const {width:w,height:h,data}=img,raw=new Uint8Array(w*h),out=new Uint8Array(w*h);
- for(let p=0,i=0;p<w*h;p++,i+=4){const [hh,s,v]=hsv(data[i],data[i+1],data[i+2]);if(data[i+3]>200&&inkLike(s,v)&&binNear(hueBin(hh),bin))raw[p]=1;}
+ const {width:w,height:h,data}=img,raw=new Uint8Array(w*h),out=new Uint8Array(w*h),pred=achroma[bin];
+ for(let p=0,i=0;p<w*h;p++,i+=4){const [hh,s,v]=hsv(data[i],data[i+1],data[i+2]);if(data[i+3]>200&&(pred?pred(s,v):(inkLike(s,v)&&binNear(hueBin(hh),bin))))raw[p]=1;}
  for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){let n=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)n+=raw[(y+dy)*w+x+dx];out[y*w+x]=n>=5?1:0;}
  out.raw=raw;return out;
 }
@@ -35,33 +37,54 @@ function components(mask,w,h){
 // Yan yana, benzer boyda, harf benzeri bileşen dizisi
 const letterLike=c=>{const ch=c.y1-c.y0,cw=c.x1-c.x0+1,fill=c.n/(cw*(ch+1)),asp=cw/(ch+1);return (fill<.75&&asp>.15&&asp<1.6)||(fill>=.6&&asp>=.06&&asp<=.3);};
 // Komşudan komşuya zincir: eğik satırda da uçtaki harfler kaybolmaz
-function glyphRow(comps,w,h){
- const minArea=Math.max(40,w*h*.00004),cands=comps.filter(c=>c.n>=minArea&&c.y1-c.y0>=10&&letterLike(c)).sort((a,b)=>a.x0-b.x0);let best=[];
+// Tekrar eden şerit (tente, panjur, korkuluk, ızgara): eşit genişlikte, eşit aralıklı, dolu çubuklar — harf dizisi değildir.
+// Harflerin genişlikleri ve doluluğu farklıdır (I dar, M geniş; O içi boş).
+function isStripe(row){if(row.length<5)return false;const cv=a=>{const m=a.reduce((x,y)=>x+y,0)/a.length;return m?Math.sqrt(a.reduce((x,y)=>x+(y-m)**2,0)/a.length)/m:0;};
+ const ws=row.map(c=>c.x1-c.x0+1),gs=row.slice(1).map((c,i)=>c.x0-row[i].x1),fill=row.map(c=>c.n/((c.x1-c.x0+1)*(c.y1-c.y0+1)));
+ const mf=fill.reduce((a,b)=>a+b,0)/fill.length,asp=row.reduce((a,c)=>a+(c.x1-c.x0+1)/(c.y1-c.y0+1),0)/row.length;
+ // şerit: neredeyse tamamen dolu (≥%80), eşit genişlikte dar çubuklar; harflerde doluluk düşük, genişlik farklıdır
+ return (cv(ws)<.2&&mf>.8&&asp<.6)||row.length>MAX_LETTERS;} // aralıklar önündeki direk vb. yüzünden düzensiz olabilir; ölçüt değildir
+// Komşudan komşuya zincir: eğik satırda da uçtaki harfler kaybolmaz. Tüm aday zincirler döner (uzundan kısaya), şeritler atılır.
+function glyphRows(comps,w,h){
+ const minArea=Math.max(40,w*h*.00004),cands=comps.filter(c=>c.n>=minArea&&c.y1-c.y0>=10&&letterLike(c)).sort((a,b)=>a.x0-b.x0),chains=[];
  for(let i=0;i<cands.length;i++){const chain=[cands[i]];let last=cands[i];
   for(let j=i+1;j<cands.length;j++){const c=cands[j],lh=last.y1-last.y0+1,ch=c.y1-c.y0+1,heights=chain.map(d=>d.y1-d.y0+1).sort((a,b)=>a-b),mh=heights[Math.floor(heights.length/2)],gap=c.x0-last.x1;
    if(gap>4.5*mh)break;
    if(ch>.65*mh&&ch<1.5*mh&&Math.abs((c.y0+c.y1)/2-(last.y0+last.y1)/2)<.45*lh&&gap>-.15*lh){chain.push(c);last=c;}}
-  if(chain.length>best.length)best=chain;}
- best=best.slice();
- // üst üste binen (ör. harf içindeki parça) bileşenleri at
- return best.filter((c,i)=>!best.some((d,j)=>j!==i&&d.n>c.n&&c.x0>=d.x0&&c.x1<=d.x1));
+  if(chain.length<MIN_LETTERS)continue;
+  // üst üste binen (ör. harf içindeki parça) bileşenleri at
+  const row=chain.filter((c,k)=>!chain.some((d,j)=>j!==k&&d.n>c.n&&c.x0>=d.x0&&c.x1<=d.x1));if(row.length>=MIN_LETTERS&&!isStripe(row))chains.push(row);}
+ chains.sort((a,b)=>b.length-a.length);
+ // başka bir zincirin alt kümesi olan zincirler atılır
+ return chains.filter((c,i)=>!chains.some((d,j)=>j<i&&c.every(x=>d.includes(x))));
 }
-function findRow(img){
+function glyphRow(comps,w,h){return glyphRows(comps,w,h)[0]||[];}
+// Aday harf satırları: renk gruplarından ve renksiz (beyaz/siyah) mürekkepten; her aday ayrı doğrulanır, sonuç sırayla tanımaya girer
+function findRows(img,limit=8){
  const {width:w,height:h,data}=img,counts=new Array(36).fill(0);
  for(let y=0;y<h;y+=2)for(let x=0;x<w;x+=2){const i=(y*w+x)*4,[hh,s,v]=hsv(data[i],data[i+1],data[i+2]);if(inkLike(s,v))counts[hueBin(hh)]++;}
- const bins=counts.map((n,b)=>[n,b]).filter(([n])=>n>0).sort((a,b)=>b[0]-a[0]).slice(0,6).map(([,b])=>b);
- let best=null;
- for(const bin of bins){const mask=maskFor(img,bin),{comps,list}=components(mask,w,h),row=glyphRow(comps,w,h);if(!best||row.length>best.row.length)best={bin,mask,row,list,comps};}
- if(best){const meanColor=c=>{let r=0,g=0,b=0,n=0;for(let k=c.start;k<c.end;k+=Math.max(1,Math.floor((c.end-c.start)/400))){const i=best.list[k]*4;r+=data[i];g+=data[i+1];b+=data[i+2];n++;}return [r/n,g/n,b/n];};
-  const cols=best.row.map(meanColor),med=[0,1,2].map(k=>{const a=cols.map(c=>c[k]).sort((x,y)=>x-y);return a[Math.floor(a.length/2)];});
-  best.row=best.row.filter((c,i)=>Math.hypot(cols[i][0]-med[0],cols[i][1]-med[1],cols[i][2]-med[2])<=45);best.ink=med;best.meanColor=meanColor;}
- if(!best||best.row.length<MIN_LETTERS||best.row.length>MAX_LETTERS)return {ok:false,reason:'no-letter-row'};
- {const row=best.row,hs=row.map(c=>c.y1-c.y0+1).sort((a,b)=>a-b),mh=hs[Math.floor(hs.length/2)],ns=row.map(c=>c.n).sort((a,b)=>a-b),mn=ns[Math.floor(ns.length/2)];
-  const x0=row[0].x0-4.5*mh,x1=row[row.length-1].x1+4.5*mh,lineY=x=>{const a=row[0],b=row[row.length-1],ya=(a.y0+a.y1)/2,yb=(b.y0+b.y1)/2;return b.x0===a.x0?ya:ya+(yb-ya)*(x-(a.x0+a.x1)/2)/(((b.x0+b.x1)/2)-((a.x0+a.x1)/2)||1);};
-  const leftover=best.comps.some(c=>{if(row.includes(c))return false;const ch=c.y1-c.y0+1,cx=(c.x0+c.x1)/2;if(c.n<.35*mn||ch<.6*mh||ch>1.5*mh||cx<x0||cx>x1)return false;if(Math.abs((c.y0+c.y1)/2-lineY(cx))>.5*mh)return false;if(row.some(d=>c.x0>=d.x0&&c.x1<=d.x1))return false;const col=best.meanColor(c);return Math.hypot(col[0]-best.ink[0],col[1]-best.ink[1],col[2]-best.ink[2])<=45;});
-  if(leftover)return {ok:false,reason:'ambiguous-row'};}
- return {ok:true,...best};
+ const bins=[...counts.map((n,b)=>[n,b]).filter(([n])=>n>0).sort((a,b)=>b[0]-a[0]).slice(0,6).map(([,b])=>b),LIGHT,DARK],out=[];
+ for(const bin of bins){const mask=maskFor(img,bin),{comps,list}=components(mask,w,h);
+  for(const row0 of glyphRows(comps,w,h).slice(0,3)){const cand={bin,mask,row:row0,list,comps,rawLen:row0.length};
+   const meanColor=c=>{let r=0,g=0,b=0,n=0;for(let k=c.start;k<c.end;k+=Math.max(1,Math.floor((c.end-c.start)/400))){const i=list[k]*4;r+=data[i];g+=data[i+1];b+=data[i+2];n++;}return [r/n,g/n,b/n];};
+   const cols=cand.row.map(meanColor),med=[0,1,2].map(k=>{const a=cols.map(c=>c[k]).sort((x,y)=>x-y);return a[Math.floor(a.length/2)];});
+   cand.row=cand.row.filter((c,i)=>Math.hypot(cols[i][0]-med[0],cols[i][1]-med[1],cols[i][2]-med[2])<=45);cand.ink=med;cand.meanColor=meanColor;
+   if(cand.row.length<MIN_LETTERS||cand.row.length>MAX_LETTERS||isStripe(cand.row))continue;
+   {const row=cand.row,hs=row.map(c=>c.y1-c.y0+1).sort((a,b)=>a-b),mh=hs[Math.floor(hs.length/2)],ns=row.map(c=>c.n).sort((a,b)=>a-b),mn=ns[Math.floor(ns.length/2)];
+    const x0=row[0].x0-4.5*mh,x1=row[row.length-1].x1+4.5*mh,lineY=x=>{const a=row[0],b=row[row.length-1],ya=(a.y0+a.y1)/2,yb=(b.y0+b.y1)/2;return b.x0===a.x0?ya:ya+(yb-ya)*(x-(a.x0+a.x1)/2)/(((b.x0+b.x1)/2)-((a.x0+a.x1)/2)||1);};
+    const leftover=comps.some(c=>{if(row.includes(c))return false;const ch=c.y1-c.y0+1,cx=(c.x0+c.x1)/2;if(c.n<.35*mn||ch<.6*mh||ch>1.5*mh||cx<x0||cx>x1)return false;if(Math.abs((c.y0+c.y1)/2-lineY(cx))>.5*mh)return false;if(row.some(d=>c.x0>=d.x0&&c.x1<=d.x1))return false;const col=meanColor(c);return Math.hypot(col[0]-cand.ink[0],col[1]-cand.ink[1],col[2]-cand.ink[2])<=45;});
+    if(leftover)continue;}
+   out.push({ok:true,...cand,achromatic:!!achroma[bin]});}}
+ // sıra: renkli adaylar uzunluğa göre (önceki davranış), sonra renksiz adaylar; aynı bölgeyi kaplayan tekrar adaylar atılır
+ out.sort((a,b)=>(a.achromatic-b.achromatic)||(b.rawLen-a.rawLen));
+ const box=c=>[Math.min(...c.row.map(r=>r.x0)),Math.min(...c.row.map(r=>r.y0)),Math.max(...c.row.map(r=>r.x1)),Math.max(...c.row.map(r=>r.y1))],keep=[];
+ for(const c of out){const b=box(c);if(keep.some(k=>{const q=box(k),ix=Math.min(b[2],q[2])-Math.max(b[0],q[0]),iy=Math.min(b[3],q[3])-Math.max(b[1],q[1]);return ix>0&&iy>0&&ix*iy>.3*Math.min((b[2]-b[0])*(b[3]-b[1]),(q[2]-q[0])*(q[3]-q[1]));}))continue;keep.push(c);}
+ return keep.slice(0,limit);
 }
+function findRow(img){return findRows(img,1)[0]||{ok:false,reason:'no-letter-row'};}
+// Kazanan satır dışındaki belirgin yazı satırları (ambalaj/kartvizitte adres, telefon vb.): varsa tek satırlık logo yetmez, tüm baskı ayrılmalı
+function otherRows(cands,found){const mh=r=>{const hs=r.row.map(c=>c.y1-c.y0+1).sort((a,b)=>a-b);return hs[hs.length>>1];},H=mh(found),bx=r=>[Math.min(...r.row.map(c=>c.x0)),Math.min(...r.row.map(c=>c.y0)),Math.max(...r.row.map(c=>c.x1)),Math.max(...r.row.map(c=>c.y1))],B=bx(found);
+ return cands.filter(r=>{if(r===found||r.row.length<MIN_LETTERS)return false;const q=bx(r),ix=Math.min(B[2],q[2])-Math.max(B[0],q[0]),iy=Math.min(B[3],q[3])-Math.max(B[1],q[1]);if(ix>0&&iy>0)return false;return mh(r)>=H*.2;}).length;}
 
 function canvasOf(make,w,h){const c=make(Math.max(1,Math.ceil(w)),Math.max(1,Math.ceil(h)));return c;}
 function alphaBox(ctx,w,h,threshold=110){const d=ctx.getImageData(0,0,w,h).data;let x0=w,y0=h,x1=-1,y1=-1;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(d[(y*w+x)*4+3]>threshold){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}return x1<0?null:{x:x0,y:y0,w:x1-x0+1,h:y1-y0+1};}
@@ -147,6 +170,15 @@ function addDiacritics(found,letters,parts,w,h,img){
   const below=parts[i].mark==='below'||inkIn(c.x0+gw*.2,c.x1-gw*.2,c.y1+gh*.08,c.y1+gh*.4,gw)>=need;
   const ch=above&&ABOVE[l.ch]?ABOVE[l.ch]:below&&BELOW[l.ch]?BELOW[l.ch]:l.ch;return {...l,ch};});
 }
+// Satırda eksik harf: iki harf arasındaki boşlukta aynı mürekkepten belirgin parça varsa (harf bulunamamış) sonuç verilmez
+function missingLetter(found,w){const row=found.row,ns=row.map(c=>c.n).sort((a,b)=>a-b),mn=ns[ns.length>>1],hs=row.map(c=>c.y1-c.y0+1).sort((a,b)=>a-b),mh=hs[hs.length>>1];
+ // satır dışında kalmış, harf boyunda ayrı bir parça iki harfin arasında duruyorsa (ör. çengeli yüzünden elenen Ç) harf eksiktir
+ for(let i=1;i<row.length;i++){const a=row[i-1],b=row[i],y0=Math.min(a.y0,b.y0)-.2*mh,y1=Math.max(a.y1,b.y1)+.4*mh;
+  for(const c of found.comps){if(row.includes(c))continue;const ch=c.y1-c.y0+1,cx=(c.x0+c.x1)/2;if(cx<=a.x1||cx>=b.x0||c.y0<y0||c.y1>y1)continue;if(ch>=.5*mh&&ch<=1.7*mh&&c.n>=.25*mn)return true;}
+  // parça zemine değip büyük bileşene karıştıysa: harf bandında, tam boy dolu sütunlar (pano arası şerit) dışındaki mürekkep sayılır
+  {const m=found.mask,bx0=a.x1+2,bx1=b.x0-2,ty0=Math.round(Math.max(a.y0,b.y0)+.1*mh),ty1=Math.round(Math.min(a.y1,b.y1)-.1*mh),bh=ty1-ty0+1;if(bx1-bx0>=3&&bh>4){let n=0;
+   for(let x=bx0;x<=bx1;x++){let col=0;for(let y=ty0;y<=ty1;y++)col+=m[y*w+x]?1:0;if(col<bh*.9)n+=col;}if(n>=mn*.12)return true;}}}
+ return false;}
 function wordTokens(row){const mh=median(row.map(c=>c.y1-c.y0+1)),gaps=row.slice(1).map((c,i)=>c.x0-row[i].x1),mg=gaps.length?median(gaps):0;let t=0;return row.map((c,i)=>{const g=i?gaps[i-1]:0;if(i&&g>Math.max(1.8*mg,.35*mh))t++;/* kelime boşluğu: olağan harf aralığına göre aykırı büyük aralık */return t;});}
 function wordWithSpaces(row,letters){const token=wordTokens(row);let out='';row.forEach((c,i)=>{if(i&&token[i]!==token[i-1])out+=' ';out+=letters[i].ch;});return out;}
 function renderWord(word,weight,color,make,size=240){
@@ -164,7 +196,13 @@ function fromImage(source,{createCanvas}){
  if(typeof createCanvas!=='function')throw new TypeError('createCanvas gerekli');
  const sw=source.width,sh=source.height;if(!(sw>=40&&sh>=40))return {ok:false,reason:'too-small'};
  const k=Math.min(1,MAX_SIDE/Math.max(sw,sh)),w=Math.round(sw*k),h=Math.round(sh*k),c=canvasOf(createCanvas,w,h),ctx=c.getContext('2d');
- ctx.drawImage(source,0,0,w,h);const img=ctx.getImageData(0,0,w,h),found=findRow(img);if(!found.ok)return found;
+ ctx.drawImage(source,0,0,w,h);const img=ctx.getImageData(0,0,w,h),cands=findRows(img);if(!cands.length)return {ok:false,reason:'no-letter-row'};
+ // adaylar sırayla tanınır; ilk güvenle okunan kullanılır (tente gibi yanlış aday tanımada elenir, gerçek tabela kaybolmaz)
+ let last={ok:false,reason:'low-confidence'};
+ for(let k=0;k<cands.length;k++){const r=readRow(cands[k],img,w,h,createCanvas,k>0);if(r.ok)return {...r,otherRows:otherRows(findRows(img,24),cands[k])};if(k===0)last=r;}
+ return last;
+}
+function readRow(found,img,w,h,createCanvas,strict=false){
  const parts=splitAttached(found,w),glyphs=parts.map(p=>uprightGlyph(p.comp,p.list,w,createCanvas));if(glyphs.some(g=>!g))return {ok:false,reason:'glyph-failed'};
  const {weight,target}=chooseWeight(glyphs,createCanvas),letters=recognize(glyphs,weight,createCanvas);
  {const PAIRS=[['S','5'],['O','0'],['I','1'],['Z','2'],['B','8'],['G','6'],['T','7'],['A','4']],digit=ch=>/[0-9]/.test(ch);
@@ -176,8 +214,14 @@ function fromImage(source,{createCanvas}){
   letters.forEach((l,i)=>{const pair=PAIRS.find(([a,b])=>l.ch===b&&l.second===a);if(!pair||l.margin>=.2)return;const mates=letters.filter((m,j)=>j!==i&&token[j]===token[i]);if(mates.length>=2&&mates.every(m=>!digit(m.ch))){l.ch=pair[0];l.margin=Math.max(l.margin,MIN_MARGIN);l.context=true;}});
   for(const l of letters){if(l.margin>=MIN_MARGIN)continue;const pair=PAIRS.find(([a,b])=>(l.ch===a&&l.second===b)||(l.ch===b&&l.second===a));if(!pair)continue;
    if(letterVotes>=2&&letterVotes>2*digitVotes){l.ch=pair[0];l.margin=MIN_MARGIN;l.context=true;}else if(digitVotes>=2&&digitVotes>2*letterVotes){l.ch=pair[1];l.margin=MIN_MARGIN;l.context=true;}}}
- const confident=letters.every(l=>l.score>=MIN_SCORE&&l.margin>=MIN_MARGIN)&&letters.reduce((a,l)=>a+l.score,0)/letters.length>=MIN_WORD_SCORE;
+ // ilk aday dışındakiler için daha sıkı güven (yanlış marka adı üretmektense sonuç vermemek)
+ const ms=strict?MIN_MARGIN*2:MIN_MARGIN,ws=strict?MIN_WORD_SCORE+.1:MIN_WORD_SCORE;
+ const confident=letters.every(l=>l.score>=MIN_SCORE&&l.margin>=ms)&&letters.reduce((a,l)=>a+l.score,0)/letters.length>=ws;
  if(!confident)return {ok:false,reason:'low-confidence',letters};
+ if(missingLetter(found,w))return {ok:false,reason:'missing-letter',letters};
+ return finish(found,img,w,h,createCanvas,letters,parts,weight,target);
+}
+function finish(found,img,w,h,createCanvas,letters,parts,weight,target){
  const word=wordWithSpaces(found.row,addDiacritics(found,letters,parts,w,h,img)),color=balancedColor(img,found),out=renderWord(word,weight,color,createCanvas);
  if(!out)return {ok:false,reason:'render-failed'};
  const rx0=Math.min(...found.row.map(c=>c.x0)),rx1=Math.max(...found.row.map(c=>c.x1)),ry0=Math.min(...found.row.map(c=>c.y0)),ry1=Math.max(...found.row.map(c=>c.y1));
@@ -185,10 +229,32 @@ function fromImage(source,{createCanvas}){
  for(let y=0;y<h;y+=3)for(let x=0;x<w;x+=3){if(x>=rx0&&x<=rx1&&y>=ry0&&y<=ry1)continue;const i=(y*w+x)*4;seen.add((img.data[i]>>5)<<6|(img.data[i+1]>>5)<<3|(img.data[i+2]>>5));}
  return {ok:true,word,weight,color,strokeRatio:target,letters,canvas:out,coverage,sceneColors:seen.size,method:'local-sign-lettering-v1'};
 }
+// İkinci okuyucu (isteğe bağlı): harf şablonları emin olamazsa, satır yerel metin tanıma modeliyle okunur (tarayıcıda; dışarı gönderilmez).
+// Okunan harf sayısı satırdaki harf parçası sayısıyla birebir tutmalı ve okuma güveni yüksek olmalı; Türkçe işaretler yine geometriden.
+async function fromImageAsync(source,{createCanvas,read=null}){
+ const first=fromImage(source,{createCanvas});if(first.ok||!read)return first;
+ const sw=source.width,sh=source.height;if(!(sw>=40&&sh>=40))return first;
+ const k=Math.min(1,MAX_SIDE/Math.max(sw,sh)),w=Math.round(sw*k),h=Math.round(sh*k),c=canvasOf(createCanvas,w,h),ctx=c.getContext('2d');ctx.drawImage(source,0,0,w,h);
+ const img=ctx.getImageData(0,0,w,h),cands=findRows(img);
+ for(const found of cands){const parts=splitAttached(found,w);if(parts.length>MAX_LETTERS)continue;
+  const x0=Math.min(...found.row.map(r=>r.x0)),x1=Math.max(...found.row.map(r=>r.x1)),y0=Math.min(...found.row.map(r=>r.y0)),y1=Math.max(...found.row.map(r=>r.y1));
+  // tabelada harfler geniş aralıklı ve ayrı panolarda olabilir: harfler olağan aralıkla yan yana dizilip okunur (okuma güveni artar)
+  const pad=Math.round((y1-y0+1)*.25),gapW=Math.round((y1-y0+1)*.18),ws=parts.map(p=>p.comp.x1-p.comp.x0+1),CW=ws.reduce((a,b)=>a+b,0)+gapW*(parts.length-1)+2*pad,CH=y1-y0+1+2*pad;
+  const cc=canvasOf(createCanvas,CW,CH),cx=cc.getContext('2d'),corner=(()=>{const q=parts[0].comp,i=((Math.max(0,q.y0-2))*w+Math.max(0,q.x0-2))*4;return `rgb(${img.data[i]},${img.data[i+1]},${img.data[i+2]})`;})();
+  cx.fillStyle=corner;cx.fillRect(0,0,CW,CH);let pen=pad;for(const p of parts){const q=p.comp,bw=q.x1-q.x0+1;cx.drawImage(c,q.x0,y0,bw,y1-y0+1,pen,pad,bw,y1-y0+1);pen+=bw+gapW;}
+  const cd=cx.getImageData(0,0,CW,CH);
+  let res;try{res=await read({data:cd.data,w:CW,h:CH},[0,0,CW,CH]);}catch{continue;}if(!res||!(res.conf>=.9))continue;
+  const plain={'Ş':'S','Ç':'C','Ğ':'G','İ':'I','Ö':'O','Ü':'U','ı':'I'},chars=[...String(res.text||'').normalize('NFKC').toLocaleUpperCase('tr')].map(ch=>plain[ch]||ch).filter(ch=>/[A-Z0-9]/.test(ch));
+  if(chars.length!==parts.length)continue;
+  if(missingLetter(found,w))continue;
+  const glyphs=parts.map(p=>uprightGlyph(p.comp,p.list,w,createCanvas));if(glyphs.some(g=>!g))continue;
+  const {weight,target}=chooseWeight(glyphs,createCanvas),letters=chars.map(ch=>({ch,score:1,margin:1,reader:'ocr'}));
+  const r=finish(found,img,w,h,createCanvas,letters,parts,weight,target);if(r.ok)return {...r,reader:'ocr',otherRows:otherRows(findRows(img,24),found)};}
+ return first;}
 async function loadFonts(base='assets/fonts/'){
  if(typeof FontFace!=='function'||typeof document==='undefined'||!document.fonts)return false;
  await Promise.all(WEIGHTS.map(async wt=>{const f=new FontFace(family(wt),`url(${base}inter-${wt}.woff2)`);await f.load();document.fonts.add(f);}));return true;
 }
-const api=Object.freeze({fromImage,loadFonts,family,WEIGHTS,CHARS,_internal:Object.freeze({hsv,findRow,strokeRatio,recognize,chooseWeight,balancedColor,splitAttached,uprightGlyph,normalized,renderChar,iou,chamfer})});
+const api=Object.freeze({fromImage,fromImageAsync,loadFonts,family,WEIGHTS,CHARS,_internal:Object.freeze({hsv,findRow,findRows,strokeRatio,recognize,chooseWeight,balancedColor,splitAttached,uprightGlyph,normalized,renderChar,iou,chamfer})});
 if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.SignLettering=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
