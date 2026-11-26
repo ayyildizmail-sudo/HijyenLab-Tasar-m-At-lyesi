@@ -11,11 +11,15 @@
     if (!context || typeof context.product !== 'string' || !context.product.trim() || typeof context.fragrance !== 'string' || !context.fragrance.trim() || !Number.isSafeInteger(context.quantity) || context.quantity <= 0 || context.quantity > 1000000) return null;
     return { printMode: ['printed', 'unprinted'].includes(context.printMode) ? context.printMode : null, product: context.product.trim().slice(0, 140), quantity: context.quantity, fragrance: context.fragrance.trim().slice(0, 140) };
   }
+  function reorderLine() {
+    let code = null; try { code = root.HijyenLabReorder?.code?.(); } catch { code = null; }
+    return typeof code === 'string' && /^HL-[A-HJ-NP-Z2-9]{6}$/.test(code) ? '\nSipariş kodu: ' + code : '';
+  }
   function openSummaryDraft() {
     const context = summaryContext();
     if (!context || !showDifferentProductDraft) return false;
     const key = JSON.stringify(context);
-    if (!showDifferentProductDraft((context.printMode === 'unprinted' ? 'Merhaba, baskısız ürün teklifini görüşmek istiyorum.\nBaskısız; klişe uygulanmaz.' : 'Merhaba, bu tasarımı görüşmek istiyorum.') + '\nÜrün: ' + context.product + '\nAdet: ' + context.quantity + '\nKoku: ' + context.fragrance)) return false;
+    if (!showDifferentProductDraft((context.printMode === 'unprinted' ? 'Merhaba, baskısız ürün teklifini görüşmek istiyorum.\nBaskısız; klişe uygulanmaz.' : 'Merhaba, bu tasarımı görüşmek istiyorum.') + '\nÜrün: ' + context.product + '\nAdet: ' + context.quantity + '\nKoku: ' + context.fragrance + reorderLine())) return false;
     activeDraftGuard = () => { const fresh = summaryContext(); return !!fresh && JSON.stringify(fresh) === key; };
     return true;
   }

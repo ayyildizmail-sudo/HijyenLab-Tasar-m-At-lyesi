@@ -1,0 +1,19 @@
+#reorderPanel { margin: 16px 0; padding: 14px 16px; border: 1px solid #d5e0ea; border-radius: 12px; background: #f6f9fc; }
+#reorderPanel h2 { margin: 0 0 4px; font-size: 16px; color: #183653; }
+#reorderCode { margin: 0 0 6px; font-size: 22px; font-weight: 800; letter-spacing: .04em; color: #183653; font-variant-numeric: tabular-nums; }
+#reorderPanel .reorderRow { display: flex; flex-wrap: wrap; gap: 8px; }
+#reorderLink { flex: 1 1 220px; min-width: 0; font-size: 14px; padding: 10px; border: 1px solid #b8cde1; border-radius: 8px; color: #52677d; }
+#reorderPanel button { min-height: 44px; }
+#reorderCopied { display: block; min-height: 18px; color: #127a46; font-size: 13px; }
+#reorderIncoming { max-width: 780px; margin: 14px auto; padding: 16px; border: 2px solid #183653; border-radius: 12px; background: #fff; display: grid; gap: 10px; }
+#reorderIncoming h2 { margin: 0; font-size: 20px; color: #183653; }
+#reorderIncoming p { margin: 0; color: #314a63; }
+#reorderIncoming img { max-width: 100%; border-radius: 8px; }
+#reorderIncoming label { display: grid; gap: 4px; font-weight: 600; color: #183653; max-width: 260px; }
+#reorderIncoming input { font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid #b8cde1; border-radius: 8px; }
+#reorderIncoming .primary { min-height: 48px; justify-self: start; padding: 10px 20px; }
+#reorderIncoming small { color: #52677d; font-size: 13px; }
+#reorderIncoming .linkButton { justify-self: start; border: 0; background: none; color: #315c87; text-decoration: underline; min-height: 44px; font: inherit; font-size: 14px; cursor: pointer; }
+#reorderError { color: #b42318 !important; font-weight: 600; }
+#reorderPanel[hidden], #reorderError[hidden], #reorderImage[hidden] { display: none !important; }
+@media print { #reorderIncoming { display: none; } }
