@@ -12,14 +12,16 @@
   }
   function side(yaw) { const n = norm(yaw); return n > 90 && n < 270 ? 'back' : 'front'; }
 
-  function create(doc) {
-    const wrap = doc.createElement('section'); wrap.id = 'package3d'; wrap.hidden = true;
-    wrap.innerHTML = '<h2>Paketi döndürün</h2><div class="pkg3dStage" tabindex="0" role="img" aria-label="Paketin 3D görünümü. Sürükleyerek veya ok tuşlarıyla döndürün."><div class="pkg3dShadow"></div><div class="pkg3dObj"><div class="pkg3dFace pkg3dFront"><img alt=""></div><div class="pkg3dFace pkg3dBack"><img alt=""></div></div></div><div class="pkg3dButtons"><button type="button" class="outline" data-to="0">Ön yüz</button><button type="button" class="outline" data-to="180">Arka yüz</button><button type="button" class="outline" data-spin>Döndür</button></div><p class="hint">Parmağınızla veya fareyle sürükleyerek çevirin. Görünüm yaklaşık önizlemedir.</p>';
+  function create(doc, id, title) {
+    const wrap = doc.createElement('section'); wrap.id = id; wrap.className = 'pkg3d'; wrap.hidden = true;
+    wrap.innerHTML = '<h2></h2><div class="pkg3dStage" tabindex="0" role="img" aria-label="Paketin 3D görünümü. Sürükleyerek veya ok tuşlarıyla döndürün."><div class="pkg3dShadow"></div><img class="pkg3dFlat" alt=""><div class="pkg3dObj"><div class="pkg3dFace pkg3dFront"><img alt=""></div><div class="pkg3dFace pkg3dBack"><img alt=""></div></div></div><div class="pkg3dButtons"><button type="button" class="outline" data-to="0">Ön yüz</button><button type="button" class="outline" data-to="180">Arka yüz</button><button type="button" class="outline" data-spin>Döndür</button></div><p class="hint">Parmağınızla veya fareyle sürükleyerek çevirin. Görünüm yaklaşık önizlemedir.</p>';
+    wrap.querySelector('h2').textContent = title;
     const stage = wrap.querySelector('.pkg3dStage'), obj = wrap.querySelector('.pkg3dObj'), shadow = wrap.querySelector('.pkg3dShadow');
-    const front = wrap.querySelector('.pkg3dFront img'), back = wrap.querySelector('.pkg3dBack img');
-    let yaw = 0, pitch = -6, anim = 0, drag = null;
+    const front = wrap.querySelector('.pkg3dFront img'), back = wrap.querySelector('.pkg3dBack img'), flat = wrap.querySelector('.pkg3dFlat');
+    let yaw = 0, pitch = 0, anim = 0, drag = null;
     const reduced = () => !!root.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     function paint() {
+      moving();
       obj.style.transform = 'rotateX(' + pitch + 'deg) rotateY(' + yaw + 'deg)';
       const s = shading(yaw);
       const light = 'drop-shadow(0 2px 2px rgba(20,40,60,.18)) brightness(' + (1 - s.dark + s.shine).toFixed(3) + ')';
@@ -27,6 +29,18 @@
       shadow.style.transform = 'scaleX(' + s.shadow + ')';
       stage.dataset.side = side(yaw);
     }
+    let settle = 0;
+    // While still and square to the viewer, show the plain full-resolution image instead of the 3D layer.
+    function rest() {
+      if (anim || drag) return;
+      const n = norm(yaw);
+      if ((n < 0.5 || n > 359.5 || Math.abs(n - 180) < 0.5) && Math.abs(pitch) < 0.5) {
+        const src = (side(yaw) === 'back' ? back : front).src;
+        if (src && flat.src !== src) flat.src = src;
+        stage.classList.add('is-flat');
+      }
+    }
+    function moving() { stage.classList.remove('is-flat'); root.clearTimeout(settle); settle = root.setTimeout(rest, 150); }
     function stop() { if (anim) root.cancelAnimationFrame(anim); anim = 0; }
     function animateTo(target, ms) {
       stop();
@@ -38,7 +52,7 @@
     function nearest(target) { const base = Math.round((yaw - target) / 360) * 360; return target + base; }
     stage.addEventListener('pointerdown', e => { stop(); drag = { x: e.clientX, y: e.clientY, yaw, pitch }; stage.setPointerCapture?.(e.pointerId); });
     stage.addEventListener('pointermove', e => { if (!drag) return; yaw = drag.yaw + (e.clientX - drag.x) * 0.6; pitch = clampTilt(drag.pitch - (e.clientY - drag.y) * 0.25); paint(); });
-    const end = () => { if (!drag) return; drag = null; animateTo(nearest(side(yaw) === 'back' ? 180 : 0), 380); };
+    const end = () => { if (!drag) return; drag = null; pitch = 0; animateTo(nearest(side(yaw) === 'back' ? 180 : 0), 380); };
     stage.addEventListener('pointerup', end); stage.addEventListener('pointercancel', end);
     stage.addEventListener('keydown', e => {
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); stop(); yaw += e.key === 'ArrowLeft' ? -15 : 15; paint(); }
@@ -47,7 +61,7 @@
     wrap.querySelector('[data-spin]').addEventListener('click', () => animateTo(yaw + 360, 2200));
     let shownFor = '';
     let pending = '';
-    function show(frontSrc, backSrc) {
+    function show(frontSrc, backSrc, spin = true) {
       const key = frontSrc + '|' + backSrc;
       if (key === shownFor) { wrap.hidden = false; return; }
       if (key === pending) return;
@@ -55,12 +69,13 @@
       Promise.all([trim(doc, frontSrc), trim(doc, backSrc)]).then(([f, b]) => {
         if (pending !== key) return;
         pending = ''; shownFor = key; front.src = f; back.src = b; wrap.hidden = false;
-        yaw = 0; pitch = -6; paint(); root.setTimeout(() => { if (shownFor === key) animateTo(360, 2600); }, 400);
+        if (spin) { yaw = 0; pitch = 0; paint(); root.setTimeout(() => { if (shownFor === key) animateTo(360, 2600); }, 400); } else paint();
       }).catch(() => { if (pending === key) pending = ''; });
     }
     function hide() { stop(); wrap.hidden = true; }
     paint();
-    return { el: wrap, show, hide };
+    function reset() { shownFor = ''; }
+    return { el: wrap, show, hide, reset };
   }
 
   // Crop transparent margins so front and back packets fill the same box at the same scale.
@@ -96,10 +111,54 @@
     return blank && !blank.endsWith('/') ? blank : null;
   }
 
+  function blankRear(doc) {
+    return new Promise(resolve => {
+      const id = root.selectedProductId || 'BM12';
+      let asset = null; try { asset = root.ProductCatalog?.get(id)?.backAsset; } catch { asset = null; }
+      if (!asset) return resolve(null);
+      const img = new root.Image();
+      img.onload = () => {
+        let url = null;
+        try { if (typeof rearMaterialDataURL === 'function' && typeof state !== 'undefined') url = rearMaterialDataURL(img, state.bg || '#ffffff'); } catch { url = null; }
+        resolve(url || img.src);
+      };
+      img.onerror = () => resolve(null);
+      img.src = asset;
+    });
+  }
+  function frontNow() {
+    try { return typeof visualPreviewImageData === 'function' ? visualPreviewImageData() : typeof imageData === 'function' ? imageData() : null; } catch { return null; }
+  }
+  // Design step: a button under the live preview opens the same turnable packet.
+  function mountDesign(doc) {
+    const preview = doc.querySelector('#design .preview'), actions = doc.getElementById('simpleTools') || doc.querySelector('#design .actions');
+    if (!preview || !actions || doc.getElementById('package3dDesign')) return;
+    const viewer = create(doc, 'package3dDesign', '3D görünüm');
+    const note = doc.createElement('p'); note.className = 'hint pkg3dIssue'; note.setAttribute('role', 'status'); note.hidden = true;
+    preview.after(viewer.el, note);
+    const button = doc.createElement('button'); button.type = 'button'; button.id = 'open3d'; button.className = 'outline'; button.textContent = '◐ 3D gör'; button.setAttribute('aria-expanded', 'false');
+    actions.append(button);
+    let open = false, timer = 0;
+    async function refresh(spin) {
+      const f = frontNow(), b = await blankRear(doc);
+      if (!open) return;
+      if (!f || !b) { viewer.hide(); note.textContent = '3D görünüm için önce tasarımdaki uyarıyı giderin.'; note.hidden = false; return; }
+      note.hidden = true; viewer.show(f, b, spin);
+    }
+    button.addEventListener('click', () => {
+      open = !open; button.setAttribute('aria-expanded', String(open)); button.textContent = open ? '◐ 3D kapat' : '◐ 3D gör';
+      if (open) { viewer.reset(); refresh(true); viewer.el.scrollIntoView?.({ behavior: 'smooth', block: 'nearest' }); } else { viewer.hide(); note.hidden = true; }
+    });
+    const later = () => { if (!open) return; root.clearTimeout(timer); timer = root.setTimeout(() => refresh(false), 700); };
+    for (const ev of ['change', 'input', 'pointerup', 'click']) doc.getElementById('design').addEventListener(ev, e => { if (!viewer.el.contains(e.target) && e.target !== button) later(); });
+    new root.MutationObserver(() => { if (doc.getElementById('design').hidden && open) button.click(); }).observe(doc.getElementById('design'), { attributes: true, attributeFilter: ['hidden'] });
+  }
+
   function mount(doc) {
     const summary = doc.getElementById('summary');
+    mountDesign(doc);
     if (!summary || doc.getElementById('package3d')) return;
-    const viewer = create(doc);
+    const viewer = create(doc, 'package3d', 'Paketi döndürün');
     const anchor = doc.getElementById('finalDetails');
     if (anchor) anchor.before(viewer.el); else summary.append(viewer.el);
     const sync = () => {
