@@ -37,3 +37,13 @@ assert.equal(isOpening({},true,true),false,'blank unprinted is not logo onboardi
 printMode='unprinted';modeEvents['hijyenlab:print-mode-change']();assert(main.classList.contains('unprintedMode'));assert(!main.classList.contains('welcomeEmpty'));assert.equal(get('welcomeIntro').hidden,true);assert.equal(get('welcomeUploadHint').hidden,true);assert.equal(upload.onclick,handler);assert.equal(consent.checked,false);
 printMode='printed';modeEvents['hijyenlab:print-mode-change']();assert(!main.classList.contains('unprintedMode'));assert(main.classList.contains('welcomeEmpty'));assert.equal(get('welcomeIntro').hidden,false);assert.equal(upload.textContent,'Logo veya görsel yükle');assert.equal(upload.attrs.for,'unifiedUpload');
 console.log('PASS welcome explicit unprinted/printed events preserve native upload and opt-in while hiding logo onboarding.');
+
+{
+ const api=ctx.module.exports;
+ assert.equal(api.DELIVERY_DAYS,25);
+ assert.equal(api.deliveryDate(new Date(2026,10,26)),'21 Aralık 2026');
+ assert.equal(api.deliveryDate(new Date(2026,11,20)),'14 Ocak 2027','year rollover');
+ assert.match(api.deliveryText(new Date(2026,10,26),'BM12'),/^Bugün onaylarsanız tahmini teslim: 21 Aralık 2026 \(25 takvim günü\)\.$/);
+ assert.match(api.deliveryText(new Date(2026,10,26),'OSHIBORI'),/teyit edilir/);
+ console.log('PASS welcome delivery date: today + 25 calendar days, year rollover, Oshibori confirmation note.');
+}

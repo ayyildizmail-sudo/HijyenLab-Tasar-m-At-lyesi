@@ -1,0 +1,17 @@
+#sampleRequest { max-width: 780px; margin: 18px auto; padding: 12px 16px; border: 1px solid #d5e0ea; border-radius: 12px; background: #fff; }
+#sampleRequest > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 700; color: #183653; }
+#sampleRequest .sampleIntro { margin: 4px 0 12px; color: #52677d; font-size: 14px; line-height: 1.5; }
+#sampleForm { display: grid; gap: 12px; }
+#sampleForm > label { display: grid; gap: 4px; font-size: 14px; font-weight: 600; color: #183653; }
+#sampleForm input[type=text], #sampleForm input[type=tel], #sampleForm textarea { font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid #b8cde1; border-radius: 8px; width: 100%; box-sizing: border-box; }
+#sampleForm fieldset { border: 1px solid #e1e8ef; border-radius: 8px; padding: 8px 12px; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 2px 12px; }
+#sampleForm legend { font-size: 14px; font-weight: 600; color: #183653; padding: 0 4px; }
+#sampleForm fieldset label { display: flex; align-items: center; gap: 8px; min-height: 40px; font-size: 14px; }
+#sampleForm fieldset input { width: 20px; height: 20px; }
+#sampleForm button { min-height: 48px; justify-self: start; padding: 10px 20px; }
+#sampleForm small { color: #52677d; font-size: 13px; }
+#sampleError { margin: 0; color: #b42318; font-weight: 600; font-size: 14px; }
+#sampleError[hidden] { display: none; }
+#sampleOpener { display: block; margin: 6px auto 0; min-height: 44px; border: 0; background: none; color: #315c87; font: inherit; font-size: 14px; text-decoration: underline; cursor: pointer; }
+.atelierLayout:not(.welcomeEmpty) #sampleOpener { display: none; }
+@media print { #sampleRequest, #sampleOpener { display: none; } }

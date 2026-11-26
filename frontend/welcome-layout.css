@@ -12,6 +12,7 @@ main.atelierLayout { max-width: 1080px; padding: 28px 36px 36px; }
 #welcomeIntro { text-align: center; max-width: 740px; margin: 32px auto 28px; }
 #welcomeIntro .welcomeEyebrow { margin: 0 0 13px; color: #52677d; text-transform: uppercase; letter-spacing: .15em; font-size: 11px; font-weight: 700; }
 #welcomeTitle { margin: 0; font-size: clamp(29px, 4vw, 44px); letter-spacing: -.045em; line-height: 1.12; font-weight: 700; color: #102d4e; }
+#welcomeDelivery { margin: 8px auto 0; color: #183653; font-size: 14px; font-weight: 600; }
 #welcomeIntro .welcomeDescription { max-width: 570px; margin: 16px auto 0; color: #53687e; font-size: 16px; line-height: 1.6; }
 .atelierLayout .productPicker { max-width: 780px; margin: 22px auto; padding: 18px 22px; border: 1px solid #dbe3ec; border-radius: 14px; background: #fff; display: grid; grid-template-columns: 1fr auto; column-gap: 18px; align-items: center; }
 .atelierLayout .productPicker > label { grid-column: 1 / -1; margin: 0 0 9px; font-size: 12px; color: #52677d; font-weight: 700; }

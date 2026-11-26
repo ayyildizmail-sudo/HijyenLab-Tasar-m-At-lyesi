@@ -19,7 +19,6 @@
 #personaActionHome[hidden], #personaNoLogo[hidden], #personaDraftPrompt[hidden] { display: none !important; }
 .atelierLayout.welcomeEmpty #welcomeUploadHint { margin: 0 auto 2px; }
 @media (max-width: 600px) {
-  .atelierLayout.welcomeEmpty #welcomeIntro .welcomeDescription { display: none; }
   .atelierLayout.welcomeEmpty .productPicker { padding: 8px 12px; }
   .atelierLayout.welcomeEmpty .printModePicker { margin-top: 6px; padding-top: 6px; }
   .atelierLayout.welcomeEmpty #journeyProgress { margin: 12px 0; }
