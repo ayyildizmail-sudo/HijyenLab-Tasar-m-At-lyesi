@@ -12,7 +12,9 @@ const note=document.createElement('p');note.id='productPhotoNote';note.className
 if(!root.HijyenLabPhotoBusy){let count=0;const bar=document.createElement('div');bar.id='photoBusyBanner';bar.setAttribute('role','status');bar.setAttribute('aria-live','polite');bar.hidden=true;
  bar.style.cssText='position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:1001;max-width:min(92vw,420px);padding:10px 16px;border-radius:999px;background:#12324f;color:#fff;font:600 15px/1.3 system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.25);text-align:center';
  bar.textContent='Fotoğraf işleniyor… Logo ve yazı aranıyor.';document.body.append(bar);
- root.HijyenLabPhotoBusy=Object.freeze({on(){count++;bar.hidden=false;},off(){count=Math.max(0,count-1);if(!count)bar.hidden=true;},active:()=>count>0});}
+ // işlem sürerken uygulamanın "yerleştirilemedi / oluşturulamadı" uyarıları gizlenir (fotoğraf ve "Görseli değiştir" kalır); iş bitince sonuç ne ise o görünür
+ const st=document.createElement('style');st.textContent='body.photoBusy #referenceRecovery>h2,body.photoBusy #referenceRecovery>p{display:none!important}body.photoBusy #status{visibility:hidden}';document.head.append(st);
+ root.HijyenLabPhotoBusy=Object.freeze({on(){count++;bar.hidden=false;document.body.classList.add('photoBusy');},off(){count=Math.max(0,count-1);if(!count){bar.hidden=true;document.body.classList.remove('photoBusy');}},active:()=>count>0});}
 const busy=root.HijyenLabPhotoBusy;
 const currentFile=()=>typeof lastUploadedFile==='undefined'?null:lastUploadedFile;
 function syncNote(){if(!noteFor)return;const c=currentFile();if((c&&c.name!==noteFor)||state.removed){note.hidden=true;note.textContent='';noteFor=null;}}
