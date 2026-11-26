@@ -65,7 +65,7 @@ def sayfa():
             f'<div class="bas"><img src="varliklar/hijyenlab_logo.svg" alt="HijyenLab"><h1>Referanslarımız<span>{toplam} müşterimiz için ürettiğimiz logolu ıslak havlu ve mendiller</span></h1></div>'
             f'<div class="ic">{bolumler}</div>'
             f'<p class="not">Logolar müşterilerimizin izniyle kullanılmıştır; markalar sahiplerine aittir. Görseller baskılı paketlerin temsili sunumudur.</p>'
-            f'<div class="alt"><span><b>Logonuzu gönderin, ürününüzü ücretsiz görselleştirelim.</b></span>'
+            f'<div class="alt"><span><b>Logonuzu gönderin, ürününüzü 12 saat içinde ücretsiz görselleştirelim.</b></span>'
             f'<span>0 (542) 569 98 69 · info@hijyenlab.com · hijyenlab.com</span></div></section></body></html>')
 
 

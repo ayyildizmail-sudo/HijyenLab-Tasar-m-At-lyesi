@@ -1,5 +1,5 @@
 ---
-profil_surumu: 2026-11-26a
+profil_surumu: 2026-11-26b
 fiyat_paylasilabilir: hayir
 ---
 
@@ -52,6 +52,8 @@ logosu ve renkleriyle hazırlar ve düzenli olarak tedarik eder.
 - Logosu olmayan işletme için işletme adıyla yazılı tasarım yapılır. Kalitesi düşük logolar baskıya uygun hale
   getirilir; marka kimliği müşterinin onayı olmadan değiştirilmez.
 - Baskısız ürün: klişe yok, beyaz zemin fiyatı, en az bir koli.
+- Denemek isteyen müşteriye her çeşitten baskısız tek koli gönderilebilir (koli içi: rulo 25×30, 30×30, 30×35: 400;
+  rulo 25×25: 500; katlı 20×25: 625; mendil 7×12: 1.000; Oshibori: 250 adet). Fiyat beyaz fiyattır, teklif ile verilir.
 
 ## Koku (ıslak mendil)
 Flambau (standart), Limon, Bodrum Mandalinası, Yeşil Çay. Başka bir koku için en az 20.000 adet.
@@ -89,7 +91,7 @@ Koli başına ücretlendirilir. Bodrum teslimatlarında kargo ücreti alınmaz.
 - Toptancı (otel-restoran malzemesi) / reklam ve promosyon ajansı: ürünü kendileri kullanmaz, kendi müşterilerine
   sunar. Anlatım: "Müşterilerinize onların logosuyla ıslak havlu ve mendil sunabilirsiniz; tasarımı ve logolu görseli
   biz hazırlarız, üretim ve sevkiyatı biz yaparız." Düzenli tedarik ve birden çok müşteri için aynı kalite vurgulanır.
-  Çağrı bu sektörde: "Bir müşterinizin logosunu gönderin, örnek görseli ücretsiz hazırlayalım." Bayi/toptan fiyatı,
+  Çağrı bu sektörde: "Bir müşterinizin logosunu gönderin, örnek görseli 12 saat içinde ücretsiz hazırlayalım." Bayi/toptan fiyatı,
   komisyon veya özel iskonto sözü verilmez; fiyat her iş için teklif ile verilir.
 
 ## Sıcak ya da serin servis
@@ -127,8 +129,9 @@ Teknik terim yerine şu onaylı ifadeler kullanılır:
 - Gönderim tarihi konusunda söz verilmez; ekip teyit eder.
 
 ## Çağrı
-Her tanıtım mailinin tek çağrısı: "Logonuzu gönderin, işletmenize özel görseli ücretsiz hazırlayalım."
-(Toptancı ve ajanslarda: "Bir müşterinizin logosunu gönderin, örnek görseli ücretsiz hazırlayalım.")
+Her tanıtım mailinin tek çağrısı: "Logonuzu gönderin, işletmenize özel görseli 12 saat içinde ücretsiz hazırlayalım."
+(Toptancı ve ajanslarda: "Bir müşterinizin logosunu gönderin, örnek görseli 12 saat içinde ücretsiz hazırlayalım.")
+Logolu görsel söz verildiği gibi 12 saat içinde hazırlanır (iş günü değil, saat).
 
 ## Müşteriye ASLA söylenmeyecekler
 - Üretim partnerinin adı veya yeri
@@ -149,6 +152,10 @@ Satış · HijyenLab · İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.
 Samimi ama kurumsal, kısa (tanıtımda 50-90 kelime), "siz" diliyle. Abartılı reklam dili yok.
 Tanıtım maili bizden değil, işletmenin kendi müşterisinin yaşadığı bir andan başlar ("Masada kalan son şey: logonuz.");
 sonra tek cümlelik kanıt (izinli referanslar), sonra işletmenin adıyla kişiselleştirilmiş tek çağrı.
+
+## Çevre
+- Bütün ürünlerimiz geri dönüştürülebilir. "Çevre dostu" denecekse gerekçesiyle birlikte: "geri dönüştürülebilir ürünler".
+  Kompostlanabilir, doğada çözünür, karbon nötr gibi iddialar kullanılmaz (belgelenmedi).
 
 ## Belgeler
 - HijyenLab'ın belgeleri: ISO 9001:2015 (kalite), ISO 14001:2015 (çevre), ISO 22000:2018 (gıda güvenliği), ISO 45001:2018 (iş sağlığı

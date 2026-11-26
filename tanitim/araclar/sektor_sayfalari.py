@@ -81,10 +81,10 @@ SAYFALAR = {
               "görseli biz hazırlarız, grafik onayından sonra üretip sevk ederiz.",
         urunler=["mendil", "rulo", "katli"],
         faydalar=[("Bütün ürün ailesi", "Rulo, katlı, mendil ve Oshibori; beyaz veya renkli zemin, logolu ya da baskısız."),
-                  ("Müşterinize özel görsel", "Her müşteriniz için logolu ürün görseli ücretsiz; onaydan sonra üretim."),
+                  ("Müşterinize özel görsel", "Her müşteriniz için logolu ürün görseli 12 saatte, ücretsiz; onaydan sonra üretim."),
                   ("Düzenli tedarik", "Aynı tasarımla tekrar siparişte klişe bedeli yok; birden çok müşteri için aynı kalite.")],
         servis=[],
-        cagri="Bir müşterinizin logosunu gönderin, örnek görseli ücretsiz hazırlayalım.",
+        cagri="Bir müşterinizin logosunu gönderin, örnek görseli 12 saat içinde ücretsiz hazırlayalım.",
     ),
 }
 
@@ -142,13 +142,13 @@ def sayfa(ad: str, s: dict) -> str:
     if gercek:
         orta += f'<div class="gr"><h3>Müşterilerimiz için ürettiklerimiz</h3><div>{gercek}</div></div>'
     belgeler = "".join(f"<span><b>{a}</b><i>{b}</i></span>" for a, b in BELGELER)
-    cagri = s.get("cagri", "Logonuzu gönderin, işletmenize özel görseli ücretsiz hazırlayalım.")
+    cagri = s.get("cagri", "Logonuzu gönderin, işletmenize özel görseli 12 saat içinde ücretsiz hazırlayalım.")
     return (f'<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>HijyenLab · {e(s["etiket"])}</title>'
             f'<style>{CSS}</style></head><body><section class="s">'
             f'<div class="bas"><div class="ust"><img src="../varliklar/hijyenlab_logo.svg" alt="HijyenLab"><div class="et">{e(s["etiket"])}</div></div>'
             f'<h1>{e(s["baslik"])}</h1><p class="giris">{e(s["giris"])}</p></div>'
             f'<div class="ic"><div class="urunler">{urunler}</div><div class="f">{faydalar}</div>{orta}</div>'
-            f'<div class="cagri"><div><span class="cip">ÜCRETSİZ</span><b>{e(cagri)}</b><p>Kumaşı elinizde görün: ücretsiz numune, kargo bizden.</p></div>'
+            f'<div class="cagri"><div><span class="cip">ÜCRETSİZ</span><b>{e(cagri)}</b><p>Ücretsiz numune, kargo bizden · Denemek için baskısız tek koli · Geri dönüştürülebilir ürünler</p></div>'
             f'<div class="il">0 (542) 569 98 69<br>info@hijyenlab.com<br>hijyenlab.com</div></div>'
             f'<div class="alt"><span>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.</span>'
             f'<span>Ürün kartlarındaki marka adları örnek tasarımdır; alt sıradakiler müşterilerimizin logolarıdır (izinle).</span></div>'

@@ -189,8 +189,8 @@ def tanitim_maili_yaz(musteri: dict, hatirlatma: bool = False, onceki: str = "")
         gorev = (
             "Bu işletmeye birkaç gün önce aşağıdaki tanıtım mailini gönderdik, cevap gelmedi. "
             "En fazla 70 kelimelik, baskı yapmayan, kibar bir hatırlatma yaz. İlk mailin tekrarı olmasın; "
-            "profilden TEK bir yeni bilgi ver (ör. Bodrum'a kargonun ücretsiz olması, tekrar siparişte klişe "
-            "alınmaması veya sezon öncesi hazırlık). Konu satırı önceki konunun başına 'Ynt: ' eklenmiş hali olsun.\n"
+            "profilden TEK bir yeni bilgi ver (ör. denemek için her çeşitten baskısız tek koli gönderebilmemiz, tekrar siparişte klişe "
+            "alınmaması, ürünlerin geri dönüştürülebilir olması veya sezon öncesi hazırlık). Konu satırı önceki konunun başına 'Ynt: ' eklenmiş hali olsun.\n"
             f"<gelen_mail>\n{onceki}\n</gelen_mail>\n"
         )
     else:
@@ -209,7 +209,7 @@ def tanitim_maili_yaz(musteri: dict, hatirlatma: bool = False, onceki: str = "")
             "üretiyoruz.') Listede olmayan isim, rakam ('yüzlerce işletme') veya iddia uydurma. Kumaştan söz "
             "edeceksen en fazla yarım cümle: 'kağıt peçete değil, kumaş gibi yumuşak'.\n"
             "3) ÇAĞRI: Profildeki çağrıyı işletmenin adıyla kişiselleştir (ör. 'Logonuzu bu maile yanıt olarak "
-            "gönderin; Örnek Kebap logolu paketin görselini ücretsiz hazırlayıp size gönderelim.'). Tek çağrı, "
+            "gönderin; Örnek Kebap logolu paketin görselini 12 saat içinde ücretsiz hazırlayıp size gönderelim.'). Tek çağrı, "
             "fiyat yok, numune teklifi yok, teslim sözü yok, ürün listesi yok (gerekirse tek ürün adı).\n"
             "Yetkilinin adını bilmiyorsak 'Merhaba,' ile başla, isim uydurma. "
             "Zincirse kanıt cümlesinden sonra bütün şubelere aynı tasarımla tedarik edebileceğimizi yarım cümleyle ekle. "

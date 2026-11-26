@@ -10,7 +10,7 @@ import re
 from urllib.parse import quote
 
 IMZA = "Hakan Ayyıldız · Satış · HijyenLab\nhijyenlab.com"
-CAGRI = "Logonuzu buraya gönderirseniz ürününüzün logolu görselini ücretsiz hazırlayıp size iletelim."
+CAGRI = "Logonuzu buraya gönderirseniz ürününüzün logolu görselini 12 saat içinde ücretsiz hazırlayıp size iletelim."
 
 # Sektöre göre tek cümlelik kullanım anı (firma profilindeki anlatım)
 SEKTOR_CUMLESI = {
@@ -30,7 +30,7 @@ SEKTOR_CUMLESI = {
     "ajans": "müşterilerinize sunabileceğiniz, onların logosunu taşıyan tek tek paketli ıslak havlu ve mendil",
 }
 CAGRI_OZEL = {
-    "toptanci": "Bir müşterinizin logosunu buraya gönderirseniz örnek görseli ücretsiz hazırlayıp size iletelim; "
+    "toptanci": "Bir müşterinizin logosunu buraya gönderirseniz örnek görseli 12 saat içinde ücretsiz hazırlayıp size iletelim; "
                 "tasarım, üretim ve sevkiyatı biz yapıyoruz.",
 }
 CAGRI_OZEL["ajans"] = CAGRI_OZEL["toptanci"]

@@ -92,7 +92,7 @@ def test_tanitim_akisi_limit_kara_liste_denetim(monkeypatch):
     with vt.baglanti() as con:
         taslaklar = con.execute("SELECT * FROM taslak ORDER BY id").fetchall()
     assert taslaklar[0]["kime"] == "info@isletme2.com"  # en yüksek puan önce
-    assert all(t["profil_surumu"] == "2026-11-26a" and t["bulgular"] == "[]" for t in taslaklar)
+    assert all(t["profil_surumu"] == "2026-11-26b" and t["bulgular"] == "[]" for t in taslaklar)
     ids = [t["id"] for t in taslaklar]
     assert "DENEME" in islemler.taslak_gonder(ids[0])
     assert "DENEME" in islemler.taslak_gonder(ids[1], konu="Düzenlenmiş konu")
@@ -101,7 +101,7 @@ def test_tanitim_akisi_limit_kara_liste_denetim(monkeypatch):
         giden = con.execute("SELECT * FROM mail WHERE yon='giden' ORDER BY id").fetchall()
         assert giden[1]["konu"] == "Düzenlenmiş konu" and "ÇIKAR" in giden[0]["metin"]
         d = con.execute("SELECT * FROM denetim ORDER BY id").fetchall()
-        assert len(d) == 2 and d[0]["olay"] == "gonderildi" and d[0]["profil_surumu"] == "2026-11-26a"
+        assert len(d) == 2 and d[0]["olay"] == "gonderildi" and d[0]["profil_surumu"] == "2026-11-26b"
         assert d[0]["ai_metni"].startswith("Merhaba")
 
 
