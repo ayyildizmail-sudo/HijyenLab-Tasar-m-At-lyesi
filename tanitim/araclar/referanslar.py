@@ -16,7 +16,7 @@ GRUPLAR = [
                  ("k:movenpick", "Mövenpick"), ("k:doubletree", "DoubleTree by Hilton"), ("k:rixos", "Rixos"),
                  ("k:titanic", "Titanic"), ("k:merit", "Merit"), ("k:divan", "Divan"), ("k:barut", "Barut Hotels"),
                  ("k:tui", "TUI Magic Life"), ("c:vom", "VOM Hotel"), ("c:salonika", "Salonika Suites")]),
-    ("Restoran, kafe ve güzellik", [("k:sahan", "Sahan"), ("k:lacivert", "Lacivert"), ("k:garson_sukru", "Garson Şükrü"),
+    ("Restoran, kafe ve güzellik", [("k:novikov", "Novikov Bodrum"), ("k:sahan", "Sahan"), ("k:lacivert", "Lacivert"), ("k:garson_sukru", "Garson Şükrü"),
                  ("k:gurkan_sef", "Gürkan Şef"), ("k:yedi_mehmet", "7 Mehmet"), ("c:kazancilar", "Tarihi Kazancılar"),
                  ("c:seruven", "Serüven"), ("c:cotto", "Cotto"), ("c:kultur_sofrasi", "Kültür Sofrası"),
                  ("c:zehra_bora", "Zehra Bora")]),

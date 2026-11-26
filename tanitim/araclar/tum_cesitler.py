@@ -15,7 +15,7 @@ from gercek_logolar import sik_kirp  # noqa: E402
 
 CIKTI = KOK / "varliklar" / "cesitler"
 CESIT = {"rulo": "BM12", "katli": "BM545", "mendil": "BM21"}
-ZEMIN = {"michelin": (150, 22, 38), "ciragan": (43, 38, 35), "merit": (30, 37, 102)}   # renkli/koyu zeminli paketler (logonun kendi zemini)
+ZEMIN = {"michelin": (150, 22, 38), "ciragan": (43, 38, 35), "merit": (30, 37, 102), "novikov": (190, 27, 38)}   # renkli/koyu zeminli paketler (logonun kendi zemini)
 
 
 def uret(adlar=None):
