@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git push -q origin deneme/asama1)",
+      "Bash(git push origin deneme/asama1)",
+      "Bash(git push -q origin onizleme)",
+      "Bash(git push origin onizleme)"
+    ]
+  }
+}
