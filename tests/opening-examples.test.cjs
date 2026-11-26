@@ -3,7 +3,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),setup=require('./helpers/private-gallery-harness.cjs');
 test('five real BM12 samples autoplay, preserve crop ratios, and finish on blank',()=>{
  const h=setup();h.complete();assert.match(h.canvas.attrs['aria-label'],/^Tasarım örneği 1 ·/);assert.equal(h.timers.size,1);let a=h.draws.at(-1);assert(Math.abs(a[7]/a[3]-a[8]/a[4])<1e-9);
- h.nodes.sampleBack.onclick();assert.equal(h.timers.size,0);h.complete();assert.equal(h.draws.at(-1)[2],0);assert(h.images.at(-1).src.startsWith('gallery-examples/orkun-back.png?v='));
+ h.nodes.sampleBack.onclick();assert.equal(h.timers.size,0);h.complete();assert.equal(h.draws.at(-1)[2],0);assert(h.images.at(-1).src.startsWith('gallery-examples/example-01-back.png?v='));
  for(const number of [2,3,4,5]){h.tick();h.complete();assert.match(h.canvas.attrs['aria-label'],new RegExp('^Tasarım örneği '+number+' ·'));}h.tick();assert(h.nodes.openingExamples.hidden);h.sync();assert(h.nodes.openingExamples.hidden);
 });
 test('short galleries show only available real samples, then blank; empty products skip gallery',()=>{
@@ -11,7 +11,7 @@ test('short galleries show only available real samples, then blank; empty produc
  for(const id of ['BM13','BM15']){const h=setup();h.root.selectedProductId=id;h.sync();assert(h.nodes.openingExamples.hidden);assert.equal(h.canvas.width*h.canvas.height,1);assert.equal(h.timers.size,0);}
 });
 test('stale callbacks and front/back face changes never paint a mismatched crop',()=>{
- const h=setup();h.complete();h.nodes.sampleBack.onclick();const stale=h.images.at(-1).onload;h.nodes.sampleFront.onclick();stale();assert.equal(h.canvas.width*h.canvas.height,1);h.complete();assert(h.draws.at(-1)[0].src.startsWith('gallery-examples/orkun-front.png'));
+ const h=setup();h.complete();h.nodes.sampleBack.onclick();const stale=h.images.at(-1).onload;h.nodes.sampleFront.onclick();stale();assert.equal(h.canvas.width*h.canvas.height,1);h.complete();assert(h.draws.at(-1)[0].src.startsWith('gallery-examples/example-01-front.png'));
  h.root.selectedProductId='BM21';h.sync();const old=h.images.at(-1).onload;h.root.selectedProductId='BM12';h.sync();old();h.complete();assert.match(h.canvas.attrs['aria-label'],/^Tasarım örneği 1 ·/);assert.equal(new Set(h.samples.flatMap(x=>Object.values(x.hashes))).size,24);
 });
 test('pause, upload cancellation and customer/quote isolation are preserved',()=>{

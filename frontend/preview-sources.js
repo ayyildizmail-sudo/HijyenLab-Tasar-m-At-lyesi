@@ -1,12 +1,12 @@
 // Visible mockup crops only. Original sheets and private provenance are never public assets.
 globalThis.PrivatePreviewSamples = [
   {
-    "id": "orkun",
-    "title": "Orkun Group",
+    "id": "example-01",
+    "title": "Örnek tasarım 1",
     "product": "BM12",
     "files": {
-      "front": "gallery-examples/orkun-front.png",
-      "back": "gallery-examples/orkun-back.png"
+      "front": "gallery-examples/example-01-front.png",
+      "back": "gallery-examples/example-01-back.png"
     },
     "front": [
       0,
@@ -26,12 +26,12 @@ globalThis.PrivatePreviewSamples = [
     }
   },
   {
-    "id": "sierra",
-    "title": "Sierra Aviation",
+    "id": "example-02",
+    "title": "Örnek tasarım 2",
     "product": "BM12",
     "files": {
-      "front": "gallery-examples/sierra-front.png",
-      "back": "gallery-examples/sierra-back.png"
+      "front": "gallery-examples/example-02-front.png",
+      "back": "gallery-examples/example-02-back.png"
     },
     "front": [
       0,
@@ -51,12 +51,12 @@ globalThis.PrivatePreviewSamples = [
     }
   },
   {
-    "id": "ates",
-    "title": "Ateş Ocakbaşı",
+    "id": "example-03",
+    "title": "Örnek tasarım 3",
     "product": "BM12",
     "files": {
-      "front": "gallery-examples/ates-front.png",
-      "back": "gallery-examples/ates-back.png"
+      "front": "gallery-examples/example-03-front.png",
+      "back": "gallery-examples/example-03-back.png"
     },
     "front": [
       0,
@@ -76,12 +76,12 @@ globalThis.PrivatePreviewSamples = [
     }
   },
   {
-    "id": "genel",
-    "title": "Genel Havacılık A.Ş.",
+    "id": "example-04",
+    "title": "Örnek tasarım 4",
     "product": "BM12",
     "files": {
-      "front": "gallery-examples/genel-front.png",
-      "back": "gallery-examples/genel-back.png"
+      "front": "gallery-examples/example-04-front.png",
+      "back": "gallery-examples/example-04-back.png"
     },
     "front": [
       0,
@@ -101,12 +101,12 @@ globalThis.PrivatePreviewSamples = [
     }
   },
   {
-    "id": "gastrokars",
-    "title": "Gastrokars",
+    "id": "example-05",
+    "title": "Örnek tasarım 5",
     "product": "BM12",
     "files": {
-      "front": "gallery-examples/gastrokars-front.png",
-      "back": "gallery-examples/gastrokars-back.png"
+      "front": "gallery-examples/example-05-front.png",
+      "back": "gallery-examples/example-05-back.png"
     },
     "front": [
       0,
@@ -126,12 +126,12 @@ globalThis.PrivatePreviewSamples = [
     }
   },
   {
-    "id": "pacaci",
-    "title": "Paçacı Kadir Usta",
+    "id": "example-06",
+    "title": "Örnek tasarım 6",
     "product": "BM545",
     "files": {
-      "front": "gallery-examples/pacaci-front.png",
-      "back": "gallery-examples/pacaci-back.png"
+      "front": "gallery-examples/example-06-front.png",
+      "back": "gallery-examples/example-06-back.png"
     },
     "front": [
       0,
@@ -151,12 +151,12 @@ globalThis.PrivatePreviewSamples = [
     }
   },
   {
-    "id": "tubitak",
-    "title": "TÜBİTAK BİLGEM",
+    "id": "example-07",
+    "title": "Örnek tasarım 7",
     "product": "BM545",
     "files": {
-      "front": "gallery-examples/tubitak-front.png",
-      "back": "gallery-examples/tubitak-back.png"
+      "front": "gallery-examples/example-07-front.png",
+      "back": "gallery-examples/example-07-back.png"
     },
     "front": [
       0,
@@ -176,12 +176,12 @@ globalThis.PrivatePreviewSamples = [
     }
   },
   {
-    "id": "yakamengen",
-    "title": "Yakamengen",
+    "id": "example-08",
+    "title": "Örnek tasarım 8",
     "product": "BM11",
     "files": {
-      "front": "gallery-examples/yakamengen-front.png",
-      "back": "gallery-examples/yakamengen-back.png"
+      "front": "gallery-examples/example-08-front.png",
+      "back": "gallery-examples/example-08-back.png"
     },
     "front": [
       0,
@@ -201,12 +201,12 @@ globalThis.PrivatePreviewSamples = [
     }
   },
   {
-    "id": "zeren-white",
-    "title": "Zeren Group · Beyaz",
+    "id": "example-09",
+    "title": "Örnek tasarım 9",
     "product": "OSHIBORI",
     "files": {
-      "front": "gallery-examples/zeren-white-front.png",
-      "back": "gallery-examples/zeren-white-back.png"
+      "front": "gallery-examples/example-09-front.png",
+      "back": "gallery-examples/example-09-back.png"
     },
     "front": [
       0,
@@ -226,12 +226,12 @@ globalThis.PrivatePreviewSamples = [
     }
   },
   {
-    "id": "zeren-red",
-    "title": "Zeren Group · Kırmızı",
+    "id": "example-10",
+    "title": "Örnek tasarım 10",
     "product": "OSHIBORI",
     "files": {
-      "front": "gallery-examples/zeren-red-front.png",
-      "back": "gallery-examples/zeren-red-back.png"
+      "front": "gallery-examples/example-10-front.png",
+      "back": "gallery-examples/example-10-back.png"
     },
     "front": [
       0,
@@ -251,12 +251,12 @@ globalThis.PrivatePreviewSamples = [
     }
   },
   {
-    "id": "asmali-vom",
-    "title": "Asmalı Alaçatı / VOM",
+    "id": "example-11",
+    "title": "Örnek tasarım 11",
     "product": "BM21",
     "files": {
-      "front": "gallery-examples/asmali-vom-front.png",
-      "back": "gallery-examples/asmali-vom-back.png"
+      "front": "gallery-examples/example-11-front.png",
+      "back": "gallery-examples/example-11-back.png"
     },
     "front": [
       0,
@@ -276,12 +276,12 @@ globalThis.PrivatePreviewSamples = [
     }
   },
   {
-    "id": "porselano",
-    "title": "Porselano Coffee",
+    "id": "example-12",
+    "title": "Örnek tasarım 12",
     "product": "BM21",
     "files": {
-      "front": "gallery-examples/porselano-front.png",
-      "back": "gallery-examples/porselano-back.png"
+      "front": "gallery-examples/example-12-front.png",
+      "back": "gallery-examples/example-12-back.png"
     },
     "front": [
       0,

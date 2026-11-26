@@ -71,20 +71,20 @@ function clearResetUploadSource(){
 function cancelCurrentProcessing(reason='cancel'){globalThis.HijyenLabRestorationClient?.cancel();globalThis.HijyenLabSourceDiscoveryClient?.cancel();state.logoSourceDiscovery=null;state.flexoVectorPreview=null;globalThis.HijyenLabJourneyMotion?.reset();globalThis.ReferenceRecovery?.clear();if(reason==='reset')clearResetUploadSource();loading++;if(globalThis.processingSession)processingSession.cancel();processingContext=null;state.designProcessing=false;state.extractionApprovalRequired=!!(state.logo||state.photoLayout);approvedDesignFingerprint=null;invalidateQuote();disposePdf();if(typeof printInkKey!=='undefined')printInkKey=null;}
 async function sourceIdentity(file,bytes){if(!globalThis.crypto?.subtle)throw Error('Bu tarayıcıda güvenli dosya kontrolü kullanılamıyor. Uygulamayı HTTPS üzerinden açın.');if(sourceIdentityCache.has(file))return sourceIdentityCache.get(file);const digest=await crypto.subtle.digest('SHA-256',bytes),sha256=Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,'0')).join('');const identity={name:file.name,mime:file.type||'unknown',byteLength:file.size,sha256,identityBasis:'exact-uploaded-file-bytes; local-only'};sourceIdentityCache.set(file,identity);return identity;}
 // Reviewed reference artwork keyed by exact input bytes, never by a guessed name.
-const ghaliaReference={filename:'ghalia-reviewed-logo.png',version:'019d602ad28b',ground:'#742c40'};
-const serefeRedraw={filename:'serefe-reviewed-redraw.png',version:'859369bee53c',ground:'#650d21',restoration:true,redraw:true};
+const reviewedLogo02={filename:'reviewed-logo-02.png',version:'019d602ad28b',ground:'#742c40'};
+const reviewedRedraw01={filename:'reviewed-redraw-01.png',version:'859369bee53c',ground:'#650d21',restoration:true,redraw:true};
 const verifiedLogoReferences=new Map([
  ...Object.entries(globalThis.ReviewedArtworkRegistry||{}),
  // Approved proof; exact known bytes only, no paid generation and no filename guessing.
- ['6f3ee96b3a026f5b1543e28a7da5553e036956a33958bf921602475c25e469ef',serefeRedraw],
- ['99f38680fa46df1c03ee1064c103df48205bc4f5dca3d10eea24a9dd336fd34c',serefeRedraw],
- ['dcb7a1853ac010f411e3b55b46399e062885a49952e48a65f4ccf1576392583a',serefeRedraw], // aynı müşteri görselinin yeniden sıkıştırılmış kopyası
+ ['6f3ee96b3a026f5b1543e28a7da5553e036956a33958bf921602475c25e469ef',reviewedRedraw01],
+ ['99f38680fa46df1c03ee1064c103df48205bc4f5dca3d10eea24a9dd336fd34c',reviewedRedraw01],
+ ['dcb7a1853ac010f411e3b55b46399e062885a49952e48a65f4ccf1576392583a',reviewedRedraw01], // aynı müşteri görselinin yeniden sıkıştırılmış kopyası
  ['9d478f1c1b86670949d3da84d5294e5b096f0edb5ee5d01a3ff0791b84c28973',{filename:'cevre-approved-restoration.png',version:'1',restoration:true}],
- ['77774ff66baec6bd2d41a6aae301a37083ff651242c38b8594c5ef2fb10249e1',ghaliaReference],
- ['e03e2f84b7396970f8e1ab6c5fa4cf17633788a55d621200f6ffb192429c0f73',ghaliaReference],
- ['eb8064a85f9efc8573ee66c0045668cbf3574576d9414376079532a0fc00856c',ghaliaReference],
+ ['77774ff66baec6bd2d41a6aae301a37083ff651242c38b8594c5ef2fb10249e1',reviewedLogo02],
+ ['e03e2f84b7396970f8e1ab6c5fa4cf17633788a55d621200f6ffb192429c0f73',reviewedLogo02],
+ ['eb8064a85f9efc8573ee66c0045668cbf3574576d9414376079532a0fc00856c',reviewedLogo02],
  ['2464b4118abcb1017e2f1d218e785710a221c67f26be56f5819f6a9999ff46f9',{
-  filename:'mindel-menu-preview.png',
+  filename:'menu-preview-03.png',
   shape:{"ratio":1.5714285714285714,"cells":"000000000001111100000000000000000001111110000000000000000011111011000000000000100011111001000000000000100011110001100000000000100001110001100000000001000011110100100000000001000011111000100000000001110011110100100000000001011111110100100000000001011101111110100000000001011011110100100000001100000001110110100000011111000011110000101100011111000011100000111100111101000000000000111100111111111000011111111110111111111111111111111111011111011111111111111111000111011111111111111111001111100001111000011000001111111111111111111000000000111111111111111000000000000011111111000000"},
   version:'129edf182ccf',
   documentSha256:'111484ff465e5b4fe924e486d40e0ac06af8d7a9fbbf2b80e37dbd772533ebe4'
@@ -117,8 +117,8 @@ function referenceMarkShape(img){
  return {ratio:width/height,cells:Array.from(cells).join('')};
 }
 // Match the reviewed gold mark on a burgundy field, independent of screenshot chrome.
-const ghaliaMarkShape={"ratio":0.463855421686747,"cells":"000111111111111100000000011111000000001111000000111000000111000011110000110000001111000000110000110000011111100000110000110000010111100000110000110000011110000000110000110000011111111000010000110000011110110000010000110000011110110000011000110000011010110000011000110000001111110000011000111000000011000000011000011000000111110000111000001110000111100001110000000111110000011111100000000000111111111100000000000000000000000000000000000000000011001000101110111011110101001000101011101111110111001000101111101001010101101010101101111001010101101111100000000000000000000111111111"};
-function matchesGhaliaMark(image){
+const reviewedMarkShape02={"ratio":0.463855421686747,"cells":"000111111111111100000000011111000000001111000000111000000111000011110000110000001111000000110000110000011111100000110000110000010111100000110000110000011110000000110000110000011111111000010000110000011110110000010000110000011110110000011000110000011010110000011000110000001111110000011000111000000011000000011000011000000111110000111000001110000111100001110000000111110000011111100000000000111111111100000000000000000000000000000000000000000011001000101110111011110101001000101011101111110111001000101111101001010101101010101101111001010101101111100000000000000000000111111111"};
+function matchesReviewedMark02(image){
  const canvas=document.createElement('canvas'),scale=768/Math.max(image.width,image.height);
  const width=canvas.width=Math.max(1,Math.round(image.width*scale));
  const height=canvas.height=Math.max(1,Math.round(image.height*scale));
@@ -135,7 +135,7 @@ function matchesGhaliaMark(image){
   mark[i]=1;count++;
  }
  const w=right-left+1,h=bottom-top+1;
- if(count<250||Math.abs(w/h/ghaliaMarkShape.ratio-1)>.1)return false;
+ if(count<250||Math.abs(w/h/reviewedMarkShape02.ratio-1)>.1)return false;
  const cells=new Uint8Array(24*24);
  let ground=0;
  for(let y=top;y<=bottom;y++)for(let x=left;x<=right;x++){
@@ -146,7 +146,7 @@ function matchesGhaliaMark(image){
  if(ground/(w*h)<.55)return false;
  let overlap=0,union=0;
  for(let i=0;i<cells.length;i++){
-  const expected=ghaliaMarkShape.cells[i]==='1';
+  const expected=reviewedMarkShape02.cells[i]==='1';
   if(cells[i]||expected)union++;
   if(cells[i]&&expected)overlap++;
  }
@@ -159,7 +159,7 @@ async function recoverVerifiedMenuLogo(identity,token,file){
  const exact=!!reference;
  const image=await createImageBitmap(file);
  try{
- if(!reference&&matchesGhaliaMark(image))reference=ghaliaReference;
+ if(!reference&&matchesReviewedMark02(image))reference=reviewedLogo02;
  if(!reference){
   const shape=referenceMarkShape(image);
   if(!processingSession.isCurrent(token)||ticket!==loading||!shape)return;
