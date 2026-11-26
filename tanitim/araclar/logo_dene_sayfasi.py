@@ -65,6 +65,11 @@ input[type=file]{display:none}
 .renkler label{font-size:13px;color:var(--soluk);display:flex;align-items:center;gap:6px}
 input[type=color]{width:34px;height:34px;border:none;padding:0;background:none;cursor:pointer}
 .kucuk{font-size:13px;color:var(--soluk)}
+.pms{display:flex;gap:8px;align-items:center;margin-top:10px}
+.pms input[type=text]{font:inherit;font-size:14px;width:130px;padding:7px 10px;border:1px solid var(--cizgi);border-radius:8px}
+.pms span{font-size:12.5px;color:var(--soluk)}
+.pms i{display:inline-block;width:18px;height:18px;border-radius:4px;border:1px solid var(--cizgi);vertical-align:middle}
+.alt-secim{margin:8px 0 0 24px}
 .onay{display:flex;gap:8px;align-items:center;font-size:14px;margin-top:10px}
 .sahne{background:#fff;border:1px solid var(--cizgi);border-radius:16px;padding:14px;text-align:center}
 canvas{width:100%;height:auto;display:block}
@@ -88,10 +93,16 @@ canvas{width:100%;height:auto;display:block}
   <p class="adim">1 · Logonuzu seçin</p>
   <label class="yukle" id="yukleKutu"><span id="yukleYazi">Logo dosyası seçin</span><small>PNG, JPG veya SVG · şeffaf PNG en iyi sonucu verir</small><input type="file" id="dosya" accept="image/png,image/jpeg,image/svg+xml,image/webp"></label>
   <label class="onay"><input type="checkbox" id="beyazSil" checked> Logodaki beyaz arka planı kaldır</label>
+  <label class="onay"><input type="checkbox" id="tekRenk"> Logoyu tek renk göster</label>
+  <div class="alt-secim" id="logoRenkKutu" hidden>
+    <div class="pms"><input type="color" id="logoRenk" value="#0b3558" aria-label="Logo rengi"><input type="text" id="logoPms" placeholder="Pantone, ör. 286 C" aria-label="Logo Pantone kodu"></div>
+    <div class="pms"><span id="logoPmsBilgi"></span></div>
+  </div>
   <p class="adim">2 · Ürün</p>
   <div class="secim" id="urunler"></div>
   <p class="adim">3 · Zemin rengi</p>
   <div class="renkler" id="renkler"></div>
+  <div class="pms"><input type="text" id="zeminPms" placeholder="Pantone, ör. 2945 C" aria-label="Zemin Pantone kodu"><span id="zeminPmsBilgi">Pantone kodunuz varsa yazın</span></div>
   <p class="kucuk" style="margin-top:12px">Logonuz bilgisayarınızdan çıkmaz; önizleme tarayıcınızda hazırlanır.</p>
 </div>
 <div>
@@ -105,7 +116,7 @@ canvas{width:100%;height:auto;display:block}
       <button class="dugme d3" id="indir" type="button">Önizlemeyi indir</button>
     </div>
   </div>
-  <p class="not">Önizleme temsilidir. Standart baskıda en fazla 3 renk kullanılır; nihai görünüm grafik onayınızla kesinleşir. Bütün ürünlerimiz geri dönüştürülebilir.</p>
+  <p class="not">Önizleme temsilidir; Pantone renkleri ekranda yaklaşık gösterilir, baskıda girdiğiniz kod esas alınır. Standart baskıda en fazla 3 renk kullanılır; nihai görünüm grafik onayınızla kesinleşir. Bütün ürünlerimiz geri dönüştürülebilir.</p>
 </div>
 </div>
 </div>
@@ -114,6 +125,18 @@ canvas{width:100%;height:auto;display:block}
 const PAKETLER=[/*PAKETLER*/];
 const RENKLER=[["Beyaz","#ffffff"],["Lacivert","#1e2566"],["Siyah","#141414"],["Bordo","#7a1a2e"],["Kırmızı","#c8102e"],["Yeşil","#1f6b3a"],["Altın","#b08d4c"]];
 const REF=0.9346, PAY=0.85;
+// Sık kullanılan Pantone (Coated) renklerinin ekran yaklaşımları; baskıda kodun kendisi kullanılır.
+const PMS={"BLACKC":"#2D2926","PROCESSBLACKC":"#2D2926","BLACK6C":"#101820","BLACK7C":"#3D3935","COOLGRAY11C":"#53565A","COOLGRAY7C":"#97999B","WARMGRAY11C":"#6E6259",
+"WARMREDC":"#F9423A","RED032C":"#EF3340","185C":"#E4002B","186C":"#C8102E","187C":"#A6192E","199C":"#D50032","200C":"#BA0C2F","201C":"#9D2235","202C":"#862633","485C":"#DA291C","RUBINEREDC":"#CE0058","RHODAMINEREDC":"#E10098",
+"ORANGE021C":"#FE5000","151C":"#FF8200","165C":"#FF6720","1505C":"#FF6900","YELLOWC":"#FEDD00","109C":"#FFD100","116C":"#FFCD00","123C":"#FFC72C","130C":"#F2A900",
+"GREENC":"#00AB84","347C":"#009A44","348C":"#00843D","355C":"#009639","356C":"#007A33","357C":"#215732","361C":"#43B02A","375C":"#97D700","3425C":"#006341",
+"PROCESSBLUEC":"#0085CA","REFLEXBLUEC":"#001489","072C":"#10069F","280C":"#012169","281C":"#00205B","282C":"#041E42","286C":"#0033A0","287C":"#003087","288C":"#002D72","293C":"#003DA5","294C":"#002F6C","295C":"#002855","299C":"#00A3E0","300C":"#005EB8","301C":"#004B87","302C":"#003B5C","303C":"#002A3A","2935C":"#0057B8","2945C":"#004C97","3005C":"#0077C8",
+"3115C":"#00C1D5","320C":"#009CA6","3155C":"#006271","PURPLEC":"#BB29BB","2597C":"#5C068C","2685C":"#330072","476C":"#4E3629","4625C":"#4F2C1D",
+"871C":"#84754E","872C":"#85714D","4515C":"#B9975B","7407C":"#CBA052","7562C":"#BD9B60"};
+function pmsBul(t){let k=(t||"").toUpperCase().replace(/PANTONE|PMS|\s|-|\./g,"");if(!k)return null;let not="";
+  if(/U$/.test(k)){k=k.slice(0,-1)+"C";not=" (U için C yaklaşımı)";} else if(!/C$/.test(k))k+="C";
+  return PMS[k]?{hex:PMS[k],not}:{hex:null,not:""};}
+let zeminPms="", logoPms="";
 let urun=PAKETLER[0], zemin="#ffffff", logo=null, logoAd="";
 const tuval=document.getElementById("tuval"), c=tuval.getContext("2d",{willReadFrequently:true});
 const resimler={};
@@ -125,9 +148,21 @@ PAKETLER.forEach((p,i)=>{const b=document.createElement("button");b.type="button
   b.onclick=()=>{urun=p;[...ur.children].forEach(x=>x.setAttribute("aria-pressed",x===b));ciz();};ur.appendChild(b);});
 const rk=document.getElementById("renkler");
 RENKLER.forEach(([ad,hex],i)=>{const b=document.createElement("button");b.type="button";b.className="renk";b.title=ad;b.setAttribute("aria-label",ad);b.style.background=hex;b.setAttribute("aria-pressed",i===0);
-  b.onclick=()=>{zemin=hex;secRenk(b);ciz();};rk.appendChild(b);});
+  b.onclick=()=>{zemin=hex;zeminPms="";document.getElementById("zeminPms").value="";document.getElementById("zeminPmsBilgi").textContent="Pantone kodunuz varsa yazın";secRenk(b);ciz();};rk.appendChild(b);});
 const ozel=document.createElement("label");ozel.innerHTML='<input type="color" value="#29537b" aria-label="Özel renk"> Kendi renginiz';rk.appendChild(ozel);
 ozel.querySelector("input").oninput=e=>{zemin=e.target.value;secRenk(null);ciz();};
+const zp=document.getElementById("zeminPms"),zb=document.getElementById("zeminPmsBilgi");
+zp.oninput=()=>{const v=zp.value.trim();zeminPms=v.replace(/^(pantone|pms)\s*/i,"");const s=pmsBul(v);
+  if(!s){zb.textContent="Pantone kodunuz varsa yazın";ciz();return;}
+  if(s.hex){zemin=s.hex.toLowerCase();secRenk(null);zb.innerHTML='<i style="background:'+s.hex+'"></i> yaklaşık renk'+s.not;}
+  else zb.textContent="Kod kaydedildi; önizleme için yakın rengi seçin.";ciz();};
+const tr=document.getElementById("tekRenk"),lrk=document.getElementById("logoRenkKutu"),lr=document.getElementById("logoRenk"),lp=document.getElementById("logoPms"),lb=document.getElementById("logoPmsBilgi");
+tr.onchange=()=>{lrk.hidden=!tr.checked;ciz();};
+lr.oninput=()=>{logoPms="";lp.value="";lb.textContent="";ciz();};
+lp.oninput=()=>{const v=lp.value.trim();logoPms=v.replace(/^(pantone|pms)\s*/i,"");const s=pmsBul(v);
+  if(!s){lb.textContent="";ciz();return;}
+  if(s.hex){lr.value=s.hex.toLowerCase();lb.innerHTML='<i style="background:'+s.hex+'"></i> yaklaşık renk'+s.not;}
+  else lb.textContent="Kod kaydedildi; önizleme için yakın rengi seçin.";ciz();};
 function secRenk(b){[...rk.querySelectorAll(".renk")].forEach(x=>x.setAttribute("aria-pressed",x===b));}
 
 const dosya=document.getElementById("dosya"), beyaz=document.getElementById("beyazSil");
@@ -142,6 +177,7 @@ function kirpLogo(){ // logoyu işle: beyaz zemini kaldır, boşlukları kırp
   const d=kc.getImageData(0,0,w,h),p=d.data;let x0=w,y0=h,x1=0,y1=0;
   for(let i=0;i<p.length;i+=4){
     if(beyaz.checked){const mn=Math.min(p[i],p[i+1],p[i+2]);if(mn>215){p[i+3]=Math.round(p[i+3]*Math.max(0,Math.min(1,(245-mn)/30)));}}
+    if(tr.checked){const [lr_,lg_,lb_]=hexRgb(lr.value);p[i]=lr_;p[i+1]=lg_;p[i+2]=lb_;}
     if(p[i+3]>30){const j=i/4,x=j%w,y=(j-x)/w;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
   }
   kc.putImageData(d,0,0);if(x1<x0)return null;
@@ -179,7 +215,9 @@ function ciz(){
   kc.putImageData(d,0,0);c.drawImage(k,pad,pad*0.7);
   if(!logo){c.fillStyle="rgba(11,53,88,.55)";c.font="600 "+Math.round(W*0.035)+"px Inter,Arial";c.textAlign="center";c.fillText("Logonuz burada görünecek",tuval.width/2,pad*0.7+H/2+W*0.012);}
   document.getElementById("urunAd").textContent=urun.baslik;document.getElementById("urunAlt").textContent=urun.alt;
-  const metin="Merhaba, logomuzla "+urun.baslik.toLowerCase()+" görselini hazırlar mısınız? (Logo dosyasını ekliyorum.)";
+  const renkBilgi=[]; if(zeminPms)renkBilgi.push("zemin Pantone "+zeminPms); else if(zemin.toLowerCase()!=="#ffffff")renkBilgi.push("zemin rengi "+zemin);
+  if(tr.checked)renkBilgi.push(logoPms?"logo Pantone "+logoPms:"logo rengi "+lr.value);
+  const metin="Merhaba, logomuzla "+urun.baslik.toLowerCase()+" görselini hazırlar mısınız?"+(renkBilgi.length?" Renkler: "+renkBilgi.join(", ")+".":"")+" (Logo dosyasını ekliyorum.)";
   document.getElementById("wa").href="https://wa.me/905425699869?text="+encodeURIComponent(metin);
   document.getElementById("ep").href="mailto:info@hijyenlab.com?subject="+encodeURIComponent("Logolu görsel talebi: "+urun.baslik)+"&body="+encodeURIComponent(metin);
 }
