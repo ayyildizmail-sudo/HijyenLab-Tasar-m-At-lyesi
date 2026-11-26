@@ -102,14 +102,14 @@ Bu bölüm en önemli kısım. Kullanıcının beğenmediği ya da benim de yete
 - **Müşteri B (eski, bozuk logo):** Kullanıcı "kodla yeniden çiz" dedi. Yazı yeniden çizimiyle yaptım, ancak sonuç font eşleştirmesine bağlı. Özel çizilmiş logo harfleri birebir elde edilemiyor.
 - **Müşteri C:** Kullanıcı "mükemmel sonuç istiyorum" dedi. Sonuç kabul edildi, ama kullanıcının sözleriyle "tam istediğim gibi değil".
 - **Müşteri D (yazının açısı):** Kullanıcı yazının karşıdan bakan birinin düz okuyacağı hale getirilmesini istedi. Tam başaramadım. Kullanıcının sözleri: "fena olmamış, istediğim gibi değil, ama sen beceremiyorsun". Eğik ve kavisli yazıyı düzleştirme zayıf noktamız.
-- **Müşteri E (çok renkli, karmaşık görsel):** Vektöre çevirme sonucu kötü oldu. Önceki oturumda elle onaylanmış bir yeniden çizim dosyası (`serefe-reviewed-redraw.png`) uygulamaya sabit olarak eklenip geri getirildi. Yani **bu müşteri için sonuç otomatik üretilmiyor, önceden hazırlanmış bir dosyadan geliyor.** Denetçi bunun sürdürülebilir olup olmadığına baksın.
+- **Müşteri E (çok renkli, karmaşık görsel):** Vektöre çevirme sonucu kötü oldu. Önceki oturumda elle onaylanmış bir yeniden çizim dosyası (`frontend/assets/` altında) uygulamaya sabit olarak eklenip geri getirildi. Yani **bu müşteri için sonuç otomatik üretilmiyor, önceden hazırlanmış bir dosyadan geliyor.** Denetçi bunun sürdürülebilir olup olmadığına baksın.
 - **Müşteri F:** Kullanıcının sözleri: "Fena değil, istediğim gibi değil".
 - **Tabela fotoğrafları:**
   - Önceki bir oturumda düzeltildiği söylenen bir dükkân tabelası yine başarısız oldu. Kök neden analizi yapıldı ve düzeltildi.
   - Sentetik test setinde 16 fotoğrafın 14'ünde logo yerleşiyor, **2'sinde hâlâ yerleşmiyor.** Yanlış sonuç görülmedi, başarısız olanlarda uygulama "yerleştirilemedi" deyip duruyor.
   - 12 megapiksellik fotoğrafta işlem yaklaşık 7 saniye sürüyor.
 - **Kare çerçeveli logo:** Kare çerçeve daire sanılıp logo ezilmişti. Düzeltildi, ama bu tür şekil sınıflandırmaları kural tabanlı ve kırılgan.
-- **Yazı tanıma modeli:** Logolardaki süs harfleri yanlış okuyabiliyor. Bir vakada "KRUST" logosunu "BURGER" diye, bir ölçü yazısını logo diye okudu. Bu yüzden model yalnızca son çare olarak ve sıkı koşullarla kullanılıyor.
+- **Yazı tanıma modeli:** Logolardaki süs harfleri yanlış okuyabiliyor. Bir vakada bir logoyu başka bir kelime olarak, başka bir vakada ambalajdaki ölçü yazısını logo olarak okudu. Bu yüzden model yalnızca son çare olarak ve sıkı koşullarla kullanılıyor.
 
 ### 5.2 Kaldırılan ya da yarım kalan özellikler
 - **3D paket görünümü:** Bugün yazdım, kullanıcı beğenmedi ve tamamen kaldırdım. Gerçek bir 3D model değildi, iki yüzlü düz bir kartın dönmesiydi.
