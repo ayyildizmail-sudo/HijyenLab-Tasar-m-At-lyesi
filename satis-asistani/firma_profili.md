@@ -162,7 +162,7 @@ sonra tek cümlelik kanıt (izinli referanslar), sonra işletmenin adıyla kişi
   kuaför, kurumsal firmalar). Müşteri "daha önce ne bastınız?" diye sorarsa "gerçek baskı fotoğraflarımızı
   paylaşabiliriz" denir; fotoğraflar insan onayıyla eklenir.
 - Bütün müşterilerden referans izni alındı. Tanıtım mailinde güven için sektöre uygun en fazla 3 referans adı
-  kullanılır (otel: Çırağan Palace Kempinski, Four Seasons, Hilton, Rixos, Merit, Divan; güzellik: Zehra Bora; restoran: Sahan, Novikov,
+  kullanılır (otel: Çırağan Palace Kempinski, Four Seasons, Hilton, Marriott, Sheraton, Swissôtel, Titanic, Rixos, Merit, Divan; güzellik: Zehra Bora; restoran: Sahan, Novikov,
   Lacivert, Garson Şükrü, Gürkan Şef, 7 Mehmet, Tarihi Kazancılar; kurumsal: İstanbul Büyükşehir Belediyesi, TÜBİTAK BİLGEM, BOTAŞ). Listede olmayan
   isim ve rakam ("yüzlerce işletme" vb.) uydurulmaz.
 - Gerçek baskılarda görülen seçenekler anlatılabilir: beyaz zeminde 1–2 renk logo, arka yüzde telefon, web,
