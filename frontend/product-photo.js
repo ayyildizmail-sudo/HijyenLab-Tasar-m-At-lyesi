@@ -286,10 +286,14 @@ function affineBy(img,mask,M){const {w,h}=img,det=M[0]*M[3]-M[1]*M[2];if(Math.ab
   const ix=Math.min(w-2,Math.floor(x)),iy=Math.min(h-2,Math.floor(y)),fx=x-ix,fy=y-iy;for(let k=0;k<3;k++){const i00=(iy*w+ix)*4+k;out[o+k]=(img.data[i00]*(1-fx)+img.data[i00+4]*fx)*(1-fy)+(img.data[i00+w*4]*(1-fx)+img.data[i00+w*4+4]*fx)*fy;}out[o+3]=255;om[Y*W+X]=mask[Math.round(y)*w+Math.round(x)];}
  return {img:{data:out,w:W,h:H},mask:{m:om,w:W,h:H}};}
 // Açılı çekilmiş yuvarlak logo: en büyük halka bileşeni elips görünür. İkinci momentlerden elipsi bulup daireye çeviren dönüşüm.
+// Dikdörtgen/kare çerçeve çember değildir: noktaların bir kısmı kendi kutusunun köşelerine yakındır (elipste köşeler boştur).
+// Çerçeve çember sanılırsa açı düzeltmesi onu daireye çevirmeye çalışır ve logo ezilir (ör. kare çerçeveli BONO).
+function rectFrame(pts){if(!pts||pts.length<30)return false;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const [x,y] of pts){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
+ const c=Math.min(x1-x0,y1-y0)*.12;if(!(c>1))return false;let n=0;for(const [x,y] of pts){const nx=Math.min(x-x0,x1-x),ny=Math.min(y-y0,y1-y);if(nx<c&&ny<c)n++;}return n/pts.length>.03;}
 function ellipseToCircle(m,w,h){const {lab,comps}=components(m,w,h);let ink=0,x0=w,y0=h,x1=0,y1=0;for(let i=0;i<w*h;i++)if(m[i]){ink++;const x=i%w,y=(i/w)|0;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
  const ring=comps.filter(c=>{const bw=c.box[2]-c.box[0],bh=c.box[3]-c.box[1];return bw>=(x1-x0)*.6&&bh>=(y1-y0)*.6&&c.n/(bw*bh)<.25;}).sort((a,b)=>b.n-a.n)[0];if(!ring)return null;
  // Elips oturtma (cebirsel, a+c=1): kesintili halkada (yazı/simge kesiyor) momentlerden daha doğru
- const pts=[];for(let i=0;i<w*h;i+=1)if(lab[i]===ring.id)pts.push([i%w,(i/w)|0]);if(pts.length<30)return null;
+ const pts=[];for(let i=0;i<w*h;i+=1)if(lab[i]===ring.id)pts.push([i%w,(i/w)|0]);if(pts.length<30||rectFrame(pts))return null;
  let mx=0,my=0;for(const p of pts){mx+=p[0];my+=p[1];}mx/=pts.length;my/=pts.length;const sc2=Math.max(x1-x0,y1-y0)/2;
  // bilinmeyenler [a,b,d,e,f] ; c=1-a : a(x²-y²)+bxy+dx+ey+f = -y²
  const N=[[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]],R=[0,0,0,0,0];
@@ -381,7 +385,7 @@ function collectFeatures(m,w,h){
  const arcs=comps.filter(c=>{const bw=c.box[2]-c.box[0],bh=c.box[3]-c.box[1];return (bw>=(x1-x0)*.35||bh>=(y1-y0)*.35)&&c.n/(bw*bh)<.25&&c.n>=20;});
  let ring=null;if(arcs.length){const ids=new Set(arcs.map(c=>c.id)),tot=arcs.reduce((a,c)=>a+c.n,0),step=Math.max(1,Math.floor(tot/2000));ring=[];let k=0;for(let i=0;i<w*h;i++)if(ids.has(lab[i])&&(k++%step===0))ring.push([i%w,(i/w)|0]);
   let rx0=w,ry0=h,rx1=0,ry1=0;for(const [x,y] of ring){if(x<rx0)rx0=x;if(x>rx1)rx1=x;if(y<ry0)ry0=y;if(y>ry1)ry1=y;}
-  if(rx1-rx0<(x1-x0)*.7||ry1-ry0<(y1-y0)*.7||!conicRatio(ring))ring=null;}
+  if(rx1-rx0<(x1-x0)*.7||ry1-ry0<(y1-y0)*.7||rectFrame(ring)||!conicRatio(ring))ring=null;}
  return {lines,stems,ring,box:[x0,y0,x1,y1]};}
 function conicRatio(P){ // cebirsel elips oturtma; eksen oranı (≥1) ya da null
  let mx=0,my=0;for(const p of P){mx+=p[0];my+=p[1];}mx/=P.length;my/=P.length;let sc=0;for(const p of P)sc=Math.max(sc,Math.abs(p[0]-mx),Math.abs(p[1]-my));sc=sc||1;
@@ -430,10 +434,33 @@ function frontalize(img,mask){
  {let cx=0,cy=0,n=0;for(let i=0;i<mask.m.length;i++)if(mask.m[i]){cx+=i%mask.w;cy+=(i/mask.w)|0;n++;}cx/=n;cy/=n;const p0=homApply(t.H,cx,cy),p1=homApply(t.H,cx,cy-20);
   if(p1[1]>p0[1]){const r=rotateRGBA(res.img,2),m2=rotateMask(res.mask.m,res.mask.w,res.mask.h,2);return {img:r,mask:m2,params:t.params,cost:[t.cost0,t.cost1],flipped:true};}}return {...res,params:t.params,cost:[t.cost0,t.cost1]};}
 // Adaylar: (1) karşıdan görünüm, (2) eski elips+döndürme, (3) olduğu gibi. Düzlük ölçüsü en iyi olan seçilir.
+// Dikdörtgen çerçeveli logo: çerçevenin dört köşesi bulunur, logo çerçeve tam dikdörtgen olacak şekilde düzleştirilir
+// (karşıdan bakan kişinin gördüğü gibi). Çerçeve yoksa ya da köşeler güvenilir değilse null.
+function frameRectify(img,mk){const {lab,comps}=components(mk.m,mk.w,mk.h),W=mk.w,H=mk.h;let x0=W,y0=H,x1=0,y1=0;for(let i=0;i<W*H;i++)if(mk.m[i]){const x=i%W,y=(i/W)|0;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}
+ const fr=comps.filter(c=>{const bw=c.box[2]-c.box[0],bh=c.box[3]-c.box[1];return bw>=(x1-x0)*.85&&bh>=(y1-y0)*.85&&c.n/(bw*bh)<.25;}).sort((a,b)=>b.n-a.n)[0];if(!fr)return null;
+ const pts=[];for(let y=fr.box[1];y<fr.box[3];y++)for(let x=fr.box[0];x<fr.box[2];x++)if(lab[y*W+x]===fr.id)pts.push([x,y]);if(!rectFrame(pts))return null;
+ const ext=f=>pts.reduce((b,p)=>f(p)>f(b)?p:b,pts[0]),TL=ext(p=>-p[0]-p[1]),TR=ext(p=>p[0]-p[1]),BR=ext(p=>p[0]+p[1]),BL=ext(p=>p[1]-p[0]),L=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+ const tw=(L(TL,TR)+L(BL,BR))/2,th=(L(TL,BL)+L(TR,BR))/2;if(tw<20||th<20)return null;
+ // köşeler kutunun köşelerine yakın olmalı (gerçek dörtgen)
+ const bwd=fr.box[2]-fr.box[0],bhd=fr.box[3]-fr.box[1];if([TL,TR,BR,BL].some((p,k)=>Math.hypot(p[0]-[fr.box[0],fr.box[2],fr.box[2],fr.box[0]][k],p[1]-[fr.box[1],fr.box[1],fr.box[3],fr.box[3]][k])>Math.min(bwd,bhd)*.25))return null;
+ const pad=Math.round(Math.min(tw,th)*.04),OW=Math.round(tw+2*pad),OH=Math.round(th+2*pad),M=homography([TL,TR,BR,BL],[[pad,pad],[OW-pad,pad],[OW-pad,OH-pad],[pad,OH-pad]]); // rectify ile aynı yön: çıktı noktası → kaynak
+ const out=new Uint8ClampedArray(OW*OH*4),om=new Uint8Array(OW*OH);
+ for(let y=0;y<OH;y++)for(let x=0;x<OW;x++){const d=M[6]*x+M[7]*y+1,u=(M[0]*x+M[1]*y+M[2])/d,v=(M[3]*x+M[4]*y+M[5])/d,o=(y*OW+x)*4;
+  if(u<0||v<0||u>W-1.001||v>H-1.001){out[o]=img.data[0];out[o+1]=img.data[1];out[o+2]=img.data[2];out[o+3]=255;continue;}
+  const ix=Math.floor(u),iy=Math.floor(v),fx=u-ix,fy=v-iy;for(let k=0;k<3;k++){const i00=(iy*W+ix)*4+k;out[o+k]=(img.data[i00]*(1-fx)+img.data[i00+4]*fx)*(1-fy)+(img.data[i00+W*4]*(1-fx)+img.data[i00+W*4+4]*fx)*fy;}out[o+3]=255;
+  om[y*OW+x]=mk.m[Math.round(v)*W+Math.round(u)];}
+ // çerçeve düz dikdörtgen olarak yeniden çizilir: kalınlık = çerçeve mürekkebi / çevre, renk = çerçevenin ortanca rengi
+ {const t=Math.max(2,Math.round(fr.n/(2*(tw+th)))),R0=[pad,pad,OW-pad,OH-pad],near=(x,y)=>{const dx=Math.min(Math.abs(x-R0[0]),Math.abs(x-R0[2])),dy=Math.min(Math.abs(y-R0[1]),Math.abs(y-R0[3]));const inX=x>=R0[0]-t*2&&x<=R0[2]+t*2,inY=y>=R0[1]-t*2&&y<=R0[3]+t*2;return inX&&inY&&(dx<=t*2.2||dy<=t*2.2);};
+  const cs=[[],[],[]];for(let y=0;y<OH;y++)for(let x=0;x<OW;x++){const i=y*OW+x;if(om[i]&&near(x,y)){for(let k=0;k<3;k++)cs[k].push(out[i*4+k]);}}
+  if(cs[0].length>50){const col=cs.map(a=>{a.sort((p,q)=>p-q);return a[a.length>>1];}),bg=[out[0],out[1],out[2]];
+   for(let y=0;y<OH;y++)for(let x=0;x<OW;x++){const i=y*OW+x;if(!near(x,y))continue;const inside=x>=R0[0]&&x<R0[0]+t||x<=R0[2]&&x>R0[2]-t||y>=R0[1]&&y<R0[1]+t||y<=R0[3]&&y>R0[3]-t;const inBox=x>=R0[0]&&x<=R0[2]&&y>=R0[1]&&y<=R0[3];
+    if(inside&&inBox){om[i]=1;for(let k=0;k<3;k++)out[i*4+k]=col[k];}else if(om[i]){om[i]=0;for(let k=0;k<3;k++)out[i*4+k]=bg[k];}}}}
+ return {img:{data:out,w:OW,h:OH},mask:{m:om,w:OW,h:OH}};}
 function frontalChoose(img0,mmA){const cands=[];const score=r=>{const f=frontalMetrics(r.mask.m,r.mask.w,r.mask.h);const E=ellipseToCircle(r.mask.m,r.mask.w,r.mask.h);let ringErr=0;{const F2=collectFeatures(r.mask.m,r.mask.w,r.mask.h);if(F2.ring){const rr=conicRatio(F2.ring);ringErr=rr?rr-1:0;}}const ar=r.img.w/r.img.h;return {f,val:(f.nH===0||ar>6||ar<1/6||r.img.w*r.img.h<2e4)?1e9:f.horizontal+(f.nV>=2?f.vertical:2)+ringErr*40};};
  cands.push({img:img0,mask:mmA,kind:'none'});
  const E=ellipseToCircle(mmA.m,mmA.w,mmA.h),circ=E?affineBy(img0,mmA.m,E):{img:img0,mask:mmA},skew=baselineAngle(circ.mask.m,circ.mask.w,circ.mask.h),d=Math.abs(skew)>.006&&Math.abs(skew)<.35?rotateBy(circ.img,circ.mask.m,-skew):null;cands.push({img:d?d.img:circ.img,mask:d?d.mask:circ.mask,kind:'affine'});
  try{const fr=frontalize(img0,mmA);if(fr)cands.push({img:fr.img,mask:fr.mask,kind:'frontal'});}catch{}
+ let frame=null;try{frame=frameRectify(img0,mmA);}catch{}if(frame){frame.kind='frame';return frame;} // çerçeve varsa en güvenilir kılavuz odur
  for(const c of cands)c.s=score(c);cands.sort((a,b)=>a.s.val-b.s.val);globalThis.__frontal=cands.map(c=>({kind:c.kind,val:+c.s.val.toFixed(2),h:+c.s.f.horizontal.toFixed(2),v:+c.s.f.vertical.toFixed(2),nV:c.s.f.nV}));return cands[0];}
 function rotateBy(img,mask,angle){ // img: RGBA, mask: 0/1; açı radyan (pozitif: saat yönü düzeltmesi)
  const {w,h}=img,c=Math.cos(angle),s=Math.sin(angle),W=Math.ceil(Math.abs(w*c)+Math.abs(h*s)),H=Math.ceil(Math.abs(w*s)+Math.abs(h*c)),cx=w/2,cy=h/2,CX=W/2,CY=H/2;
