@@ -107,7 +107,11 @@ function proposePixels(data,width,height){
  // their pixels remain present. Core-bearing small shapes stay independent.
  for(const g of groups)g.flatDominance=Math.max(...g.bins.map(b=>b.cores))/Math.max(1,g.cores);
  const coherentTinyBin=b=>{if(b.count<3||b.count>5||!b.max.every((v,k)=>v===b.min[k]))return false;const seen=new Set([b.samples[0]]);for(let pass=0;pass<5;pass++)for(const p of b.samples)if(b.samples.some(q=>seen.has(q)&&(Math.abs(p-q)===width||(Math.abs(p-q)===1&&Math.floor(p/width)===Math.floor(q/width)))))seen.add(p);return seen.size>=3;};
- const stable=groups.map((g,k)=>({g,k})).filter(({g})=>g.cores>=Math.max(8,total*.0005)||g.bins.some(b=>(b.count>=6&&b.max.every((v,k)=>v-b.min[k]<=2))||coherentTinyBin(b)));
+ // A coreless group lying on the blend line between a cored ink and the white substrate is
+ // anti-aliasing at that ink's edge, not an independent ink; its pixels follow the ink.
+ const toWhite=(c,a)=>{const v=a.map(n=>255-n),den=v.reduce((n,x)=>n+x*x,0);if(!den)return distance(c,a);const t=Math.max(0,Math.min(1,v.reduce((n,x,k)=>n+x*(c[k]-a[k]),0)/den));return distance(c,a.map((n,k)=>n+t*v[k]));};
+ const edgeBlend=g=>g.cores===0&&groups.some(h=>h.cores>=Math.max(8,total*.0005)&&toWhite(g.color,h.color)<=16);
+ const stable=groups.map((g,k)=>({g,k})).filter(({g})=>!edgeBlend(g)&&(g.cores>=Math.max(8,total*.0005)||g.bins.some(b=>(b.count>=6&&b.max.every((v,k)=>v-b.min[k]<=2))||coherentTinyBin(b))));
  if(!stable.length||stable.length>36)return decline('source-core-complexity-needs-review');
  const nearest=(c,list)=>list.reduce((best,j)=>distance(c,groups[j].color)<distance(c,groups[best].color)?j:best,list[0]);
  const stableIds=stable.map(v=>v.k),redirect=groups.map((g,k)=>stableIds.includes(k)?k:nearest(g.color,stableIds));

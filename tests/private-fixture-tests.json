@@ -1,0 +1,17 @@
+{
+  "note": "Bu testler müşteri fotoğrafı ister. Fotoğraflar gizlilik nedeniyle repoda yok; ortam değişkeniyle verilirse tam çalışırlar. scripts/run-tests.mjs bunları atlamaz, ayrı listeler.",
+  "tests": {
+    "adapted-photo-proposal": "HIJYENLAB_PRIVATE_PHOTO_ROOT",
+    "customer-ground-upload-independent": "SOURCE_GROUND_PRIVATE_ROOT",
+    "experimental-packet-ui": "HIJYENLAB_PRIVATE_SETTAR_TRACE",
+    "flexo-jpeg-boundary-handler": "HIJYENLAB_PRIVATE_PHOTO_ROOT",
+    "kraft-photo": "HIJYENLAB_PRIVATE_SAYGIN",
+    "local-emblem": "HIJYENLAB_PRIVATE_BIRTAT",
+    "logo-settle": "bağımsız amblem fotoğrafı (yalnız son alt test)",
+    "lowres-wordmark": "HIJYENLAB_PRIVATE_ULFET",
+    "photo-candidate-quality": "HIJYENLAB_PRIVATE_PHOTO_ROOT",
+    "small-native-ground": "ULFET_PRIVATE_ROOT",
+    "source-ground-placement": "SOURCE_GROUND_PRIVATE_ROOT (yalnız tam taşma alt testi)",
+    "source-package-ground": "SOURCE_GROUND_PRIVATE_ROOT"
+  }
+}

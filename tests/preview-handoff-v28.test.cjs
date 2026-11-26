@@ -1,7 +1,7 @@
 const fs=require('fs'),assert=require('assert/strict'),app=fs.readFileSync('frontend/app.js','utf8'),html=fs.readFileSync('frontend/index.html','utf8');
 assert(html.includes('Baskıya hazırlık çalışması sipariş onayınızdan sonra ayrıca yapılır.'));
 assert(app.includes('Görsel fikir vermek içindir. Kesin fiyat sipariş öncesinde netleştirilir; baskıya hazırlık sipariş onayınızdan sonra yapılır.'));
-assert(html.includes('Bu uygulama sipariş veya ödeme almaz; müşteri talebi ancak ayrıca açılan talep formunda açık izninizle gönderilir.'));
+assert(html.includes('Hiçbir gerçek sipariş veya ödeme alınmaz.'),'footer still states that no real order or payment is taken');
 assert(html.includes('Yalnızca bu ekranda önizleme oluşturulur; hiçbir yere gönderilmez.'));
 assert(!html.includes('Bu demo sipariş, ödeme veya müşteri/teklif kaydı oluşturmaz.'));
 const visitor=fs.readFileSync('frontend/visitor-requests.js','utf8');
