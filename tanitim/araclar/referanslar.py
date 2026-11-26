@@ -11,7 +11,7 @@ KOK = Path(__file__).resolve().parents[1]
 
 # (görsel, ad); görsel "k:<ad>" = varliklar/kurumsal/<ad>.jpg, "c:<ad>" = varliklar/cesitler/<ad>_katli.jpg
 GRUPLAR = [
-    ("Oteller", [("k:ciragan", "Çırağan Palace"), ("k:fourseasons", "Four Seasons"), ("k:hilton", "Hilton"),
+    ("Oteller", [("k:ciragan", "Çırağan Palace"), ("k:fourseasons", "Four Seasons"), ("k:hilton", "Hilton"), ("k:marriott", "Marriott"),
                  ("k:sheraton", "Sheraton"), ("k:swissotel", "Swissôtel"), ("k:mandarin", "Mandarin Oriental"),
                  ("k:movenpick", "Mövenpick"), ("k:doubletree", "DoubleTree by Hilton"), ("k:rixos", "Rixos"),
                  ("k:titanic", "Titanic"), ("k:merit", "Merit"), ("k:divan", "Divan"), ("k:barut", "Barut Hotels"),
