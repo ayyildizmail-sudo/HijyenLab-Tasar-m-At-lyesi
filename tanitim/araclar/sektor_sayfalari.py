@@ -10,7 +10,6 @@ from pathlib import Path
 
 KOK = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(KOK / "araclar"))
-from baskisiz_fiyat import en_dusuk  # noqa: E402
 CIKTI = KOK / "sektor"
 
 URUN = {
@@ -115,7 +114,7 @@ h1{font-family:"Inter Display","Inter",sans-serif;font-size:24pt;line-height:1.1
 .cagri{position:absolute;left:16mm;right:16mm;bottom:20mm;background:#0b3558;border-left:3mm solid #D9622B;color:#eaf2fa;border-radius:4mm;padding:4.5mm 7mm;display:flex;justify-content:space-between;gap:6mm;align-items:center}
 .cip{display:inline-block;background:#D9622B;color:#fff;font-size:7.5pt;font-weight:800;letter-spacing:.1em;border-radius:99px;padding:.6mm 2.5mm;margin-bottom:2mm}
 .cagri b{font-size:13pt;display:block;color:#fff;line-height:1.3}.cagri p{font-size:9pt;color:#cfe0f1;margin-top:1.5mm}
-.cagri .il{text-align:right;font-size:10pt;line-height:1.6;white-space:nowrap;color:#fff}
+.cagri p b.iki{display:inline;font-size:9pt;color:#fff}.cagri .il{text-align:right;font-size:10pt;line-height:1.6;white-space:nowrap;color:#fff}
 .gr{margin-top:3mm;margin-bottom:0}.gr h3{font-size:11pt;color:#0b3558;margin-bottom:2mm}.gr h3 span{font-weight:400;font-size:8.5pt;color:#4a5f7a}
 .gr div{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm}.gr img{width:100%;aspect-ratio:2.3;object-fit:cover}
 .bl{display:flex;gap:2mm;margin-top:6mm}
@@ -151,7 +150,7 @@ def sayfa(ad: str, s: dict) -> str:
             f'<div class="bas"><div class="ust"><img src="../varliklar/hijyenlab_logo.svg" alt="HijyenLab"><div class="et">{e(s["etiket"])}</div></div>'
             f'<h1>{e(s["baslik"])}</h1><p class="giris">{e(s["giris"])}</p></div>'
             f'<div class="ic"><div class="urunler">{urunler}</div><div class="f">{faydalar}</div>{orta}</div>'
-            f'<div class="cagri"><div><span class="cip">ÜCRETSİZ</span><b>{e(cagri)}</b><p>Ücretsiz numune, kargo bizden · Denemek için baskısız tek koli: ücretli, {en_dusuk()}’den başlayan koli fiyatıyla (KDV hariç) · Geri dönüştürülebilir ürünler</p></div>'
+            f'<div class="cagri"><div><span class="cip">ÜCRETSİZ</span><b>{e(cagri)}</b><p><b class="iki">Ücretsiz:</b> numune, kargo bizden · <b class="iki">Ücretli:</b> denemek için baskısız tek koli, fiyatı teklifle · Geri dönüştürülebilir ürünler</p></div>'
             f'<div class="il">0 (542) 569 98 69<br>info@hijyenlab.com<br>hijyenlab.com</div></div>'
             f'<div class="alt"><span>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.</span>'
             f'<span>Ürün kartlarındaki marka adları örnek tasarımdır; alt sıradakiler müşterilerimizin logolarıdır (izinle).</span></div>'

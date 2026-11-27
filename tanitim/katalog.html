@@ -129,6 +129,8 @@
   table.oneri td { font-size: 9pt; padding: 1.1mm 3mm; } table.oneri td:first-child { font-weight:700; color:var(--lacivert); width:58mm; }
   .vurgu-kutu { background: var(--vurgu-acik); border-left: 2.5mm solid var(--vurgu); border-radius: 2mm; padding: 2.5mm 4mm; font-size: 9pt; color: var(--yazi); }
   .vurgu-kutu b { color: #A8441A; }
+  .ucretli-kutu { background: #fff; border: 1px solid var(--cizgi); border-left: 2.5mm solid var(--mavi); border-radius: 2mm; padding: 2.5mm 4mm; font-size: 9pt; color: var(--yazi); }
+  .ucretli-kutu b { color: var(--lacivert); }
   .vurgu-adim .no { background: var(--vurgu) !important; }
   .kapak .serit span { flex: none; }
   .iletisim-satir { display:flex; justify-content:space-between; padding: 6mm 18mm 0; font-size: 12pt; font-weight: 700; color: var(--lacivert); }
@@ -170,14 +172,14 @@
   <div class="ust-etiket">Ürünler ve kumaş</div>
   <h2>Kağıt peçete değil: kumaş gibi yumuşak, tek tek paketli.</h2>
   <table class="urun-tablo">
-    <tr><th>Ürün</th><th>Açılmış ölçü</th><th>Kumaş</th><th>Ambalaj</th><th>Koli</th><th>En az sipariş<br><span style="font-weight:400">beyaz / renkli</span></th><th>Baskısız<br>deneme kolisi*</th></tr>
-    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM12 · en çok tercih edilen</span></td><td>25×30 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP<br>16×17 cm</td><td>400</td><td>5.200 / 10.000</td><td data-baskisiz="BM12">1.160 TL</td></tr>
-    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM15 · ekonomik</span></td><td>25×25 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP</td><td>500</td><td>5.000 / 10.000</td><td data-baskisiz="BM15">1.250 TL</td></tr>
-    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM11 · büyük ölçü</span></td><td>30×30 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP<br>16×17 cm</td><td>400</td><td>5.200 / 10.000</td><td data-baskisiz="BM11">1.400 TL</td></tr>
-    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM13 · en geniş ölçü</span></td><td>30×35 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP<br>16×17 cm</td><td>400</td><td>5.200 / 10.000</td><td data-baskisiz="BM13">1.520 TL</td></tr>
-    <tr><td><b>Katlı ıslak havlu</b><span class="t">BM545</span></td><td>20×25 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP<br>14×19 cm</td><td>625</td><td>5.000 / 10.000</td><td data-baskisiz="BM545">1.500 TL</td></tr>
-    <tr><td><b>Islak mendil</b><span class="t">BM21 · 4 koku</span></td><td>16×18 cm<span class="t">paket 7×12 cm</span></td><td>Nonwoven</td><td>Tekli triplex</td><td>1.000</td><td>10.000</td><td data-baskisiz="BM21">1.400 TL</td></tr>
-    <tr><td><b>Oshibori</b><span class="t">premium sunum</span></td><td>22,5×24,5 cm<span class="t">adet 15 g</span></td><td>%100 pamuk havlu</td><td>Tekli paket</td><td>250</td><td>3.000</td><td data-baskisiz="OSHIBORI">teklif ile</td></tr>
+    <tr><th>Ürün</th><th>Açılmış ölçü</th><th>Kumaş</th><th>Ambalaj</th><th>Koli</th><th>En az sipariş<br><span style="font-weight:400">beyaz / renkli</span></th></tr>
+    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM12 · en çok tercih edilen</span></td><td>25×30 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP<br>16×17 cm</td><td>400</td><td>5.200 / 10.000</td></tr>
+    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM15 · ekonomik</span></td><td>25×25 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP</td><td>500</td><td>5.000 / 10.000</td></tr>
+    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM11 · büyük ölçü</span></td><td>30×30 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP<br>16×17 cm</td><td>400</td><td>5.200 / 10.000</td></tr>
+    <tr><td><b>Rulo ıslak havlu</b><span class="t">BM13 · en geniş ölçü</span></td><td>30×35 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP<br>16×17 cm</td><td>400</td><td>5.200 / 10.000</td></tr>
+    <tr><td><b>Katlı ıslak havlu</b><span class="t">BM545</span></td><td>20×25 cm</td><td>Nonwoven,<br>çapraz doku</td><td>Tekli OPP<br>14×19 cm</td><td>625</td><td>5.000 / 10.000</td></tr>
+    <tr><td><b>Islak mendil</b><span class="t">BM21 · 4 koku</span></td><td>16×18 cm<span class="t">paket 7×12 cm</span></td><td>Nonwoven</td><td>Tekli triplex</td><td>1.000</td><td>10.000</td></tr>
+    <tr><td><b>Oshibori</b><span class="t">premium sunum</span></td><td>22,5×24,5 cm<span class="t">adet 15 g</span></td><td>%100 pamuk havlu</td><td>Tekli paket</td><td>250</td><td>3.000</td></tr>
   </table>
   <h3 style="margin-top:3.5mm">Küçük paketten büyük havlu</h3>
   <div class="mini-olcu">
@@ -193,10 +195,11 @@
     <div class="kart" style="padding:4mm 5mm">
       <h3 style="font-size:10.5pt">Mendil kokuları</h3>
       <span class="etiket">Flambau (standart)</span><span class="etiket">Limon</span><span class="etiket">Bodrum Mandalinası</span><span class="etiket">Yeşil Çay</span>
-      <div class="vurgu-kutu" style="margin-top:3mm"><b>Ücretsiz numune</b> Kumaşı elinizde görün; kargo bizden. <b>Denemek için</b> baskısız tek koli (ücretli*).</div>
+      <div class="vurgu-kutu" style="margin-top:3mm"><b>ÜCRETSİZ numune:</b> kumaşı elinizde görün; kargo bizden.</div>
+      <div class="ucretli-kutu" style="margin-top:2mm"><b>ÜCRETLİ deneme kolisi:</b> denemek isterseniz her çeşitten baskısız tek koli; fiyatı teklifle bildirilir.</div>
     </div>
   </div>
-  <div class="alt"><span style="max-width:160mm">* Baskısız deneme kolisi ücretlidir: koli içi adet × beyaz birim fiyat, klişe yok, KDV hariç; kargo koli başı <span data-kargo>200 TL</span> (Bodrum ücretsiz). Baskılı ürün fiyatları adet, zemin ve renge göre teklifle verilir.</span><span>2</span></div>
+  <div class="alt"><span style="max-width:160mm">Fiyatlar ürün, adet, zemin ve baskı rengine göre size özel teklifle verilir. En az sipariş koli katlarıyla hesaplanır.</span><span>2</span></div>
 </section>
 
 <!-- 5c. SICAK YA DA SERİN SERVİS -->
@@ -277,13 +280,13 @@
     <ul class="liste kucuk">
       <li>Baskı klişesi renk başına tek seferlik ücretlendirilir; aynı tasarımla tekrar siparişte klişe bedeli alınmaz.</li>
       <li>Kargo koli başına ücretlendirilir; Bodrum teslimatlarında nakliye ücreti yoktur.</li>
-      <li>Denemek için her çeşitten baskısız tek koli alınabilir; ücretlidir, koli fiyatları 2. sayfadaki tabloda.</li>
+      <li>Denemek için her çeşitten baskısız tek koli alınabilir; deneme kolisi ücretlidir, fiyatı teklifle bildirilir. Numune ise ücretsizdir.</li>
       <li>Teklifler 15 gün geçerlidir; fiyatlara KDV dahil değildir.</li>
     </ul>
   </div>
   <h3 style="margin-top:4mm">Ön ve arka yüz baskı</h3>
   <p class="kucuk soluk">Arka yüze logonuzu tekrar basabilir ya da web sitenizi, telefonunuzu, Instagram adresinizi veya kısa bir mesajınızı yazdırabilirsiniz. Ön ve arka yüzde aynı renkler kullanılırsa klişe sayısı artmaz.</p>
-  <div class="karsilastir" style="grid-template-columns:1fr 1fr;margin-top:2mm;width:68%;margin-left:auto;margin-right:auto">
+  <div class="karsilastir" style="grid-template-columns:1fr 1fr;margin-top:2mm;width:58%;margin-left:auto;margin-right:auto">
     <figure><img src="gorseller/katli_20x25_logolu.jpg" alt=""><figcaption>Ön yüz</figcaption></figure>
     <figure><img src="gorseller/katli_20x25_arka_iletisim.jpg" alt="Arka yüzde web, telefon ve Instagram örneği"><figcaption>Arka yüz: web, telefon, Instagram</figcaption></figure>
   </div>
