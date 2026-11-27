@@ -7,3 +7,10 @@
 #heaterOffer ul { margin: 0 0 6px; padding-left: 18px; color: #334a66; font-size: 14px; line-height: 1.5; }
 #heaterOffer small { color: #647796; font-size: 13px; }
 @media (max-width: 600px) { #heaterOffer { grid-template-columns: minmax(0, 1fr); } #heaterOffer img { max-width: 320px; justify-self: center; } }
+#heaterOffer .heaterAsk { margin-top: 10px; display: grid; gap: 8px; }
+#heaterOffer .heaterAsk button { min-height: 44px; justify-self: start; padding: 8px 16px; }
+#heaterOffer .heaterPicked { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
+#heaterOffer .heaterPicked[hidden], #heaterOffer .heaterAsk button[hidden] { display: none; }
+#heaterOffer .heaterPicked label { display: grid; gap: 2px; font-size: 13px; font-weight: 600; color: #183653; }
+#heaterOffer .heaterPicked input { width: 90px; font: inherit; font-size: 16px; padding: 8px 10px; border: 1px solid #b8cde1; border-radius: 8px; }
+#heaterStatus { margin: 0; color: #127a46; font-size: 14px; font-weight: 600; min-height: 1em; }

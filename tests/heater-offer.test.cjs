@@ -12,4 +12,9 @@ assert(app.indexOf('if(heaterImage)y+=heaterOffer.drawQuote(')>app.indexOf('mone
 assert(!/heater/i.test(app.slice(app.indexOf('function pricing('),app.indexOf('function pricing(')+3000)),'pricing never includes the heater');
 const calls=[];const ctx=new Proxy({},{get:(t,k)=>k in t?t[k]:(...a)=>calls.push([k,...a]),set:(t,k,v)=>{t[k]=v;return true;}});
 assert.equal(H.drawQuote(ctx,{width:900,height:602},70,100,1260),H.QUOTE_HEIGHT);assert(calls.some(c=>c[0]==='drawImage'));
-console.log('PASS heater offer: every product except BM21, approved price/specs, outside total, drawn after the total.');
+assert.match(H.OFFER.delivery,/aynı sevkiyat/);
+assert.equal(H.requestLine('BM12'),'');H.setRequested(2);assert.equal(H.requestedQuantity('BM12'),2);assert.equal(H.requestedQuantity('BM21'),0);assert.equal(H.requestLine('BM21'),'');
+assert.match(H.requestLine('OSHIBORI'),/RTD-23A × 2 adet/);assert.match(H.requestLine('OSHIBORI'),/toplamına dahil değil/);
+H.setRequested(999);assert.equal(H.requestedQuantity('BM12'),H.MAX_QUANTITY);H.setRequested(-3);assert.equal(H.requestedQuantity('BM12'),0);H.setRequested(1.5);assert.equal(H.requestedQuantity('BM12'),0);
+const help=fs.readFileSync('frontend/contact-help.js','utf8');assert((help.match(/heaterLine\(\)/g)||[]).length>=3,'both WhatsApp messages carry the heater request');
+console.log('PASS heater offer: every product except BM21, approved price/specs, outside total, drawn after the total; request button adds quantity to WhatsApp and quote image, never to the total; delivered with the towels.');

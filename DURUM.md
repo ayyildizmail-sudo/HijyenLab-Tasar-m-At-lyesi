@@ -52,6 +52,8 @@ Bu komutla derleme 26 Kasım'da başarıyla tamamlandı.
   - Bilgilerin tek kaynağı `frontend/heater-offer.js`.
   - `tests/heater-offer.test.cjs` testi şu durumlarda kırılır: kutu bir üründe kaybolursa, 7 × 12'de görünürse ya da toplam tutara girerse.
   - Garanti, UV veya sterilizasyon iddiası yazılmaz.
+  - Teslim satırı: "havlu siparişinizle birlikte, tamamı aynı sevkiyatta gönderilir".
+  - "Isıtıcıyı da teklife ekle" düğmesiyle müşteri adet seçer (1–20). Talep WhatsApp mesajına ve teklif görseline eklenir, toplam tutara girmez. Veritabanına kaydı için yeni sütun gerekir; ürün sahibinin onayını bekliyor.
 
 ## 4. Müşteri verisi ve gizlilik
 

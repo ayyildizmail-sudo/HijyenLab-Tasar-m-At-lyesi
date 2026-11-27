@@ -15,11 +15,14 @@
     let code = null; try { code = root.HijyenLabReorder?.code?.(); } catch { code = null; }
     return typeof code === 'string' && /^HL-[A-HJ-NP-Z2-9]{6}$/.test(code) ? '\nSipariş kodu: ' + code : '';
   }
+  function heaterLine() {
+    try { const h = root.HijyenLabHeaterOffer; return h ? h.requestLine(root.selectedProductId) : ''; } catch { return ''; }
+  }
   function openSummaryDraft() {
     const context = summaryContext();
     if (!context || !showDifferentProductDraft) return false;
     const key = JSON.stringify(context);
-    if (!showDifferentProductDraft((context.printMode === 'unprinted' ? 'Merhaba, baskısız ürün teklifini görüşmek istiyorum.\nBaskısız; klişe uygulanmaz.' : 'Merhaba, bu tasarımı görüşmek istiyorum.') + '\nÜrün: ' + context.product + '\nAdet: ' + context.quantity + '\nKoku: ' + context.fragrance + reorderLine())) return false;
+    if (!showDifferentProductDraft((context.printMode === 'unprinted' ? 'Merhaba, baskısız ürün teklifini görüşmek istiyorum.\nBaskısız; klişe uygulanmaz.' : 'Merhaba, bu tasarımı görüşmek istiyorum.') + '\nÜrün: ' + context.product + '\nAdet: ' + context.quantity + '\nKoku: ' + context.fragrance + reorderLine() + heaterLine())) return false;
     activeDraftGuard = () => { const fresh = summaryContext(); return !!fresh && JSON.stringify(fresh) === key; };
     return true;
   }
@@ -65,6 +68,7 @@
     if (Number.isSafeInteger(context.quantity) && context.quantity > 0 && context.quantity <= 1000000) lines.push('Seçtiğim adet: ' + context.quantity);
     if(Number.isSafeInteger(context.printInkCount)&&context.printInkCount>0&&context.printInkCount<=12)lines.push('Tasarımım '+context.printInkCount+' baskı rengi içeriyor. Uygun baskı seçeneklerini görüşmek istiyorum.');
     else if(context.printInkUncertain===true)lines.push('Tasarımımın baskı renkleri üç renk sınırı içinde doğrulanamadı. Uygun baskı seçeneklerini görüşmek istiyorum.');
+    const heater = heaterLine().trim(); if (heater) lines.push(heater);
     return lines.join('\n');
   }
   // Local SVG artwork; control labels stay on the button/link, not the decorative icon.
