@@ -32,12 +32,18 @@ GORSEL = {
     "toptanci": {"mendil": "ornek_mendil_kose", "rulo": "ornek_rulo_liman", "katli": "ornek_katli_mavikoy"},
 }
 
-# Gerçek müşteri baskıları (araclar/gercek_baskilar.py -> varliklar/gercek/)
+# Her sektör sayfasında YALNIZ o sektörün müşterileri (varliklar/cesitler/<ad>_<tip>.jpg, araclar/tum_cesitler.py).
+# Güzellik merkezi sektöründe tek müşteri olduğu için onun üç ürünü gösterilir; toptancı/ajans kendi müşterilerine
+# satacağı için farklı sektörlerden örnekler görür. Her görselin altında müşterinin adı yazar.
 GERCEK = {
-    "restoran": ["kazancilar", "kultur_sofrasi", "sarihan", "seruven"],
-    "otel": ["vom", "ajlan", "salonika", "meridian"],
-    "kuafor": ["zehra_bora", "salonika", "vom", "ajlan"],
-    "toptanci": ["kurumsal/tubitak_bilgem", "kurumsal/botas", "kurumsal/cevheri", "yaf"],
+    "restoran": ("Müşterilerimiz için ürettiklerimiz", [("novikov_rulo", "Novikov"), ("sahan_rulo", "Sahan"),
+                 ("garson_sukru_rulo", "Garson Şükrü"), ("kazancilar_rulo", "Tarihi Kazancılar")]),
+    "otel": ("Otel müşterilerimiz için ürettiklerimiz", [("ciragan_rulo", "Çırağan Palace"), ("fourseasons_rulo", "Four Seasons"),
+             ("hilton_rulo", "Hilton"), ("marriott_rulo", "Marriott")]),
+    "kuafor": ("Güzellik merkezi müşterimiz için ürettiklerimiz", [("zehra_bora_rulo", "Zehra Bora · rulo"),
+               ("zehra_bora_katli", "Zehra Bora · katlı"), ("zehra_bora_mendil", "Zehra Bora · mendil")]),
+    "toptanci": ("Farklı sektörlerden müşterilerimiz için ürettiklerimiz", [("hilton_rulo", "Hilton · otel"),
+                 ("sahan_rulo", "Sahan · restoran"), ("zehra_bora_rulo", "Zehra Bora · güzellik"), ("akbank_rulo", "Akbank · kurumsal")]),
 }
 
 BELGELER = [('ISO 9001:2015', 'Kalite'), ('ISO 14001:2015', 'Çevre'), ('ISO 22000:2018', 'Gıda güvenliği'), ('ISO 45001:2018', 'İş sağlığı'), ('GMP', 'İyi üretim'), ('CE', 'Uygunluk'), ('IFRA', 'Koku standardı')]
@@ -116,7 +122,7 @@ h1{font-family:"Inter Display","Inter",sans-serif;font-size:24pt;line-height:1.1
 .cagri b{font-size:13pt;display:block;color:#fff;line-height:1.3}.cagri p{font-size:9pt;color:#cfe0f1;margin-top:1.5mm}
 .cagri p b.iki{display:inline;font-size:9pt;color:#fff}.cagri .il{text-align:right;font-size:10pt;line-height:1.6;white-space:nowrap;color:#fff}
 .gr{margin-top:3mm;margin-bottom:0}.gr h3{font-size:11pt;color:#0b3558;margin-bottom:2mm}.gr h3 span{font-weight:400;font-size:8.5pt;color:#4a5f7a}
-.gr div{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm}.gr img{width:100%;aspect-ratio:2.3;object-fit:cover}
+.gr div{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm}.gr img{width:100%;aspect-ratio:2.3;object-fit:contain}.gr figure{margin:0;text-align:center}.gr figcaption{font-size:8pt;font-weight:600;color:#0b3558;margin-top:.5mm}
 .bl{display:flex;gap:2mm;margin-top:6mm}
 .bl span{flex:1;border:1.2px solid #29537B;border-radius:2mm;padding:1mm;text-align:center;background:#fff}
 .bl b{display:block;font-size:8pt;color:#0b3558;line-height:1.2}.bl i{display:block;font-style:normal;font-size:6.3pt;color:#4a5f7a}
@@ -140,9 +146,12 @@ def sayfa(ad: str, s: dict) -> str:
             ("Logo", "Müşterinizin logosunu gönderirsiniz."), ("Görsel", "Logolu ürün görselini ücretsiz hazırlarız."),
             ("Onay", "Müşteriniz grafiği onaylar."), ("Üretim", "Klişe ve üretim; ürün fotoğrafını paylaşırız."),
             ("Sevkiyat", "Kolilenip gönderilir.")], 1)) + "</div>")
-    gercek = "".join(f'<img src="../varliklar/{g if "/" in g else "gercek/" + g}.jpg" alt="">' for g in GERCEK.get(ad, []))
+    baslik_gr, liste = GERCEK.get(ad, ("", []))
+    gercek = "".join(f'<figure><img src="../varliklar/cesitler/{g}.jpg" alt="{e(i)}"><figcaption>{e(i)}</figcaption></figure>'
+                     for g, i in liste)
     if gercek:
-        orta += f'<div class="gr"><h3>Müşterilerimiz için ürettiklerimiz</h3><div>{gercek}</div></div>'
+        orta += (f'<div class="gr"><h3>{e(baslik_gr)}</h3>'
+                 f'<div style="grid-template-columns:repeat({len(liste)},1fr)">{gercek}</div></div>')
     belgeler = "".join(f"<span><b>{a}</b><i>{b}</i></span>" for a, b in BELGELER)
     cagri = s.get("cagri", "Logonuzu gönderin, işletmenize özel görseli 12 saat içinde ücretsiz hazırlayalım.")
     return (f'<!doctype html><html lang="tr"><head><meta charset="utf-8"><title>HijyenLab · {e(s["etiket"])}</title>'
@@ -153,7 +162,7 @@ def sayfa(ad: str, s: dict) -> str:
             f'<div class="cagri"><div><span class="cip">ÜCRETSİZ</span><b>{e(cagri)}</b><p><b class="iki">Ücretsiz:</b> numune, kargo bizden · <b class="iki">Ücretli:</b> denemek için baskısız tek koli, fiyatı teklifle · Geri dönüştürülebilir ürünler</p></div>'
             f'<div class="il">0 (542) 569 98 69<br>info@hijyenlab.com<br>hijyenlab.com</div></div>'
             f'<div class="alt"><span>İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.</span>'
-            f'<span>Ürün kartlarındaki marka adları örnek tasarımdır; alt sıradakiler müşterilerimizin logolarıdır (izinle).</span></div>'
+            f'<span>Üstteki marka adları örnek tasarımdır; alttakiler müşterilerimizdir (izinle).</span></div>'
             f"</section></body></html>")
 
 
