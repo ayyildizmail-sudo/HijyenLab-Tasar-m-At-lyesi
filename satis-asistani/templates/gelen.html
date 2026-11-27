@@ -1,13 +1,25 @@
 {% extends "base.html" %}
 {% block icerik %}
 <h2>Gelen mailler</h2>
+<p><a class="etiket" href="{{ url_for('gelen') }}" {% if not filtre %}style="background:#1f5f96;color:#fff"{% endif %}>Tümü</a>
+   <a class="etiket" href="{{ url_for('gelen', f='cikis') }}" {% if filtre == 'cikis' %}style="background:#1f5f96;color:#fff"{% endif %}>Olası çıkış talepleri</a>
+   <a class="etiket" href="{{ url_for('gelen', f='islenemedi') }}" {% if filtre == 'islenemedi' %}style="background:#1f5f96;color:#fff"{% endif %}>İşlenemeyenler</a></p>
 <div class="kart tablo"><table>
 <tr><th>Tarih</th><th>Kimden</th><th>Konu</th><th>Kategori</th><th>Önem</th><th>Özet</th></tr>
 {% for g in liste %}
 <tr><td class="soluk">{{ g.tarih[:16] }}</td><td>{{ g.musteri_ad or g.kimden }}</td><td>{{ g.konu }}{% if g.ekler %}<br><span class="soluk">📎 {{ g.ekler }}</span>{% endif %}</td>
 <td><span class="etiket">{{ g.kategori }}</span>{% if g.insan_baksin %}<br><span class="etiket rozet-sari">insan baksın</span>{% endif %}</td>
 <td>{{ g.onem or "" }}</td>
-<td>{{ g.ozet }}{% if g.teklif_karti %}<details><summary>Teklif dosyası</summary><pre class="kart-metin">{{ g.teklif_karti }}</pre></details>{% endif %}</td></tr>
+<td>{{ g.ozet }}{% if g.teklif_karti %}<details><summary>Teklif dosyası</summary><pre class="kart-metin">{{ g.teklif_karti }}</pre></details>{% endif %}
+  {% if g.cikis_incele or (g.kategori == 'islenemedi' and g.insan_baksin) %}
+  <details><summary>Maili oku</summary><pre class="kart-metin">{{ g.metin }}</pre></details>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+  {% if g.cikis_incele %}
+    <form method="post" action="{{ url_for('gelen_islem', mid=g.id, islem='cikar', f=filtre) }}"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="tehlike">Listeden çıkar</button></form>
+    <form method="post" action="{{ url_for('gelen_islem', mid=g.id, islem='cikis_degil', f=filtre) }}"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="ikincil">Çıkış talebi değil</button></form>
+  {% else %}
+    <form method="post" action="{{ url_for('gelen_islem', mid=g.id, islem='bakildi', f=filtre) }}"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="ikincil">Elle baktım</button></form>
+  {% endif %}</div>{% endif %}</td></tr>
 {% else %}<tr><td colspan="6" class="soluk">Henüz işlenmiş mail yok.</td></tr>{% endfor %}
 </table></div>
 {% endblock %}

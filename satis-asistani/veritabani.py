@@ -1,9 +1,11 @@
 """SQLite veritabanı: potansiyel müşteriler, mailler, taslaklar, kara liste, denetim izi."""
+import os
 import re
 import secrets
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 from ayarlar import AYAR
 
@@ -49,6 +51,7 @@ CREATE TABLE IF NOT EXISTS mail (
     guven REAL,
     insan_baksin INTEGER NOT NULL DEFAULT 0,
     teklif_karti TEXT,
+    cikis_incele INTEGER NOT NULL DEFAULT 0,   -- 1: olası listeden çıkma talebi, insan bakmalı
     deneme INTEGER NOT NULL DEFAULT 0
 );
 
@@ -98,6 +101,20 @@ CREATE TABLE IF NOT EXISTS imap_durum (
     son_uid INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS is_kilidi (
+    ad TEXT PRIMARY KEY,         -- gelen, tanitim, hatirlatma, teklif_takip
+    sahip TEXT NOT NULL,
+    bitis REAL NOT NULL          -- unix zamanı; geçmişse kilit boştur
+);
+
+CREATE TABLE IF NOT EXISTS mail_hata (
+    klasor TEXT NOT NULL,
+    uid INTEGER NOT NULL,
+    deneme INTEGER NOT NULL DEFAULT 0,
+    son_hata TEXT,
+    PRIMARY KEY (klasor, uid)
+);
+
 CREATE TABLE IF NOT EXISTS denetim (
     id INTEGER PRIMARY KEY,
     taslak_id INTEGER REFERENCES taslak(id),
@@ -119,7 +136,8 @@ EK_SUTUNLAR = {
     "musteri": {"eposta_kaynak": "TEXT", "marka": "TEXT", "puan": "INTEGER NOT NULL DEFAULT 0",
                 "mevcut_musteri": "INTEGER NOT NULL DEFAULT 0", "cikis_token": "TEXT"},
     "mail": {"referanslar": "TEXT", "ekler": "TEXT", "guven": "REAL",
-             "insan_baksin": "INTEGER NOT NULL DEFAULT 0", "teklif_karti": "TEXT", "ek_yollari": "TEXT"},
+             "insan_baksin": "INTEGER NOT NULL DEFAULT 0", "teklif_karti": "TEXT", "ek_yollari": "TEXT",
+             "cikis_incele": "INTEGER NOT NULL DEFAULT 0"},
     "taslak": {"orijinal_metin": "TEXT", "profil_surumu": "TEXT", "bulgular": "TEXT", "hesaplanan_teklif": "TEXT",
                "ekler": "TEXT", "teklif_id": "INTEGER"},
 }
@@ -127,9 +145,11 @@ EK_SUTUNLAR = {
 
 @contextmanager
 def baglanti(yol: str | None = None):
-    con = sqlite3.connect(yol or AYAR.veritabani)
+    # timeout: başka bir işlem yazarken hata vermek yerine 30 sn bekler (panel + saatlik görev aynı anda)
+    con = sqlite3.connect(yol or AYAR.veritabani, timeout=30)
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA foreign_keys = ON")
+    con.execute("PRAGMA busy_timeout = 30000")
     try:
         yield con
         con.commit()
@@ -139,16 +159,63 @@ def baglanti(yol: str | None = None):
 
 def kur(yol: str | None = None) -> None:
     with baglanti(yol) as con:
+        con.execute("PRAGMA journal_mode=WAL")   # okuma ve yazma birbirini beklemez
         con.executescript(SEMA)
         for tablo, sutunlar in EK_SUTUNLAR.items():
             mevcut = {r[1] for r in con.execute(f"PRAGMA table_info({tablo})")}
             for ad, tip in sutunlar.items():
                 if ad not in mevcut:
                     con.execute(f"ALTER TABLE {tablo} ADD COLUMN {ad} {tip}")
+        # Aynı müşteriye/teklife iki hatırlatma veya takip taslağı yazılmasın (iki iş aynı anda çalışsa bile)
+        for sql in ("CREATE UNIQUE INDEX IF NOT EXISTS tek_hatirlatma ON taslak(musteri_id) "
+                    "WHERE tur='hatirlatma' AND durum!='reddedildi'",
+                    "CREATE UNIQUE INDEX IF NOT EXISTS tek_teklif_takip ON taslak(teklif_id) "
+                    "WHERE tur='teklif_takip' AND durum!='reddedildi'"):
+            try:
+                con.execute(sql)
+            except sqlite3.IntegrityError:  # eski veritabanında mükerrer varsa indeks atlanır
+                pass
+
+
+TR = ZoneInfo("Europe/Istanbul")
+
+
+def simdi_dt() -> datetime:
+    """Türkiye saati (sunucu hangi saat diliminde olursa olsun)."""
+    return datetime.now(TR).replace(tzinfo=None)
 
 
 def simdi() -> str:
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return simdi_dt().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def bugun() -> str:
+    return simdi()[:10]
+
+
+# --- İş kilidi (panel ve saatlik görev aynı işi aynı anda çalıştırmasın) -----------------
+
+class IsMesgul(RuntimeError):
+    pass
+
+
+@contextmanager
+def is_kilidi(ad: str, sure_sn: int = 3600):
+    import time
+    sahip = f"{os.getpid()}-{secrets.token_hex(4)}"
+    with baglanti() as con:
+        con.execute("BEGIN IMMEDIATE")
+        r = con.execute("SELECT bitis FROM is_kilidi WHERE ad=?", (ad,)).fetchone()
+        if r and r[0] > time.time():
+            con.rollback()
+            raise IsMesgul(f"'{ad}' işi şu anda başka bir yerde çalışıyor; bitince tekrar deneyin.")
+        con.execute("INSERT OR REPLACE INTO is_kilidi (ad, sahip, bitis) VALUES (?, ?, ?)",
+                    (ad, sahip, time.time() + sure_sn))
+    try:
+        yield
+    finally:
+        with baglanti() as con:
+            con.execute("DELETE FROM is_kilidi WHERE ad=? AND sahip=?", (ad, sahip))
 
 
 # --- Müşteriler -----------------------------------------------------------
@@ -249,10 +316,16 @@ def cikis_tokeni(con, musteri_id: int) -> str:
     return token
 
 
+# Bizimle yazışmış ya da müşterimiz olmuş işletmeler: adları başka bir müşteriye yazılmamalı
+TEMASLI_DURUMLAR = ("cevap_verdi", "ilgileniyor", "teklif_verildi", "musteri_oldu", "olumsuz",
+                    "arandi", "whatsapp_yazildi")
+
+
 def bilinen_musteri_adlari(con) -> list[str]:
-    """Başka müşteri adı denetimi için: mevcut müşteriler ve ilgilenenler."""
+    """Başka müşteri adı denetimi için: mevcut müşteriler ve bizimle yazışmış/teklif almış işletmeler."""
     return [r[0] for r in con.execute(
-        "SELECT ad FROM musteri WHERE mevcut_musteri=1 OR durum='ilgileniyor'")]
+        f"SELECT ad FROM musteri WHERE mevcut_musteri=1 OR durum IN ({','.join('?' * len(TEMASLI_DURUMLAR))})",
+        TEMASLI_DURUMLAR)]
 
 
 def mevcut_musteri_mi(con, ad: str, eposta: str = "") -> bool:
@@ -284,7 +357,7 @@ def kara_listeye_ekle(con, eposta: str, sebep: str) -> None:
 def bugun_giden_tanitim_sayisi(con) -> int:
     return con.execute(
         "SELECT COUNT(*) FROM taslak WHERE tur IN ('tanitim','hatirlatma') "
-        "AND durum='gonderildi' AND date(gonderim)=date('now','localtime')"
+        "AND durum='gonderildi' AND substr(gonderim,1,10)=?", (bugun(),)
     ).fetchone()[0]
 
 
@@ -292,22 +365,60 @@ def alan_adina_bugun_giden(con, eposta: str) -> int:
     alan = "%@" + eposta.split("@")[-1].lower()
     return con.execute(
         "SELECT COUNT(*) FROM taslak WHERE tur IN ('tanitim','hatirlatma') AND durum='gonderildi' "
-        "AND date(gonderim)=date('now','localtime') AND lower(kime) LIKE ?", (alan,)
+        "AND substr(gonderim,1,10)=? AND lower(kime) LIKE ?", (bugun(), alan)
     ).fetchone()[0]
 
 
 def hatirlatma_bekleyenler(con, gun: int):
-    sinir = (datetime.now() - timedelta(days=gun)).strftime("%Y-%m-%d %H:%M:%S")
+    """İlk tanıtımı GERÇEKTEN (deneme modunda değil) gönderilmiş, cevap vermemiş müşteriler.
+    Deneme modundayken deneme gönderimleri de sayılır ki akış denenebilsin."""
+    sinir = (simdi_dt() - timedelta(days=gun)).strftime("%Y-%m-%d %H:%M:%S")
+    deneme_sarti = "" if AYAR.deneme_modu else " AND deneme=0"
     return con.execute(
         "SELECT * FROM musteri WHERE durum='yazildi' AND son_temas <= ? "
-        "AND id NOT IN (SELECT musteri_id FROM taslak WHERE tur='hatirlatma' AND musteri_id IS NOT NULL)",
+        "AND id NOT IN (SELECT musteri_id FROM taslak WHERE tur='hatirlatma' AND musteri_id IS NOT NULL "
+        "AND durum!='reddedildi') "
+        f"AND id IN (SELECT musteri_id FROM mail WHERE yon='giden' AND musteri_id IS NOT NULL{deneme_sarti})",
         (sinir,),
     ).fetchall()
+
+
+def deneme_kaydi_sayisi(con) -> int:
+    return con.execute("SELECT COUNT(*) FROM mail WHERE yon='giden' AND deneme=1").fetchone()[0]
+
+
+def deneme_kayitlarini_sifirla(con) -> int:
+    """Deneme modunda 'gönderilmiş gibi' kaydedilenleri geri alır; gerçek gönderime geçmeden önce çalıştırılır.
+    Gerçek maili hiç gitmemiş müşteriler yeniden 'yeni' olur (ilk tanıtım gerçekten gider), deneme taslakları ve
+    teklifleri gönderilmemiş sayılır, deneme giden mail kayıtları silinir (sahte yazışma zinciri kurulmasın).
+    Dönüş: yeniden 'yeni' yapılan müşteri sayısı."""
+    deneme_taslak = "SELECT taslak_id FROM denetim WHERE olay='gonderildi' AND deneme=1"
+    con.execute(f"UPDATE taslak SET durum='deneme', hata='deneme modunda gönderilmiş gibi kaydedildi' "
+                f"WHERE durum='gonderildi' AND id IN ({deneme_taslak})")
+    con.execute("UPDATE teklif SET durum='hazirlandi', gonderim=NULL WHERE durum IN ('gonderildi','cevap_geldi') "
+                "AND id NOT IN (SELECT teklif_id FROM taslak WHERE tur='teklif' AND durum='gonderildi' "
+                "AND teklif_id IS NOT NULL) AND id IN (SELECT teklif_id FROM taslak WHERE durum='deneme' "
+                "AND teklif_id IS NOT NULL)")
+    gercek = "SELECT musteri_id FROM mail WHERE yon='giden' AND deneme=0 AND musteri_id IS NOT NULL"
+    n = con.execute(f"UPDATE musteri SET durum='yeni', son_temas=NULL WHERE durum IN "
+                    f"('yazildi','hatirlatildi','teklif_verildi') AND id NOT IN ({gercek}) AND id IN "
+                    f"(SELECT musteri_id FROM mail WHERE yon='giden' AND deneme=1)").rowcount
+    con.execute("UPDATE taslak SET durum='reddedildi', hata='deneme kayıtları sıfırlandı' "
+                "WHERE durum='onay_bekliyor' AND tur IN ('hatirlatma','teklif_takip')")
+    con.execute("DELETE FROM mail WHERE yon='giden' AND deneme=1")
+    return n
 
 
 def imap_durumu(con, klasor: str) -> tuple[int | None, int]:
     r = con.execute("SELECT uidvalidity, son_uid FROM imap_durum WHERE klasor=?", (klasor,)).fetchone()
     return (r[0], r[1]) if r else (None, 0)
+
+
+def mail_hatasi_kaydet(con, klasor: str, uid: int, hata: str) -> int:
+    """Bir mailin kaçıncı kez hata verdiğini sayar."""
+    con.execute("INSERT INTO mail_hata (klasor, uid, deneme, son_hata) VALUES (?, ?, 1, ?) ON CONFLICT(klasor, uid) "
+                "DO UPDATE SET deneme=deneme+1, son_hata=excluded.son_hata", (klasor, uid, hata[:500]))
+    return con.execute("SELECT deneme FROM mail_hata WHERE klasor=? AND uid=?", (klasor, uid)).fetchone()[0]
 
 
 def imap_durumu_kaydet(con, klasor: str, uidvalidity: int | None, son_uid: int) -> None:
@@ -320,7 +431,7 @@ def imap_durumu_kaydet(con, klasor: str, uidvalidity: int | None, son_uid: int) 
 
 def yeni_teklif_no(con, gun: datetime | None = None) -> str:
     """HL-YYYY-AAGG-NN: NN o günün sıra numarası."""
-    gun = gun or datetime.now()
+    gun = gun or simdi_dt()
     on = f"HL-{gun:%Y}-{gun:%m%d}-"
     son = con.execute("SELECT teklif_no FROM teklif WHERE teklif_no LIKE ? ORDER BY teklif_no DESC LIMIT 1",
                       (on + "%",)).fetchone()
@@ -330,17 +441,18 @@ def yeni_teklif_no(con, gun: datetime | None = None) -> str:
 
 def takip_bekleyen_teklifler(con, gun: int):
     """Gönderildikten `gun` gün sonra hâlâ cevap gelmemiş, takip taslağı yazılmamış ve süresi dolmamış teklifler."""
-    sinir = (datetime.now() - timedelta(days=gun)).strftime("%Y-%m-%d %H:%M:%S")
+    sinir = (simdi_dt() - timedelta(days=gun)).strftime("%Y-%m-%d %H:%M:%S")
     return con.execute(
-        "SELECT * FROM teklif WHERE durum='gonderildi' AND gonderim <= ? AND gecerlilik >= date('now','localtime') "
-        "AND id NOT IN (SELECT teklif_id FROM taslak WHERE tur='teklif_takip' AND teklif_id IS NOT NULL)",
-        (sinir,),
+        "SELECT * FROM teklif WHERE durum='gonderildi' AND gonderim <= ? AND gecerlilik >= ? "
+        "AND id NOT IN (SELECT teklif_id FROM taslak WHERE tur='teklif_takip' AND teklif_id IS NOT NULL "
+        "AND durum!='reddedildi')",
+        (sinir, bugun()),
     ).fetchall()
 
 
 def suresi_dolan_teklifleri_isaretle(con) -> int:
     return con.execute("UPDATE teklif SET durum='suresi_doldu' WHERE durum IN ('hazirlandi','gonderildi') "
-                       "AND gecerlilik < date('now','localtime')").rowcount
+                       "AND gecerlilik < ?", (bugun(),)).rowcount
 
 
 def mukerrerleri_birlestir(con) -> int:
@@ -378,7 +490,7 @@ CEVAP_KATEGORILERI = ("tanitima_olumlu_cevap", "tanitima_olumsuz_cevap", "teklif
 
 def rapor(con, gun: int | None = 7) -> dict:
     """Son `gun` gün (None: tüm zamanlar) için satış hunisi ve sektör tablosu."""
-    sinir = (datetime.now() - timedelta(days=gun)).strftime("%Y-%m-%d %H:%M:%S") if gun else "0000"
+    sinir = (simdi_dt() - timedelta(days=gun)).strftime("%Y-%m-%d %H:%M:%S") if gun else "0000"
 
     def say(sql, *a):
         return con.execute(sql, a).fetchone()[0]

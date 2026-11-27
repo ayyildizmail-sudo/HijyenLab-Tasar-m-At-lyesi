@@ -10,6 +10,7 @@ import re
 from urllib.parse import quote
 
 IMZA = "Hakan Ayyıldız · Satış · HijyenLab\nhijyenlab.com"
+CIKIS = "Bu tür mesaj almak istemezseniz \"ret\" yazmanız yeterli."   # ticari iletide ret hakkı
 CAGRI = "Logonuzu buraya gönderirseniz ürününüzün logolu görselini 12 saat içinde ücretsiz hazırlayıp size iletelim."
 
 # Sektöre göre tek cümlelik kullanım anı (firma profilindeki anlatım)
@@ -65,7 +66,7 @@ def whatsapp_metni(musteri: dict) -> str:
     selam = f"Merhaba, {ad} için yazıyorum." if ad else "Merhaba,"
     return (f"{selam} HijyenLab olarak {cumle} üretiyoruz. "
             "Kağıt peçete değil: kumaş gibi yumuşak, tek tek paketli.\n\n"
-            f"{CAGRI_OZEL.get(musteri.get('tur') or '', CAGRI)}\n\n{IMZA}")
+            f"{CAGRI_OZEL.get(musteri.get('tur') or '', CAGRI)}\n\n{IMZA}\n\n{CIKIS}")
 
 
 def telefon_notu(musteri: dict) -> str:

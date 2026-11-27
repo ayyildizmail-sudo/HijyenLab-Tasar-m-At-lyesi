@@ -1,8 +1,10 @@
 """Onay paneli: http://127.0.0.1:5000  (sadece bu bilgisayardan erişilir)."""
 import json
+import os
 import secrets
 import tempfile
 import threading
+import time
 from functools import wraps
 from pathlib import Path
 
@@ -18,7 +20,25 @@ from ayarlar import fiyatlar
 from ayarlar import AYAR
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(32)
+app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024   # yüklemeler en fazla 20 MB
+
+
+def _gizli_anahtar() -> str:
+    """Oturum anahtarı dosyada saklanır: panel yeniden başlayınca herkesin oturumu düşmesin."""
+    yol = Path(AYAR.veritabani).resolve().parent / ".panel_anahtari"
+    try:
+        if yol.exists():
+            return yol.read_text().strip()
+        anahtar = secrets.token_hex(32)
+        yol.write_text(anahtar)
+        os.chmod(yol, 0o600)
+        return anahtar
+    except OSError:
+        return secrets.token_hex(32)
+
+
+app.secret_key = _gizli_anahtar()
+VARSAYILAN_SIFRELER = {"", "degistirin"}
 
 # --- Arka plan işi (müşteri bulma, gelen kutusu vb. uzun sürebilir) -------------
 IS = {"calisiyor": False, "ad": "", "kayit": []}
@@ -35,6 +55,8 @@ def arka_planda(ad: str, fonk, *args):
         try:
             sonuc = fonk(*args, ilerleme=lambda s: IS["kayit"].append(s))
             IS["kayit"].append(f"Bitti. Sonuç: {sonuc}")
+        except vt.IsMesgul as h:
+            IS["kayit"].append(str(h))
         except Exception as h:
             IS["kayit"].append(f"HATA: {h}")
         finally:
@@ -68,13 +90,27 @@ def ortak():
     return {"csrf": session.get("csrf", ""), "deneme": AYAR.deneme_modu, "is_": IS}
 
 
+_HATALI_GIRIS: list[float] = []   # son başarısız giriş zamanları (tahmin denemelerini yavaşlatır)
+
+
 @app.route("/giris", methods=["GET", "POST"])
 def giris():
+    if AYAR.panel_sifresi in VARSAYILAN_SIFRELER:
+        flash(".env içinde PANEL_SIFRESI boş veya varsayılan ('degistirin'). Kendi şifrenizi yazıp paneli yeniden başlatın.")
+        return render_template("giris.html")
     if request.method == "POST":
-        if AYAR.panel_sifresi and secrets.compare_digest(request.form.get("sifre", ""), AYAR.panel_sifresi):
+        simdi = time.time()
+        _HATALI_GIRIS[:] = [t for t in _HATALI_GIRIS if simdi - t < 300]
+        if len(_HATALI_GIRIS) >= 5:
+            flash("Çok sayıda hatalı deneme. 5 dakika sonra tekrar deneyin.")
+            return render_template("giris.html"), 429
+        if secrets.compare_digest(request.form.get("sifre", ""), AYAR.panel_sifresi):
+            session.clear()                      # oturum sabitleme saldırısına karşı yeni oturum
+            session["csrf"] = secrets.token_hex(16)
             session["giris"] = True
             return redirect(url_for("ozet"))
-        flash("Şifre yanlış (veya .env içinde PANEL_SIFRESI boş).")
+        _HATALI_GIRIS.append(simdi)
+        flash("Şifre yanlış.")
     return render_template("giris.html")
 
 
@@ -88,9 +124,23 @@ def ozet():
         bekleyen = con.execute("SELECT tur, COUNT(*) n FROM taslak WHERE durum='onay_bekliyor' GROUP BY tur").fetchall()
         bugun = vt.bugun_giden_tanitim_sayisi(con)
         epostali = con.execute("SELECT COUNT(*) FROM musteri WHERE durum='yeni' AND eposta!=''").fetchone()[0]
+        cikis = con.execute("SELECT COUNT(*) FROM mail WHERE cikis_incele=1").fetchone()[0]
+        islenemeyen = con.execute("SELECT COUNT(*) FROM mail WHERE kategori='islenemedi' AND insan_baksin=1").fetchone()[0]
+        deneme_kayit = vt.deneme_kaydi_sayisi(con)
+    eksikler = [] if AYAR.deneme_modu else islemler.canli_gonderim_eksikleri()
     return render_template("ozet.html", durumlar=durumlar, bekleyen=bekleyen, bugun=bugun,
                            limit=AYAR.gunluk_tanitim_limiti, epostali=epostali, turler=musteri_bul.TURLER,
-                           yedekler=yedek.yedekleri_listele()[:5])
+                           yedekler=yedek.yedekleri_listele()[:5], cikis=cikis, islenemeyen=islenemeyen,
+                           deneme_kayit=deneme_kayit, eksikler=eksikler)
+
+
+@app.post("/deneme-sifirla")
+@giris_gerekli
+def deneme_sifirla():
+    with vt.baglanti() as con:
+        n = vt.deneme_kayitlarini_sifirla(con)
+    flash(f"Deneme kayıtları sıfırlandı. {n} işletme yeniden 'yeni' oldu; ilk tanıtım maili gerçekten gidecek.")
+    return redirect(url_for("ozet"))
 
 
 @app.post("/is/<ad>")
@@ -152,12 +202,41 @@ def taslak_islem(tid):
 @app.route("/gelen")
 @giris_gerekli
 def gelen():
+    filtre = request.args.get("f", "")
+    sart = {"cikis": " AND g.cikis_incele=1", "islenemedi": " AND g.kategori='islenemedi' AND g.insan_baksin=1"}.get(filtre, "")
     with vt.baglanti() as con:
         liste = con.execute(
             "SELECT g.*, m.ad musteri_ad FROM mail g LEFT JOIN musteri m ON m.id=g.musteri_id "
-            "WHERE g.yon='gelen' ORDER BY g.id DESC LIMIT 200"
+            "WHERE g.yon='gelen'" + sart + " ORDER BY g.id DESC LIMIT 200"
         ).fetchall()
-    return render_template("gelen.html", liste=liste)
+    return render_template("gelen.html", liste=liste, filtre=filtre)
+
+
+@app.post("/gelen/<int:mid>/<islem>")
+@giris_gerekli
+def gelen_islem(mid, islem):
+    """Olası listeden çıkma talebi: insan karar verir. İşlenemeyen mail: elle bakıldı olarak işaretlenir."""
+    with vt.baglanti() as con:
+        g = con.execute("SELECT * FROM mail WHERE id=? AND yon='gelen'", (mid,)).fetchone()
+        if not g:
+            abort(404)
+        if islem == "cikar":
+            vt.kara_listeye_ekle(con, g["kimden"], "listeden çıkmak istedi (elle onaylandı)")
+            if g["musteri_id"]:
+                m = con.execute("SELECT eposta FROM musteri WHERE id=?", (g["musteri_id"],)).fetchone()
+                if m and m["eposta"]:
+                    vt.kara_listeye_ekle(con, m["eposta"], "listeden çıkmak istedi (elle onaylandı)")
+            con.execute("UPDATE mail SET cikis_incele=0, insan_baksin=0 WHERE id=?", (mid,))
+            flash("Adres kara listeye alındı; bir daha tanıtım gitmez.")
+        elif islem == "cikis_degil":
+            con.execute("UPDATE mail SET cikis_incele=0 WHERE id=?", (mid,))
+            flash("Listeden çıkma talebi değil olarak işaretlendi.")
+        elif islem == "bakildi":
+            con.execute("UPDATE mail SET insan_baksin=0 WHERE id=?", (mid,))
+            flash("Elle bakıldı olarak işaretlendi.")
+        else:
+            abort(404)
+    return redirect(url_for("gelen", f=request.args.get("f", "")))
 
 
 @app.route("/musteriler")
@@ -173,12 +252,24 @@ def musteriler():
     return render_template("musteriler.html", liste=liste, durum=durum, turler=musteri_bul.TURLER)
 
 
+def _tur_kodu(deger: str) -> str:
+    """Elle girilen sektörü koda çevirir ('Kebapçı' -> 'kebapci'); referans ve sektör sayfası seçimi buna bağlı."""
+    d = (deger or "").strip()
+    if d in musteri_bul.TURLER:
+        return d
+    sade = vt.ad_anahtari(d)
+    for kod, etiket in musteri_bul.TURLER.items():
+        if sade and (sade == vt.ad_anahtari(kod) or sade in vt.ad_anahtari(etiket)):
+            return kod
+    return d
+
+
 @app.post("/musteri/ekle")
 @giris_gerekli
 def musteri_ekle():
     f = request.form
     with vt.baglanti() as con:
-        ok = vt.musteri_ekle(con, ad=f.get("ad", "").strip(), tur=f.get("tur"), ilce=f.get("ilce"),
+        ok = vt.musteri_ekle(con, ad=f.get("ad", "").strip(), tur=_tur_kodu(f.get("tur", "")), ilce=f.get("ilce"),
                              telefon=f.get("telefon"), eposta=f.get("eposta"), web=f.get("web"), kaynak="elle")
     flash("Eklendi." if ok else "Eklenmedi (bu e-posta zaten kayıtlı olabilir).")
     return redirect(url_for("musteriler"))
@@ -190,10 +281,11 @@ def musteri_csv():
     dosya = request.files.get("dosya")
     if not dosya:
         abort(400)
-    with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as gecici:
-        dosya.save(gecici.name)
+    with tempfile.TemporaryDirectory() as d:
+        yol = Path(d) / "liste.csv"
+        dosya.save(yol)
         mevcut = request.form.get("mevcut") == "1"
-        sayi = musteri_bul.csv_ice_aktar(gecici.name, mevcut_musteri=mevcut)
+        sayi = musteri_bul.csv_ice_aktar(str(yol), mevcut_musteri=mevcut)
         flash(f"{sayi} işletme {'mevcut müşteri olarak işaretlendi/eklendi' if mevcut else 'eklendi'}.")
     return redirect(url_for("musteriler"))
 
@@ -227,13 +319,17 @@ def yedek_indir(ad):
 @app.route("/telefon-listesi.csv")
 @giris_gerekli
 def telefon_listesi():
-    yol = tempfile.NamedTemporaryFile(suffix=".csv", delete=False).name
-    musteri_bul.telefon_listesi_csv(yol)
-    return send_file(yol, as_attachment=True, download_name="telefon_listesi.csv")
+    import io
+    with tempfile.TemporaryDirectory() as d:
+        yol = Path(d) / "liste.csv"
+        musteri_bul.telefon_listesi_csv(str(yol))
+        veri = io.BytesIO(yol.read_bytes())
+    return send_file(veri, as_attachment=True, download_name="telefon_listesi.csv", mimetype="text/csv")
 
 
 TELEFON_DURUM = {"aranacak": "Aranacak", "arandi": "Arandı", "whatsapp_yazildi": "WhatsApp yazıldı",
-                 "ilgileniyor": "İlgileniyor", "olumsuz": "İlgilenmiyor"}
+                 "ilgileniyor": "İlgileniyor", "olumsuz": "İlgilenmiyor",
+                 "listeden_cikti": "Ret dedi (bir daha yazılmaz)"}
 
 
 @app.route("/telefon")
@@ -474,8 +570,8 @@ def calistir():
         yedek.gunluk_yedek()
     except Exception as h:  # yedek alınamazsa panel yine açılır
         print(f"UYARI: günlük yedek alınamadı: {h}")
-    if not AYAR.panel_sifresi or AYAR.panel_sifresi == "degistirin":
-        print("UYARI: .env içinde PANEL_SIFRESI'ni değiştirin.")
+    if AYAR.panel_sifresi in VARSAYILAN_SIFRELER:
+        print("UYARI: .env içinde PANEL_SIFRESI boş veya varsayılan; kendi şifrenizi yazmadan panele giriş yapılamaz.")
     print("Panel: http://127.0.0.1:5000")
     app.run(host="127.0.0.1", port=5000, debug=False)
 

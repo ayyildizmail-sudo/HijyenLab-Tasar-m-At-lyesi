@@ -10,6 +10,7 @@
   python calistir.py yedek                 Veritabanı + teklifler + ekler yedeği (yedekler/ klasörü)
   python calistir.py birlestir             Eski mükerrer müşteri kayıtlarını birleştirir
   python calistir.py otomatik              Gelen kutusu + hatırlatma + teklif takibi + günlük yedek
+  python calistir.py deneme-sifirla        Deneme modu kayıtlarını sıfırlar (gerçek gönderime geçmeden önce)
 
 Hiçbir komut mail GÖNDERMEZ; gönderim yalnızca panelden onayla yapılır.
 """
@@ -47,9 +48,16 @@ def main(arg: list[str]) -> None:
     elif komut == "otomatik":
         import yedek
         yedek.gunluk_yedek()
-        print(islemler.gelen_kutusunu_isle())
-        print(islemler.hatirlatma_taslaklari_olustur(), "hatırlatma hazır")
-        print(islemler.teklif_takip_taslaklari_olustur(), "teklif takibi hazır")
+        for ad, is_ in (("Gelen kutusu", islemler.gelen_kutusunu_isle),
+                        ("Hatırlatma", islemler.hatirlatma_taslaklari_olustur),
+                        ("Teklif takibi", islemler.teklif_takip_taslaklari_olustur)):
+            try:
+                print(ad + ":", is_())
+            except vt.IsMesgul as h:   # aynı iş panelde çalışıyorsa bu sefer atlanır
+                print(ad + ":", h)
+    elif komut == "deneme-sifirla":
+        with vt.baglanti() as con:
+            print(vt.deneme_kayitlarini_sifirla(con), "işletme yeniden 'yeni' yapıldı")
     else:
         print(__doc__)
 

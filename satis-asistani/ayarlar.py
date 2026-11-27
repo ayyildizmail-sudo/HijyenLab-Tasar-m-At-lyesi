@@ -26,13 +26,16 @@ class Ayarlar:
     gonderen_adi: str = os.getenv("GONDEREN_ADI", "HijyenLab")
     gonderilmis_klasoru: str = os.getenv("GONDERILMIS_KLASORU", "")  # boşsa otomatik bulunur
     deneme_modu: bool = _bool("DENEME_MODU", "1")
-    gunluk_tanitim_limiti: int = int(os.getenv("GUNLUK_TANITIM_LIMITI", "30"))
+    gunluk_tanitim_limiti: int = int(os.getenv("GUNLUK_TANITIM_LIMITI", "10"))
     alan_adi_gunluk_limit: int = int(os.getenv("ALAN_ADI_GUNLUK_LIMIT", "1"))
     gonderim_penceresi: bool = _bool("GONDERIM_PENCERESI", "1")
     hatirlatma_gun: int = int(os.getenv("HATIRLATMA_GUN", "7"))
     teklif_takip_gun: int = int(os.getenv("TEKLIF_TAKIP_GUN", "10"))
     # Olumlu cevaba eklenecek sektör sayfaları ve katalog (varsayılan: depodaki tanitim/ klasörü)
     tanitim_klasoru: str = os.getenv("TANITIM_KLASORU") or str(Path(__file__).resolve().parents[1] / "tanitim")
+    # Ticari ileti alt bilgisinde gönderenin tanıtıcı bilgileri (6563 / Yönetmelik)
+    firma_mersis: str = os.getenv("FIRMA_MERSIS", "")
+    firma_adres: str = os.getenv("FIRMA_ADRES", "")
     panel_sifresi: str = os.getenv("PANEL_SIFRESI", "")
     cikis_url_kok: str = os.getenv("CIKIS_URL_KOK", "")  # ör. https://panel.hijyenlab.com/cik
     veritabani: str = os.getenv("VERITABANI", str(KLASOR / "satis.db"))

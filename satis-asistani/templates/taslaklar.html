@@ -29,7 +29,7 @@
   <div class="bilgi"><b>Kodla hesaplanan teklif</b> (taslaktaki rakamlar buradan gelir)<pre class="kart-metin">{{ t.hesaplanan_teklif }}</pre></div>
   {% endif %}
 
-  <form method="post" action="{{ url_for('taslak_islem', tid=t.id) }}">
+  <form method="post" action="{{ url_for('taslak_islem', tid=t.id) }}" onsubmit="tekGonderim(this, event)">
     <input type="hidden" name="csrf" value="{{ csrf }}">
     <p><input name="konu" value="{{ t.konu }}" style="width:100%"></p>
     <textarea name="metin">{{ t.metin }}</textarea>
@@ -56,6 +56,12 @@
 </div>
 {% else %}<div class="kart soluk">Onay bekleyen taslak yok.</div>{% endfor %}
 <script>
+function tekGonderim(form, e){   // çift tıklamayla aynı mail iki kez gönderilmesin
+  if(form.dataset.gonderildi){ e.preventDefault(); return; }
+  form.dataset.gonderildi = "1";
+  const b = e.submitter; if(b){ const h=document.createElement('input'); h.type='hidden'; h.name=b.name; h.value=b.value; form.appendChild(h); }
+  setTimeout(()=>form.querySelectorAll('button').forEach(x=>x.disabled=true), 0);
+}
 function kilit(id){
   const kutular=[...document.querySelectorAll('.gordum'+id)];
   document.getElementById('gonder'+id).disabled = !kutular.every(k=>k.checked);

@@ -21,7 +21,7 @@ info@hijyenlab.com için yapay zeka destekli satış asistanı:
 - **Rakamları kod hesaplar:** Yapay zeka hiçbir zaman kendi başına fiyat yazmaz. Fiyatlar yalnız `fiyatlar.json` dosyasında durur. Fiyat paylaşımı açıksa teklif tutarını `teklif_hesapla.py` hesaplar, yapay zeka yalnız metni yazar.
 - **Deneme modu** varsayılan olarak açıktır: hiçbir mail gerçekten gitmez.
 - **Gönderim sınırları:**
-  - Günde en fazla 30 tanıtım maili gider.
+  - Günde en fazla 10 tanıtım maili gider (`GUNLUK_TANITIM_LIMITI`).
   - Aynı alan adına günde tek mail gider.
   - Tanıtım mailleri yalnız hafta içi 09:30–11:30 ve 14:00–16:30 saatleri arasında gönderilir.
   - Alan adının MX kaydı yoksa mail gönderilmez.
@@ -123,10 +123,21 @@ Windows'ta Görev Zamanlayıcı ile `python calistir.py otomatik` komutunu saatl
 
 ## Gerçek gönderime geçmeden önce
 
-1. Alan adınızda **SPF, DKIM ve DMARC** kayıtları kurulu olsun. DMARC'a `p=none` ile başlayın.
-2. Yeni bir adresten gönderiyorsanız ilk hafta günde 5–10 mail ile "ısındırın" (`GUNLUK_TANITIM_LIMITI`).
-3. 6563 sayılı Kanun / İYS ve KVKK aydınlatma metni için mali müşavir veya avukat teyidi alın.
-4. Ondan sonra `DENEME_MODU=0` yapın.
+1. Alan adınızda **SPF, DKIM ve DMARC** kayıtları kurulu olsun. DMARC'a `p=none` ile başlayın. Tanıtım için mümkünse ayrı bir alt alan adı kullanın.
+2. Yeni bir adresten gönderiyorsanız ilk hafta günde 5–10 mail ile "ısındırın" (`GUNLUK_TANITIM_LIMITI`, varsayılan 10).
+3. 6563 sayılı Kanun / İYS ve KVKK aydınlatma metni için mali müşavir veya avukat teyidi alın. Gelen mailler yapay zeka için yurt dışına gönderildiğinden KVKK yurt dışı aktarım şartlarını da teyit ettirin.
+4. `.env` içinde şunlar **zorunludur**; biri eksikse `DENEME_MODU=0` olsa bile hiçbir mail gitmez ve Özet sayfasında kırmızı uyarı çıkar:
+   - `YASAK_TERIMLER` (üretim ortağının adı)
+   - `FIRMA_MERSIS` ve `FIRMA_ADRES` (tanıtım maillerinin alt bilgisinde gönderenin tanıtıcı bilgileri)
+5. Deneme modunda "gönderilmiş gibi" kaydedilenleri sıfırlayın: Özet → **Deneme kayıtlarını sıfırla** (veya `python calistir.py deneme-sifirla`). Böylece o işletmelere ilk tanıtım maili gerçekten gider ve hiç almadıkları bir maile hatırlatma gitmez.
+6. Ondan sonra `DENEME_MODU=0` yapın.
+
+## Hata durumları
+
+- **İşlenemeyen mail:** Bir mail 3 kontrolde de hata verirse (ör. yapay zeka içeriği reddederse) "işlenemedi" olarak kaydedilir, gelen kutusu diğer maillere devam eder. Özet sayfasında uyarı çıkar; Gelen mailler → İşlenemeyenler'den elle bakın.
+- **Olası listeden çıkma talebi:** "İstemiyoruz", "listeden çıkarın" gibi ürünle de ilgili olabilecek cümleler otomatik kara listeye alınmaz; Özet sayfasında uyarı çıkar. Gelen mailler → Olası çıkış talepleri'nden **3 iş günü içinde** "Listeden çıkar" ya da "Çıkış talebi değil" deyin. Kesin ifadeler ("ÇIKAR", "beni listenizden çıkarın", "mail almak istemiyorum") yine otomatik işlenir.
+- **Aynı iş iki kez:** Panel ve saatlik görev aynı işi aynı anda başlatmaz; biri çalışıyorsa diğeri atlanır.
+- **İlk bağlantı:** Mail hesabı ilk kez bağlandığında yalnız son 3 günün mailleri işlenir; eski yazışmalara cevap taslağı yazılmaz.
 
 ## Yasal not
 

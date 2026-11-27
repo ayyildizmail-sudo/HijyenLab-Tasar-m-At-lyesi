@@ -5,3 +5,6 @@ __pycache__/
 teklifler/
 ekler/
 yedekler/
+.panel_anahtari
+*.db-wal
+*.db-shm

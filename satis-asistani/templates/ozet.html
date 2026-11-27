@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% block bas %}{% if is_.calisiyor %}<meta http-equiv="refresh" content="4">{% endif %}{% endblock %}
 {% block icerik %}
+{% if eksikler %}<div class="uyari" style="background:#fef3f2;border-color:#fda29b"><b>Gerçek gönderim kapalı.</b> DENEME_MODU=0 ama şunlar eksik; tamamlanana kadar hiçbir mail gitmez:
+  <ul>{% for e in eksikler %}<li>{{ e }}</li>{% endfor %}</ul></div>{% endif %}
+{% if cikis %}<div class="uyari"><b>{{ cikis }} olası listeden çıkma talebi</b> bekliyor. Yasal olarak 3 iş günü içinde bakılmalı.
+  <a href="{{ url_for('gelen', f='cikis') }}">Şimdi bak</a></div>{% endif %}
+{% if islenemeyen %}<div class="uyari"><b>{{ islenemeyen }} mail işlenemedi</b> (3 denemede de hata verdi). Gelen kutusu diğer maillere devam ediyor; bunlara elle bakın.
+  <a href="{{ url_for('gelen', f='islenemedi') }}">Göster</a></div>{% endif %}
+{% if deneme_kayit %}<div class="bilgi">Deneme modunda <b>{{ deneme_kayit }}</b> mail "gönderilmiş gibi" kaydedildi. Gerçek gönderime geçmeden önce
+  bunları sıfırlayın; yoksa bu işletmelere ilk mail hiç gitmez.
+  <form method="post" action="{{ url_for('deneme_sifirla') }}" style="display:inline" onsubmit="return confirm('Deneme kayıtları sıfırlansın mı? Bu işletmeler yeniden yeni sayılır.')">
+  <input type="hidden" name="csrf" value="{{ csrf }}"><button class="ikincil">Deneme kayıtlarını sıfırla</button></form></div>{% endif %}
 <div class="izgara">
   <div class="kart">
     <h3>1. Gelen kutusu</h3>

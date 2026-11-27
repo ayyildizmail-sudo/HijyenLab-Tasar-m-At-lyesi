@@ -5,7 +5,7 @@
 <div class="kart"><h3>Elle ekle</h3>
 <form method="post" action="{{ url_for('musteri_ekle') }}"><input type="hidden" name="csrf" value="{{ csrf }}">
   <p><input name="ad" placeholder="İşletme adı" required></p>
-  <p><input name="tur" placeholder="Tür (kebapçı, otel...)"> <input name="ilce" placeholder="İlçe"></p>
+  <p><select name="tur"><option value="">Sektör seçin</option>{% for kod, ad in turler.items() %}<option value="{{ kod }}">{{ ad }}</option>{% endfor %}</select> <input name="ilce" placeholder="İlçe"></p>
   <p><input name="eposta" placeholder="E-posta"> <input name="telefon" placeholder="Telefon"></p>
   <p><input name="web" placeholder="Web sitesi"></p><button>Ekle</button></form></div>
 <div class="kart"><h3>Listeden yükle (CSV)</h3>

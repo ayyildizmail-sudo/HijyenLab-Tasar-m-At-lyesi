@@ -11,7 +11,7 @@ import re
 import smtplib
 import ssl
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from email.header import decode_header, make_header
 from email.message import EmailMessage, Message
 from email.utils import formataddr, formatdate, make_msgid, parseaddr
@@ -24,13 +24,15 @@ from ayarlar import AYAR
 LISTEDEN_CIK_KONU = "LISTEDEN-CIK"
 TR = ZoneInfo("Europe/Istanbul")
 
-ALT_BILGI = (
-    "\n\n--\n"
-    "Bu maili işletmenizin herkese açık kurumsal iletişim adresine gönderdik. "
-    "Bir daha mail almak istemezseniz bu maile \"ÇIKAR\" yazarak cevap vermeniz yeterli; "
-    "adresinizi hemen listemizden sileriz.\n"
-    "İKA Kurumsal Tedarik Hizmetleri Ltd. Şti. · hijyenlab.com · 0 (542) 569 98 69"
-)
+def alt_bilgi() -> str:
+    """Tanıtım/hatırlatma alt bilgisi: çıkış yolu + gönderenin tanıtıcı bilgileri (unvan, MERSİS, adres)."""
+    kimlik = " · ".join(x for x in ("İKA Kurumsal Tedarik Hizmetleri Ltd. Şti.",
+                                    f"MERSİS: {AYAR.firma_mersis}" if AYAR.firma_mersis else "",
+                                    AYAR.firma_adres, "hijyenlab.com", "0 (542) 569 98 69") if x)
+    return ("\n\n--\n"
+            "Bu maili işletmenizin herkese açık kurumsal iletişim adresine gönderdik. "
+            "Bir daha mail almak istemezseniz bu maile \"ÇIKAR\" yazarak cevap vermeniz yeterli; "
+            "adresinizi hemen listemizden sileriz.\n" + kimlik)
 
 
 # --- Ayrıştırma ------------------------------------------------------------------
@@ -116,15 +118,29 @@ def geri_donen_mi(msg: Message) -> bool:
                 and (msg.get_param("report-type") or "").lower() == "delivery-status"))
 
 
-def geri_donen_adresi_bul(msg: Message) -> str | None:
+def _dsn(msg: Message) -> str:
     for p in msg.walk():
         if p.get_content_type() == "message/delivery-status":
             yuk = p.get_payload()
-            ham = "\n".join(x.as_string() for x in yuk) if isinstance(yuk, list) else str(yuk)
-            m = re.search(r"Final-Recipient:\s*rfc822;\s*<?([^\s>]+)", ham, re.I)
-            if m:
-                return m.group(1).lower()
-    return None
+            return "\n".join(x.as_string() for x in yuk) if isinstance(yuk, list) else str(yuk)
+    return ""
+
+
+def geri_donen_adresi_bul(msg: Message) -> str | None:
+    m = re.search(r"Final-Recipient:\s*rfc822;\s*<?([^\s>]+)", _dsn(msg), re.I)
+    return m.group(1).lower() if m else None
+
+
+def geri_donen_kalici_mi(msg: Message) -> bool:
+    """Kalıcı hata (adres yok: Action failed / Status 5.x.x) mı, geçici mi (Action delayed / Status 4.x.x)?
+    Teslim raporu (DSN) yoksa kalıcı sayılır."""
+    ham = _dsn(msg)
+    if not ham:
+        return True
+    if re.search(r"^Action:\s*(delayed|relayed|delivered|expanded)", ham, re.I | re.M) or \
+            re.search(r"^Status:\s*4\.", ham, re.I | re.M):
+        return False
+    return True
 
 
 def mail_ayristir(ham: bytes) -> dict:
@@ -138,6 +154,8 @@ def mail_ayristir(ham: bytes) -> dict:
         "kimden": kimden.lower(),
         "kimden_ad": kimden_ad,
         "kime": parseaddr(_coz(msg.get("To")))[1].lower(),
+        # İletişim formları noreply@ adresinden gönderir, müşterinin adresi Reply-To'dadır
+        "yanit_adresi": parseaddr(_coz(msg.get("Reply-To")))[1].lower(),
         "konu": _coz(msg.get("Subject")),
         "metin": metin,
         "yeni_metin": alintiyi_kirp(metin),
@@ -147,22 +165,51 @@ def mail_ayristir(ham: bytes) -> dict:
                          or msg.get("Precedence", "").lower() in ("bulk", "junk", "auto_reply")),
         "geri_donen": geri_donen_mi(msg),
         "geri_donen_adres": geri_donen_adresi_bul(msg),
+        "geri_donen_kalici": geri_donen_kalici_mi(msg),
     }
 
 
-# Kesin listeden çıkma ifadeleri. Belirsiz olanlar ("istemiyorum" gibi; "renkli zemin istemiyorum"
-# da olabilir) burada değil, yapay zeka sınıflandırmasında değerlendirilir.
-_CIKIS_KESIN = re.compile(
-    r"listeden\s+(ç|c)(ı|i)kar|unsubscribe|(mail|e-?posta|ileti)\w*\s+(göndermeyin|gondermeyin|atmayın|atmayin)|"
-    r"bir\s+daha\s+(mail\s+)?(göndermeyin|gondermeyin|yazmayın|yazmayin)", re.I)
-_CIKIS_TEK_KELIME = re.compile(r"^\W*(çıkar|cikar|çıkarın|cikarin|çıkart|stop|dur)\W*$", re.I)
+# Listeden çıkma tespiti. Yalnız KESİN ifadeler otomatik kara listeye alır; ürünle ilgili olabilecek
+# ifadeler ("BM12'yi listeden çıkarın", "siyah zemini listeden çıkaralım") OLASI sayılır ve insana gider.
+def _sade(s: str) -> str:
+    return s.replace("İ", "i").replace("I", "ı").lower().translate(str.maketrans("çğıöşü", "cgiosu"))
+
+
+_TEK_SATIR = re.compile(r"^\W*(cikar|cikarin|cikartin|cikart|sil|silin|unsubscribe|stop|listeden cik(ar|arin)?)\W*$")
+_KESIN = re.compile(
+    r"unsubscribe|"
+    r"(beni|bizi|adresimi|adresimizi|mailimi|e-?postami)\s+(\w+\s+){0,3}(cikar|sil)|"
+    r"(mail|e-?posta|ileti\w*)\s+listenizden|listenizden\s+(beni\s+|bizi\s+)?(cikar|sil|cikmak)|"
+    r"listeden\s+cikmak\s+ist|"
+    r"(^|[.!?\n]\s*|lutfen\s+)listeden\s+(cikar|sil)|"   # önünde nesne yoksa ("BM12'yi listeden...") kesin
+    r"(mail|e-?posta|ileti)\w*\s+(almak\s+)?istemiyor|"
+    r"(mail|e-?posta|ileti)\w*\s+(gondermeyin|atmayin|yollamayin)|"
+    r"bir\s+daha\s+(mail\s+|e-?posta\s+)?(gondermeyin|yazmayin|atmayin)")
+_OLASI = re.compile(r"listeden\s+(cikar|sil)|istemiyoruz|istemiyorum|ilgilenmiyoruz")
+
+
+def _ilk_metin(govde: str) -> str:
+    """Yeni yazılan kısım (alıntı ve imza hariç), sadeleştirilmiş."""
+    return _sade(alintiyi_kirp(govde))[:600]
+
+
+def _ilk_satir(govde: str) -> str:
+    for satir in alintiyi_kirp(govde).splitlines():
+        if satir.strip():
+            return _sade(satir.strip())
+    return ""
 
 
 def listeden_cikma_mi(konu: str, govde: str) -> bool:
-    if LISTEDEN_CIK_KONU in konu.upper() or _CIKIS_KESIN.search(konu):
+    """Kesin listeden çıkma isteği: yapay zekaya sorulmadan kara listeye alınır."""
+    if LISTEDEN_CIK_KONU in konu.upper() or _KESIN.search(_sade(konu)):
         return True
-    ilk = alintiyi_kirp(govde)[:500]
-    return bool(_CIKIS_TEK_KELIME.match(ilk.strip()) or _CIKIS_KESIN.search(ilk))
+    return bool(_TEK_SATIR.match(_ilk_satir(govde)) or _KESIN.search(_ilk_metin(govde)))
+
+
+def olasi_cikis_mi(konu: str, govde: str) -> bool:
+    """Belki listeden çıkma isteği: otomatik işlem yapılmaz, insan 3 iş günü içinde bakmalı."""
+    return bool(_OLASI.search(_ilk_metin(govde)) or _OLASI.search(_sade(konu)))
 
 
 # --- IMAP ----------------------------------------------------------------------
@@ -175,26 +222,41 @@ def _imap() -> imaplib.IMAP4_SSL:
     return imap
 
 
+ILK_TARAMA_GUN = 3   # ilk bağlantıda (veya klasör yeniden numaralanınca) yalnız son 3 günün mailleri işlenir
+
+
 def yeni_mailleri_getir(son_uid: int, kayitli_uidvalidity: int | None,
                         klasor: str = "INBOX", en_fazla: int = 200) -> tuple[int | None, int, list[dict]]:
     """Son işlenen UID'den sonraki mailleri okundu yapmadan getirir.
+    İlk bağlantıda bütün posta kutusu geçmişi değil, yalnız son ILK_TARAMA_GUN günün mailleri alınır.
+    Çekilemeyen bir mailin ötesine geçilmez (o mail kaybolmasın, sonraki kontrolde tekrar denenir).
     Dönüş: (uidvalidity, yeni_son_uid, mailler)"""
     with _imap() as imap:
         imap.select(klasor, readonly=True)
         _, veri = imap.response("UIDVALIDITY")
         uidvalidity = int(veri[0]) if veri and veri[0] else None
-        if kayitli_uidvalidity is not None and uidvalidity != kayitli_uidvalidity:
-            son_uid = 0  # klasör yeniden numaralanmış: baştan tara, Message-ID tekrarı önler
-        _, veri = imap.uid("search", None, f"UID {son_uid + 1}:*")
+        ilk = kayitli_uidvalidity is None or uidvalidity != kayitli_uidvalidity
+        if ilk:
+            son_uid = 0
+            tarih = (datetime.now(TR) - timedelta(days=ILK_TARAMA_GUN)).strftime("%d-%b-%Y")
+            _, veri = imap.uid("search", None, f"SINCE {tarih}")
+        else:
+            _, veri = imap.uid("search", None, f"UID {son_uid + 1}:*")
         uidler = sorted(int(x) for x in (veri[0] or b"").split() if int(x) > son_uid)[:en_fazla]
-        mailler = []
+        mailler, yeni_son = [], son_uid
         for uid in uidler:
             _, parca = imap.uid("fetch", str(uid), "(BODY.PEEK[])")
-            if parca and isinstance(parca[0], tuple):
-                m = mail_ayristir(parca[0][1])
-                m["uid"] = uid
-                mailler.append(m)
-        return uidvalidity, (uidler[-1] if uidler else son_uid), mailler
+            if not (parca and isinstance(parca[0], tuple)):
+                break
+            m = mail_ayristir(parca[0][1])
+            m["uid"] = uid
+            mailler.append(m)
+            yeni_son = uid
+        if ilk and not uidler:   # ilk bağlantıda yeni mail yoksa: bundan sonrası için en son UID'den başla
+            _, veri = imap.uid("search", None, "ALL")
+            tum = [int(x) for x in (veri[0] or b"").split()]
+            yeni_son = max(tum) if tum else 0
+        return uidvalidity, yeni_son, mailler
 
 
 def _gonderilmis_klasoru(imap: imaplib.IMAP4_SSL) -> str | None:
@@ -241,7 +303,7 @@ def mail_olustur(kime: str, konu: str, metin: str, tanitim: bool = False, yanit_
             cikis.append(f"<{AYAR.cikis_url_kok}?t={cikis_token}>")
             msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"  # RFC 8058: yalnız https bağlantı varken
         msg["List-Unsubscribe"] = ", ".join(cikis)
-        metin = metin.rstrip() + ALT_BILGI
+        metin = metin.rstrip() + alt_bilgi()
     msg.set_content(metin)
     for yol in ekler or []:
         dosya = Path(yol)
@@ -287,12 +349,22 @@ def gonderim_penceresinde_mi(an: datetime | None = None) -> bool:
 
 
 def mx_var_mi(alan: str) -> bool | None:
-    """True/False; dnspython kurulu değilse None (kontrol atlanır)."""
+    """True: mail kabul ediyor; False: alan adı yok ya da hiç mail sunucusu yok;
+    None: bilinmiyor (DNS zaman aşımı vb. ya da dnspython kurulu değil) -> kontrol atlanır, adres engellenmez."""
     try:
         import dns.resolver  # type: ignore
     except ImportError:
         return None
     try:
         return len(dns.resolver.resolve(alan, "MX", lifetime=5)) > 0
-    except Exception:
+    except dns.resolver.NXDOMAIN:
         return False
+    except dns.resolver.NoAnswer:
+        try:   # MX yoksa standart gereği A kaydına teslim edilir
+            return len(dns.resolver.resolve(alan, "A", lifetime=5)) > 0
+        except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer):
+            return False
+        except Exception:
+            return None
+    except Exception:
+        return None

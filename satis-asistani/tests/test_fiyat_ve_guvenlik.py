@@ -58,8 +58,13 @@ def test_guardrail_temiz_metin():
     assert gk.denetle(metin, alici_musteri="Kebap Evi") == []
 
 
-def test_fiyat_acikken_rakam_serbest():
-    assert not [b for b in gk.denetle("Birim fiyat 2,90 TL", fiyat_paylasilabilir=True) if b.tur == "fiyat"]
+def test_fiyat_acikken_yalniz_hesaplanan_tutar_serbest():
+    hesap = "Birim fiyat: 2,90 TL\nGenel toplam: 18.680 TL + KDV"
+    assert not [b for b in gk.denetle("Birim fiyat 2,90 TL, toplam 18.680 TL", fiyat_paylasilabilir=True,
+                                      hesaplanan_teklif=hesap) if b.tur == "fiyat"]
+    yanlis = [b for b in gk.denetle("Birim fiyat 2,50 TL", fiyat_paylasilabilir=True, hesaplanan_teklif=hesap)
+              if b.tur == "fiyat"]
+    assert yanlis and yanlis[0].parca == "2,50"
 
 
 def test_adres_uyarisi():
