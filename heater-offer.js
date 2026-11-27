@@ -15,12 +15,19 @@
       'Dış ölçü yaklaşık 45,2 × 28,5 × 35 cm (genişlik × derinlik × yükseklik)',
       'Cam kapak, iki çıkarılabilir paslanmaz tel sepet'
     ]),
+    delivery: 'Teslim: havlu siparişinizle birlikte, tamamı aynı sevkiyatta gönderilir.',
     note: 'Görseldeki paketler temsilidir. TL tutarı siparişte teyit edilir.'
   });
   const EXCLUDED_PRODUCTS = Object.freeze(['BM21']);
+  const MAX_QUANTITY = 20;
+  let requested = 0;
+  function setRequested(n) { const v = Number.isSafeInteger(n) ? Math.max(0, Math.min(MAX_QUANTITY, n)) : 0; const changed = v !== requested; requested = v; return changed; }
+  function requestedQuantity(productId) { return applies(productId) ? requested : 0; }
+  // Line added to the customer's WhatsApp message; empty when nothing was requested.
+  function requestLine(productId) { const n = requestedQuantity(productId); return n ? '\nEk ürün talebi: Isıtıcı dolap ' + OFFER.model + ' × ' + n + ' adet (350 USD + KDV / adet, teklif toplamına dahil değil; havlularla aynı sevkiyatta)' : ''; }
   function applies(productId) { return typeof productId === 'string' && productId.length > 0 && !EXCLUDED_PRODUCTS.includes(productId); }
 
-  const QUOTE_HEIGHT = 400;
+  const QUOTE_HEIGHT = 470;
   // Draws the offer box on the quote canvas; returns the height used.
   function drawQuote(c, image, x, y, width) {
     const h = QUOTE_HEIGHT - 40;
@@ -35,7 +42,9 @@
     c.fillStyle = '#9a3412'; c.font = 'bold 21px Arial'; c.fillText(OFFER.excluded, tx, y + 126, tw);
     c.fillStyle = '#334a66'; c.font = '21px Arial';
     let ly = y + 172; for (const line of OFFER.specs) { c.fillText('• ' + line, tx, ly, tw); ly += 36; }
-    c.fillStyle = '#647796'; c.font = '18px Arial'; c.fillText(OFFER.note, tx, ly + 8, tw);
+    c.fillStyle = '#334a66'; c.fillText('• ' + OFFER.delivery, tx, ly, tw); ly += 36;
+    c.fillStyle = '#647796'; c.font = '18px Arial'; c.fillText(OFFER.note, tx, ly + 4, tw);
+    if (requested) { c.fillStyle = '#127a46'; c.font = 'bold 22px Arial'; c.fillText('✓ Müşteri talebi: ' + requested + ' adet ısıtıcı dolap (toplama dahil değil)', tx, ly + 40, tw); }
     c.restore();
     return QUOTE_HEIGHT;
   }
@@ -48,8 +57,26 @@
     const price = doc.createElement('p'); price.className = 'heaterPrice'; price.textContent = OFFER.priceLine;
     const ex = doc.createElement('p'); ex.className = 'heaterExcluded'; ex.textContent = OFFER.excluded;
     const ul = doc.createElement('ul'); for (const line of OFFER.specs) { const li = doc.createElement('li'); li.textContent = line; ul.append(li); }
+    const deliv = doc.createElement('li'); deliv.textContent = OFFER.delivery; ul.append(deliv);
     const note = doc.createElement('small'); note.textContent = OFFER.note;
-    body.append(h, price, ex, ul, note); box.append(img, body);
+    const ask = doc.createElement('div'); ask.className = 'heaterAsk';
+    const add = doc.createElement('button'); add.type = 'button'; add.id = 'heaterAdd'; add.className = 'primary'; add.textContent = 'Isıtıcıyı da teklife ekle';
+    const picked = doc.createElement('div'); picked.className = 'heaterPicked'; picked.hidden = true;
+    const label = doc.createElement('label'); label.textContent = 'Adet';
+    const qty = doc.createElement('input'); qty.id = 'heaterQty'; qty.type = 'number'; qty.min = '1'; qty.max = String(MAX_QUANTITY); qty.step = '1'; qty.value = '1'; qty.inputMode = 'numeric'; label.append(qty);
+    const remove = doc.createElement('button'); remove.type = 'button'; remove.id = 'heaterRemove'; remove.className = 'outline'; remove.textContent = 'Kaldır';
+    const said = doc.createElement('p'); said.id = 'heaterStatus'; said.setAttribute('role', 'status');
+    picked.append(label, remove); ask.append(add, picked, said);
+    body.append(h, price, ex, ul, note, ask); box.append(img, body);
+    const refresh = changed => {
+      add.hidden = requested > 0; picked.hidden = requested === 0;
+      said.textContent = requested ? requested + ' adet ısıtıcı talebiniz WhatsApp mesajınıza ve teklif görseline eklendi. Toplam tutara dahil değildir.' : '';
+      if (changed && typeof root.renderQuoteSafely === 'function' && !doc.getElementById('summary')?.hidden) root.renderQuoteSafely();
+    };
+    add.addEventListener('click', () => { qty.value = '1'; refresh(setRequested(1)); qty.focus(); });
+    remove.addEventListener('click', () => refresh(setRequested(0)));
+    qty.addEventListener('change', () => { const n = Math.round(Number(qty.value)); const v = Number.isFinite(n) && n >= 1 ? Math.min(MAX_QUANTITY, n) : 1; qty.value = String(v); refresh(setRequested(v)); });
+    box.refreshHeater = () => refresh(false);
     return box;
   }
 
@@ -65,7 +92,7 @@
     sync();
   }
 
-  const api = { OFFER, EXCLUDED_PRODUCTS, QUOTE_HEIGHT, applies, drawQuote, mount };
+  const api = { OFFER, EXCLUDED_PRODUCTS, QUOTE_HEIGHT, MAX_QUANTITY, applies, drawQuote, mount, setRequested, requestedQuantity, requestLine };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else {
     root.HijyenLabHeaterOffer = api;
