@@ -6,6 +6,8 @@ export const EVENTS=Object.freeze(['visit','design_started','design_ready','frag
 export const STATUSES=Object.freeze(['new','contacted','quote_sent','closed']);
 // Product ids, scents, minimums and carton sizes come from the catalog (generated copy).
 const PRODUCTS=COMMERCIAL_RULES.products,FRAGRANCES=COMMERCIAL_RULES.fragrances;
+// Must match frontend/heater-offer.js (checked by tests/heater-offer.test.cjs).
+export const HEATER_EXCLUDED=Object.freeze(['BM21']),HEATER_MAX=20;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,DAY=86400000;
 export function adminIds(env={}){try{const ids=JSON.parse(env.ADMIN_USER_IDS||'[]');return Array.isArray(ids)&&ids.length>0&&ids.length<=10&&ids.every(x=>typeof x==='string'&&x.length>0&&x.length<=256&&x.trim()===x)?ids:[];}catch{return [];}}
 const days=(value,max)=>typeof value==='string'&&/^\d+$/.test(value)&&+value>=1&&+value<=max?+value:null;
@@ -23,12 +25,15 @@ async function body(request,max=16384){if(!/^application\/json(?:\s*;\s*charset=
 function consent(value,version){return exact(value,['accepted','version'])&&value.accepted===true&&value.version===version;}
 function validateDesign(value){const hasTextStyle=Object.hasOwn(value||{},'frontTextStyle');return exact(value,['background','frontInkColors','frontText','frontFont','rearText','rearInkColor','qrEnabled','qrUrl',...(hasTextStyle?['frontTextStyle']:[])])&&(!hasTextStyle||(['simple','classic','bold'].includes(value.frontTextStyle)&&value.frontFont===(value.frontTextStyle==='classic'?'serif':'sans-serif')&&text(value.frontText,240,1)))&&color(value.background)&&Array.isArray(value.frontInkColors)&&value.frontInkColors.length<=8&&value.frontInkColors.every(color)&&text(value.frontText,500)&&['sans-serif','serif','monospace','cursive'].includes(value.frontFont)&&text(value.rearText,1000)&&(value.rearInkColor===''||color(value.rearInkColor))&&typeof value.qrEnabled==='boolean'&&text(value.qrUrl,2048);}
 export function validateLead(value){
- if(!exact(value,['requestId','kind','printMode','consent','productId','quantity','fragrance','contact','design'])||!['printed','unprinted'].includes(value.printMode)||!uuid(value.requestId)||!['complete','contact_request'].includes(value.kind)||!consent(value.consent,LEAD_CONSENT_VERSION))return false;
+ const hasHeater=Object.hasOwn(value||{},'heaterQuantity');
+ if(!exact(value,['requestId','kind','printMode','consent','productId','quantity','fragrance','contact','design',...(hasHeater?['heaterQuantity']:[])])||!['printed','unprinted'].includes(value.printMode)||!uuid(value.requestId)||!['complete','contact_request'].includes(value.kind)||!consent(value.consent,LEAD_CONSENT_VERSION))return false;
  const partial=value.kind==='contact_request';
  if(!(PRODUCTS.includes(value.productId)||(partial&&value.productId===null))||!((Number.isInteger(value.quantity)&&value.quantity>=1&&value.quantity<=1000000)||(partial&&value.quantity===null))||!(FRAGRANCES.includes(value.fragrance)||(partial&&value.fragrance===null))||!(value.printMode==='unprinted'?value.design===null:(validateDesign(value.design)||(partial&&value.design===null))))return false;
  if(value.printMode==='unprinted'&&COMMERCIAL_RULES.unprintedFragrance[value.productId]&&value.fragrance!==null&&value.fragrance!==COMMERCIAL_RULES.unprintedFragrance[value.productId])return false;
  if(value.printMode==='unprinted'&&value.quantity!==null){const carton=COMMERCIAL_RULES.cartons[value.productId];if(!carton||value.quantity<carton||value.quantity%carton!==0)return false;}
  if(value.printMode==='printed'&&!partial&&value.quantity<COMMERCIAL_RULES.minimumWhite[value.productId])return false;
+ // Optional towel warmer request: 1–20 units, never with BM21, never part of the quote total.
+ if(hasHeater&&value.heaterQuantity!==null&&(!Number.isSafeInteger(value.heaterQuantity)||value.heaterQuantity<1||value.heaterQuantity>HEATER_MAX||value.productId===null||HEATER_EXCLUDED.includes(value.productId)))return false;
  const c=value.contact;if(!exact(c,['companyName','contactName','phone','email','province','district'])||!text(c.companyName,120,partial?0:1)||!text(c.contactName,120,1)||!text(c.phone,32,1)||!/^\+?[0-9 ()-]+$/.test(c.phone)||c.phone.replace(/\D/g,'').length<7||c.phone.replace(/\D/g,'').length>15||!text(c.email,254)||!text(c.province,80)||!text(c.district,80))return false;
  return c.email===''||/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email);
 }
@@ -44,7 +49,7 @@ export async function handleLeadIngest(request,env,db,now=Date.now(),moderationO
  if(!moderation.allowed)return error(moderation.state==='blocked'?'content_blocked':moderation.state==='review_needed'?'content_review_needed':'content_check_unavailable',moderation.state==='blocked'?422:moderation.state==='review_needed'?409:503);
  const id=value.requestId.toLowerCase(),phone=value.contact.phone.replace(/\D/g,''),expires=now+days(env.LEAD_RETENTION_DAYS,365)*DAY;
  try{const hash=await digest({...value,requestId:id}),results=successful(await db.batch([
-  db.prepare(`INSERT INTO leads (id,kind,print_mode,created_at,expires_at,status,revision,product_id,quantity,fragrance,contact_json,design_json,phone_key,consent_version,payload_hash) SELECT ?,?,?,?,?,'new',0,?,?,?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM leads WHERE created_at>=?)<20 AND (SELECT COUNT(*) FROM leads WHERE phone_key=? AND created_at>=?)<3 ON CONFLICT(id) DO NOTHING`).bind(id,value.kind,value.printMode,now,expires,value.productId,value.quantity,value.fragrance,JSON.stringify(value.contact),value.design===null?null:JSON.stringify(value.design),phone,LEAD_CONSENT_VERSION,hash,now-60000,phone,now-DAY),
+  db.prepare(`INSERT INTO leads (id,kind,print_mode,created_at,expires_at,status,revision,product_id,quantity,fragrance,contact_json,design_json,phone_key,consent_version,payload_hash,heater_quantity) SELECT ?,?,?,?,?,'new',0,?,?,?,?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM leads WHERE created_at>=?)<20 AND (SELECT COUNT(*) FROM leads WHERE phone_key=? AND created_at>=?)<3 ON CONFLICT(id) DO NOTHING`).bind(id,value.kind,value.printMode,now,expires,value.productId,value.quantity,value.fragrance,JSON.stringify(value.contact),value.design===null?null:JSON.stringify(value.design),phone,LEAD_CONSENT_VERSION,hash,value.heaterQuantity??null,now-60000,phone,now-DAY),
   db.prepare('SELECT id,payload_hash,expires_at FROM leads WHERE id=?').bind(id)
  ]));const row=results[1].results?.[0];if(!row)return error('rate_limited',429);if(row.payload_hash!==hash)return error('idempotency_conflict',409);if(row.expires_at<=now)return error('request_expired',409);return reply({accepted:true,requestId:id},results[0].meta?.changes===0?200:201);
  }catch{return error('service_unavailable',503);}
@@ -61,7 +66,7 @@ export async function handleAnalytics(request,env,db,now=Date.now()){
  }catch{return error('service_unavailable',503);}
 }
 export async function purgeExpired(db,now=Date.now()){return successful(await db.batch([db.prepare('DELETE FROM lead_status_audit WHERE lead_id IN (SELECT id FROM leads WHERE expires_at<=?)').bind(now),db.prepare('DELETE FROM leads WHERE expires_at<=?').bind(now),db.prepare('DELETE FROM lead_analytics_events WHERE expires_at<=?').bind(now)]));}
-function leadRow(row){return {id:row.id,kind:row.kind,printMode:row.print_mode,createdAt:row.created_at,expiresAt:row.expires_at,status:row.status,revision:row.revision,productId:row.product_id,quantity:row.quantity,fragrance:row.fragrance,contact:JSON.parse(row.contact_json),design:row.design_json===null?null:JSON.parse(row.design_json)};}
+function leadRow(row){return {id:row.id,kind:row.kind,printMode:row.print_mode,createdAt:row.created_at,expiresAt:row.expires_at,status:row.status,revision:row.revision,productId:row.product_id,quantity:row.quantity,fragrance:row.fragrance,contact:JSON.parse(row.contact_json),design:row.design_json===null?null:JSON.parse(row.design_json),heaterQuantity:row.heater_quantity??null};}
 export async function handleAdminLeads(request,env,db,identity,now=Date.now()){
  const denied=ownerError(identity,env);if(denied)return denied;if(request.method!=='GET')return error('method_not_allowed',405);
  const q=new URL(request.url).searchParams;if([...q.keys()].some(k=>!['offset','limit','status'].includes(k))||[...q.keys()].length!==new Set(q.keys()).size)return error('invalid_request',400);const offset=q.get('offset')||'0',limit=q.get('limit')||'25',status=q.get('status');if(!/^\d+$/.test(offset)||+offset>10000||!/^\d+$/.test(limit)||+limit<1||+limit>50||(status&&!STATUSES.includes(status)))return error('invalid_request',400);

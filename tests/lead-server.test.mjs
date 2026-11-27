@@ -101,3 +101,15 @@ test('BM11 and BM13 accept confirmed printed minimum and unprinted full cartons 
   assert.equal(api.validateLead(lead({productId,printMode:'unprinted',quantity:400,fragrance:'green_tea',design:null})),false);
  }
 });
+test('optional towel warmer request: 1–20 units, never with BM21, stored and returned to the owner, outside the quote',async()=>{
+ for(const heaterQuantity of [null,1,20])assert.equal(api.validateLead(lead({heaterQuantity})),true,String(heaterQuantity));
+ for(const heaterQuantity of [0,21,1.5,'2',-1])assert.equal(api.validateLead(lead({heaterQuantity})),false,String(heaterQuantity));
+ assert.equal(api.validateLead(lead({productId:'BM21',quantity:10000,fragrance:'green_tea',heaterQuantity:1})),false,'no warmer with wet wipes');
+ assert.equal(api.validateLead(lead({kind:'contact_request',productId:null,quantity:null,fragrance:null,design:null,heaterQuantity:1})),false,'warmer needs a product');
+ assert.deepEqual([...api.HEATER_EXCLUDED],['BM21']);
+ const db=database(),p=lead({heaterQuantity:3});await expect(await ingest(db,p),201);
+ assert.equal(db.sql.prepare('SELECT heater_quantity FROM leads WHERE id=?').get(p.requestId).heater_quantity,3);
+ const plain=lead();await expect(await ingest(db,plain),201);assert.equal(db.sql.prepare('SELECT heater_quantity FROM leads WHERE id=?').get(plain.requestId).heater_quantity,null);
+ const list=await expect(await api.handleAdminLeads(req('/api/admin/leads',undefined,'GET'),env,db,owner),200);
+ const rows=list.leads||list.items||list;const mine=(Array.isArray(rows)?rows:[]).find(r=>r.id===p.requestId);assert.equal(mine?.heaterQuantity,3);
+});

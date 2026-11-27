@@ -53,7 +53,7 @@ Bu komutla derleme 26 Kasım'da başarıyla tamamlandı.
   - `tests/heater-offer.test.cjs` testi şu durumlarda kırılır: kutu bir üründe kaybolursa, 7 × 12'de görünürse ya da toplam tutara girerse.
   - Garanti, UV veya sterilizasyon iddiası yazılmaz.
   - Teslim satırı: "havlu siparişinizle birlikte, tamamı aynı sevkiyatta gönderilir".
-  - "Isıtıcıyı da teklife ekle" düğmesiyle müşteri adet seçer (1–20). Talep WhatsApp mesajına ve teklif görseline eklenir, toplam tutara girmez. Veritabanına kaydı için yeni sütun gerekir; ürün sahibinin onayını bekliyor.
+  - "Isıtıcıyı da teklife ekle" düğmesiyle müşteri adet seçer (1–20). Talep WhatsApp mesajına ve teklif görseline eklenir, toplam tutara girmez. Talep, açık izinli talep kaydında `leads.heater_quantity` sütununa yazılır ve yönetim panelinde "Isıtıcı dolap talebi" satırında görünür (göç: `drizzle/0005_lead_heater_request.sql`; yalnız sütun ekler, mevcut kayıtlara ve durum geçmişine dokunmaz). 26–27 Kasım'da yerel D1 üzerinde denendi.
 
 ## 4. Müşteri verisi ve gizlilik
 
@@ -90,6 +90,12 @@ Bunlar yapılmadı. Bu ortamda yapılamazlar ya da ürün sahibinin kararını g
 6. Eğik veya kavisli tabela yazısı için kullanıcının köşe işaretleyerek onayladığı bir "düzleştirme önerisi".
 7. Gizli görsel testleri için erişimi kısıtlı ayrı bir test ortamı.
 8. Ön yüzde global değişkenlere bağımlılığın envanteri ve kademeli olarak modüllere ayrılması.
+
+
+## 6a. Canlıya alırken dikkat
+
+1. **Önce veritabanı, sonra kod:** `drizzle/0005_lead_heater_request.sql`, yeni sunucu kodundan önce canlı D1'e uygulanmalı. Aksi halde talep kaydı `heater_quantity` sütununu bulamaz ve başarısız olur. Önce yedek alınmalı, mümkünse önce deneme D1'inde çalıştırılmalı.
+2. **Talep kaydı içerik denetimi bağlı değil:** `server/lead-service.mjs`, her talebi `guardTransmission` ile denetliyor, ama API uçları bir denetim servisi vermiyor (`adapter` boş). Bu yüzden talep kaydı açılsa bile her talep `content_check_unavailable` hatasıyla reddedilir. Bu sorun 27 Kasım'dan önce de vardı. Talep kaydını açmadan önce bir denetim servisi bağlanmalı ya da denetimin nasıl yapılacağına karar verilmeli.
 
 ## 7. Klasör rehberi
 

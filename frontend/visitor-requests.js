@@ -10,6 +10,7 @@ function commercial(){const catalog=root.ProductCatalog||(typeof module!=='undef
 function requestError(p){
  const safety=root.HijyenContentSafety?.assessPayload(p);if(safety?.state==='blocked'||safety?.state==='review_needed')return root.HijyenContentSafety.message(safety,'submit');
  if(typeof p?.contact?.contactName!=='string'||!p.contact.contactName.trim())return 'Size ulaşacak kişinin adını yazın.';
+ if(p.heaterQuantity!==undefined&&p.heaterQuantity!==null&&(!Number.isSafeInteger(p.heaterQuantity)||p.heaterQuantity<1||p.heaterQuantity>20||p.productId==='BM21'))return 'Isıtıcı adedini kontrol edin (1–20).';
  if(!['printed','unprinted'].includes(p.printMode))return 'Baskılı veya baskısız ürün seçimini kontrol edin.';
  if(typeof p.contact.phone!=='string'||!/^\+?[0-9 ()-]+$/.test(p.contact.phone))return 'Geçerli bir telefon numarası yazın.';
  const digits=p.contact.phone.replace(/\D/g,'');if(digits.length<7||digits.length>15)return 'Geçerli bir telefon numarası yazın.';
