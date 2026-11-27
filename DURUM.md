@@ -46,6 +46,13 @@ Bu komutla derleme 26 Kasım'da başarıyla tamamlandı.
 - Sunucunun kullandığı kopya (`server/commercial-rules.generated.mjs`) elle düzenlenmez. Katalog değişince `node scripts/sync-commercial-rules.mjs` çalıştırılır.
 - `tests/commercial-rules-sync.test.cjs` şu durumlarda kırılır: kopya eskiyse, tarayıcıdaki ürün listeleri katalogdan saparsa, talep formu kuralları katalogla uyuşmazsa.
 
+## 3a. Kalıcı ürün sahibi kararları
+
+- **Isıtıcı dolap bilgisi:** 7 × 12 ıslak mendil (BM21) dışındaki bütün fiyat tekliflerinin altında, isteğe bağlı ısıtıcı dolap RTD-23A kutusu gösterilir. Kutu hem teklif ekranında hem indirilen teklif JPG'sinde yer alır. Toplam tutara dahil edilmez, müşteriye seçim olarak sunulmaz, her teklifte otomatik çıkar. Baskısız teklifler de buna dahildir.
+  - Bilgilerin tek kaynağı `frontend/heater-offer.js`.
+  - `tests/heater-offer.test.cjs` testi şu durumlarda kırılır: kutu bir üründe kaybolursa, 7 × 12'de görünürse ya da toplam tutara girerse.
+  - Garanti, UV veya sterilizasyon iddiası yazılmaz.
+
 ## 4. Müşteri verisi ve gizlilik
 
 - Müşteri fotoğrafları repoda yok.
